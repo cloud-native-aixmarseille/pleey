@@ -11,14 +11,14 @@ name: Shared - Continuous Integration
         default: ""
     outputs:
       built-prod-images:
-        description: Production backend/frontend build metadata.
-        value: ${{ jobs.build-prod.outputs.built-images }}
+        description: Validated production backend/frontend metadata returned after promotion.
+        value: ${{ jobs.promote-images.outputs.built-images }}
 
 permissions: {}
 
 jobs:
   linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@44f6108cef0e9884ea7735f3d62932c2310745d4 # 0.39.1
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@66882b24f9f13e45a6541896a5a7c638cb91c94c # 4.0.0
     permissions:
       actions: read
       contents: read
@@ -33,8 +33,9 @@ jobs:
         VALIDATE_BIOME_LINT=false
         KUBERNETES_KUBECONFORM_OPTIONS=-ignore-missing-schemas -ignore-filename-pattern .*Chart\.yaml -ignore-filename-pattern .*values.*\.yaml -ignore-filename-pattern .*values\.schema\.json -ignore-filename-pattern charts/.*/templates/.* -ignore-filename-pattern charts/.*/crds/.*
 
-  build:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
+  build-backend-ci-image:
+    name: Build backend CI image
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
     permissions:
       attestations: write
       contents: read
@@ -54,25 +55,15 @@ jobs:
             "build-args": { "APP_PATH": "./application/backend/" },
             "target": "ci",
             "platforms": ["linux/amd64"]
-          },
-          {
-            "name": "frontend-ci",
-            "context": ".",
-            "dockerfile": "./application/frontend/Dockerfile",
-            "build-args": { "APP_PATH": "./application/frontend/" },
-            "target": "ci",
-            "platforms": ["linux/amd64"]
           }
         ]
     secrets:
       oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
 
-  continuous-integration:
-    strategy:
-      matrix:
-        service: ["backend", "frontend"]
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@1f81dd00d941680ab227a6eae5378790d6242e02 # 1.0.0
-    needs: build
+  check-backend:
+    name: Lint and test backend
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@fbd3522b68c55a6314aadbededaa487825ba9b35 # 3.0.0
+    needs: build-backend-ci-image
     permissions:
       contents: read
       id-token: write
@@ -81,14 +72,19 @@ jobs:
       packages: read
     with:
       working-directory: /usr/src/app
+      build: ""
+      lint: '{"command":"lint:ci","report-file":"biome-report.sarif"}'
+      test: '{"command":"test:ci","report-file":"junit.xml,coverage/lcov.info"}'
       container: |
         {
-          "image": ${{ toJSON(fromJSON(needs.build.outputs.built-images)[format('{0}-ci', matrix.service)].images[0]) }},
+          "image": ${{ toJSON(fromJSON(needs.build-backend-ci-image.outputs.built-images)['backend-ci'].images[0]) }},
           "credentials": {
             "username": ${{ toJson(github.repository_owner) }}
           },
           "pathMapping": {
-            "/usr/src/app": ${{ toJson(format('./application/{0}', matrix.service)) }}
+            "/usr/src/app": "./application/backend",
+            "src/": "./application/backend/src/",
+            "scripts/": "./application/backend/scripts/"
           }
         }
       code-ql: "" # FIXME: Set `typescript` when CodeQL will be available (paid feature)
@@ -96,9 +92,9 @@ jobs:
     secrets:
       container-password: ${{ secrets.GITHUB_TOKEN }}
 
-  build-prod:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
-    needs: continuous-integration
+  build-frontend-ci-image:
+    name: Build frontend CI image
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
     permissions:
       attestations: write
       contents: read
@@ -112,6 +108,67 @@ jobs:
       images: |
         [
           {
+            "name": "frontend-ci",
+            "context": ".",
+            "dockerfile": "./application/frontend/Dockerfile",
+            "build-args": { "APP_PATH": "./application/frontend/" },
+            "target": "ci",
+            "platforms": ["linux/amd64"]
+          }
+        ]
+    secrets:
+      oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  check-frontend:
+    name: Lint and test frontend
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@fbd3522b68c55a6314aadbededaa487825ba9b35 # 3.0.0
+    needs: build-frontend-ci-image
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+      security-events: write
+      packages: read
+    with:
+      working-directory: /usr/src/app
+      build: ""
+      lint: '{"command":"lint:ci","report-file":"biome-report.sarif"}'
+      test: '{"command":"test:ci","report-file":"junit.xml,coverage/lcov.info"}'
+      container: |
+        {
+          "image": ${{ toJSON(fromJSON(needs.build-frontend-ci-image.outputs.built-images)['frontend-ci'].images[0]) }},
+          "credentials": {
+            "username": ${{ toJson(github.repository_owner) }}
+          },
+          "pathMapping": {
+            "/usr/src/app": "./application/frontend",
+            "src/": "./application/frontend/src/",
+            "scripts/": "./application/frontend/scripts/"
+          }
+        }
+      code-ql: "" # FIXME: Set `typescript` when CodeQL will be available (paid feature)
+      dependency-review: false # FIXME: Set `true` when Dependency Review will be available (paid feature)
+    secrets:
+      container-password: ${{ secrets.GITHUB_TOKEN }}
+
+  build-backend-candidate:
+    name: Build backend production candidate
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
+    needs: build-backend-ci-image
+    permissions:
+      attestations: write
+      contents: read
+      packages: write
+      issues: read
+      pull-requests: read
+      id-token: write
+    with:
+      candidate: true
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+      oci-registry-username: ${{ github.repository_owner }}
+      images: |
+        [
+          {
             "name": "backend",
             "tag": "${{ inputs.production-image-tag }}",
             "context": ".",
@@ -119,7 +176,28 @@ jobs:
             "build-args": { "APP_PATH": "./application/backend/" },
             "target": "prod",
             "platforms": ["linux/amd64"]
-          },
+          }
+        ]
+    secrets:
+      oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  build-frontend-candidate:
+    name: Build frontend production candidate
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
+    needs: build-frontend-ci-image
+    permissions:
+      attestations: write
+      contents: read
+      packages: write
+      issues: read
+      pull-requests: read
+      id-token: write
+    with:
+      candidate: true
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+      oci-registry-username: ${{ github.repository_owner }}
+      images: |
+        [
           {
             "name": "frontend",
             "tag": "${{ inputs.production-image-tag }}",
@@ -134,30 +212,71 @@ jobs:
       oci-registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   tests-charts:
+    name: Test production candidates with Helm
     runs-on: ubuntu-latest
-    needs: build-prod
+    needs: [build-backend-candidate, build-frontend-candidate]
+    outputs:
+      validated-images: ${{ job.status == 'success' && steps.validated.outputs.images || '' }}
     permissions:
       contents: read
       packages: read
     steps:
       - name: Test helm chart (umbrella)
-        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@5ffc3c81daacc57700a14bb91d67edbc67eedc1d # 0.39.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
         with:
+          check-diff-only: false
           helm-repositories: |
             cloudnative-pg https://cloudnative-pg.github.io/charts
             valkey https://valkey.io/valkey-helm/
             bokysan https://bokysan.github.io/docker-postfix/
           helm-set: |
-            backend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).backend.registry }}
-            backend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).backend.repository }}
-            backend.image.tag=${{ fromJSON(needs.build-prod.outputs.built-images).backend.tags[0] }}
-            backend.image.digest=${{ fromJSON(needs.build-prod.outputs.built-images).backend.digest }}
+            backend.image.registry=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.registry }}
+            backend.image.repository=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.repository }}
+            backend.image.tag=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.tags[0] }}
+            backend.image.digest=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.digest }}
             backend.cloudnativepgOperator.enabled=true
-            frontend.image.registry=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.registry }}
-            frontend.image.repository=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.repository }}
-            frontend.image.tag=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.tags[0] }}
-            frontend.image.digest=${{ fromJSON(needs.build-prod.outputs.built-images).frontend.digest }}
+            frontend.image.registry=${{ fromJSON(needs.build-frontend-candidate.outputs.built-images).frontend.registry }}
+            frontend.image.repository=${{ fromJSON(needs.build-frontend-candidate.outputs.built-images).frontend.repository }}
+            frontend.image.tag=${{ fromJSON(needs.build-frontend-candidate.outputs.built-images).frontend.tags[0] }}
+            frontend.image.digest=${{ fromJSON(needs.build-frontend-candidate.outputs.built-images).frontend.digest }}
             global.imagePullSecrets[0].name=regcred
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
           oci-registry-password: ${{ github.token }}
+
+      - name: Record chart-validated candidate digests
+        id: validated
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          BACKEND_IMAGES: ${{ needs.build-backend-candidate.outputs.built-images }}
+          FRONTEND_IMAGES: ${{ needs.build-frontend-candidate.outputs.built-images }}
+        with:
+          script: |
+            const backend = JSON.parse(process.env.BACKEND_IMAGES);
+            const frontend = JSON.parse(process.env.FRONTEND_IMAGES);
+            core.setOutput('images', JSON.stringify({ ...backend, ...frontend }));
+
+  promote-images:
+    name: Promote validated production images
+    if: always()
+    needs:
+      - linter
+      - check-backend
+      - check-frontend
+      - build-backend-candidate
+      - build-frontend-candidate
+      - tests-charts
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
+    permissions:
+      actions: read
+      attestations: read
+      contents: read
+      deployments: write
+      packages: write
+      pull-requests: read
+    with:
+      job-results: ${{ toJSON(needs) }}
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+      oci-registry-username: ${{ github.repository_owner }}
+    secrets:
+      oci-registry-password: ${{ secrets.GITHUB_TOKEN }}

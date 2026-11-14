@@ -28,29 +28,48 @@ spec:
       {{- if .Values.waitForDatabase.enabled }}
       initContainers:
         - name: wait-for-database
-          image: {{ include "pleey.backend.waitForDatabaseImage" . | quote }}
-          imagePullPolicy: {{ include "pleey.backend.waitForDatabaseImagePullPolicy" . }}
+          image: {{ include "pleey.backend.image" . | quote }}
+          imagePullPolicy: {{ include "pleey.backend.imagePullPolicy" . }}
+          {{- with .Values.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           command:
-            - sh
-            - -ec
-            - |
-              until [ -s {{ include "pleey.backend.databaseSecretFile" . | quote }} ]; do
-                echo "Waiting for database secret at {{ include "pleey.backend.databaseSecretFile" . }}..."
-                sleep 2
-              done
+            - node
+            - /usr/src/app/scripts/wait-for-database.mjs
+          args:
+            - --secret-file
+            - {{ include "pleey.backend.databaseSecretFile" . | quote }}
+            - --timeout-ms
+            - {{ mul .Values.waitForDatabase.timeoutSeconds 1000 | quote }}
           resources:
             {{- toYaml .Values.waitForDatabase.resources | nindent 12 }}
           volumeMounts:
             - name: database-secret
               mountPath: {{ include "pleey.backend.databaseSecretMountPath" . }}
               readOnly: true
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
       {{- end }}
       containers:
         - name: migrate
           image: {{ include "pleey.backend.image" . | quote }}
           imagePullPolicy: {{ include "pleey.backend.imagePullPolicy" . }}
+          {{- with .Values.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.extraEnv }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           command:
             - sh
             - -ec
@@ -67,16 +86,22 @@ spec:
             - name: database-secret
               mountPath: {{ include "pleey.backend.databaseSecretMountPath" . }}
               readOnly: true
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
       volumes:
         - name: tmp
           emptyDir: {}
         - name: database-secret
           secret:
             secretName: {{ include "pleey.backend.databaseSecretName" . }}
-            optional: {{ eq (include "pleey.backend.databaseProvider" .) "cloudnativepg" }}
+            optional: false
             items:
               - key: {{ include "pleey.backend.databaseSecretKey" . }}
                 path: {{ include "pleey.backend.databaseSecretKey" . }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

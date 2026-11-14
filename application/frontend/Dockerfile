@@ -18,7 +18,7 @@ FROM base AS build
 COPY ./application/frontend/package*.json /usr/src/app/
 
 RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
-    --mount=type=cache,target=/root/.npm \
+    --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \
     set -eu; \
     npm ci --include=dev;
 

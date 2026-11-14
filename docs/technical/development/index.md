@@ -64,6 +64,28 @@ for the decision and measurement constraints.
 
 ## Repository Static Linting
 
+The `build-backend-ci-image` and `build-frontend-ci-image` jobs compile, publish,
+sign and attest the application CI images. The `check-backend` and
+`check-frontend` jobs run lint and tests after their own image workflow completes.
+The shared Node workflow prepares metadata on the host and omits its build job
+when the build command is empty; Docker compilation remains the build gate. Biome emits
+`biome-report.sarif`, and tests emit `junit.xml`
+and `coverage/lcov.info`. The [shared workflow](../../../.github/workflows/__shared-ci.yml)
+declares these paths and maps absolute container paths and relative test paths to
+the owning application. Each declared report path must match a file; a missing
+report fails the action. The bundled parser runs without installing its own
+dependencies or changing the application's Node.js version. Keep report
+producers, consumers and mappings aligned.
+
+Each production candidate builds after its service's CI image, alongside that
+service's lint and tests. Helm always installs both candidates by digest, including
+for application-only changes. The promotion job requires repository lint, both
+application checks and their reports, both candidate builds and Helm validation
+to succeed before updating consumer tags. Release steps receive only promoted
+metadata through `built-prod-images` and wait for the entire shared workflow.
+See [ADR 0023's released promotion adoption](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p4-released-promotion-adoption-2026-11-12)
+for the released workflow contract and remaining rollout work.
+
 `make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.
 
 Local lint commands use the shared CI workflow's Kubeconform exclusions for Helm templates, chart metadata, and bundled CRDs. Use `make test-chart` for chart lint and installation checks.

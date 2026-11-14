@@ -71,25 +71,8 @@ app.kubernetes.io/component: backend
 {{- end -}}
 {{- end }}
 
-{{- define "pleey.backend.waitForDatabaseImage" -}}
-{{- $image := .Values.waitForDatabase.image -}}
-{{- $registry := default .Values.global.imageRegistry $image.registry -}}
-{{- $repository := required "backend.waitForDatabase.image.repository is required" $image.repository -}}
-{{- $tag := default .Chart.AppVersion $image.tag -}}
-{{- $digest := default "" $image.digest -}}
-{{- if $registry -}}
-{{- if $digest -}}{{- printf "%s/%s@%s" $registry $repository $digest -}}{{- else -}}{{- printf "%s/%s:%s" $registry $repository $tag -}}{{- end -}}
-{{- else -}}
-{{- if $digest -}}{{- printf "%s@%s" $repository $digest -}}{{- else -}}{{- printf "%s:%s" $repository $tag -}}{{- end -}}
-{{- end -}}
-{{- end }}
-
 {{- define "pleey.backend.imagePullPolicy" -}}
 {{- default (default "IfNotPresent" .Values.global.imagePullPolicy) .Values.image.pullPolicy }}
-{{- end }}
-
-{{- define "pleey.backend.waitForDatabaseImagePullPolicy" -}}
-{{- default (default "IfNotPresent" .Values.global.imagePullPolicy) .Values.waitForDatabase.image.pullPolicy }}
 {{- end }}
 
 {{- define "pleey.backend.imagePullSecrets" -}}

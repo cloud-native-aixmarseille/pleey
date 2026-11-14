@@ -109,8 +109,9 @@ Workflow ordering, application commands, cache configuration and charts remain u
 | Independent PR checks      | Existing semantic-title and workflow/security checks remain visible alongside shared CI                                                       |
 
 Existing code-query/dependency-review options disabled in the caller are not new
-required checks. A passing aggregate enforcement rule does not yet exist; P3 adds
-it after validating failure behavior. Current repository rules remain unchanged.
+required checks. No aggregate enforcement rule existed at baseline. The original
+plan assigned it to P3; the [P3 scope adjustment](#p3-service-lanes-2026-11-11)
+defers it until candidate-promotion work. Repository rules remain unchanged.
 
 The initial phase PR run validates the inputs and primes its cache. Collect
 five comparable successful attempts of an unchanged revision and event. Inspect
@@ -433,17 +434,17 @@ Translate the intended DAG into the following dependencies. These are proposed
 job names, not existing workflow inputs; candidate publication still requires the
 contract described above.
 
-| Proposed jobs                                  | Required predecessors (`needs`)                                               | Work that can overlap                                                                                     |
-| ---------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `repository-lint`, `backend-ci`, `frontend-ci` | None beyond resolved workflow inputs                                          | Repository checks and both service builds. Existing independent semantic/security checks remain parallel. |
-| `backend-lint`, `backend-tests`                | `backend-ci`                                                                  | Each other, frontend checks, and backend candidate production.                                            |
-| `frontend-lint`, `frontend-tests`              | `frontend-ci`                                                                 | Each other, backend checks, and frontend candidate production. Tests may become a shard matrix.           |
-| `backend-candidate`                            | `backend-ci`                                                                  | Application lint/tests and frontend candidate production.                                                 |
-| `frontend-candidate`                           | `frontend-ci`                                                                 | Application lint/tests and backend candidate production.                                                  |
-| `frontend-reports` when sharded                | Every `frontend-tests` matrix entry                                           | Backend checks and candidate/chart work. Merge only after all shard results are available.                |
-| `chart-install`                                | `backend-candidate`, `frontend-candidate`                                     | Remaining application tests, lint, and report aggregation.                                                |
-| `ci-result`                                    | Every expected validation branch, report merge, and candidate/security result | Final aggregation only; require success rather than merely completion.                                    |
-| `promote`                                      | `ci-result`, `backend-candidate`, `frontend-candidate`                        | No early publication; consume the tested digest outputs directly.                                         |
+| Proposed jobs                                                          | Required predecessors (`needs`)                                               | Work that can overlap                                                                                     |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `repository-lint`, `build-backend-ci-image`, `build-frontend-ci-image` | None beyond resolved workflow inputs                                          | Repository checks and both service builds. Existing independent semantic/security checks remain parallel. |
+| `backend-lint`, `backend-tests`                                        | `build-backend-ci-image`                                                      | Each other, frontend checks, and backend candidate production.                                            |
+| `frontend-lint`, `frontend-tests`                                      | `build-frontend-ci-image`                                                     | Each other, backend checks, and frontend candidate production. Tests may become a shard matrix.           |
+| `backend-candidate`                                                    | `build-backend-ci-image`                                                      | Application lint/tests and frontend candidate production.                                                 |
+| `frontend-candidate`                                                   | `build-frontend-ci-image`                                                     | Application lint/tests and backend candidate production.                                                  |
+| `frontend-reports` when sharded                                        | Every `frontend-tests` matrix entry                                           | Backend checks and candidate/chart work. Merge only after all shard results are available.                |
+| `chart-install`                                                        | `backend-candidate`, `frontend-candidate`                                     | Remaining application tests, lint, and report aggregation.                                                |
+| `ci-result`                                                            | Every expected validation branch, report merge, and candidate/security result | Final aggregation only; require success rather than merely completion.                                    |
+| `promote`                                                              | `ci-result`, `backend-candidate`, `frontend-candidate`                        | No early publication; consume the tested digest outputs directly.                                         |
 
 Lint and tests already overlap after the current Node setup/build gates. The
 change removes those unnecessary prerequisites for prebuilt images and the wait
@@ -560,6 +561,11 @@ and share repeated parsing within a process where demonstrated; do not blindly
 parallelize memory-heavy TypeScript checks or remove architecture guards.
 
 ### Build, dependency, and artifact caches
+
+The targets below retain the original decision. The
+[P2.4 review](#p24-upstream-cache-review-2026-11-11) narrows the current implementation
+to internal mount isolation and read-only write protection; cross-image imports,
+dependency refresh and export-mode tuning remain deferred.
 
 Retain the existing GitHub Actions layer backend initially. Add upstream controls
 for production to import both its own and its application's CI cache, while keeping
@@ -753,6 +759,1072 @@ with the ADR and implementation review. No optimization has been benchmarked her
 - More cache/artifact types need input identity, retention and recovery checks.
 - Required-check migration and release metadata need careful validation; elapsed
   gains cannot be inferred by adding individual benchmark savings.
+
+### P1 implementation candidate: 2026-11-06
+
+P0 was reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552).
+P1 keeps the current publication order and pinned reusable workflows. The image
+builds compile the same application inputs as the duplicate Node build commands;
+container test jobs do not consume artifacts from the latter. An empty `build`
+input removes those commands while the upstream setup and empty build jobs remain.
+
+Explicit SARIF/JUnit/LCOV paths retain command failure status. Biome SARIF paths
+are absolute, while Vitest JUnit paths are relative. Map both forms to each
+service's source directory. The pinned report parser accepts these formats;
+its discovery layer warns when no files match, so successful report parsing must
+be verified separately from command success. Strict missing-report enforcement
+belongs to the upstream reporting work in P2.
+
+The pinned Node base reports UID/GID 1000 and `/home/node/.npm` as the cache path.
+Use that path with matching mount ownership and exclude local dependencies,
+build output, reports and credentials from source copies. Do not attribute all
+P0 cache misses to the mount mistake: layer reuse and download-cache reuse are
+separate mechanisms, and the cause of the recorded frontend recompilation is
+still under investigation.
+
+The frontend experiment moved 21 inspected DOM-free suites into a Node project,
+retaining jsdom for other suites. Discovery and expanded JUnit cases matched the
+baseline, as did source coverage files and denominators. Four workers passed
+three split-project local runs on four available CPUs in 177.48s, 188.89s and
+203.15s; the original two-worker configuration took 270.84s. Three control runs with
+four workers and the original jsdom setup passed in 175.09s, 165.53s and 186.96s. The initial candidate retained the simpler
+jsdom setup and adopted four workers: the Node split had not shown
+an additional benefit. These are exploratory local measurements, not the final
+GitHub Actions comparison. The first split-only run overlapped a Docker build
+and is excluded from performance conclusions.
+
+Three subsequent warm-cache controls with the original two-worker configuration
+passed in 247.57s, 246.26s and 245.88s. Their median is 246.26s against 175.09s for
+the three four-worker controls, retaining the same test cases and coverage
+denominators. This supports the local worker choice without relying on the first
+control's cache state; it does not isolate a worker effect on GitHub-hosted runners.
+
+Both database init containers use the workload image and complete secret URI for
+an authenticated query through the pruned production Prisma client. The initial
+readiness deadline is 180 seconds, with connection/query timeouts capped at five
+seconds and one connection. Validate the deadline against fresh cluster timing;
+keep the global Helm timeout and migration retry policy unchanged. Cleanup is
+bounded by the same deadline; the command exits after cleanup to close any
+remaining socket. An isolated production-image query passed at 64 MiB, including
+a separate TLS certificate/hostname verification check, but the fresh kind install
+then exhausted that limit during readiness initialization. Increase the
+default limit to 128 MiB. The repeated cold installation passed: authenticated
+readiness took 78–90 seconds, both init containers completed without restarts,
+and the first migration pod succeeded. Readiness
+and migration containers also inherit configured extra mounts and environment
+settings so externally supplied database certificates remain accessible.
+`waitForDatabase.image` overrides are removed: installations must remove those
+BusyBox overrides and use the workload image. Enablement and resource overrides
+remain supported.
+
+[Local validation evidence](evidence/0023-p1-local-validation.json) records the
+frontend experiments, compile/lint/test failure probes, report parsing, cache
+checks and cold installation. The four-worker container completed all 1,178 tests
+on four CPUs with an aggregate cgroup peak of 2,134,478,848 bytes, below its 8 GiB
+limit. Coverage files and denominators match; covered counts vary in two lemmings
+animation files, within the variation already observed in P0.
+
+Both services built with fresh mount IDs and layer caching disabled. Changing
+package/lockfile root-version metadata forced another install without changing
+the dependency graph. The frontend reused downloads immediately; the first full
+backend repeat allocated another mount and downloaded again. A subsequent
+isolated install with its retained mount reported 884 cache-hit events and no
+download misses. Retain both outcomes: mounts are optional acceleration, and these
+checks do not establish the cause of P0's layer misses. Context probes excluded
+20 synthetic generated/credential files while retaining all 1,857 tracked
+application and shared-script inputs.
+
+The completed comparison below records the five post-priming CI samples. Strict
+missing-report enforcement and tracing unexplained layer misses remain explicit
+P2 follow-ups.
+
+### Completed P1 comparison: 2026-11-06
+
+[PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553) implements P1
+at source revision `25dbd1befd78cfccac0d07543751f9b5a23a90fd` and tested merge revision
+`b44fa2f6b8cd250bdfdfe5a2e4bc0e2712f32002`. The application bases, emitted runner image,
+Buildx/BuildKit and pinned upstream workflow revisions match P0. The full priming
+run passed and was excluded; the next five consecutive attempts all passed.
+[Machine-readable comparison](evidence/0023-p1-ci-comparison.json) links each job/step
+CSV, preserves test inventories and records both superseded cancelled runs.
+
+| Metric (median)                     | P0      | P1     | Change         |
+| ----------------------------------- | ------- | ------ | -------------- |
+| Attempt elapsed time                | 15m31s  | 14m08s | −8.92%         |
+| Summed non-skipped job time         | 26m58s  | 24m49s | −7.97%         |
+| Duplicate Node build action steps   | 11s     | 0s     | Omitted        |
+| Report discovery/parsing, four jobs | 28.584s | 1.309s | Explicit paths |
+
+Summed job time is not billed time. Build-step timing includes command preparation;
+container startup is separate. Parser timing excludes dependency installation and
+post cleanup. The empty Node build jobs still consume a median **64s** in total,
+which remains P2.1 work. Both lint jobs now find their SARIF report; P0's default
+discovery found none. Each test job consistently parses one JUnit and one LCOV file.
+
+| Attempt                                                                                     | Result | Elapsed | Summed job time |
+| ------------------------------------------------------------------------------------------- | ------ | ------- | --------------- |
+| [2](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42209078341/attempts/2) | Passed | 12m21s  | 23m25s          |
+| [3](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42209078341/attempts/3) | Passed | 14m50s  | 26m01s          |
+| [4](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42209078341/attempts/4) | Passed | 14m08s  | 24m35s          |
+| [5](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42209078341/attempts/5) | Passed | 13m32s  | 24m49s          |
+| [6](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42209078341/attempts/6) | Passed | 14m21s  | 25m44s          |
+
+P1 elapsed time ranges from **12m21s to 14m50s**, versus P0's **15m00s to 16m46s**.
+All five P1 samples have dependency/compilation layer hits; P0 had one full-hit and
+four partial-reuse samples. No misses were discarded. This cache-profile difference
+is part of the observed combined result, not proof that a particular P1 change
+resolved the earlier invalidation cause.
+
+The frontend Actions test-job median is **270s versus 267s** in P0, with overlapping
+ranges; Vitest itself reports medians of **233.96s versus 217.21s**. Do not claim an
+isolated Actions speedup from four workers. The initial candidate retained that setting for review based on
+the repeated local warm-cache controls, preserved inventory and measured memory
+headroom. Revisit worker sizing before sharding in P6. The overall phase reduces median
+elapsed and summed job time, while the combined **10% elapsed-time target remains
+unmet** and belongs to later phases.
+
+All 1,178 frontend cases remain, and backend inventory changes only by the 12 new
+readiness tests: 1,230 passed and 60 skipped. Compile/lint/test fault probes retain
+failure exits, and cold-cache/context/readiness checks are recorded in the linked
+local evidence. All measured chart jobs pass without a Prisma P1001 diagnostic;
+the observed local cold install has one successful migration pod and no failed
+migration pods. The earlier two cancelled CI runs used different candidate inputs
+and consumed 2,745 seconds of summed job time; they are excluded from the comparison
+and retained separately. P2 starts only after review of this phase.
+
+### P1 review: CPU-relative frontend workers, 2026-11-06
+
+The fixed four-worker candidate does not adapt to smaller or larger machines.
+Replace it with `maxWorkers: '100%'`, using Vitest's supported percentage setting
+and Node's detected available parallelism. This preserves four workers when four
+CPUs are available while scaling with CPU affinity on other hosts. Use the native
+`--maxWorkers` override to reserve resources on shared or memory-constrained hosts;
+CPU sizing alone does not enforce a memory budget.
+
+The [Vitest documentation](https://vitest.dev/config/maxworkers.html) and installed
+resolver confirm percentage support. An explicit percentage also avoids relying
+on the installed version's run-mode default of available parallelism minus one.
+No custom CPU detection, environment variables or worker cap are needed.
+
+The five-run comparison above remains historical evidence for the fixed-worker
+revision. It is not a performance measurement of this review change on other CPU
+counts. Local checks loaded the actual configuration with CPU affinities of 1, 2,
+4, 8 and 12 and resolved matching worker limits. On eight CPUs, explicit limits of
+`2` and `50%` resolved to two and four workers respectively. Full PR checks remain
+the merge gate for the revised configuration.
+
+### P2 released tooling adoption: 2026-11-10
+
+Continue P2.1 and P2.2 in the existing [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553),
+as requested during review. The accepted P1 changes remain in that PR. Later
+optimization phases still require a separate review.
+
+Adopt the following released commits throughout Pleey's CI and release callers:
+
+| Repository          | Previous release | Adopted release                                                                      | Commit                                     |
+| ------------------- | ---------------- | ------------------------------------------------------------------------------------ | ------------------------------------------ |
+| ci-github-common    | 0.39.1           | [4.0.0](https://github.com/hoverkraft-tech/ci-github-common/releases/tag/4.0.0)      | `66882b24f9f13e45a6541896a5a7c638cb91c94c` |
+| ci-github-nodejs    | 1.0.0            | [3.0.0](https://github.com/hoverkraft-tech/ci-github-nodejs/releases/tag/3.0.0)      | `fbd3522b68c55a6314aadbededaa487825ba9b35` |
+| ci-github-container | 0.39.0           | [0.40.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.40.0) | `ec1cd960fb1a1908ac21680756eb49a4c8f018d5` |
+| ci-github-publish   | 1.0.2            | [3.0.2](https://github.com/hoverkraft-tech/ci-github-publish/releases/tag/3.0.2)     | `4193622a365c0ab0bcbd6645895fd2c3126b72ba` |
+
+Node [PR #571](https://github.com/hoverkraft-tech/ci-github-nodejs/pull/571)
+removes metadata-only container setup and omits empty build jobs. Common
+[PR #643](https://github.com/hoverkraft-tech/ci-github-common/pull/643) and Node
+[PR #588](https://github.com/hoverkraft-tech/ci-github-nodejs/pull/588) provide
+bundled parsing with strict explicit report paths. Their upstream validation is
+recorded in the owning repositories; it does not establish a Pleey timing gain.
+Publish [PR #507](https://github.com/hoverkraft-tech/ci-github-publish/pull/507)
+and container [PR #943](https://github.com/hoverkraft-tech/ci-github-container/pull/943)
+also bundle release helpers. These release-path improvements are outside the PR
+CI timing claim.
+
+Retain the current application commands, source mappings, report paths, image
+build ordering, signing/attestations and chart installation. Missing explicit
+JUnit, LCOV or SARIF files must now fail their producer action. Automatic discovery
+remains an upstream option, but Pleey continues to require its declared reports.
+The omitted build and removed setup jobs change emitted checks; no active branch
+protection or ruleset requires their names at adoption. P3 owns the future gate.
+
+The semantic workflow now needs only `contents: read`. The local Super-Linter
+image follows the shared workflow's pinned 2.0.1 image. Release creation replaces
+the removed `target-sha` input with `target-ref`, preserving the exact prepared
+release commit. Pleey has no custom release configuration or scoped release input,
+so the new partial-configuration and scope rules retain repository-wide defaults.
+Package API changes and distribution-writer input changes have no direct Pleey
+callers. Hosted runners satisfy the native `$/` reference requirement.
+
+Prime the baseline at `559b55a482da5bdda5ecf05f929e30b4263942a0`, then prime
+and validate the adoption candidate. Alternate five baseline/candidate pairs,
+retaining each revision's consecutive samples and any cache misses. Reruns keep
+their original event and commit; the same PR preserves cache scope. Run the pairs
+sequentially to respect PR concurrency and avoid cancelled samples. Record resolved
+tools, runner images and test inventories, and separate failed or changed-input
+attempts. November 6 results remain historical evidence. Local contract checks
+and full hosted CI precede the candidate measurement series.
+Do not publish a release merely to validate the upgraded release actions.
+
+Rollback restores the preceding action pins, local linter image and release input
+together. P2.3–P2.5, DAG parallelization and consolidated report publication are
+separate work; this adoption does not change their status.
+
+Local preflight validation passed for all 18 caller input contracts, unchanged
+shared-job dependencies and application inputs, Actionlint, repository
+Super-Linter, and both applications' module-export and pagination guards.
+The released common 3.0.0 source/bundle contracts passed 29 tests; this is the
+parser version consumed by Node 3.0.0. Common 4.0.0's bundle passed its 20 entrypoint
+tests separately. Publish 3.0.2 passed 17 configuration-bundle tests and 17 planner
+tests. Three smoke checks of its actual release input-resolution scripts preserved
+the prepared commit for new/existing tags and rejected a missing target, with no
+write API available. These checks do not claim a hosted release publication.
+
+Hosted preflight passed at `9f35667535c6bdbafeef9879158f5252337934d6` in
+[candidate attempt 1](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/1).
+All 23 executed jobs passed, including production images, signing/attestations
+and umbrella-chart installation. Twelve jobs were intentionally skipped; the
+previous workflow executed 27 jobs and skipped four. The application, shared-script
+and chart Git trees are identical to the baseline. Both revisions ran the same
+163 backend test files (1,230 passing tests and 60 existing skips) and 228 frontend
+test files (1,178 passing tests). The candidate also retained native JUnit and
+LCOV artifacts.
+Coverage denominators remained 6,327 lines / 3,511 branches / 1,799 functions for
+the backend and 8,296 / 5,496 / 2,465 for the frontend. Frontend coverage hits varied
+in several UI paths; this is not claimed as a coverage improvement.
+
+The primer used runner 2.338.2 and Ubuntu 24.04 image `20261101.360.1` on both
+revisions. Docker remained 29.7.2; the container release changed Buildx from
+0.36.1 to 0.38.1 and BuildKit from 0.32.2 to 0.34.1. Consequently, the complete
+comparison measures released-tooling adoption, not the parser change alone.
+The baseline primer took 14m 05s elapsed / 24m 27s summed job time with existing
+dependency/compilation hits; the candidate primer took 17m 08s / 28m 21s with
+misses. These priming observations are not a controlled cold-cache comparison.
+Neither primer counts toward the five-sample comparison.
+
+The earlier [candidate run](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903815717)
+at `daa2ba4d705c62f4aebe88272b99c6427029fda3` was superseded when its commit
+message was wrapped to satisfy Commitlint. Its tree matched the measured
+candidate. It consumed 1m 28s elapsed / 4m 37s summed job time before cancellation
+and remains separate from successful samples.
+
+Real dependency-bot distribution commits remain unverified. Recent successful
+writer runs skipped their commit steps, and no open bot PR was available in
+common, container or publish during this check. These green writer runs do not
+establish that the complete bot-update path works.
+
+### Completed P2 adoption comparison: 2026-11-11
+
+All five alternating pairs passed on November 10 UTC, using the unchanged
+baseline and candidate revisions above. No measured attempts were rejected or
+replaced. Elapsed time runs from the attempt's `run_started_at` to the last job's
+completion, including queue/dependency gaps. Summed job time adds all executed
+jobs, excluding intentional skips; it is not billed runner time.
+
+| Pair | Baseline elapsed                                                                                  | Baseline summed jobs | Candidate elapsed                                                                                 | Candidate summed jobs |
+| ---- | ------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------- | --------------------- |
+| 1    | [14m 45s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42250041246/attempts/3) | 25m 06s              | [12m 10s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/2) | 21m 48s               |
+| 2    | [14m 20s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42250041246/attempts/4) | 24m 44s              | [12m 10s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/3) | 21m 12s               |
+| 3    | [12m 56s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42250041246/attempts/5) | 23m 41s              | [12m 37s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/4) | 21m 38s               |
+| 4    | [13m 58s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42250041246/attempts/6) | 24m 35s              | [12m 48s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/5) | 22m 19s               |
+| 5    | [12m 17s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42250041246/attempts/7) | 22m 22s              | [12m 17s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42903991722/attempts/6) | 21m 27s               |
+
+The following values are medians with observed ranges:
+
+| Metric                                                     | Baseline                  | Candidate                 |
+| ---------------------------------------------------------- | ------------------------- | ------------------------- |
+| Workflow elapsed                                           | 13m 58s (12m 17s–14m 45s) | 12m 17s (12m 10s–12m 48s) |
+| Summed job time                                            | 24m 35s (22m 22s–25m 06s) | 21m 38s (21m 12s–22m 19s) |
+| Preparation, setup and empty build jobs, both applications | 133s (129–140s)           | 9s (7–12s)                |
+| Backend preparation to first lint/test job                 | 45s (41–46s)              | 8s (6–8s)                 |
+| Frontend preparation to first lint/test job                | 37s (36–41s)              | 6s (6–9s)                 |
+| Backend preparation to test job                            | 83s (75–88s)              | 8s (6–8s)                 |
+| Frontend preparation to test job                           | 67s (61–72s)              | 6s (6–9s)                 |
+| Four parser calls, including startup                       | 14.156s (12.784–16.137s)  | 1.177s (1.105–1.359s)     |
+| Processing inside those parser calls                       | 1.132s (1.024–1.323s)     | 1.126s (1.057–1.309s)     |
+| Four lint/test jobs' action preparation                    | 28s (24–30s)              | 22s (20–23s)              |
+| Native application report preparation/uploads              | 0s                        | 3.262s (3.057–4.226s)     |
+
+Preparation latency starts at the host preparation job's start. Action preparation
+uses the four `Set up job` step durations and includes all action downloads;
+GitHub's logs do not isolate parser-only transfer time. Parser timings use the
+first matching action boundaries, excluding post-job cleanup. Runtime parser
+installs fell from four per run to zero. The new repository-lint artifact upload
+also took 1s per candidate run. All artifact work is included in workflow/job
+totals; the parser row alone does not represent the complete reporting cost.
+
+Every measured run retained dependency/compilation cache hits for all four images.
+Runner images, resolved base-image digests and the per-series tool versions stayed
+fixed. Test-file inventories and coverage denominators matched the preflight
+values throughout. Coverage hit counts varied slightly in both series. Reports,
+production images, signing/attestations and chart installation all passed.
+
+Median elapsed time decreased **12.1%** and median summed job time decreased
+**12.0%**. The elapsed ranges overlap, and the fifth pair tied. Unchanged frontend
+Vitest execution varied from 153.59–239.92s in the baseline and 170.47–220.14s in
+the candidate; Helm job durations also varied (162–232s and 154–221s). These five
+pairs establish the observed adoption result, not an isolated test-runtime gain
+or a guarantee for every run. The directly measured reductions are the removed
+container setup/empty build jobs and parser installation.
+
+Retain the adoption in PR #553 for review. Later cache/publication and DAG phases
+remain separate, and the dependency-bot commit check above remains open.
+
+### P2.3 released container adoption: 2026-11-11
+
+Adopt [container 0.41.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.41.0)
+at `bb7e3e5891e27a155182332537774b8653cf3531` in the existing PR #553.
+The reviewed upstream [PR #953](https://github.com/hoverkraft-tech/ci-github-container/pull/953)
+reuses validated single-platform build digests and skips redundant Docker/Buildx
+setup for publication and attestation. Multi-platform assembly and tag-only
+inspection retain their toolchain setup. Registry authentication, signing,
+attestation subjects and the `built-images` contract remain required. The
+[upstream decision and evidence](https://github.com/hoverkraft-tech/ci-github-container/blob/bb7e3e5891e27a155182332537774b8653cf3531/docs/adr/0003-reuse-build-digests-and-limit-publication-setup.md)
+record the implementation and its limitations.
+
+Update all eight existing container action/workflow references together. Preserve
+Pleey's application inputs, job dependencies, cache settings, image tags,
+permissions and chart-install checks. This adoption requires no new caller inputs.
+Rollback restores the preceding 0.40.0 pin; cache and DAG changes remain separate.
+
+The release also adopts common 4.1.0 and updates Buildx 0.38.1 to 0.38.2 and
+BuildKit 0.34.1 to 0.34.2. Whole-workflow measurements therefore describe the
+released container-tooling adoption, not an isolated publication optimization.
+The earlier P2 comparison above remains historical evidence for 0.40.0.
+
+Use the unchanged PR head `9fad2adf81b16a7530a5bbe2f19337c6354fd3a9` as the
+baseline. Prime its existing PR workflow and the adoption candidate separately,
+then alternate five baseline/candidate pairs on fixed revisions and the same PR
+cache scope. Keep cache misses and failed attempts; do not overlap runs because
+PR concurrency cancels superseded runs. Compare publication and attestation setup
+alongside whole-workflow elapsed and summed job times. Record runner/tool versions,
+base digests, application test inventories and coverage denominators. Hosted
+release publication is outside this validation. P2.4 starts after review.
+
+Local validation passed for all eight container callers: their supplied inputs
+and secrets remain valid, and the consumed input/output/secret contracts are
+unchanged. Repository workflow/security/Markdown lint, local documentation links,
+and both applications' module-export and pagination guards passed. The application,
+shared-script and chart Git trees are unchanged from the baseline. Workflow changes
+are limited to the eight release pins; caller permissions and dependencies are
+unchanged.
+
+The candidate revision is `d6bf36652220238f0f188eb4cd69ba2ac3164cad`.
+Both the [baseline primer](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/2)
+and [candidate primer](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/1)
+passed 23 executed jobs with 12 intentional skips. Their elapsed/summed job times
+were 12m 34s / 21m 54s and 10m 39s / 19m 46s, respectively. Both had warm dependency
+and compilation caches. These priming runs are excluded from the comparison.
+
+Both primers ran the same 163 backend test files (1,230 passing tests and 60
+existing skips) and 228 frontend test files (1,178 passing tests). Coverage
+denominators were 6,327 lines / 3,511 branches / 1,799 functions for the backend
+and 8,296 / 5,496 / 2,465 for the frontend. Image build digests matched the
+attestation subjects and production Helm inputs. Signing, attestations, reports
+and umbrella-chart installation passed. Runner 2.338.2, Ubuntu 24.04 image
+`20261101.360.1`, Docker 29.7.2 and the pinned application bases remained unchanged;
+Buildx/BuildKit changed as described above.
+
+### Completed P2.3 adoption comparison: 2026-11-11
+
+All five alternating pairs passed on the fixed baseline and candidate revisions
+above, after their separate primers. No samples failed, were cancelled or were
+replaced. Each attempt passed 23 executed jobs with 12 intentional skips.
+Elapsed time includes queue/dependency gaps from the attempt's `run_started_at`
+to its last job completion. Summed job time excludes intentional skips and is
+not billed runner time.
+
+| Pair | Baseline elapsed                                                                                  | Baseline summed jobs | Candidate elapsed                                                                                 | Candidate summed jobs |
+| ---- | ------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------- | --------------------- |
+| 1    | [13m 24s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/3) | 22m 35s              | [11m 26s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/2) | 20m 23s               |
+| 2    | [12m 23s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/4) | 21m 29s              | [12m 25s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/3) | 21m 18s               |
+| 3    | [12m 55s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/5) | 22m 01s              | [11m 16s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/4) | 19m 43s               |
+| 4    | [12m 30s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/6) | 22m 01s              | [9m 51s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/5)  | 18m 53s               |
+| 5    | [13m 02s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42927672519/attempts/7) | 22m 41s              | [11m 46s](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42992775410/attempts/6) | 20m 39s               |
+
+The following values are medians with observed minimum–maximum ranges. Publication
+rows sum the CI and production publication actions/jobs within each run;
+attestation rows sum the four image attestation setup actions/jobs within each run.
+
+| Metric                              | Baseline                  | Candidate                 |
+| ----------------------------------- | ------------------------- | ------------------------- |
+| Workflow elapsed                    | 12m 55s (12m 23s–13m 24s) | 11m 26s (9m 51s–12m 25s)  |
+| Summed job time                     | 22m 01s (21m 29s–22m 41s) | 20m 23s (18m 53s–21m 18s) |
+| Publication actions                 | 49s (39–60s)              | 4s (3–4s)                 |
+| Publication cleanup                 | 13s (12–13s)              | 1s (0–1s)                 |
+| Publication jobs, including signing | 114s (95–121s)            | 58s (48–70s)              |
+| Attestation registry setup          | 49s (48–55s)              | 5s (4–10s)                |
+| Attestation setup cleanup           | 22s (21–23s)              | 1s (0–1s)                 |
+| Attestation jobs                    | 120s (114–133s)           | 57s (54–77s)              |
+
+Action durations exclude their post steps; whole-job durations include setup,
+signing/attestation and cleanup, but exclude runner queue time. GitHub's step
+timestamps have one-second resolution; zero does not mean no work. Action
+downloads remain part of job setup even when runtime Docker/Buildx setup is skipped.
+
+Runner images, application base digests and each series' source/tool versions
+remained fixed. Test-file inventories and coverage denominators matched the
+primers throughout; coverage hit counts varied slightly in both applications. All recorded
+dependency-install and compilation layers were cache hits, with no mount-cache
+misses or registry-visibility retries. Every run preserved the build digest in
+its attestation subject and production Helm input, and passed signing,
+attestations, reports and chart installation.
+
+Median elapsed time decreased **11.5%**, and median summed job time decreased
+**7.4%**. The elapsed ranges overlap, and pair 2 was effectively tied: the candidate
+finished two seconds later while its unchanged frontend Vitest execution took
+241.65s versus 177.11s. Across all pairs, frontend Vitest execution ranged from
+177.11–242.89s in the baseline and 136.13–244.93s in the candidate; chart jobs ranged
+from 156–225s and 157–213s. The faster fourth candidate also had the shortest
+frontend test execution. These results do not establish a test-runtime improvement
+or guarantee an elapsed-time gain for every run.
+
+Retain 0.41.0: publication and attestation setup savings recur across every pair,
+while the complete comparison also includes the released common/Buildx/BuildKit
+updates. This is a warm-cache PR comparison, not cold-cache, invalidation, main or
+release-publication evidence. Raw logs remain outside the repository; the
+attempt-specific links above identify the measurements. PR #553 is ready for
+review of this adoption. P2.4 cache work remains pending that review.
+
+### P2.4 upstream cache review: 2026-11-11
+
+The user reviewed PR #553 and authorized P2.4. The first version of upstream
+[PR #957](https://github.com/hoverkraft-tech/ci-github-container/pull/957) proposed
+additional imports, export-mode selection and dependency-aware mount snapshots.
+Its [ADR 0004](https://github.com/hoverkraft-tech/ci-github-container/blob/79ab741d853f0cb8efd0823b497882c2d5995fc1/docs/adr/0004-scope-build-cache-imports-and-mount-snapshots.md)
+preserves that proposal's fixture measurements and hosted validation as history.
+
+Review rejected the caller burden of raw BuildKit scopes, dependency patterns and
+multiple override levels. The user approved narrowing this PR to internal mount
+isolation and read-only write protection, with no new public inputs. Exact keys
+retain image/context/target/platform/Dockerfile/build-argument identity; separate
+local directories prevent different builds sharing snapshot files. Remove broad
+fallbacks. Existing layer scopes, export mode and extraction-before-teardown
+ordering remain unchanged. The revised candidate
+`db0967b3f0980818d8ac53b10fcf755a1324270f` passed
+[CI run 43046729837](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43046729837):
+172 successful jobs and 10 intentional skips, without reruns. The upstream ADR
+records exact restoration, image isolation, bypass, failure propagation and
+save-before-teardown observations. Read-only policy uses controlled contexts;
+live untrusted events and real application installers remain untested.
+
+Cross-image reuse and automatic dependency refresh remain deferred. A future
+cross-image interface should expose at most the source-image relationship and
+resolve cache details internally. Dependency-only changes still do not refresh an
+immutable mount snapshot. Do not replace configuration burden with a fragile
+Dockerfile parser. Keep `max`: the earlier fixture did not establish a GHA or
+application benefit for `min`.
+
+Historical unchanged-input compilation misses remain unresolved, and the recent
+controlled Pleey comparison did not reproduce them. No application speedup or
+compilation-miss fix is claimed. Adoption follows upstream review and release
+without new caller settings; Pleey continues using 0.41.0. P2.5 and later DAG
+phases remain pending, and P3 does not depend on the deferred cache features.
+
+### P2.4 released-container adoption: 2026-11-11
+
+Adopt [container 0.41.1](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.41.1)
+at `79ab741d853f0cb8efd0823b497882c2d5995fc1`, the merged commit of reviewed
+[PR #957](https://github.com/hoverkraft-tech/ci-github-container/pull/957).
+The [release comparison](https://github.com/hoverkraft-tech/ci-github-container/compare/0.41.0...0.41.1)
+contains the narrowed cache fix and its documentation/tests. The
+[released cache guide](https://github.com/hoverkraft-tech/ci-github-container/blob/79ab741d853f0cb8efd0823b497882c2d5995fc1/actions/docker/build-image/README.md#build-caches)
+and [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/79ab741d853f0cb8efd0823b497882c2d5995fc1/docs/adr/0004-scope-build-cache-imports-and-mount-snapshots.md)
+own cache behavior, recovery, limitations and upstream evidence.
+
+Update all eight existing references in PR #553, preserving caller inputs,
+permissions, DAG, application sources, lockfiles and pinned base images. No new
+configuration or runtime requirement is introduced. Mount snapshots use the new
+exact identity and start cold once; layer-cache configuration remains unchanged.
+Dependency-only snapshot refresh and cross-image imports remain deferred.
+
+The adoption candidate is `d03193a9b48dac5107a04586375bcc8fb5ed4241`.
+All eight consumed input/output/secret contracts, repository workflow/security/
+Markdown lint and local documentation links passed. Both applications' module-export
+and pagination guards passed in their CI images; the bare local checkout lacked
+the TypeScript/GraphQL dependencies required to run those guards.
+
+Both full CI attempts passed **23 jobs with 12 intentional skips** on the same
+commit. The timings below describe these correctness checks only; they are not a
+controlled performance comparison or a speedup estimate.
+
+| Attempt                                                                                     | Mount state                    | Elapsed | Summed successful jobs |
+| ------------------------------------------------------------------------------------------- | ------------------------------ | ------- | ---------------------- |
+| [1](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43088688000/attempts/1) | Four new keys missed and saved | 11m 37s | 20m 39s                |
+| [2](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43088688000/attempts/2) | Four exact keys restored       | 10m 10s | 19m 30s                |
+
+Backend/frontend CI and production builds used four distinct mount snapshots.
+The second attempt restored the same key for each build, set `skip-extraction`
+to `true` and did not save an existing snapshot again. All dependency-install and
+compilation layers were cache hits in both attempts. This validates mount-key
+initialization and exact restoration, not fully cold builds or re-executed package
+installers; upstream fixture tests cover restored mount contents.
+
+JUnit inventories, existing skips and LCOV denominators matched both attempts and
+the [P2.3 primer inventories](#p23-released-container-adoption-2026-11-11).
+Lint, reports, signing, attestations and umbrella-chart installation passed.
+Each build digest matched its publication output and attestation subject, and both
+production digests reached Helm's installation inputs. Raw logs and reports remain
+outside the repository; the attempt-specific links identify the tested evidence.
+
+No application speedup or fix for historical compilation misses is claimed.
+Main/release publication, live untrusted triggers and application dependency-change
+invalidation remain outside these PR runs. Restore the preceding release pin if
+consumer behavior regresses. User review of the adoption in PR #553 completed
+on 2026-11-11; the next optimization phase may proceed.
+
+### P3 service lanes: 2026-11-11
+
+After review of the 0.41.1 adoption, start P3 using the released one-image-list
+API. P3 is independent of P2.5 in the accepted plan. Candidate publication and
+promotion remain prerequisites for P4; this phase retains production builds after
+both applications finish validation.
+
+Replace the shared CI-image matrix barrier with explicit
+`build-backend-ci-image` and `build-frontend-ci-image` workflow calls. The
+`check-backend` and `check-frontend` jobs display as "Lint and test backend" and
+"Lint and test frontend". Each application's Node workflow depends only on its
+own image workflow, including signing and attestation. Preserve image inputs,
+digest-qualified references, report paths and permissions. The extra
+prepare/publication job has a cost: measure complete runs and service start times
+before deciding whether to retain the split.
+
+The initial P3 candidate also added `ci-result` to aggregate all seven validation
+branches. On 2026-11-11, the user requested its removal for now: required-check
+enforcement was not configured, and the job does not enable service parallelism.
+This supersedes the aggregate-gate portion of P3. Revisit the gate with its
+required-check rollout before enabling candidate promotion in P4. The existing
+production output and release dependencies remain unchanged.
+
+Continue Pleey phases in existing PR #553, with CI and user review between
+phases, following the user's delivery clarification on 2026-11-11. This
+supersedes separate-PR delivery for Pleey while #553 remains open; upstream
+changes remain separate. The initial stacked draft #557 is closed. Keep the
+existing `main` PR target filter, cancellation policy and semantic PR check.
+
+The 2026-11-11 protection inspection found no classic protection or effective
+rules for `main`; the unrelated `default-branch` ruleset remained disabled.
+No repository rule was changed during P3.
+
+Implementation is in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553).
+Local contract checks verify independent per-service dependencies, unchanged
+image/check inputs and permissions, and production/release handoffs. Configured
+Super-Linter and documentation link/anchor checks passed. Application, chart,
+release and semantic-check sources are unchanged.
+
+The initial gate passed 63 synthetic shell scenarios before its removal; those
+checks describe that earlier candidate, not current behavior. Full
+[CI at `45ddfc1a`](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43103908128)
+passed with the clarified job names and the aggregate gate still present.
+The subsequent gate removal is validated in the dated entry below. Neither run
+is a controlled performance comparison. Restore the shared image barrier if the
+split is not worth its cost.
+
+The [first candidate run](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43095592017)
+queued without jobs while the fresh baseline stalled at artifact-upload steps.
+GitHub reported a [webhook incident](https://www.githubstatus.com/incidents/1h2wbly1y72t)
+during that interval; the cause of these individual delays is unconfirmed.
+Exclude those initial runs from performance samples. Raw logs remain outside the
+repository.
+
+### P3 final validation and review: 2026-11-12
+
+The final implementation `015897a150854f4bc8819779a4eb819196676803` passed
+[run 43108346715](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43108346715):
+25 successful jobs and 12 intentional skips. The aggregate job is absent.
+Downloaded logs and reports confirm all four build digests match publication and
+attestation subjects; CI-image digests reach application lint/tests, and production
+digests reach Helm. Signing, module-export/pagination guards and chart installation
+succeeded. Backend retains 1,290 cases (60 skipped); frontend retains 1,178 cases
+(none skipped). LCOV line/branch/function denominators remain 6,327/3,511/1,799
+and 8,296/5,496/2,465 respectively. All four install/compilation layers were cached.
+
+Backend configuration started 10s before the frontend image workflow completed;
+backend lint started 1s before that completion. This verifies independent
+dependencies. The run took 11m14s elapsed and 20m20s summed successful-job time.
+Its two CI-image preparation jobs totalled 10s and publication jobs 33s, compared
+with 4s and 24s for the shared jobs in
+[the earlier warm P2.4 run](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43088688000/attempts/2).
+The split therefore adds two jobs and showed 15s more preparation/publication job
+time in this observation. These runs were not controlled alternating samples;
+they do not establish a net gain or regression. Keep the controlled comparison
+open and make no P3 speedup claim.
+
+The user approved the implementation and authorized the next step on 2026-11-12.
+Record that review separately from the outstanding performance comparison.
+Repository rules and production/release ordering remain unchanged.
+
+### P2.5 candidate-publication increment: 2026-11-12
+
+Split the upstream publication contract into candidate publication and gated
+promotion, with CI and review between increments.
+[Upstream PR #959](https://github.com/hoverkraft-tech/ci-github-container/pull/959)
+and its [ADR 0005](https://github.com/hoverkraft-tech/ci-github-container/blob/ca71afa42c37bdd67ec2ca685fd2ff73d76190e8/docs/adr/0005-publish-candidates-with-final-image-metadata.md)
+define the first increment. It exposes
+one `candidate: true` workflow setting and generates temporary identities
+internally. Existing `images[].tag` keeps its intended final tag/version meaning;
+normal metadata is resolved before substituting the temporary publication tag.
+This refines the earlier proposal to put temporary identities in `images[].tag`,
+which would otherwise embed a temporary OCI version in the promoted image.
+
+The existing image output carries the digest plus intended destinations, source
+revision and run/attempt identity. These fields describe the build and are not
+proof of successful validation. The promotion increment still needs to verify
+the gate, digests, authorized destinations, current source/run/attempt and
+security evidence; serialize conflicting writers; and define partial-write
+recovery and cleanup. Pleey retains gated production ordering until that complete
+contract is reviewed and released. No candidate mode is adopted by this tracking
+change.
+
+Candidate-specific checks in
+[upstream run 43119465301](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43119465301)
+passed at `26e58f071f97f752a29a84abb5cf2ae3db0725c4`. The existing Docker fixture
+produced signed and attested single/multi-platform candidates. Registry checks
+confirmed the returned digests, intended version `1.2.3`, source/run fields and
+absence of consumer tags. Both signature and GitHub attestation verification
+passed. A deliberately missing build argument failed the build with no image
+output. Local and hosted contracts cover identity isolation, invalid identities,
+duplicate image names and unchanged metadata policy; default-branch and tag-event
+policy use controlled contexts, while real publication was exercised on a PR.
+Generated action/workflow docs, repository lint and relative links passed.
+The upstream PR owns the complete regression-suite status and remains subject to
+review. No application speedup is claimed by this publication foundation.
+
+### P2.5 released publication support: 2026-11-12
+
+The user reviewed and merged [upstream PR #959](https://github.com/hoverkraft-tech/ci-github-container/pull/959)
+and released [container 0.42.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.42.0).
+The tag resolves to `ca71afa42c37bdd67ec2ca685fd2ff73d76190e8`, the merge commit.
+The [0.41.1–0.42.0 comparison](https://github.com/hoverkraft-tech/ci-github-container/compare/0.41.1...0.42.0)
+contains candidate publication and generated documentation updates. Existing
+workflow inputs, outputs, runner requirements and publication defaults remain
+compatible; `candidate` defaults to `false`. The Helm and pruning implementations
+consumed by Pleey are unchanged.
+
+Adopt the release through all nine existing container references in the shared,
+main and release workflows. This is normal-mode dependency adoption; enabling
+candidate mode still waits for reviewed, released gated promotion. Production
+builds continue to wait for both application checks, Helm consumes their immutable
+digests, and release consumers wait for the shared workflow. No new caller input
+or promotion gate is introduced in this increment.
+
+The adoption commit `16754a96139a8afa1fd6d1a355e9bbc653d1fbb0` passed
+[PR CI run 43167373851](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43167373851)
+on its first attempt: 25 successful jobs and 12 intentional skips. Consumed-input,
+output and secret contracts, documentation links and local workflow/security/
+documentation lint passed. All four images retained normal PR tags; build,
+publication and attestation subjects matched the digests used by application
+checks and Helm. Signing, module-export/pagination guards and chart installation
+passed. JUnit case identities and skip states, LCOV file inventories and coverage
+denominators matched the reviewed P3 run exactly. All four images reused their
+installation and compilation layers.
+
+Main and release execution are not exercised by PR CI; their pins received
+static contract checks. This release adoption makes no performance claim and
+awaits user review before the gated-promotion increment.
+
+### P2.5 gated-promotion increment: 2026-11-12
+
+The user reviewed the normal-mode 0.42.0 adoption in PR #553 and authorized the
+next increment. [Upstream PR #962](https://github.com/hoverkraft-tech/ci-github-container/pull/962)
+implements promotion; [ADR 0006](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/gated-image-promotion/docs/adr/0006-promote-validated-image-digests.md)
+owns its contract and trade-offs.
+
+The proposed reusable workflow consumes dependency results and exact validated
+candidate entries. It verifies source/run/attempt, authorized destinations,
+signatures and build provenance, and preserves manifest bytes when publishing.
+A repository-wide lock serializes writers; GitHub deployment records retain
+validated claims so an older run cannot overwrite a newer claimed destination.
+This adds `deployments: write` to the promotion job, without app credentials or
+external storage. The caller still owns its required check inventory and must
+forward the images it actually tested.
+
+Publication is not atomic across tags. A partial failure returns no successful
+output and retains its claim; retries in a new attempt rebuild and revalidate
+candidates. No automatic candidate/digest deletion is introduced. Keep all
+writers on this workflow and retain the publication journal while destinations
+can be reused. This narrows recovery and cleanup to an explicit safe contract.
+
+Validation on upstream commit `4d85b07cdfbb70be31e0d8ed1bdaff4fcbaedb1b`:
+
+- All 65 focused promotion tests passed locally and in CI. They cover unsuccessful
+  dependencies, mismatched evidence, unauthorized destinations, stale source/run/
+  attempt, security failures, superseded/conflicting claims, cancellation, partial
+  writes and recovery. These failure scenarios use controlled API/registry responses.
+- [Hosted run 43175617613](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43175617613)
+  passed on its first attempt: 191 successful jobs and 10 intentional skips. It
+  promoted the existing signed single/multi-platform fixtures to version `1.2.3`.
+  Independent checks compared raw manifest bytes and verified retained signatures
+  and attestations. Both promotion calls returned identical metadata; their two
+  journal records retained the expected destinations/revision and success statuses.
+  Cleanup removed only the isolated test packages and current-attempt records.
+- The promoted digests were `sha256:ae5fec5e3557d10bec85aff73b0f4d7242ea5ad6ffd196fad2efc07fd17c0480`
+  for the single-platform image and `sha256:9df2edb5ebc7f63797b5d79634ce132876c55d5c617b48c7afd2f59fdfec89cd`
+  for the multi-platform image. No rebuild or re-signing occurred during promotion.
+- Workflow/security/JavaScript/documentation lint and local links passed.
+
+Hosted tests use a PR event and a forced final version. Controlled contexts cover
+PR/main/release destinations; this is not evidence of live main/release promotion
+or injected registry failures. Those rollout checks remain explicit in the plan.
+Upstream review and release remain pending. Pleey retains normal mode and gated
+production ordering until the promotion release is reviewed and adopted with P4's
+aggregate validation gate. No performance gain is claimed.
+
+### P4 consumer preview: 2026-11-12
+
+The user requested a concrete adoption preview in existing PR #553 while upstream
+PR #962 is still open. Pin its tested commit
+`b75829d1621f894b4f50884b8759fcf362d11d9a` for promotion; keep the released 0.42.0
+candidate builder and other container actions. Replace the preview pin with the
+reviewed release before merging this adoption. This is an explicit preview of P4,
+not completion of release rollout or performance acceptance.
+
+Use separate backend/frontend production candidate jobs, each after its own CI
+image and alongside its application checks. Keep planned release tags as build
+inputs and set `candidate: true`. Helm installs both immutable candidate digests
+in the existing fresh cluster. Disable changed-chart filtering so an application-only
+change cannot claim validation without actually installing the candidates. Only
+successful chart validation returns the exact two candidate entries as
+`validated-images`.
+
+The promotion workflow itself is the aggregate publication gate. Give it direct
+dependencies on repository lint, both application checks (including required
+reports), both candidate/security workflows and Helm validation, with
+`if: always()` and `job-results: ${{ toJSON(needs) }}`. Every supplied result must
+succeed. CI-image failures transitively fail or skip their required check/candidate
+jobs and therefore block promotion. This supersedes the separate `ci-result` job
+in the proposed graph for this preview: one promotion job both checks the complete
+dependency set and publishes under the repository lock.
+
+Do not pass the CI-image jobs directly to promotion: their `built-images` outputs
+describe test images, not the production candidates validated by Helm. The shared
+workflow's existing `built-prod-images` output now comes only from successful
+promotion. Release consumers keep that interface. Promotion uses the dynamic
+builder default; Pleey does not need `build-workflow` or certificate settings.
+The PR, main and release callers delegate `deployments: write` for the upstream
+publication journal. No application deployment is introduced.
+
+```mermaid
+flowchart TD
+    B[Backend CI image] --> BC[Backend lint and tests]
+    B --> BP[Backend candidate]
+    F[Frontend CI image] --> FC[Frontend lint and tests]
+    F --> FP[Frontend candidate]
+    BP --> H[Helm tests by digest]
+    FP --> H
+    L[Repository lint] --> P[Validate results and promote digests]
+    BC --> P
+    FC --> P
+    BP --> P
+    FP --> P
+    H -->|validated-images| P
+    P --> R[built-prod-images for release consumers]
+```
+
+On 2026-11-12, `main` still has no classic protection or effective rules. Leave
+repository settings unchanged for this review. Record the emitted promotion check
+name from CI and complete the required-check rollout separately before accepting
+P4. Cross-image cache imports, rendered release-chart validation after file
+mutation, live main/release validation and controlled performance comparisons also
+remain open. Preserve candidate content and publication records; no automatic
+registry cleanup is added. Cancelling superseded PR runs can leave candidates,
+and partial tag publication retains the upstream recovery contract.
+
+Local consumer checks validate the dependency graph, delegated permissions,
+planned release tags, digest-valued Helm inputs, success-only validation output
+and unchanged release-consumer interface. The pinned promotion contract rejects
+39 unsuccessful-result or mismatched-evidence scenarios using the actual caller
+dependency inventory and validation script. Workflow/security/documentation lint
+and 79 relative links/anchors pass. Hosted results are attached to PR #553; this
+record does not claim a live main/release run or a measured performance gain.
+The earlier normal-mode and upstream results remain dated evidence for their own
+revisions.
+
+### P4 released promotion adoption: 2026-11-12
+
+Adopt [ci-github-container 0.43.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/0.43.0)
+at `ed1e90302235365110f9b4b05df96840f715a14f` in existing Pleey PR #553. This
+supersedes the temporary promotion pin in the consumer preview above. Align all
+11 container action/workflow references with this release, including the builders,
+Helm helpers and PR-tag cleanup.
+
+The release includes the reviewed promotion implementation from
+[upstream PR #962](https://github.com/hoverkraft-tech/ci-github-container/pull/962)
+and the transient GitHub API retry fix from
+[upstream PR #964](https://github.com/hoverkraft-tech/ci-github-container/pull/964).
+Comparison with preview commit `b75829d1621f894b4f50884b8759fcf362d11d9a`
+confirms that promotion, signature verification and build implementations are
+unchanged. The executable difference is three retries for the read-only PR lookup
+used by cleanup. Existing consumed Helm interfaces are unchanged from 0.42.0.
+
+Keep the preview's candidate DAG, digest-based Helm validation and promotion gate.
+Retain the shared builder's default signing identity as reviewed: the reusable
+builder workflow identifies the signer, while provenance binds the image to
+Pleey's source repository, revision and run. Do not override `build-workflow` or
+introduce a second signing step in the caller.
+
+The earlier [preview run 43222507126](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43222507126)
+passed on `452194521b0357f64f550e38a3236df7ba70607d`, with 28 successful jobs and
+12 intentional skips. Both candidates overlapped their application checks; Helm
+used their exact digests, and consumer tags stayed unchanged until promotion.
+Those observations belong to the preview revision. Local and hosted validation
+of this released adoption is tracked separately in PR #553.
+
+Required-check enforcement, live main/release execution, rendered release-chart
+validation after file mutation and controlled performance comparisons remain
+rollout work. No repository settings are changed and no performance gain is
+claimed by this release adoption.
+
+### P4 release validation and user review: 2026-11-12
+
+[Run 43252004563](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43252004563)
+passed on its first attempt at `c96a0f13f581df98e7c3644f52730a9f2b17eaaa`:
+28 successful jobs and 12 intentional skips. The PR check inventory contained
+48 passing checks and the same 12 skips. All 2,408 application tests passed,
+with 60 existing backend skips; both applications' module-export and pagination
+guards passed. The user reviewed this adoption and authorized the next step.
+
+Backend and frontend production builds overlapped their tests for 65s and 57s,
+respectively. These are scheduling observations, not a controlled speedup result.
+Helm used both candidate digests after their build/security workflows succeeded.
+Registry reads observed unchanged `pr-553` tags during validation, followed by
+both normal and revision-qualified PR tags resolving to the tested digests:
+
+| Service  | Helm-tested and promoted digest                                           |
+| -------- | ------------------------------------------------------------------------- |
+| Backend  | `sha256:a38b14b2a8d51bcabf35ae851f855135d2d3b92803827409a81888725e285ce1` |
+| Frontend | `sha256:f95f0c8d19083bd84d36b004fae49e5a27cca906321c392f7f855487c087bac5` |
+
+[Promotion verification](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43252004563/job/131305188084)
+matched the Cosign signature and provenance subjects to those digests. The
+attestation certificate and builder identity reference the released container
+workflow at `ed1e90302235365110f9b4b05df96840f715a14f`; provenance identifies
+Pleey's source revision and this run/attempt. Promotion started after every
+successful dependency finished.
+
+The emitted check is
+`ci / Promote validated production images / Promote validated image digests`.
+PR #553 remains open. On this date, `main` has no classic protection or effective
+rules. Keep required-check enforcement pending until this workflow is on `main`;
+do not change repository settings as part of this assessment. Live main/release,
+post-mutation release-chart validation, failure/rerun exercises and controlled
+performance comparisons remain separate unfinished P4 work.
+
+### P5 parallelization assessment: 2026-11-12
+
+Evaluate the proposed within-job overlap before adding another orchestration
+interface. The following timestamp spans come from the successful preview and
+released-adoption Helm logs. They are observations of different revisions, not
+an A/B experiment or evidence that a proposed parallel implementation is faster.
+
+| Observed phase                                          | [Preview job](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43222507126) | [Released adoption job](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43252004563/job/131302679432) |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| Chart preparation start through successful lint         | 5.37s                                                                                      | 7.39s                                                                                                                 |
+| Kind action start through context selection             | 39.56s                                                                                     | 41.81s                                                                                                                |
+| Context selection through successful installation/tests | 136.57s                                                                                    | 156.54s                                                                                                               |
+
+For the proposed preparation/lint versus kind pair, even perfect overlap could
+recover at most the shorter 5–7s span in these runs. That ceiling excludes
+contention, synchronization and cleanup costs. Tool installation precedes these
+spans; overlapping installers is a separate proposal with shared PATH/configuration
+writes that has not been validated.
+
+[GitHub's current syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstepsparallel)
+supports native `parallel`, or `background` with an explicit `wait`, for workflow
+steps using `run` or `uses`. Both forms are forbidden inside composite actions.
+The released Helm test action is composite, so native scheduling requires a
+shared staged interface; a caller must not prepare dependencies and then run the
+complete action, duplicating setup. A composite implementation would instead need
+supervised child processes and cancellation/partial-cluster cleanup. Neither cost
+is justified by the observed ceiling for Pleey. Defer P5.2 without changing its
+one-call consumer interface. Runner/linter compatibility and failure/cancellation
+tests remain prerequisites if a later profile justifies that implementation.
+
+The released-adoption frontend lint command took about 27.5s, including about
+7.3s for typechecking. The backend lint command took about 25.5s. Both lint jobs
+finished more than four minutes before Helm completed; overlapping their checks
+cannot shorten this run's final gate. The TypeScript harness already shares
+helpers, but its module cache is process-local; it does not share compiler
+programs across CLI invocations. Defer P5.3's process/API changes until job cost or a
+changed critical path justifies a measured trial. No parallel prototype, memory
+benchmark or failure-injection result is claimed here.
+
+Keep the existing job-level service/candidate overlap. The next useful profiling
+target is chart installation and application readiness, which dominates this Helm
+job; P6's requirement that frontend tests still determine completion is not met by
+this observed run. This assessment does not complete the pending P4 rollout or
+authorize a release. Review the deferral before starting another implementation.
+
+### P7 Helm database secret prerequisite: 2026-11-13
+
+The user accepted the P5 deferral and authorized the next Helm installation
+increment in PR #553. Rebase its 24 commits onto main
+`437c94c50f301436782e48720e16ce0dbea74751`, retaining the updated Nginx digest,
+NestJS dependencies and react-i18next. The only conflict is the root linter image:
+retain 2.0.1 and its verified digest from the reviewed branch. Historical timings
+above describe their original revisions; use the rebased run as the new control.
+
+The [reviewed Helm job](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43259665964/job/131329796589)
+shows authenticated readiness taking 77.8s in the Deployment and 87.7s in the
+migration Job. Their logs repeatedly report `ENOENT` for the secret file. The
+CloudNativePG operator marks the cluster healthy at 16:37:53 UTC; the two init
+containers finish at 16:38:32 and 16:38:43. The backend image's first pull takes
+14.8s, while subsequent pulls use cached content. These observations identify
+secret-file availability as a separate wait after database startup.
+
+The [rebased control Helm job](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43449977562/job/131974180079)
+at `4fb75fe99fbe27afffe3f9ee4f53b954dac1bd66` passes without reproducing that
+delay: readiness takes 38.2s/33.6s, with no `ENOENT`; the backend has no restart.
+The Helm test step takes 156s, including setup; context selection through
+successful chart installation takes 102.6s. This confirms timing variability,
+not a repeatable penalty on every run. The candidate must be compared with this
+control, without attributing the historical run's entire difference to this fix.
+
+Both workloads currently make the database volume optional for CloudNativePG.
+An init container can therefore start with an empty mount and wait for a later
+secret projection. [Kubernetes documents](https://kubernetes.io/docs/concepts/configuration/secret/)
+that projection updates are eventually consistent, while a required secret blocks
+container startup until the secret and requested key can be mounted. Missing
+required secrets are retried by the kubelet and reported as pod events.
+
+Require the existing database secret volume in both workloads for both database
+providers. CloudNativePG creates its application secret independently of these
+pods, so this introduces no dependency cycle. Keep the current secret name/key,
+authenticated `SELECT 1`, TLS configuration, resource limits, migration command
+and retries. No new input, image, API polling, cluster reuse or timeout increase
+is needed. The expected benefit is removing the optional-volume projection wait;
+the actual duration remains subject to kubelet retries and cluster scheduling.
+
+A missing secret or key now leaves the pod waiting at volume setup. The init
+container's readiness timeout starts only after that prerequisite is satisfied;
+it does not bound time spent waiting for Kubernetes to mount the secret. The
+existing Helm timeout bounds installation. Secret rotation retains normal volume
+update semantics. Backend restarts observed in the control are a separate symptom;
+this change does not add migration-completion gating or claim to resolve them.
+
+Validate rendered Deployment/Job volumes for CloudNativePG and external databases,
+including disabled readiness init containers. Reuse the existing fresh-cluster
+Helm installation to exercise delayed operator-created secrets, authenticated
+readiness, migrations and application probes. No new unit suite is needed for
+Kubernetes' built-in secret behavior, and the unchanged readiness helper retains
+its existing tests. Compare the rebased control with the candidate in PR #553;
+full P4/P8 performance acceptance and release rollout remain open.
+
+### P7 review and final release-chart validation: 2026-11-13
+
+The user accepted the required-secret increment and authorized the next step.
+[Run 43452501488](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43452501488)
+at `f73e63e1446ed92bf8110b7eaf4ecbe61e74a280` passed on its first attempt:
+28 successful jobs, 12 intentional skips, 2,408 passing application tests and
+60 existing backend skips. Both applications' module-export and pagination guards
+passed. Promotion verified the Helm-tested digests across all four destination tags.
+
+The [Helm job](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43452501488/job/131980629625)
+retried both initially missing secrets at volume setup, then completed authenticated
+readiness without `ENOENT`. Migration succeeded and the backend became ready
+without restarting. The Helm step took 142s versus 156s in the rebased control;
+context selection through installation took 91.2s versus 102.6s. Readiness took
+30.0s/29.7s versus 38.2s/33.6s. These are observations from one pair, not controlled
+performance acceptance or evidence that the entire difference comes from the fix.
+
+The same job spent 4.04s setting up chart-testing, 2.42s preparing dependencies
+and 0.66s linting. Kind creation took 40.34s and chart installation 90.88s.
+Defer the tool-image and external-download-cache experiments for this profile:
+their small saving ceiling does not currently justify extra image pulls, cache
+identity rules or another upstream interface. Retain fresh-cluster installation.
+Revisit these experiments only if a later profile shows setup dominating.
+
+The initial follow-up addressed the existing P4 requirement to validate release
+charts after mutations. `helm/release-chart` modifies metadata and dependency
+versions again before packaging, so validation only before that action would
+miss its final artifact. The prototype in
+[container PR #966](https://github.com/hoverkraft-tech/ci-github-container/pull/966),
+documented in the [original upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/e636bec523560db253a4d8d2df5e2853e34cdb56/docs/adr/0007-validate-packaged-helm-charts.md),
+put optional lint/render checks inside the release action.
+
+That prototype's `validation-values` input checked the archive before publication,
+using validation overlays without altering published defaults. It was not released
+or adopted by Pleey. Review rejected placing lint and test policy inside the
+publication action; the following phase-separation proposal replaces it.
+
+Local upstream checks passed 17 unit tests, including three new regression cases
+that fail against the old action. Real Helm validated packaged sample and Pleey
+charts with updated versions and rejected invalid Pleey values in lint and render.
+The prototype also passed [upstream CI](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43457158245)
+with 198 successful jobs and 20 intentional skips. These results describe only
+the withdrawn implementation; they do not validate the replacement design.
+
+### Separate Helm phases after review: 2026-11-13
+
+The user requested four phases: prepare, lint, test and release. The revised
+[upstream ADR 0007](https://github.com/hoverkraft-tech/ci-github-container/blob/1.0.0/docs/adr/0007-separate-helm-pipeline-phases.md)
+owns their contracts. PR #966 returned to an ADR-only draft, with the publication
+action's `validation-values` input and its prototype tests removed.
+
+Preparation must finish final metadata/value changes, dependency resolution and
+packaging. Lint and installation tests consume the prepared chart; release verifies
+its identity, publishes the unchanged archive and signs the OCI digest. Test-only
+values remain overlays. Keep artifact checksums distinct from OCI manifest digests.
+All existing image verification, readiness, migration and cleanup checks remain.
+
+Expose one reusable workflow with composable phase actions. Initially keep prepare,
+lint and test together to reuse checkout/tools and fail before unnecessary cluster
+creation; isolate release credentials in a downstream gated job. Separate phase
+responsibilities do not require four runners or reopen the deferred P5 parallelism
+experiment. Measure any later scheduling changes, including artifact-transfer cost.
+
+Review and implement one phase at a time, beginning with preparation. The complete
+public contract needs an explicit breaking release and coordinated migration;
+Pleey keeps released 0.43.0 until the replacement is reviewed and available.
+This design addresses responsibility and reuse. No runtime split or performance
+gain is claimed by the ADR update, and no production release is needed to test it.
+
+### Prepare phase implementation: 2026-11-13
+
+The user approved the four-phase design and archive handoff. The next increment
+in [container PR #966](https://github.com/hoverkraft-tech/ci-github-container/pull/966)
+implements preparation for one selected root chart. It applies final metadata
+and published values, checks dependency locks, builds local descendants before
+their parents, and returns one archive plus its SHA-256 checksum.
+
+The existing release action delegates preparation and pushes the returned bytes;
+its retries and signing remain. Review rejected the Test adapter's import of
+Prepare's private JavaScript bundle. Test keeps its source-based Helm dependency
+setup within its own action until the Test phase consumes the prepared archive
+and checksum through the public contract. The existing integration job exercises
+an isolated Test action without sibling files. These are staged adaptations in a
+draft, not the completed four-phase workflow. Preparation is the next implementation
+review point. Pleey retains released 0.43.0.
+
+Focused source, distribution and real Helm checks cover archive identity,
+lock errors, fresh nested content, changed inputs and unchanged external pins.
+Hosted CI must pass before this increment is accepted. No performance gain or
+completed final-chart validation is claimed.
+
+### Prepare released and Lint implementation: 2026-11-14
+
+The user reviewed and merged Prepare in container PR #966, then published
+[1.0.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/1.0.0).
+The [release run](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43519248579)
+passed on `d6569ca423f29f68152ee561f51f7de0c08db709`. This completes the Prepare
+review checkpoint. It does not complete the artifact-validation workflow, so
+Pleey retains 0.43.0 while the remaining phases are reviewed separately.
+
+[Upstream PR #968](https://github.com/hoverkraft-tech/ci-github-container/pull/968)
+adds `lint-chart` with archive/checksum inputs and
+validation-only values files. It preserves chart-testing's metadata/schema, YAML,
+maintainer and custom-command checks against an isolated extraction. Dependency
+rebuilding is disabled; changed validation inputs cause failure. Client-side
+rendering uses the same scenarios and overlays because Helm lint deliberately
+permits some `required` and `fail` template errors. Rendered manifests stay out of
+logs, and validation overlays do not alter the published archive.
+
+The upstream ADR owns the detailed inputs and tool contracts. Lint follows
+explicit chart-selection semantics; source-diff/version policy belongs before
+preparation. Review removes the duplicate lint step and phase switches from Test:
+Lint owns static validation, while Test runs installation tests. This is a breaking
+upstream change. Test's prepared-archive inputs and workflow composition remain
+pending. Reuse existing chart fixtures and distribution automation, with no
+additional test image or cluster. Review Lint and its CI before
+starting Test. No Pleey adoption or performance improvement is claimed yet.
 
 ### Follow-Up
 
