@@ -1755,7 +1755,7 @@ the withdrawn implementation; they do not validate the replacement design.
 ### Separate Helm phases after review: 2026-11-13
 
 The user requested four phases: prepare, lint, test and release. The revised
-[upstream ADR 0007](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/validate-packaged-helm-charts/docs/adr/0007-separate-helm-pipeline-phases.md)
+[upstream ADR 0007](https://github.com/hoverkraft-tech/ci-github-container/blob/1.0.0/docs/adr/0007-separate-helm-pipeline-phases.md)
 owns their contracts. PR #966 returned to an ADR-only draft, with the publication
 action's `validation-values` input and its prototype tests removed.
 
@@ -1798,6 +1798,31 @@ Focused source, distribution and real Helm checks cover archive identity,
 lock errors, fresh nested content, changed inputs and unchanged external pins.
 Hosted CI must pass before this increment is accepted. No performance gain or
 completed final-chart validation is claimed.
+
+### Prepare released and Lint implementation: 2026-11-14
+
+The user reviewed and merged Prepare in container PR #966, then published
+[1.0.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/1.0.0).
+The [release run](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43519248579)
+passed on `d6569ca423f29f68152ee561f51f7de0c08db709`. This completes the Prepare
+review checkpoint. It does not complete the artifact-validation workflow, so
+Pleey retains 0.43.0 while the remaining phases are reviewed separately.
+
+[Upstream PR #968](https://github.com/hoverkraft-tech/ci-github-container/pull/968)
+adds `lint-chart` with archive/checksum inputs and
+validation-only values files. It preserves chart-testing's metadata/schema, YAML,
+maintainer and custom-command checks against an isolated extraction. Dependency
+rebuilding is disabled; changed validation inputs cause failure. Client-side
+rendering uses the same scenarios and overlays because Helm lint deliberately
+permits some `required` and `fail` template errors. Rendered manifests stay out of
+logs, and validation overlays do not alter the published archive.
+
+The upstream ADR owns the detailed inputs and tool contracts. Lint follows
+explicit chart-selection semantics; source-diff/version policy belongs before
+preparation. Existing source-based Test callers retain their checks while the
+Test/workflow migration is pending. Reuse existing chart fixtures and distribution
+automation, with no additional test image or cluster. Review Lint and its CI before
+starting Test. No Pleey adoption or performance improvement is claimed yet.
 
 ### Follow-Up
 
