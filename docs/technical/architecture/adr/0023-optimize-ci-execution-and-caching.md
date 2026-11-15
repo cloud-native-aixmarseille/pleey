@@ -1901,6 +1901,21 @@ owns the implementation details and review boundary. Pleey retains released 2.0.
 until that phase is reviewed and released. Release's unchanged-archive contract
 and reusable workflow composition remain later increments.
 
+### Helm tool setup ownership review: 2026-11-15
+
+[Review on PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553#discussion_r4579615483)
+questions why Pleey must install Helm and chart-testing directly. Released Prepare
+and Lint require caller-provided tools; the composed workflow is not yet
+available. The explicit steps preserve static validation during that staged
+adoption, but are not the intended consumer interface.
+
+Keep the existing decision: ci-github-container's reusable workflow owns checkout,
+shared tool setup and cleanup for its validation job. Phase actions consume those
+tools without repeating setup. Adopting that released workflow must remove Pleey's
+explicit tool setup and phase orchestration while preserving its validation inputs
+and candidate-digest promotion gate. This remains an open implementation requirement;
+recording it does not resolve the review's developer-experience concern.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

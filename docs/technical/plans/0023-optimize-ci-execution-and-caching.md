@@ -418,8 +418,8 @@ Test/Release archive-input contracts and reusable workflow composition remain pe
 - [x] Implement Test: install the prepared archive in a fresh cluster; preserve readiness, migrations, chart tests, diagnostics and cleanup. [Upstream PR #975](https://github.com/hoverkraft-tech/ci-github-container/pull/975) is the review checkpoint.
 - [ ] Review Test and its passing CI before implementing Release; adopt it in Pleey only after release.
 - [ ] Release: publish and sign the unchanged archive; retain publication input checks, retry behavior and immutable outputs.
-- [ ] Compose the reusable workflow and verify artifact identity, validation gates, permissions, cancellation and reruns. Initially reuse one runner for prepare/lint/test and isolate publication.
-- [ ] Complete the breaking-contract migration and generated upstream docs, review and release, then adopt in Pleey with its existing CI values and validated image digests.
+- [ ] Compose the reusable workflow and verify artifact identity, validation gates, permissions, cancellation and reruns. It owns checkout, Helm/chart-testing setup and cleanup once for the prepare/lint/test job; isolate publication.
+- [ ] Complete the breaking-contract migration and generated upstream docs, review and release, then adopt in Pleey with its existing CI values and validated image digests. Replace Pleey's explicit Helm tool setup and phase orchestration with the upstream workflow call; see the [setup ownership review](../architecture/adr/0023-optimize-ci-execution-and-caching.md#helm-tool-setup-ownership-review-2026-11-15).
 - [ ] Validate the resulting release chart and compare elapsed/summed job time; keep live release and overall performance acceptance open until actually exercised.
 
 ## P5: Parallelize suitable operations within one job
