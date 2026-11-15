@@ -35,7 +35,7 @@ jobs:
 
   build-backend-ci-image:
     name: Build backend CI image
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
     permissions:
       attestations: write
       contents: read
@@ -94,7 +94,7 @@ jobs:
 
   build-frontend-ci-image:
     name: Build frontend CI image
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
     permissions:
       attestations: write
       contents: read
@@ -153,7 +153,7 @@ jobs:
 
   build-backend-candidate:
     name: Build backend production candidate
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
     needs: build-backend-ci-image
     permissions:
       attestations: write
@@ -183,7 +183,7 @@ jobs:
 
   build-frontend-candidate:
     name: Build frontend production candidate
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
     needs: build-frontend-ci-image
     permissions:
       attestations: write
@@ -225,31 +225,27 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: azure/setup-helm@2f5e7bc67f1f9972ab16657bb795f36d8f04de0e # v5.1.0
-
-      - uses: helm/chart-testing-action@720270857a28afd41e2426521a7801db09e9b510 # v2.9.0
-
-      - name: Prepare Helm chart for linting
+      - name: Prepare Helm chart for validation
         id: prepare-chart
-        uses: hoverkraft-tech/ci-github-container/actions/helm/prepare-chart@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/prepare-chart@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
         with:
           path: charts/application
-          helm-repositories: &helm-repositories |
+          helm-repositories: |
             cloudnative-pg https://cloudnative-pg.github.io/charts
             valkey https://valkey.io/valkey-helm/
             bokysan https://bokysan.github.io/docker-postfix/
 
       - name: Lint prepared Helm chart
-        uses: hoverkraft-tech/ci-github-container/actions/helm/lint-chart@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/lint-chart@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
         with:
           archive: ${{ steps.prepare-chart.outputs.archive }}
           checksum: ${{ steps.prepare-chart.outputs.checksum }}
 
-      - name: Install and test Helm chart
-        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
+      - name: Install and test prepared Helm chart
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
         with:
-          check-diff-only: false
-          helm-repositories: *helm-repositories
+          archive: ${{ steps.prepare-chart.outputs.archive }}
+          checksum: ${{ steps.prepare-chart.outputs.checksum }}
           helm-set: |
             backend.image.registry=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.registry }}
             backend.image.repository=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.repository }}
@@ -298,7 +294,7 @@ jobs:
       - build-backend-candidate
       - build-frontend-candidate
       - tests-charts
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
     permissions:
       actions: read
       attestations: read

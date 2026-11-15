@@ -82,8 +82,10 @@ service's lint and tests. Helm always installs both candidates by digest, includ
 for application-only changes. Before installation, the same job prepares the
 umbrella archive and validates its checksum, chart-testing policies and rendering
 with the packaged CI recovery values. Static validation must succeed before a
-cluster is created. Installation uses the source chart and candidate image
-overrides; the prepared archive is cleaned on success or failure.
+cluster is created. Installation verifies the same archive/checksum and uses an
+isolated extraction with candidate image overrides. Prepare, Lint and Test manage
+their required tools and reuse installed versions. Test does not check out source
+or rebuild dependencies. The prepared archive is cleaned on success or failure.
 
 The umbrella chart's `.helmignore` excludes generated backend/frontend archives
 because their source directories already supply those dependencies. Keep these
@@ -93,7 +95,7 @@ The promotion job requires repository lint, both
 application checks and their reports, both candidate builds and Helm validation
 to succeed before updating consumer tags. Release steps receive only promoted
 metadata through `built-prod-images` and wait for the entire shared workflow.
-See [ADR 0023's released workflow dependency upgrade](../architecture/adr/0023-optimize-ci-execution-and-caching.md#released-workflow-dependency-upgrade-2026-11-15)
+See [ADR 0023's released Test contract adoption](../architecture/adr/0023-optimize-ci-execution-and-caching.md#released-test-contract-adoption-2026-11-15)
 for the released workflow contract and remaining rollout work.
 
 `make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.
