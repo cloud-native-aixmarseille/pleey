@@ -1826,6 +1826,61 @@ pending. Reuse existing chart fixtures and distribution automation, with no
 additional test image or cluster. Review Lint and its CI before
 starting Test. No Pleey adoption or performance improvement is claimed yet.
 
+### Released workflow dependency upgrade: 2026-11-15
+
+At the user's request, upgrade PR #553 from revision `22631c0` to the latest
+stable releases verified on 2026-11-15. Keep immutable commit pins:
+
+| Repository          | Previous release | Adopted release                                                                    | Commit                                     |
+| ------------------- | ---------------- | ---------------------------------------------------------------------------------- | ------------------------------------------ |
+| ci-github-common    | 4.0.0            | [4.2.3](https://github.com/hoverkraft-tech/ci-github-common/releases/tag/4.2.3)    | `c63b4ce928082260ab263abc01faf3c1fa20c52b` |
+| ci-github-nodejs    | 3.0.0            | [3.0.3](https://github.com/hoverkraft-tech/ci-github-nodejs/releases/tag/3.0.3)    | `6dee39a2a74172ea5539caa886a12b32765d5bd1` |
+| ci-github-publish   | 3.0.2            | [3.0.6](https://github.com/hoverkraft-tech/ci-github-publish/releases/tag/3.0.6)   | `c3cd9bbbc4909bb341bd2aafe50a8673afc58fd0` |
+| ci-github-container | 0.43.0           | [2.0.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/2.0.0) | `0592b66c9ed74d8cb7b0c015881ca590fc5d550b` |
+
+Container PR #968 is merged and its Lint phase is released in 2.0.0. This completes
+the upstream Lint review checkpoint. The upgrade request supersedes the earlier
+decision to retain 0.43.0 until every Helm phase was available; it does not complete
+the remaining artifact contracts.
+
+A pin-only upgrade would remove static validation because `test-chart` now only
+installs and tests source charts. In the existing Helm job, check out source,
+install the required tools, prepare the umbrella archive and run `lint-chart`
+against its checksum before installation. Keep `ct.yaml` policies and packaged
+CI recovery values. Installation retains the existing candidate image digest
+overrides and fresh-cluster checks. A failed preparation, lint or installation
+prevents validation outputs and image promotion. Always clean the prepared archive.
+
+Local validation exposed 95 duplicate archive entries: Helm loaded both local
+subchart source directories and the `.tgz` copies generated beside them by
+dependency builds. Helm's [chart loader](https://github.com/helm/helm/blob/v4.3.1/pkg/chart/v2/loader/load.go)
+treats them as separate dependencies. Add root `.helmignore` rules for `charts/backend-*.tgz` and
+`charts/frontend-*.tgz`, keeping their source directories and locked external
+dependencies in the package. This fixes the archive contents without weakening
+Lint's duplicate-entry rejection. The release caller also declares the SMTP
+repository required by the backend's locked dependencies.
+
+The corrected local check used the released bundles with Helm 4.3.1 and
+chart-testing 3.15.0. Preparation and lint/render validation passed in 2.49s:
+119 unique archive entries, unchanged checksum, all three locked external chart
+versions retained and temporary lint files removed. All 24 call sites match the
+19 distinct released input/output contracts. These checks do not establish
+cluster installation, publication or a controlled performance improvement.
+
+The released Test action still checks out and builds source dependencies itself;
+Release prepares its own publication archive. Those repeated operations and the
+final artifact-identity gap remain until their upstream contracts change. This
+upgrade preserves the existing validation boundary and adds real template
+rendering, without claiming that the linted, installed and published charts are
+the same archive. No performance gain is claimed.
+
+The other releases retain the inputs and outputs used here. They include
+fork/Dependabot automation fixes, report handling fixes, workspace package test
+support and refreshed dependencies. Pleey's container-based application checks
+keep compilation in Docker and their existing report paths. Existing PR CI must
+validate both applications, Helm and gated promotion; live main/release execution
+remains a separate rollout check.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
