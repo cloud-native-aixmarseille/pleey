@@ -18,7 +18,7 @@ permissions: {}
 
 jobs:
   linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@66882b24f9f13e45a6541896a5a7c638cb91c94c # 4.0.0
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@c63b4ce928082260ab263abc01faf3c1fa20c52b # 4.2.3
     permissions:
       actions: read
       contents: read
@@ -35,7 +35,7 @@ jobs:
 
   build-backend-ci-image:
     name: Build backend CI image
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
     permissions:
       attestations: write
       contents: read
@@ -62,7 +62,7 @@ jobs:
 
   check-backend:
     name: Lint and test backend
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@fbd3522b68c55a6314aadbededaa487825ba9b35 # 3.0.0
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@6dee39a2a74172ea5539caa886a12b32765d5bd1 # 3.0.3
     needs: build-backend-ci-image
     permissions:
       contents: read
@@ -94,7 +94,7 @@ jobs:
 
   build-frontend-ci-image:
     name: Build frontend CI image
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
     permissions:
       attestations: write
       contents: read
@@ -121,7 +121,7 @@ jobs:
 
   check-frontend:
     name: Lint and test frontend
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@fbd3522b68c55a6314aadbededaa487825ba9b35 # 3.0.0
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@6dee39a2a74172ea5539caa886a12b32765d5bd1 # 3.0.3
     needs: build-frontend-ci-image
     permissions:
       contents: read
@@ -153,7 +153,7 @@ jobs:
 
   build-backend-candidate:
     name: Build backend production candidate
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
     needs: build-backend-ci-image
     permissions:
       attestations: write
@@ -183,7 +183,7 @@ jobs:
 
   build-frontend-candidate:
     name: Build frontend production candidate
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
     needs: build-frontend-ci-image
     permissions:
       attestations: write
@@ -221,14 +221,35 @@ jobs:
       contents: read
       packages: read
     steps:
-      - name: Test helm chart (umbrella)
-        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          check-diff-only: false
-          helm-repositories: |
+          persist-credentials: false
+
+      - uses: azure/setup-helm@2f5e7bc67f1f9972ab16657bb795f36d8f04de0e # v5.1.0
+
+      - uses: helm/chart-testing-action@720270857a28afd41e2426521a7801db09e9b510 # v2.9.0
+
+      - name: Prepare Helm chart for linting
+        id: prepare-chart
+        uses: hoverkraft-tech/ci-github-container/actions/helm/prepare-chart@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
+        with:
+          path: charts/application
+          helm-repositories: &helm-repositories |
             cloudnative-pg https://cloudnative-pg.github.io/charts
             valkey https://valkey.io/valkey-helm/
             bokysan https://bokysan.github.io/docker-postfix/
+
+      - name: Lint prepared Helm chart
+        uses: hoverkraft-tech/ci-github-container/actions/helm/lint-chart@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
+        with:
+          archive: ${{ steps.prepare-chart.outputs.archive }}
+          checksum: ${{ steps.prepare-chart.outputs.checksum }}
+
+      - name: Install and test Helm chart
+        uses: hoverkraft-tech/ci-github-container/actions/helm/test-chart@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
+        with:
+          check-diff-only: false
+          helm-repositories: *helm-repositories
           helm-set: |
             backend.image.registry=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.registry }}
             backend.image.repository=${{ fromJSON(needs.build-backend-candidate.outputs.built-images).backend.repository }}
@@ -243,6 +264,17 @@ jobs:
           oci-registry: ${{ vars.OCI_REGISTRY }}
           oci-registry-username: ${{ github.repository_owner }}
           oci-registry-password: ${{ github.token }}
+
+      - name: Clean prepared chart
+        if: ${{ always() && steps.prepare-chart.outputs.archive != '' }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          ARCHIVE: ${{ steps.prepare-chart.outputs.archive }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const path = require('node:path');
+            fs.rmSync(path.dirname(process.env.ARCHIVE), { recursive: true, force: true });
 
       - name: Record chart-validated candidate digests
         id: validated
@@ -266,7 +298,7 @@ jobs:
       - build-backend-candidate
       - build-frontend-candidate
       - tests-charts
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@ed1e90302235365110f9b4b05df96840f715a14f # 0.43.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@0592b66c9ed74d8cb7b0c015881ca590fc5d550b # 2.0.0
     permissions:
       actions: read
       attestations: read
