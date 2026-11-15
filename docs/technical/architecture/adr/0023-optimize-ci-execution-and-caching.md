@@ -1881,6 +1881,26 @@ keep compilation in Docker and their existing report paths. Existing PR CI must
 validate both applications, Helm and gated promotion; live main/release execution
 remains a separate rollout check.
 
+### Released upgrade review and Test increment: 2026-11-15
+
+The user reviewed the dependency upgrade and authorized the next step.
+[Run 43729464622](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43729464622)
+passed at `d4ceedfccf687a6fd4888c9fec952b300d0d4d63`: 28 successful jobs,
+16 intentional skips, 2,408 passing application tests and 60 existing backend
+skips. Both applications' module-export and pagination guards passed. Prepare,
+Lint, installation and cleanup succeeded; promotion verified the tested candidate
+digests and all four destination tags. These results validate the released upgrade,
+not the remaining single-archive pipeline or performance acceptance.
+
+The next increment is [container PR #975](https://github.com/hoverkraft-tech/ci-github-container/pull/975).
+It implements the upstream Test archive/checksum contract, preserving fresh-cluster
+installation and chart-testing scenarios while removing checkout, source selection
+and dependency rebuilds from Test. The
+[upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/feat/test-prepared-helm-charts/docs/adr/0007-separate-helm-pipeline-phases.md#test-increment-2026-11-15)
+owns the implementation details and review boundary. Pleey retains released 2.0.0
+until that phase is reviewed and released. Release's unchanged-archive contract
+and reusable workflow composition remain later increments.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

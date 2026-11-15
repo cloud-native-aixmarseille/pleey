@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1-P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication and gated promotion reviewed and released in 0.43.0; P4 initial consumer adoption reviewed, Prepare and Lint released, latest workflow dependency upgrade in PR #553 awaiting review, remaining artifact contracts and performance acceptance pending; P5 deferral reviewed; P7 required-secret change validated and reviewed, setup/cache experiments deferred; P6 and remaining P7/P8 work pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1-P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication and gated promotion reviewed and released in 0.43.0; P4 initial consumer adoption reviewed, Prepare and Lint released, latest workflow dependency upgrade reviewed, Test archive contract implemented in upstream PR #975 for review, Release/workflow composition and performance acceptance pending; P5 deferral reviewed; P7 required-secret change validated and reviewed, setup/cache experiments deferred; P6 and remaining P7/P8 work pending
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -414,8 +414,9 @@ Test/Release archive-input contracts and reusable workflow composition remain pe
 - [x] Lint: extract existing static checks and run them against the prepared chart with validation overlays; include real rendering for errors Helm lint permits. Remove duplicate linting and phase switches from Test so Lint has sole ownership.
 - [x] Review the Lint implementation and its CI before starting Test. PR #968 merged on 2026-11-14 and released in 2.0.0 on 2026-11-15.
 - [x] Upgrade the released Common, Node.js, Publish and Container references in PR #553, retaining explicit Helm static validation before installation. See the upgrade decision above for exact versions.
-- [ ] Review PR #553's released dependency upgrade and its CI before the next phase.
-- [ ] Test: install that chart in a fresh cluster; preserve readiness, migrations, chart tests, diagnostics and cleanup.
+- [x] Review PR #553's released dependency upgrade and its CI before the next phase. Run 43729464622 passed at `d4ceedf`; user approved proceeding on 2026-11-15.
+- [x] Implement Test: install the prepared archive in a fresh cluster; preserve readiness, migrations, chart tests, diagnostics and cleanup. [Upstream PR #975](https://github.com/hoverkraft-tech/ci-github-container/pull/975) is the review checkpoint.
+- [ ] Review Test and its passing CI before implementing Release; adopt it in Pleey only after release.
 - [ ] Release: publish and sign the unchanged archive; retain publication input checks, retry behavior and immutable outputs.
 - [ ] Compose the reusable workflow and verify artifact identity, validation gates, permissions, cancellation and reruns. Initially reuse one runner for prepare/lint/test and isolate publication.
 - [ ] Complete the breaking-contract migration and generated upstream docs, review and release, then adopt in Pleey with its existing CI values and validated image digests.
