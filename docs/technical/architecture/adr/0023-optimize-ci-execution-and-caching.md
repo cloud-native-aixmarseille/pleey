@@ -1962,6 +1962,45 @@ fixture image, cluster scenario or duplicate test suite is needed. Review the
 consumer adoption and its CI before starting Release. Controlled performance
 acceptance remains open.
 
+### Reusable Helm workflow implementation: 2026-11-15
+
+The user approved PR #553 at `fd765b8` after
+[CI 43761313764](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43761313764)
+passed, then requested Release and a reusable replacement for `tests-charts`.
+That run completed 28 jobs with 16 expected skips; 2,408 application tests passed,
+with 60 existing backend skips. Lint/Test used one archive/checksum, Test did not
+rebuild dependencies, and promotion verified all four tags against the tested digests.
+
+[Upstream PR #979](https://github.com/hoverkraft-tech/ci-github-container/pull/979)
+introduces `helm-chart-ci.yml` for read-only
+validation and `helm-chart-release.yml` for validation followed by publication.
+The latter calls the former, preserving one implementation of checkout,
+Prepare/Lint/Test, tool setup and cleanup. Separate entrypoints let PR checks retain
+read permissions while release callers delegate packages write and OIDC explicitly.
+The publication job downloads the producer's exact artifact ID and verifies the
+original checksum; it does not check out source or repackage the chart.
+
+After upstream review and release, replace Pleey's `tests-charts` steps with one
+call to `helm-chart-ci.yml`. Pass `charts/application`, the existing dependency
+repositories, candidate image overrides and registry credentials. Supply backend
+and frontend build metadata through `images`; the workflow returns it as
+`validated-images` only after validation and cleanup succeed. Pleey remains
+responsible for mapping each image digest into its chart. Keep the existing
+candidate dependencies and promotion gate; remove the caller's checkout,
+Prepare/Lint/Test steps, temporary cleanup and metadata script.
+
+Use the release entrypoint only after final chart metadata/defaults exist. It
+keeps publication credentials separate from validation's read-only image pull
+credentials. The archive artifact is invocation-specific and retained for seven
+days. A publication-only rerun reuses that ID; missing/expired artifacts fail and
+require a full rerun. Release triggers and environment protection remain caller
+responsibilities. No live production release or cancellation experiment is claimed.
+
+Keep Pleey on released Container 3.0.0 while the breaking upstream action contract
+and workflows are reviewed. This records the concrete consumer migration without
+making Pleey depend on an unpublished workflow. Controlled performance acceptance
+remains open.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
