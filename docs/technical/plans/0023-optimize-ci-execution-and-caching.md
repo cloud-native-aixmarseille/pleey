@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1-P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication and gated promotion reviewed and released in 0.43.0; P4 initial consumer adoption reviewed, Prepare and Lint released, latest workflow dependency upgrade reviewed, Test archive contract implemented in upstream PR #975 for review, Release/workflow composition and performance acceptance pending; P5 deferral reviewed; P7 required-secret change validated and reviewed, setup/cache experiments deferred; P6 and remaining P7/P8 work pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1-P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication and gated promotion reviewed and released in 0.43.0; P4 initial consumer adoption reviewed, Prepare and Lint released, latest workflow dependency upgrade reviewed, Test archive contract reviewed and released in 3.0.0, consumer adoption implemented for review, Release/workflow composition and performance acceptance pending; P5 deferral reviewed; P7 required-secret change validated and reviewed, setup/cache experiments deferred; P6 and remaining P7/P8 work pending
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -390,7 +390,7 @@ are rollout requirements; release adoption does not complete P4.
 - [x] Join repository/application checks, required reports, chart results and candidate/security results in the promotion job's gate without a dependency cycle. Local checks cover its complete ancestor inventory.
 - [x] Compare build, signature/provenance-subject, chart-tested and promoted digests explicitly. Run 43252004563 and registry reads matched both candidate digests across all four destination tags; see the dated ADR evidence.
 - [x] Preserve `built-prod-images` for release consumers, sourcing it from successful promotion; preserve planned release tags/metadata. Local caller-contract checks pass; live main/release validation remains open.
-- [ ] Validate the final prepared chart before publication; application evidence does not validate different chart content. Prepare and Lint are released and adopted below; Test and Release still need their archive-input contracts. The earlier `validation-values` proposal was rejected. Follow the [revised decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#separate-helm-phases-after-review-2026-11-13) and the implementation sequence below.
+- [ ] Validate the final prepared chart before publication; application evidence does not validate different chart content. Prepare, Lint and Test are released and adopted below; Release still needs its archive-input contract. The earlier `validation-values` proposal was rejected. Follow the [revised decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#separate-helm-phases-after-review-2026-11-13) and the implementation sequence below.
 - [ ] Exercise lint/test/chart/security failures, skips, cancellation, superseded runs and reruns. Verify no unchecked promotion and correct cleanup.
 - [ ] Benchmark separately from P3, including speculative work wasted on unsuccessful runs.
 
@@ -401,12 +401,11 @@ independently proven setup/cache improvements.
 
 The [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/main/docs/adr/0007-separate-helm-pipeline-phases.md)
 owns the artifact and input contracts. Review each implementation increment before
-starting the next. Prepare was released in 1.0.0 and Lint in 2.0.0 after
-[upstream PR #968](https://github.com/hoverkraft-tech/ci-github-container/pull/968)
-merged. At the user's request, PR #553 adopts the latest released actions with
-explicit Prepare/Lint steps before source-based installation. See the
-[upgrade decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#released-workflow-dependency-upgrade-2026-11-15).
-Test/Release archive-input contracts and reusable workflow composition remain pending.
+starting the next. Prepare, Lint and Test are released. PR #553 adopts Container
+3.0.0: Lint and Test consume one prepared archive/checksum, and the phase actions
+manage their tool prerequisites. See the
+[adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#released-test-contract-adoption-2026-11-15).
+Release's archive-input contract and reusable workflow composition remain pending.
 
 - [x] Review the four-phase ADR and the prepared-archive handoff. User approval recorded on 2026-11-13.
 - [x] Implement Prepare: finish metadata/default changes, resolve locked dependencies and current local subcharts, then package once with a checksum.
@@ -415,8 +414,10 @@ Test/Release archive-input contracts and reusable workflow composition remain pe
 - [x] Review the Lint implementation and its CI before starting Test. PR #968 merged on 2026-11-14 and released in 2.0.0 on 2026-11-15.
 - [x] Upgrade the released Common, Node.js, Publish and Container references in PR #553, retaining explicit Helm static validation before installation. See the upgrade decision above for exact versions.
 - [x] Review PR #553's released dependency upgrade and its CI before the next phase. Run 43729464622 passed at `d4ceedf`; user approved proceeding on 2026-11-15.
-- [x] Implement Test: install the prepared archive in a fresh cluster; preserve readiness, migrations, chart tests, diagnostics and cleanup. [Upstream PR #975](https://github.com/hoverkraft-tech/ci-github-container/pull/975) is the review checkpoint.
-- [ ] Review Test and its passing CI before implementing Release; adopt it in Pleey only after release. Remove explicit Helm/chart-testing setup with that adoption, using the [action-managed prerequisites](../architecture/adr/0023-optimize-ci-execution-and-caching.md#action-managed-helm-prerequisites-after-review-2026-11-15).
+- [x] Implement Test: install the prepared archive in a fresh cluster; preserve readiness, migrations, chart tests, diagnostics and cleanup. [Upstream PR #975](https://github.com/hoverkraft-tech/ci-github-container/pull/975) merged and was released in 3.0.0.
+- [x] Review Test and its passing CI before implementing Release. PR #975 merged; the user published 3.0.0 on 2026-11-15, with passing release and tag CI.
+- [x] Adopt released Container 3.0.0 in Pleey: pass the same prepared archive/checksum to Lint and Test, remove source-based Test inputs and explicit validation-tool setup, and use the shared setup action for the release job's own Helm command.
+- [ ] Review the consumer adoption and its CI before starting Release.
 - [ ] Release: publish and sign the unchanged archive; retain publication input checks, retry behavior and immutable outputs.
 - [ ] Compose the reusable workflow and verify artifact identity, validation gates, permissions, cancellation and reruns. It owns checkout and cleanup for the prepare/lint/test job, whose actions reuse their shared tool setup; isolate publication.
 - [ ] Complete the breaking-contract migration and generated upstream docs, review and release, then adopt in Pleey with its existing CI values and validated image digests. Replace Pleey's explicit phase orchestration with the upstream workflow call; see the [setup ownership review](../architecture/adr/0023-optimize-ci-execution-and-caching.md#helm-tool-setup-ownership-review-2026-11-15).

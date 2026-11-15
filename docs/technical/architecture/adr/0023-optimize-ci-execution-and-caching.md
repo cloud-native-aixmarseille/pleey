@@ -1931,6 +1931,37 @@ on the later reusable workflow. Phase ordering, archive handoff and publication
 gating remain part of workflow composition. The upstream implementation is in
 review; Pleey's released pins and setup steps remain until adoption is possible.
 
+### Released Test contract adoption: 2026-11-15
+
+The user merged [container PR #975](https://github.com/hoverkraft-tech/ci-github-container/pull/975)
+and published [3.0.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/3.0.0).
+The tag resolves to `3feb56e45f82273a7eded46ac3b9364c08337cee`; its
+[release run](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43758820548)
+and [tag CI](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43759619893)
+passed. This completes the upstream Test review checkpoint. The consumer migration
+starts from PR #553 at `61583822d794aa32de6182d6b969c82d2ca720ba`, pinned to 2.0.0.
+
+Pin every Container call to the released commit. Lint and Test now receive the
+same Prepare archive and checksum. Remove Test's source-selection and repository
+inputs and the validation job's explicit Helm/chart-testing setup; the phase
+actions own prerequisites. Keep caller checkout, existing chart-testing policies,
+packaged recovery values, candidate image overrides, registry credentials and the
+promotion gate. Preparation happens once in that job, and both validation phases
+reject changes to the archive. Always clean the successful Prepare output.
+
+Release-file preparation still runs `helm dependency update` before generating
+documentation. Use the public `helm/setup` action for that caller-owned command.
+The publication action retains its current source-based inputs and default OCI
+address; its prepared-archive contract and workflow composition remain later
+increments. This adoption does not establish that the published chart is the
+validated archive or exercise live release publication.
+
+Use the existing PR CI to validate application checks and reports, fresh-cluster
+Helm installation, cleanup and promotion of the tested digests. No additional
+fixture image, cluster scenario or duplicate test suite is needed. Review the
+consumer adoption and its CI before starting Release. Controlled performance
+acceptance remains open.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
