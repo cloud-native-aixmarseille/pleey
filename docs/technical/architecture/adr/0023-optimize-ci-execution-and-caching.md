@@ -1916,6 +1916,21 @@ explicit tool setup and phase orchestration while preserving its validation inpu
 and candidate-digest promotion gate. This remains an open implementation requirement;
 recording it does not resolve the review's developer-experience concern.
 
+### Action-managed Helm prerequisites after review: 2026-11-15
+
+The [same review on container PR #975](https://github.com/hoverkraft-tech/ci-github-container/pull/975#discussion_r4579701404)
+also applies to direct phase-action callers. Waiting for workflow composition
+leaves that interface unnecessarily verbose. The upstream revision makes Prepare,
+Lint and Test call a public `helm/setup` action for their prerequisites. It reuses
+existing tools/configuration and invokes the existing installers for missing tools.
+Checkout and source generation remain caller-owned; private action files are not shared.
+
+After the revised actions are reviewed and released, remove Pleey's explicit
+Helm/chart-testing setup when adopting them. That simplification no longer depends
+on the later reusable workflow. Phase ordering, archive handoff and publication
+gating remain part of workflow composition. The upstream implementation is in
+review; Pleey's released pins and setup steps remain until adoption is possible.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
