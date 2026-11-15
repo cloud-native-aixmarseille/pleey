@@ -390,7 +390,7 @@ are rollout requirements; release adoption does not complete P4.
 - [x] Join repository/application checks, required reports, chart results and candidate/security results in the promotion job's gate without a dependency cycle. Local checks cover its complete ancestor inventory.
 - [x] Compare build, signature/provenance-subject, chart-tested and promoted digests explicitly. Run 43252004563 and registry reads matched both candidate digests across all four destination tags; see the dated ADR evidence.
 - [x] Preserve `built-prod-images` for release consumers, sourcing it from successful promotion; preserve planned release tags/metadata. Local caller-contract checks pass; live main/release validation remains open.
-- [ ] Validate the final prepared chart before publication; application evidence does not validate different chart content. Prepare, Lint and Test are released and adopted below; Release still needs its archive-input contract. The earlier `validation-values` proposal was rejected. Follow the [revised decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#separate-helm-phases-after-review-2026-11-13) and the implementation sequence below.
+- [ ] Validate the final prepared chart before publication; application evidence does not validate different chart content. The workflow handoff is implemented below; live Pleey release validation remains open. The earlier `validation-values` proposal was rejected. Follow the [revised decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#separate-helm-phases-after-review-2026-11-13) and the implementation sequence below.
 - [ ] Exercise lint/test/chart/security failures, skips, cancellation, superseded runs and reruns. Verify no unchecked promotion and correct cleanup.
 - [ ] Benchmark separately from P3, including speculative work wasted on unsuccessful runs.
 
@@ -401,11 +401,11 @@ independently proven setup/cache improvements.
 
 The [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/main/docs/adr/0007-separate-helm-pipeline-phases.md)
 owns the artifact and input contracts. Review each implementation increment before
-starting the next. Prepare, Lint and Test are released. PR #553 adopts Container
-3.0.0: Lint and Test consume one prepared archive/checksum, and the phase actions
-manage their tool prerequisites. See the
-[adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#released-test-contract-adoption-2026-11-15).
-Release's archive-input contract and reusable workflow composition remain pending.
+starting the next. Prepare, Lint and Test are released. Release's archive-input
+contract and shared workflows merged in PR #979. PR #553 now validates the merged
+commit before one upstream release, as requested by the user. See the
+[prerelease integration decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#validate-the-merged-helm-workflows-before-one-upstream-release-2026-11-15).
+Replace the temporary commit pins with that release before merging Pleey.
 
 - [x] Review the four-phase ADR and the prepared-archive handoff. User approval recorded on 2026-11-13.
 - [x] Implement Prepare: finish metadata/default changes, resolve locked dependencies and current local subcharts, then package once with a checksum.
@@ -418,10 +418,12 @@ Release's archive-input contract and reusable workflow composition remain pendin
 - [x] Review Test and its passing CI before implementing Release. PR #975 merged; the user published 3.0.0 on 2026-11-15, with passing release and tag CI.
 - [x] Adopt released Container 3.0.0 in Pleey: pass the same prepared archive/checksum to Lint and Test, remove source-based Test inputs and explicit validation-tool setup, and use the shared setup action for the release job's own Helm command.
 - [x] Review the consumer adoption and its CI before starting Release. User approved `fd765b8` and passing run 43761313764 on 2026-11-15, and requested reusable `tests-charts` orchestration in the next increment.
-- [x] Implement upstream Release with archive/checksum inputs, verified snapshot retries, immutable outputs and caller-owned archive preservation. [Upstream PR #979](https://github.com/hoverkraft-tech/ci-github-container/pull/979) and its hosted CI are the next review checkpoint.
+- [x] Implement upstream Release with archive/checksum inputs, verified snapshot retries, immutable outputs and caller-owned archive preservation. [Upstream PR #979](https://github.com/hoverkraft-tech/ci-github-container/pull/979) merged at `0095899` on 2026-11-15.
 - [x] Implement shared validation and release entrypoints: `helm-chart-ci.yml` owns checkout, Prepare/Lint/Test and cleanup with read permissions; `helm-chart-release.yml` reuses it and publishes the exact uploaded artifact in a separate job. See the [composition decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#reusable-helm-workflow-implementation-2026-11-15).
-- [ ] Review upstream CI, artifact identity, validation gates and recovery before releasing the replacement. Keep interrupted-run and production rollout checks explicit.
-- [ ] Complete the breaking-contract migration and generated upstream docs, review and release, then adopt in Pleey with its existing CI values and validated image digests. Replace `tests-charts` with `helm-chart-ci.yml`, retaining candidate image overrides, successful `validated-images` outputs and the promotion dependency inventory. Use `helm-chart-release.yml` after final release metadata is prepared; see the composition decision above.
+- [x] Review upstream CI, artifact identity, validation gates and recovery before releasing the replacement. PR #979 merged after [CI 43765776306](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43765776306) passed with 222 successful jobs and 54 expected skips. Interrupted-run and production rollout checks remain open.
+- [x] Prepare Pleey's migration against the reviewed merge commit: replace `tests-charts` with `helm-chart-ci.yml`, retaining candidate overrides, successful `validated-images` outputs and the promotion dependency inventory. Use `helm-chart-release.yml` after final release metadata is committed, preserving the existing OCI address and validating its image defaults.
+- [ ] Validate and review PR #553's prerelease integration; fix any demonstrated upstream gap before releasing Container once. Keep existing action/workflow fixture coverage instead of adding duplicate clusters.
+- [ ] Publish one Container release, verify its generated documentation and replace PR #553's temporary merged-commit pins with the released commit. Review the resulting CI before merging Pleey.
 - [ ] Validate the resulting release chart and compare elapsed/summed job time; keep live release and overall performance acceptance open until actually exercised.
 
 ## P5: Parallelize suitable operations within one job
