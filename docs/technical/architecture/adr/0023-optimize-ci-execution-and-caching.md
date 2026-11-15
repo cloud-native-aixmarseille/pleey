@@ -2001,6 +2001,41 @@ and workflows are reviewed. This records the concrete consumer migration without
 making Pleey depend on an unpublished workflow. Controlled performance acceptance
 remains open.
 
+### Validate the merged Helm workflows before one upstream release: 2026-11-15
+
+The user merged Container PR #979 and requested that remaining upstream changes
+be completed before one release. For this validation increment, supersede the
+release-first sequencing above: pin PR #553 to reviewed merge commit
+`00958991595e51ab23139e37af35c542d4009b2e`, then replace it with the published
+release commit before merging Pleey. Container 3.0.0 remains the latest release;
+this commit is an explicit prerelease integration target.
+
+Replace `tests-charts` with the read-only `helm-chart-ci.yml` call, retaining
+candidate digest overrides and passing both candidates as `images`. Its successful
+`validated-images` output feeds the existing promotion gate. No additional cluster
+or test image is introduced for PR validation.
+
+Replace release publication with `helm-chart-release.yml` after release-file
+preparation and draft creation. Check out the immutable prepared release SHA and
+preserve the chart name `pleey` and OCI namespace
+`cloud-native-aixmarseille/pleey/charts/application`. Test the final committed image
+defaults without replacing their tags or digests through installation overrides.
+Only enable the test cluster's database operator and registry pull secret through
+`helm-set`; retain the packaged recovery values. The reusable workflow validates
+that final archive and publishes the exact artifact with its original checksum.
+
+Use each reusable job's own GITHUB_TOKEN fallback so validation receives read-only
+credentials and only publication receives packages write and OIDC. Keep release
+concurrency non-cancelling and publish the GitHub release only after chart
+publication succeeds. A publication-only retry uses the immutable uploaded
+artifact; expiration requires full revalidation.
+
+Existing PR CI covers consumer validation, cleanup, metadata propagation and image
+promotion. Container's merged workflow integration covers artifact transfer,
+publication, checksum equality and signing. Review any integration fixes before
+the single upstream release. Live Pleey release publication, interrupted-run
+experiments and controlled performance acceptance remain open.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

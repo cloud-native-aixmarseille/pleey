@@ -57,7 +57,7 @@ jobs:
           persist-credentials: false
 
       - name: Update chart image defaults
-        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
         with:
           path: charts/application
           values: >-
@@ -123,7 +123,7 @@ jobs:
             ]
 
       - name: Set up Helm
-        uses: hoverkraft-tech/ci-github-container/actions/helm/setup@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/setup@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
 
       - name: Refresh umbrella Chart.lock
         shell: bash
@@ -131,7 +131,7 @@ jobs:
 
       - name: Regenerate Helm chart documentation
         id: generate-docs
-        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
         with:
           working-directory: ./charts
           checkout-ref: ""
@@ -164,27 +164,30 @@ jobs:
           github-token: ${{ github.token }}
 
   publish-release-artifacts:
+    name: Validate and publish release chart
     needs: [plan-release, ci, prepare-release-files, draft-release]
-    runs-on: ubuntu-latest
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/helm-chart-release.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
     permissions:
       contents: read
       id-token: write
       packages: write
-    steps:
-      - id: release-chart
-        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@3feb56e45f82273a7eded46ac3b9364c08337cee # 3.0.0
-        with:
-          oci-registry: ${{ vars.OCI_REGISTRY }}
-          oci-registry-username: ${{ github.repository_owner }}
-          oci-registry-password: ${{ github.token }}
-          chart: application
-          path: charts/application
-          helm-repositories: |
-            cloudnative-pg https://cloudnative-pg.github.io/charts
-            valkey https://valkey.io/valkey-helm/
-            bokysan https://bokysan.github.io/docker-postfix/
-          tag: ${{ needs.plan-release.outputs.tag }}
-          ref: ${{ needs.prepare-release-files.outputs.release-sha }}
+    with:
+      path: charts/application
+      ref: ${{ needs.prepare-release-files.outputs.release-sha }}
+      name: ${{ github.event.repository.name }}
+      tag: ${{ needs.plan-release.outputs.tag }}
+      helm-repositories: |
+        cloudnative-pg https://cloudnative-pg.github.io/charts
+        valkey https://valkey.io/valkey-helm/
+        bokysan https://bokysan.github.io/docker-postfix/
+      helm-set: |
+        backend.cloudnativepgOperator.enabled=true
+        global.imagePullSecrets[0].name=regcred
+      test-oci-registry: ${{ vars.OCI_REGISTRY }}
+      test-oci-registry-username: ${{ github.repository_owner }}
+      oci-registry: ${{ vars.OCI_REGISTRY }}
+      oci-registry-username: ${{ github.repository_owner }}
+      oci-repository: ${{ github.repository }}/charts/application
 
   publish-release:
     needs: [draft-release, publish-release-artifacts]
