@@ -28,8 +28,8 @@ jobs:
             const { pathToFileURL } = require('node:url');
             const { performance } = require('node:perf_hooks');
             const { needsHelmDocs } = await import(pathToFileURL(`${process.env.GITHUB_WORKSPACE}/scripts/ci-helm-docs.mjs`).href);
-            const historical = (await github.rest.actions.getWorkflowRun({ ...context.repo, run_id: 43426111766 })).data;
-            if (historical.head_sha !== '437c94c50f301436782e48720e16ce0dbea74751' || historical.conclusion !== 'success') {
+            const historical = (await github.rest.actions.getWorkflowRun({ ...context.repo, run_id: 42202381593 })).data;
+            if (historical.head_sha !== '906c411041e80cad51856c345477b26d4de2f1a6' || historical.conclusion !== 'success') {
               throw new Error('Unexpected historical main run.');
             }
             for (const scenario of ['unchanged', 'changed']) {
