@@ -392,6 +392,10 @@ output to succeed. It evaluates failed, cancelled, and unexpectedly skipped jobs
 explicitly; a skipped dependency must not produce a passing aggregate check.
 This follows GitHub's [job dependency semantics](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-jobs).
 
+The released cache implementation and a proposed trial of independent candidate
+starts are assessed in the [2026-11-16 profile](#ci-critical-path-profile-2026-11-16).
+The trial has not replaced the ordering above.
+
 This requires a publication contract before changing `needs`. The existing
 `images[].tag` override already selects a forced tag and disables `latest` in the
 [metadata action](https://github.com/hoverkraft-tech/ci-github-container/blob/5ffc3c81daacc57700a14bb91d67edbc67eedc1d/actions/docker/get-image-metadata/action.yml).
@@ -2035,6 +2039,121 @@ promotion. Container's merged workflow integration covers artifact transfer,
 publication, checksum equality and signing. Review any integration fixes before
 the single upstream release. Live Pleey release publication, interrupted-run
 experiments and controlled performance acceptance remain open.
+
+### CI critical-path profile: 2026-11-16
+
+The user approved PR #553's reusable Helm integration at `b69e064`, then requested
+profiling before selecting another optimization. Inspect the seven most recent
+completed PR CI runs, all from 2026-11-15 and all successful. Use attempt-specific
+job/step timestamps and existing logs; no benchmark reruns or runtime changes were
+made for this analysis.
+
+The actual tested merge commits have identical `application`, `charts` and
+`scripts` trees, verified through GitHub's Git tree API. Workflow/action revisions
+changed during Helm adoption, so these observations are not a controlled comparison
+or P8 acceptance. Elapsed time runs from `run_started_at` to the last completed
+non-skipped job; summed time adds job intervals, including setup and cleanup. It
+is not billed CPU time. Existing logs do not establish peak memory or CPU use.
+
+| Run | Head | Elapsed | Summed jobs | Helm job | Frontend test job | Last required check before promotion |
+| --- | --- | --- | --- | --- | --- | --- |
+| [43729464622](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43729464622) | `d4ceedf` | 6m58s | 20m49s | 2m48s | 4m27s | Frontend, 7s after Helm |
+| [43741069208](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43741069208) | `446568f` | 7m02s | 20m20s | 2m54s | 4m07s | Helm, 17s after frontend |
+| [43748026072](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43748026072) | `669a539` | 7m26s | 18m46s | 2m56s | 3m03s | Helm, 107s after frontend |
+| [43749980314](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43749980314) | `6158382` | 7m02s | 20m23s | 2m52s | 3m04s | Helm, 86s after frontend |
+| [43761313764](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43761313764) | `fd765b8` | 7m26s | 19m37s | 3m04s | 2m46s | Helm, 136s after frontend |
+| [43764873866](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43764873866) | `98baf05` | 7m23s | 19m29s | 2m57s | 2m57s | Helm, 111s after frontend |
+| [43769038955](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43769038955) | `b69e064` | 6m51s | 20m06s | 2m40s | 3m55s | Helm, 25s after frontend |
+
+Median elapsed is 7m02s (range 6m51s-7m26s); median summed job time is 20m06s
+(18m46s-20m49s). Every run has 28 successful jobs and 16 expected skips. Helm
+finishes last before promotion in six runs; frontend tests finish last in one.
+Changing only frontend test duration could save at most seven seconds in that
+one observed run and nothing in the others, before accounting for sharding overhead.
+
+In the latest run, the backend branch determines the finish time. Node intervals
+are offsets from run start and include each image workflow's required publication,
+signing and attestation:
+
+```mermaid
+flowchart LR
+    S[Start] --> B[Backend CI image<br/>0m02s-1m37s]
+    S --> F[Frontend CI image<br/>0m02s-1m35s]
+    S --> L[Repository checks<br/>finish by 2m19s]
+    B --> BP[Backend candidate<br/>1m39s-3m21s]
+    F --> FP[Frontend candidate<br/>1m37s-3m10s]
+    B --> BC[Backend checks<br/>finish at 3m05s]
+    F --> FC[Frontend checks<br/>finish at 5m38s]
+    BP --> H[Helm<br/>3m23s-6m03s]
+    FP --> H
+    H --> P[Promotion<br/>6m05s-6m51s]
+    BC --> P
+    FC --> P
+    L --> P
+```
+
+The chain contains 391 seconds of job intervals and 20 seconds of initial dispatch
+and gaps between dependent jobs. Creation-to-start delay across all jobs is 1-3s
+(median 1.5s); the large wait before Helm is primarily dependency ordering.
+Frontend tests finish at 5m38s, backend tests at 3m05s and repository lint at 2m19s.
+
+The logs identify these costs:
+
+- **Docker:** all RUN/COPY layers hit cache in the latest run's four builds.
+  Build-push actions take 4.21-5.69s, including cache and image export. Individual
+  GHA cache-export vertices take 0.5-2.2s and can overlap other export work.
+  Docker/Buildx setup through the start of cache configuration takes 21.95-23.65s
+  per build. Each image then passes through publication/signing and attestation
+  jobs. More cache backends do not address this observed warm-build bottleneck;
+  cold and source-changing builds still require separate measurement.
+- **Helm:** across seven runs, kind creation takes 36.20-43.24s, installation to
+  deployed status takes 75.45-92.28s, and chart tests/diagnostics after deployment
+  take 8.97-12.54s. In the latest run, Prepare/Lint take 7s/5s and post-install
+  cleanup takes 9s. Kubernetes events report a 410 MB backend image pull taking
+  16.4s and a PostgreSQL image pull taking 8.1s, with additional pull-queue waits.
+  These intervals overlap initialization; they are not additive workflow savings.
+  Keep fresh-cluster, database, migration and health checks intact.
+- **Promotion:** 32-55s per job (median 41s), always after all validations.
+  The latest job verifies both signatures and provenance, then writes and checks
+  four tags sequentially. Read-only verification concurrency is a possible later
+  Container experiment. Keep publication ordering, supersession checks and the
+  journal intact; no saving or safe write-parallelization result is established.
+- **Application checks/reporting:** the latest frontend test job spends 202.58s
+  in Vitest within a 235s job; backend Vitest takes 35.57s within an 80s job.
+  Container setup, reporting and cleanup account for the remaining intervals.
+  Repository lint and both application lint jobs finish before the final gate;
+  adding jobs for them has no demonstrated elapsed-time benefit here.
+
+**Recommended next experiment:** start production candidates alongside CI images
+in Pleey's shared workflow. Currently each candidate has a `needs` dependency on
+its CI-image workflow but consumes none of its outputs. Actual cache imports are
+image-specific (`backend` versus `backend-ci`, and `frontend` versus `frontend-ci`);
+mount snapshots also include image and target identity. The planned cross-image
+imports remain unimplemented. Waiting for the CI image therefore does not provide
+the cache reuse anticipated in the original DAG decision.
+
+Replay each observed timeline with candidate preparation starting at the same
+initial dispatch offset as the root jobs. Preserve durations and subsequent gaps
+inside each candidate branch, move Helm after both candidates, and retain all
+other gate dependencies. This models elapsed savings of 0, 17, 107, 86, 122, 109
+and 25 seconds respectively, a median paired saving of 86s. The median modeled
+elapsed time is 5m39s. These are estimates under unchanged runner allocation,
+cache behavior and service times, not measurements or promised gains.
+
+This trial needs only Pleey workflow changes, with no additional `ci-github-*`
+API or jobs. Keep application checks dependent on their own CI images, Helm
+dependent on both successful candidates/security checks, and promotion dependent
+on every required result. Earlier builds increase concurrent demand and work
+wasted when a CI-image build fails. Measure that trade-off, cold/source-changing
+inputs and cache isolation as well as five post-priming baseline/candidate samples
+on one fixed released workflow revision. Do not weaken the gate or claim constant
+resource cost from the replay.
+
+Record the trial's result before frontend sharding: frontend would become the
+last required check in five of the seven replayed timelines. Defer new Node.js
+shard inputs, additional Helm caching/setup APIs and Container changes until an
+experiment demonstrates the need. This profile does not change the runtime DAG
+or complete live main/release validation, fault experiments or P8 acceptance.
 
 ### Follow-Up
 
