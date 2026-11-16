@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1 and released P2.1-P2.4 adoption reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); P3 implementation reviewed with passing final CI and report/digest checks, controlled performance comparison pending; P2.5 candidate publication and gated promotion reviewed and released in 0.43.0; P4 initial consumer adoption reviewed, Prepare and Lint released, latest workflow dependency upgrade reviewed, Test archive contract reviewed and released in 3.0.0, consumer adoption reviewed, Release and reusable workflow implementation in upstream review, performance acceptance pending; P5 deferral reviewed; P7 required-secret change validated and reviewed, setup/cache experiments deferred; P6 and remaining P7/P8 work pending
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 experiment complete with sharding rejected for Pleey, review pending; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -403,7 +403,7 @@ The [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/m
 owns the artifact and input contracts. Review each implementation increment before
 starting the next. Prepare, Lint and Test are released. Release's archive-input
 contract and shared workflows merged in PR #979. PR #553 now validates the merged
-commit before one upstream release, as requested by the user. See the
+commit before one upstream release at the end of the optimization plan, as requested by the user. See the
 [prerelease integration decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#validate-the-merged-helm-workflows-before-one-upstream-release-2026-11-15).
 Replace the temporary commit pins with that release before merging Pleey.
 
@@ -518,14 +518,15 @@ and aggregate gate.
 - [x] Reassess after P4.2: the [five-sample candidate series](../architecture/adr/0023-optimize-ci-execution-and-caching.md#independent-candidate-start-results-2026-11-16) is frontend-limited in four runs. A two-shard trial is eligible after P4.2 review; no sharding implementation or gain is established yet.
 
 - [x] Add explicit arguments/shard support upstream: [Node PR #608](https://github.com/hoverkraft-tech/ci-github-nodejs/pull/608) merged with host/container CI and failure-path coverage. `test.command` remains a package-script name; arguments are forwarded separately.
-- [ ] Complete the [controlled consumer experiment](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p6-frontend-sharding-experiment-2026-11-16): use the same reviewed upstream pin and reporter configuration in both variants, then compare five post-priming full reruns per fixed head.
-- [ ] Matrix only the test job: two shards, `max-parallel: 2`, `fail-fast: false`, failures fatal. Keep one preparation/lint/build path.
-- [ ] Execute the complete discovered frontend suite across shards with identical source/image/Vitest/config and produce blob/coverage payloads; P1 retained the original jsdom setup.
-- [ ] Upload payloads even after test failure, including required hidden paths. Distinguish run/attempt/project/shard and prevent stale downloads/overwrites.
-- [ ] Merge once after checking the complete set; emit existing JUnit/LCOV paths, apply any configured thresholds and publish once.
-- [ ] Gate on every shard and merge/report status. Test failed shard with successful merge, missing artifact, cancellation and previous-attempt data.
-- [ ] Compare inventories, coverage denominator, elapsed/startup/merge time, summed job time and memory against optimized unsharded execution.
-- [ ] Record adoption/rejection before considering more shards.
+- [x] Complete the [controlled consumer experiment](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p6-frontend-sharding-results-2026-11-16): five post-priming full reruns per fixed head, with the same reviewed upstream pin and reporter configuration. All ten measured workflows pass; application/chart/script trees and complete test inventories/coverage denominators match.
+- [x] Trial a matrix only on the test job: two shards, `max-parallel: 2`, `fail-fast: false`, failures fatal. Keep one preparation/lint path and the existing disabled duplicate build. Candidate `a484772` changes only frontend `shards: 2` against the controlled baseline.
+- [x] Execute the complete discovered frontend suite across shards with identical application source/image inputs/Vitest/config and produce blob/coverage payloads. The local comparison and hosted priming run preserve all 1,178 tests and 651 coverage files, with the original jsdom setup.
+- [x] Upload payloads even after test failure, including required hidden paths. Node PR #608 covers failed-test uploads and run/attempt/project/shard identity. The consumer experiment verifies both payload manifests/checksums before each rerun.
+- [x] Merge once after checking the complete set and publish the existing JUnit/LCOV paths once. Pleey has no frontend coverage thresholds; upstream tests cover configured thresholds and failed tests.
+- [x] Preserve the existing gate on the complete frontend workflow, including every shard and merge/report status. Reuse Node PR #608's failed-shard/successful-merge, missing artifact, cancellation and previous-attempt coverage. Live Pleey failure/cancellation experiments remain in P8.
+- [x] Compare inventories, coverage denominators, elapsed/startup/merge time, summed job time and memory against optimized unsharded execution. Median elapsed is 6m09s versus 5m42s, summed job time 20m24s versus 20m50s, and frontend test job time 3m35s versus 4m48s. The [results](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p6-frontend-sharding-results-2026-11-16) distinguish the bounded local memory check from unavailable hosted memory.
+- [x] Record disposition: rejected for Pleey now. The latency/cost trade-off does not justify adoption; restore the unsharded workflow while retaining reporter-specific JUnit output, failed-test coverage and the reviewed Node pin. Upstream sharding remains available for other consumers. Do not increase the shard count.
+- [ ] Review P6's result and final unsharded CI before beginning P7.
 
 Vitest's command shape is `vitest run --shard=1/2 --reporter=blob --coverage`,
 then `vitest --merge-reports --reporter=junit --coverage`. Adapt output/coverage
