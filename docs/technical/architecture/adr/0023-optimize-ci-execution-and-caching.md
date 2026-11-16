@@ -2431,11 +2431,12 @@ charts, workflow/action configuration and every unknown path select full CI.
 A read-only PR job classifies the complete paginated file list against the event's
 head/base identity, checking that identity again after enumeration. Both sides
 of a rename must qualify. Empty/incomplete data, unknown statuses, identity
-changes and API failures select full CI. The PR job and its final result check
+changes and API failures select full CI. Failure to execute the scope job itself
+blocks CI and fails the result check. The PR job and its final result check
 reuse a repository script, covered by the existing backend Vitest harness used
 for shared scripts; do not add a package or test framework.
 
-Expose actual shared-workflow job results to a PR-only `CI result` job. It checks
+Expose actual shared-workflow job results to a PR-only `Validate PR checks` job. It checks
 the classifier and workflow outcomes plus the exact expected job set: repository
 lint succeeds in both modes, every application/publication job succeeds in full
 mode and is skipped in documentation mode. Missing, additional, failed,

@@ -1,0 +1,78 @@
+---
+name: Probe - Documentation CI routing
+
+"on":
+  pull_request:
+    branches: [main]
+    paths: [.github/workflows/__test-ci-routing.yml]
+
+permissions: {}
+
+jobs:
+  scope:
+    name: Determine PR checks for probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const script = require('node:url').pathToFileURL(`${process.env.GITHUB_WORKSPACE}/scripts/ci-pr-routing.mjs`);
+            const { resolvePullRequestScope } = await import(script.href);
+            const actual = await resolvePullRequestScope({ github, context });
+            core.info(`Actual PR scope: ${actual}. This nonpublishing probe explicitly exercises documentation mode.`);
+
+  documentation:
+    needs: scope
+    uses: $/.github/workflows/__shared-ci.yml
+    with:
+      documentation-only: true
+    permissions:
+      actions: read
+      attestations: write
+      checks: write
+      contents: read
+      deployments: write
+      id-token: write
+      issues: write
+      packages: write
+      pull-requests: write
+      security-events: write
+      statuses: write
+
+  verify:
+    name: Verify documentation route
+    if: always()
+    needs: [scope, documentation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          CLASSIFICATION_RESULT: ${{ needs.scope.result }}
+          WORKFLOW_RESULT: ${{ needs.documentation.result }}
+          JOB_RESULTS: ${{ needs.documentation.outputs.job-results }}
+        with:
+          script: |
+            const script = require('node:url').pathToFileURL(`${process.env.GITHUB_WORKSPACE}/scripts/ci-pr-routing.mjs`);
+            const { assertCiResult } = await import(script.href);
+            assertCiResult({
+              scope: 'documentation',
+              classification: process.env.CLASSIFICATION_RESULT,
+              workflow: process.env.WORKFLOW_RESULT,
+              jobs: JSON.parse(process.env.JOB_RESULTS || 'null'),
+            });
+            core.info('Documentation lint succeeded and all eight application/publication jobs were skipped.');

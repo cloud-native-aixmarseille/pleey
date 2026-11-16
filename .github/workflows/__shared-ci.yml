@@ -4,12 +4,20 @@ name: Shared - Continuous Integration
 "on":
   workflow_call:
     inputs:
+      documentation-only:
+        description: Run repository checks only for a classified documentation-only pull request. Main and release always run full CI.
+        required: false
+        type: boolean
+        default: false
       production-image-tag:
         description: Force the production backend/frontend image tag.
         required: false
         type: string
         default: ""
     outputs:
+      job-results:
+        description: Actual job results for the calling pull request's validation gate.
+        value: ${{ toJSON(jobs) }}
       built-prod-images:
         description: Validated production backend/frontend metadata returned after promotion.
         value: ${{ jobs.promote-images.outputs.built-images }}
@@ -35,6 +43,7 @@ jobs:
 
   build-backend-ci-image:
     name: Build backend CI image
+    if: github.event_name != 'pull_request' || !inputs.documentation-only
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
     permissions:
       attestations: write
@@ -94,6 +103,7 @@ jobs:
 
   build-frontend-ci-image:
     name: Build frontend CI image
+    if: github.event_name != 'pull_request' || !inputs.documentation-only
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
     permissions:
       attestations: write
@@ -153,6 +163,7 @@ jobs:
 
   build-backend-candidate:
     name: Build backend production candidate
+    if: github.event_name != 'pull_request' || !inputs.documentation-only
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
     permissions:
       attestations: write
@@ -182,6 +193,7 @@ jobs:
 
   build-frontend-candidate:
     name: Build frontend production candidate
+    if: github.event_name != 'pull_request' || !inputs.documentation-only
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
     permissions:
       attestations: write
@@ -243,7 +255,7 @@ jobs:
 
   promote-images:
     name: Promote validated production images
-    if: always()
+    if: always() && (github.event_name != 'pull_request' || !inputs.documentation-only)
     needs:
       - linter
       - check-backend

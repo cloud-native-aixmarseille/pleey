@@ -64,7 +64,21 @@ for the decision and measurement constraints.
 
 ## Repository Static Linting
 
-The `build-backend-ci-image` and `build-frontend-ci-image` jobs compile, publish,
+Pull requests limited to the root `README.md` and Markdown files under `docs/`
+run repository lint, Actions CodeQL and action pinning. Application builds,
+application lint/tests, Helm installation and image promotion are skipped for
+that scope. All other PRs, main and release run full CI. Documentation-only
+commits within a mixed PR still run full CI.
+
+The [PR workflow](../../../.github/workflows/pull-request-ci.yml) checks the full
+paginated PR file list against its triggering head/base revisions. Both paths of
+a rename must qualify. Missing, stale or incomplete API data selects full CI;
+failure to execute the scope job blocks the workflow. `Validate PR checks`
+verifies the selected route and the exact results of every shared CI job,
+rejecting failed, cancelled, missing or unexpectedly skipped checks. Configure
+required-check rules against this stable result when enforcing PR CI.
+
+On the full CI route, the `build-backend-ci-image` and `build-frontend-ci-image` jobs compile, publish,
 sign and attest the application CI images. The `check-backend` and
 `check-frontend` jobs run lint and tests after their own image workflow completes.
 The shared Node workflow prepares metadata on the host and omits its build job
@@ -79,7 +93,7 @@ producers, consumers and mappings aligned.
 
 CI images and production candidates build independently. Each application's
 lint and tests wait for its own CI image. Candidates use separate image-specific
-caches; they do not import the current run's CI-image cache. The shared Helm CI workflow always installs both
+caches; they do not import the current run's CI-image cache. On the full route, the shared Helm CI workflow installs both
 candidates by digest, including for application-only changes. Its single job prepares the
 umbrella archive and validates its checksum, chart-testing policies and rendering
 with the packaged CI recovery values. Static validation must succeed before a
