@@ -2530,9 +2530,11 @@ interval includes remaining status calls and summary/comment work, not just API
 time. Default warning-level logs do not isolate discovery or validator time.
 
 The pinned image already uses Super-Linter's slim distribution, whose validators
-run in parallel. A locally derived image occupies 6.07 GB; this is not a compressed
-registry transfer measurement. Removing toolchains from the shared image would
-change other consumers' supported validators. Do not introduce a custom image or
+run in parallel. The pinned OCI manifest contains 82 compressed layers totaling
+1.37 GB; the largest six account for 65.45% of those bytes. A locally derived
+image occupies 6.07 GB. Neither number measures actual runner network traffic.
+Removing toolchains from the shared image would change other consumers' supported
+validators. Do not introduce a custom image or
 split jobs without evidence that saved pulls outweigh repeated setup and ongoing
 maintenance.
 
@@ -2558,6 +2560,64 @@ Common's small environment/plugin-discovery setup and uploads detailed outputs;
 its timings characterize the lint job, not a full-workflow speedup. Keep production
 configuration unchanged until the comparison passes. Remove the probe afterward.
 No new reusable-workflow input or upstream default change is needed.
+
+#### P7 lint reporting measurements and adoption
+
+**Adopt `MULTI_STATUS=false` in Pleey only.** Both jobs passed in all five measured
+pairs, [attempts 2-6 of run 43911394025](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43911394025),
+after the excluded priming pair. The source head is `bf61215`, tested merge
+`b88e3e5`, against base `437c94c`. Every job checks out the same merge, uses the
+same pinned linter digest, validates identical file lists and reports the same
+seventeen passing validators. Native worker logs record zero exit codes and
+signals. Controls emit seventeen individual status responses; candidates emit
+none, while retaining the native summary and PR comment.
+
+| Metric (median and range)            | Individual statuses enabled | Individual statuses disabled |
+| ------------------------------------ | --------------------------- | ---------------------------- |
+| Lint job                             | 125s (103s-132s)            | 105s (81s-124s)              |
+| Image pull/extraction                | 41.86s (32.80s-48.84s)      | 41.16s (27.80s-49.21s)       |
+| Linter action through reporting      | 74.44s (53.03s-79.96s)      | 58.37s (38.81s-67.17s)       |
+| Action start to file classification  | 12.74s (5.97s-13.45s)       | 9.52s (9.16s-15.25s)         |
+| Native file classification           | 0.33s (0.26s-0.39s)         | 0.32s (0.25s-0.47s)          |
+| Parallel validator interval          | 39.79s (27.39s-42.71s)      | 38.38s (26.35s-51.11s)       |
+| Reporting after validator completion | 22.82s (19.26s-26.46s)      | 7.43s (2.35s-10.44s)         |
+
+The single lint job contributes the same duration to summed job time. Its observed
+median falls by 20s (16%), but the overlapping ranges do not establish a guaranteed
+job or full-workflow saving. Both groups use runner image revisions
+`20261111.196.1` and `20261111.82.6` with different distributions. One candidate
+job is slower than its paired control. The reporting interval improves in every
+pair: median paired reduction 16.89s, range 8.82s-20.88s. It includes native
+summary/comment handling and output processing after the last parallel worker;
+it is not an isolated HTTP latency measurement. INFO logging and detailed
+artifact upload are probe-only overhead. Production retains its existing logging
+and summary upload behavior.
+
+Checkov is the longest validator in both groups (median 39.75s/38.35s), followed
+by Trivy (25.35s/24.44s) and natural-language checks (12.27s/11.48s). These already
+overlap. File classification is below half a second in every measured job.
+Preserve every validator, scan scope and vulnerability-data freshness rule. The
+remaining validators cover Dockerfiles, workflow syntax/security, secrets,
+commit messages, merge markers, duplication, Kubernetes schemas, Markdown/YAML
+lint and formatting, pre-commit hooks and spelling. CodeQL and action pinning
+remain separate checks in the unchanged Common workflow.
+
+Defer tailored image profiles and job splitting. The existing slim image is a
+shared tool contract, and splitting that image repeats its pull/setup costs.
+No smaller maintained profile has been identified that preserves this inventory;
+a bespoke distribution adds tool/dependency maintenance without a measured net
+benefit. No image replacement or split-job trial was run. Revisit only with a
+maintained compatible profile and a comparison of complete job costs.
+
+Remove the temporary probe and use the existing `linter-env` input for the retained
+setting. Keep the shared Common defaults and permissions unchanged. Exact pinned
+Super-Linter source confirms that `MULTI_STATUS` guards status posting only;
+validator exit codes, failure summaries and job failure propagation are independent.
+Existing routing/gate tests and the earlier native lint-failure propagation check
+remain applicable. This configuration-only change adds no tests or dependencies;
+final-head PR CI must pass before handoff. No upstream change or release is needed.
+Raw timing artifacts, inventories and scripts remain in the ignored review
+workspace. Full-workflow acceptance and remaining P7/P8 work remain open.
 
 ### Follow-Up
 

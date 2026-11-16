@@ -37,6 +37,7 @@ jobs:
       statuses: write
     with:
       linter-env: |
+        MULTI_STATUS=false
         VALIDATE_BIOME_FORMAT=false
         VALIDATE_BIOME_LINT=false
         KUBERNETES_KUBECONFORM_OPTIONS=-ignore-missing-schemas -ignore-filename-pattern .*Chart\.yaml -ignore-filename-pattern .*values.*\.yaml -ignore-filename-pattern .*values\.schema\.json -ignore-filename-pattern charts/.*/templates/.* -ignore-filename-pattern charts/.*/crds/.*
