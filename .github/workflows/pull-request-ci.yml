@@ -12,8 +12,35 @@ concurrency:
 permissions: {}
 
 jobs:
+  scope:
+    name: Determine PR checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      scope: ${{ steps.scope.outputs.scope }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - id: scope
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const script = require('node:url').pathToFileURL(`${process.env.GITHUB_WORKSPACE}/scripts/ci-pr-routing.mjs`);
+            const { resolvePullRequestScope } = await import(script.href);
+            const scope = await resolvePullRequestScope({ github, context });
+            core.setOutput('scope', scope);
+            core.info(`CI scope: ${scope}`);
+
   ci:
+    needs: scope
     uses: $/.github/workflows/__shared-ci.yml
+    with:
+      documentation-only: ${{ needs.scope.outputs.scope == 'documentation' }}
     permissions:
       actions: read
       attestations: write
@@ -26,3 +53,34 @@ jobs:
       pull-requests: write
       security-events: write
       statuses: write
+
+  ci-result:
+    name: Validate PR checks
+    if: always()
+    needs: [scope, ci]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          CI_SCOPE: ${{ needs.scope.outputs.scope }}
+          CLASSIFICATION_RESULT: ${{ needs.scope.result }}
+          WORKFLOW_RESULT: ${{ needs.ci.result }}
+          JOB_RESULTS: ${{ needs.ci.outputs.job-results }}
+        with:
+          script: |
+            const script = require('node:url').pathToFileURL(`${process.env.GITHUB_WORKSPACE}/scripts/ci-pr-routing.mjs`);
+            const { assertCiResult } = await import(script.href);
+            assertCiResult({
+              scope: process.env.CI_SCOPE,
+              classification: process.env.CLASSIFICATION_RESULT,
+              workflow: process.env.WORKFLOW_RESULT,
+              jobs: JSON.parse(process.env.JOB_RESULTS || 'null'),
+            });
+            core.info(`Validated all expected ${process.env.CI_SCOPE} CI results.`);

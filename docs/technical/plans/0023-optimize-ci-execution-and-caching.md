@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 experiment complete with sharding rejected for Pleey, review pending; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing under implementation; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
