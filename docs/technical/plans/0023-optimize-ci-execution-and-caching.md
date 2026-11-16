@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint reporting optimization reviewed; P7.4 cleanup/docs optimization awaits review; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint reporting optimization reviewed; P7.4 cleanup/docs reviewed; P7.5 runner/shared-builder deferrals await review; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -608,7 +608,7 @@ Final-head CI must pass before handoff; its result is recorded in PR #553 checks
 - [x] **Adopt** a conservative main docs input check, retaining successful CI as the bot-write gate. Compare from the latest successful main run so cancelled/failed intermediate pushes cannot hide pending chart changes. Missing history, API/Git uncertainty and reruns generate docs. **Parallel generation/publication deferred:** avoid unchanged work before adding an artifact/publication contract.
 - [x] Verify no-change and changed inputs with a read-only native probe; cover cancelled-run catch-up, renamed inputs, invalid history and reruns with 30 focused tests. A latest-push-only mutation fails the catch-up test. [Results and limitations](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p74-validation-and-disposition).
 - [ ] Complete native main bot-write/cancellation verification during P8 rollout. A read-only PR probe does not establish publication behavior under concurrent main pushes.
-- [ ] Review P7.4 in Pleey #553 and Container #981 before another implementation phase. Do not release yet.
+- [x] Review P7.4 before another implementation phase. Container #981 merged as `bfe9968` on 2026-11-16 after adopting the standard action package/CI pattern; [final CI](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43928322641) passed 226 jobs. The user approved P7.5; release remains deferred.
 
 **Rollback:** restore current topology/invocation without changing retention.
 
@@ -616,9 +616,14 @@ Final-head CI must pass before handoff; its result is recorded in PR #553 checks
 
 **Owners:** Pleey runner selection and container workflow.
 
-- [ ] Trial larger runners only for measured CPU/memory limits; compare elapsed/queue time, memory and compute cost.
-- [ ] Trial same-builder targets, including Buildx Bake where suitable; measure whether saved installs/exports delay CI-image availability and test start.
-- [ ] Compare the complete DAG with separate candidates, preserving digest/security contracts. Restore runner/topology independently if acceptance fails.
+The [screening protocol](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p75-runner-and-shared-builder-experiment-2026-11-16)
+and [dated results](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p75-screening-results-and-disposition)
+record local measurements and their limits. This phase changes no production runner or workflow.
+
+- [x] **Defer paid larger runners.** Four/eight/eight/four CPU samples pass the same 1,178 tests with identical coverage denominators. Eight CPUs reduce median local suite time by 29.3% but consume 38.4% more CPU time; peak memory remains below 3 GiB. Keep standard runners and adaptive workers. Hosted queue/billing measurements and five native samples require a separately justified trial.
+- [x] **Defer shared builders.** Eight local frontend builds compare separate builders with Bake for warm and source-changing inputs. Summed builder time falls, but warm CI availability is 1.38s later and the source-change improvement is only 0.90s with overlapping ranges. Coupled production availability is 10.35s-20.11s later. Do not extend to backend or add an upstream API without better evidence.
+- [x] Assess the complete DAG: service checks consume their own CI image, Helm consumes production candidates, and promotion waits for all validations. Preserve independent starts and the current digest/security contracts. Local OCI results do not establish native DAG savings or signature/provenance equivalence; no production candidate is retained for acceptance.
+- [ ] Review P7.5 in Pleey #553 before P7.6. Keep the upstream release deferred until the remaining evaluations are complete.
 
 ### P7.6: Registry-backed cache
 
