@@ -2476,11 +2476,11 @@ match. Both full cohorts use Ubuntu 26.04 runner images `20261111.196.1` and
 `20261111.82.6`, with varying distributions. The repository linter base remains
 pinned to the same digest.
 
-| Route | Median elapsed (range) | Median summed job time (range) | Successful jobs per attempt |
-| ----- | ---------------------- | ------------------------------ | --------------------------- |
-| Unrouted full CI | 6m 31s (6m 21s-7m 29s) | 20m 35s (20m 05s-23m 14s) | 28 |
-| Routed full CI | 6m 34s (6m 14s-9m 17s) | 21m 18s (20m 05s-29m 17s) | 30 |
-| Documentation probe | 2m 37s (2m 11s-3m 11s) | 3m 15s (3m 03s-3m 50s) | 6 |
+| Route               | Median elapsed (range) | Median summed job time (range) | Successful jobs per attempt |
+| ------------------- | ---------------------- | ------------------------------ | --------------------------- |
+| Unrouted full CI    | 6m 31s (6m 21s-7m 29s) | 20m 35s (20m 05s-23m 14s)      | 28                          |
+| Routed full CI      | 6m 34s (6m 14s-9m 17s) | 21m 18s (20m 05s-29m 17s)      | 30                          |
+| Documentation probe | 2m 37s (2m 11s-3m 11s) | 3m 15s (3m 03s-3m 50s)         | 6                           |
 
 The documentation probe reduces median elapsed time by 59.8% and summed job time
 by 84.2% against the full control. It runs the actual classifier job, then
