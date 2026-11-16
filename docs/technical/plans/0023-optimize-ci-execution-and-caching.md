@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint reporting optimization reviewed; P7.4 cleanup/docs profiling in progress; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint reporting optimization reviewed; P7.4 cleanup/docs optimization awaits review; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -603,9 +603,12 @@ Final-head CI must pass before handoff; its result is recorded in PR #553 checks
 
 **Owners:** main workflow, upstream cleanup and chart-doc generator inputs.
 
-- [ ] Measure four existing parallel cleanup jobs; trial supported batching upstream with unchanged retention/repository boundaries.
-- [ ] Make documentation generation depend on chart/generator inputs; prepare independently where safe, gate bot writes on successful CI.
-- [ ] Verify no-change, concurrency and rerun behavior; compare avoided work and regenerate from source rather than editing output.
+- [x] Profile cleanup and docs across nine successful historical main runs. Cleanup median summed time is 144s, already overlapping CI; docs median is 30s. **Batching deferred:** setup is not the dominant cleanup cost and cleanup is outside the critical path. [Profile and limits](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-main-cleanup-and-helm-docs-profiling-2026-11-16).
+- [x] Remove duplicate concurrent PR-state lookups in [Container PR #981](https://github.com/hoverkraft-tech/ci-github-container/pull/981). Five focused tests and [full native CI](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43921404974) pass. The synthetic fixture reduces 100 lookups to one; production timing is not established. Upstream review and the planned batch release precede adoption.
+- [x] **Adopt** a conservative main docs input check, retaining successful CI as the bot-write gate. Compare from the latest successful main run so cancelled/failed intermediate pushes cannot hide pending chart changes. Missing history, API/Git uncertainty and reruns generate docs. **Parallel generation/publication deferred:** avoid unchanged work before adding an artifact/publication contract.
+- [x] Verify no-change and changed inputs with a read-only native probe; cover cancelled-run catch-up, renamed inputs, invalid history and reruns with 30 focused tests. A latest-push-only mutation fails the catch-up test. [Results and limitations](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p74-validation-and-disposition).
+- [ ] Complete native main bot-write/cancellation verification during P8 rollout. A read-only PR probe does not establish publication behavior under concurrent main pushes.
+- [ ] Review P7.4 in Pleey #553 and Container #981 before another implementation phase. Do not release yet.
 
 **Rollback:** restore current topology/invocation without changing retention.
 

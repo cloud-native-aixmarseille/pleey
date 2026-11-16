@@ -2683,6 +2683,67 @@ check in a nonpublishing native probe before retaining it. Final PR CI must pass
 main bot-write behavior is not exercised by a PR probe. Keep raw logs and scripts
 in the ignored review workspace.
 
+### P7.4 validation and disposition
+
+The upstream selector's five focused tests pass. A 200-version, two-page fixture
+selects the same tags with one PR-state lookup instead of 100. Four regression
+cases fail against the previous implementation, covering duplicate requests,
+stale/cross-repository state and shared failures. Container
+[CI run 43921404974](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43921404974)
+passes 222 jobs with 54 expected skips, including image creation, actual pruning
+and verification of deleted tags. PR #981 awaits review; Pleey's pinned upstream
+revision remains unchanged until the planned batch release.
+
+Pleey's existing backend Vitest harness passes all 30 focused scope tests in
+185ms (12ms test execution). A mutation comparing only the latest push's `before`
+SHA fails the cancelled-run catch-up test, with the other 29 cases still passing.
+This verifies the supported failure without introducing another test package.
+
+The first native probe fixture incorrectly assumed the latest successful main
+range had unchanged inputs. Run
+[43922702303](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43922702303)
+correctly selects generation: that range includes the root Dockerfile. Keep the
+conservative policy and exclude this failed fixture from measurements. The
+corrected fixture replays successful main run `42202381593` (`906c411`) against its
+previous successful baseline `42004084531` (`aa7d922`), whose complete diff contains
+only application and documentation changes. A second scenario compares the PR
+merge checkout with the real latest successful main baseline and requires
+generation for its workflow, script and chart changes. Both scenarios use real
+Git history and read-only workflow-run API calls.
+
+The corrected [probe run 43923639188](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43923639188)
+passes attempts 1-6 on PR head `6a6852e` and merge checkout `eb6a5c6`. Exclude
+attempt 1 as priming; retain all five subsequent samples, including the slowest.
+The real successful main baseline remains `43426111766` / `437c94c` throughout.
+The historical replay filters API history to runs created before its source run.
+
+| Scenario               | Required generation      | Median check | Range         |
+| ---------------------- | ------------------------ | ------------ | ------------- |
+| Unchanged chart inputs | No, in all five samples  | 0.330s       | 0.252s-0.392s |
+| Changed PR inputs      | Yes, in all five samples | 0.297s       | 0.274s-0.338s |
+
+These intervals cover the API lookup and local Git checks, excluding checkout,
+runner startup and generator execution. The probe has only `actions: read` and
+`contents: read`; it neither publishes docs nor deletes packages. Each replay
+explicitly supplies first-attempt semantics to the helper. Forced generation on
+production reruns is covered by the focused tests, not inferred from replaying
+the probe itself.
+
+Remove the temporary probe before handoff. Keep the production check inside the
+existing post-CI docs job and leave release generation unconditional. Native main
+bot publication, cancellation during publication and release validation remain
+P8 rollout checks; the read-only probe does not establish those behaviors.
+Workflow/security lint, formatting and documentation checks must pass, followed
+by full CI on the final PR head. Record that final run in PR #553 rather than
+creating a documentation-only commit to refer to its own validation.
+
+**Disposition:** adopt the input check and propose the invocation-local upstream
+lookup fix. Defer cleanup batching and separating generation from publication.
+Historical 30s docs-job timing and subsecond scope-check timing measure different
+operations on different revisions; they do not establish a controlled net
+workflow saving. Raw logs, the excluded priming attempt and failed fixture stay
+in the ignored review workspace. P7.4 awaits user review; no release is requested.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

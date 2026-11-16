@@ -153,6 +153,21 @@ closed; after their seven-day retention, rerun the full workflow to validate aga
 
 ## Documentation Maintenance
 
+The [main workflow](../../../.github/workflows/main-ci.yml) generates Helm docs
+after successful CI when chart or generator inputs may have changed. It compares
+the triggering checkout with the latest successful main push run, including
+changes left pending by failed or cancelled runs. Only changes confined to
+`application/`, `docs/`, `e2e/` and the root `README.md` can skip generation.
+Charts, generated chart docs, shared scripts, workflow/action pins, root
+configuration and unknown paths require generation.
+
+Missing history, API/Git failures, checkout mismatches and uncertain ancestry
+keep generation enabled. Rerun main CI to force regeneration. If chart-doc
+templates or configuration begin consuming an excluded tree, update the
+[input policy](../../../scripts/ci-helm-docs.mjs) and its tests in the same change.
+Release documentation generation remains unconditional after release metadata
+changes. Bot writes still wait for successful CI.
+
 Development docs under `docs/technical/development/**` describe the current approved repository state only.
 
 - Update the relevant development docs in the same change as any tooling, behavior, contract, workflow, or deployment change.
