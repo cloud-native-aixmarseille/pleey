@@ -2457,6 +2457,68 @@ it, and check the normal full PR route. Measure both routing overhead and avoide
 work; do not attribute the P6 application's timings directly to this new revision.
 Retain raw observations in the ignored review workspace and record results here.
 
+#### P7 routing measurements and adoption
+
+**Adopt the narrow documentation scope.** After one excluded priming attempt per
+workflow, all fifteen measured attempts passed. Each series used attempts 2-6:
+[unrouted control](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43879995829),
+[routed full CI](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43887557272)
+and the [documentation probe](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43887557111).
+The full and documentation measurements ran sequentially, without overlapping
+measurement cohorts. No failed or slow sample was replaced.
+
+The control head `02a62ff` tested merge `87d5c16`; the candidate head `f40ae1c`
+tested merge `b504502`. Both use base `437c94c` and identical `application`,
+`charts`, `scripts`, root Dockerfile and `.dockerignore` content. The control
+already includes the classifier and its tests, but does not enable routing.
+Upstream workflow pins and observed Docker, Buildx, kind and Kubernetes versions
+match. Both full cohorts use Ubuntu 26.04 runner images `20261111.196.1` and
+`20261111.82.6`, with varying distributions. The repository linter base remains
+pinned to the same digest.
+
+| Route | Median elapsed (range) | Median summed job time (range) | Successful jobs per attempt |
+| ----- | ---------------------- | ------------------------------ | --------------------------- |
+| Unrouted full CI | 6m 31s (6m 21s-7m 29s) | 20m 35s (20m 05s-23m 14s) | 28 |
+| Routed full CI | 6m 34s (6m 14s-9m 17s) | 21m 18s (20m 05s-29m 17s) | 30 |
+| Documentation probe | 2m 37s (2m 11s-3m 11s) | 3m 15s (3m 03s-3m 50s) | 6 |
+
+The documentation probe reduces median elapsed time by 59.8% and summed job time
+by 84.2% against the full control. It runs the actual classifier job, then
+explicitly requests documentation mode because mixed PR #553 correctly selects
+full CI. Its final check validates the actual reusable-workflow results: four
+repository-check jobs and the two routing jobs succeed; all eight application/
+publication jobs are skipped. This is a controlled probe on the same source,
+not an end-to-end run of an eligible documentation PR. Read-only classification
+of the five eligible open PRs separately verifies their scope. Savings depend on
+the future share of eligible CI runs; PR counts do not establish that share.
+
+Full CI has an added cost: the classifier and result jobs consume a median 13s
+combined (11s-15s). The classifier completes 12s after attempt start at the
+median, including dispatch, and the result check adds a median 9s after shared
+CI finishes. These intervals are not a causal estimate of the net elapsed change.
+The observed full medians increase by 3s elapsed and 43s summed job time; no
+full-CI speedup is claimed. The retained 9m 17s sample contains three matrix
+artifact download steps lasting 180.5s-181.4s, versus 0.8s-1.3s in the preceding
+sample. Those delays and hosted-runner variation limit a small before/after
+comparison. Summed job time is not a billing measurement.
+
+Every full attempt passes 1,270 backend tests with 60 existing skips and 1,178
+frontend tests. Test inventories and coverage denominators match across all ten
+full samples. All forty image builds report cached RUN/COPY/WORKDIR operations;
+Helm validation and signature/provenance-gated promotion succeed in every full
+attempt. The forty focused routing cases pass in the existing backend harness
+(216ms total locally, 13ms test execution). Disabling the previous-path rename
+guard in a disposable copy makes its two regression cases fail as expected.
+
+Remove the temporary probe after capturing its evidence. Keep production routing
+in the PR/shared workflows, its helper/tests and the contributor guide. Workflow
+lint, offline security checks, Markdown/text lint and local links pass. Broader
+service routing is not adopted. Required-check enforcement, native fault/
+cancellation exercises, cold/source-changing scenarios, main/release validation
+and overall P8 acceptance remain open. No upstream change or release is required
+for this increment. Raw reports, logs and measurement scripts remain in the
+ignored review workspace, outside the PR diff.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

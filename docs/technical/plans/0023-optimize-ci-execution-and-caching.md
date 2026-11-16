@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing under implementation; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing implemented and measured, review pending; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -580,12 +580,17 @@ The following trials remain conditional on changed measurements.
 
 ### P7.3: Conservative PR routing
 
-**Files:** shared/PR workflows, proposed classifier and aggregate gate.
+**Files:** shared/PR workflows, `scripts/ci-pr-routing.mjs` and its existing backend Vitest harness.
 
 - [x] Assess the current need before implementation: zero of 100 sampled merged PRs match the narrow scope, but five of eleven open PRs do. The [routing decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-documentation-only-pr-routing-2026-11-16) limits this increment to root `README.md` and Markdown files under `docs/`; mixed PRs retain full CI.
-- [ ] Map dependencies including shared scripts, backend schema/frontend codegen, workflow/action config, Dockerfiles and charts. Unknown changes/classifier errors choose the full pipeline.
-- [ ] Route at job level using an explicit expected-check manifest validated by `ci-result`; permit only planned skips. Keep main/release full and required aggregation always present.
-- [ ] Compare docs/service/shared/schema/chart/workflow/rename/unknown changes with full-run outcomes before adopting skips.
+- [x] Map dependencies including shared scripts, backend schema/frontend codegen, workflow/action config, Dockerfiles and charts. All paths outside the narrow documentation scope and uncertain API data select full CI. Failure to execute classification blocks CI.
+- [x] Route at job level using an explicit expected-check manifest validated by `Validate PR checks`; permit only planned skips. Keep main/release full. Both the [full route](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43887557272) and [nonpublishing documentation probe](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43887557111) passed native validation. Branch-rule enforcement remains part of P8.
+- [x] Verify documentation/service/shared/schema/chart/workflow/rename/unknown classification and failure/skip/cancellation handling with 40 focused tests in the existing harness. Read-only API checks classify five real documentation PRs and three representative full-CI PRs correctly; native workflows verify both expected result sets. The rename regression check detects a missing previous-path guard.
+- [x] Record five control, full-route and documentation-probe samples, including routing overhead and the slow artifact download sample. Adopt the narrow scope: documentation-probe medians are 2m 37s elapsed and 3m 15s summed job time, versus 6m 31s and 20m 35s for the control. Routed full CI measures 6m 34s and 21m 18s, with 13s median combined routing-job time. All fifteen attempts pass; see the [dated evidence and limitations](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-routing-measurements-and-adoption).
+- [x] Remove the temporary probe after successful native validation and measurement; retain only the production workflows, helper/tests and contributor guidance.
+- [ ] Complete user review before another phase.
+
+Final-head CI must pass before handoff; its result is recorded in PR #553 checks.
 
 **Rollback:** select all branches; avoid top-level filters leaving checks pending.
 
