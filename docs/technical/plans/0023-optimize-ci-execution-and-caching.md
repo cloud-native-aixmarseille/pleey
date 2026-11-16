@@ -526,7 +526,7 @@ and aggregate gate.
 - [x] Preserve the existing gate on the complete frontend workflow, including every shard and merge/report status. Reuse Node PR #608's failed-shard/successful-merge, missing artifact, cancellation and previous-attempt coverage. Live Pleey failure/cancellation experiments remain in P8.
 - [x] Compare inventories, coverage denominators, elapsed/startup/merge time, summed job time and memory against optimized unsharded execution. Median elapsed is 6m09s versus 5m42s, summed job time 20m24s versus 20m50s, and frontend test job time 3m35s versus 4m48s. The [results](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p6-frontend-sharding-results-2026-11-16) distinguish the bounded local memory check from unavailable hosted memory.
 - [x] Record disposition: rejected for Pleey now. The latency/cost trade-off does not justify adoption; restore the unsharded workflow while retaining reporter-specific JUnit output, failed-test coverage and the reviewed Node pin. Upstream sharding remains available for other consumers. Do not increase the shard count.
-- [ ] Review P6's result and final unsharded CI before beginning P7.
+- [x] Review P6's result and final unsharded CI before beginning P7. User approval received; [CI 43857063385](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43857063385) passes at `d06da69` with 28 successful jobs and 18 expected skips.
 
 Vitest's command shape is `vitest run --shard=1/2 --reporter=blob --coverage`,
 then `vitest --merge-reports --reporter=junit --coverage`. Adapt output/coverage
@@ -582,6 +582,7 @@ The following trials remain conditional on changed measurements.
 
 **Files:** shared/PR workflows, proposed classifier and aggregate gate.
 
+- [x] Assess the current need before implementation: zero of 100 sampled merged PRs match the narrow scope, but five of eleven open PRs do. The [routing decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-documentation-only-pr-routing-2026-11-16) limits this increment to root `README.md` and Markdown files under `docs/`; mixed PRs retain full CI.
 - [ ] Map dependencies including shared scripts, backend schema/frontend codegen, workflow/action config, Dockerfiles and charts. Unknown changes/classifier errors choose the full pipeline.
 - [ ] Route at job level using an explicit expected-check manifest validated by `ci-result`; permit only planned skips. Keep main/release full and required aggregation always present.
 - [ ] Compare docs/service/shared/schema/chart/workflow/rename/unknown changes with full-run outcomes before adopting skips.
