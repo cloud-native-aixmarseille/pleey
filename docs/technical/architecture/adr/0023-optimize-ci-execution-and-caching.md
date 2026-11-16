@@ -2196,6 +2196,85 @@ Retain the trial only after comparing measured elapsed time and summed successfu
 job time. If it regresses, restore the two dependencies independently of the
 reviewed Helm changes. Record the result and await review before another phase.
 
+### Independent candidate-start results: 2026-11-16
+
+Retain the two dependency removals in PR #553 for review. The warm-run comparison
+shows earlier Helm execution without an increase in median summed job time.
+It does not establish a guaranteed elapsed saving or complete P8 acceptance.
+
+Compare baseline head `4ade9b7`,
+[run 43817335453](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43817335453),
+with candidate head `8bef269816580372ac8ec02fe20cee1a7d218000`,
+[run 43825630771](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43825630771).
+Exclude successful attempt 1 of each run as priming. Attempts 2-6 are consecutive
+full reruns on each fixed head; none failed or were discarded. The baseline cohort
+ran first, followed by the candidate cohort. Rows are sequence positions, not
+randomized or paired experiments.
+
+| Attempt | Baseline elapsed | Baseline summed jobs | Candidate elapsed | Candidate summed jobs |
+| ------- | ---------------- | -------------------- | ----------------- | --------------------- |
+| 2       | 7m34s            | 21m28s               | 7m09s             | 20m18s                |
+| 3       | 7m13s            | 20m32s               | 6m43s             | 19m43s                |
+| 4       | 7m32s            | 20m11s               | 6m41s             | 22m01s                |
+| 5       | 7m49s            | 21m35s               | 6m03s             | 19m46s                |
+| 6       | 7m17s            | 20m39s               | 8m05s             | 20m57s                |
+| Median  | 7m32s            | 20m39s               | 6m43s             | 20m18s                |
+
+Elapsed time runs from the attempt-specific start to the last non-skipped job's
+completion. Summed time adds those job intervals, including setup and cleanup;
+it is a cost proxy for this CI workflow, not CPU time or billed minutes. Separate
+semantic-lint and release-preparation workflows are outside this comparison.
+
+The observed median elapsed reduction is 49s (10.8%); median summed time falls
+21s (1.7%). Ranges overlap: baseline elapsed is 7m13s-7m49s, candidate elapsed is
+6m03s-8m05s. The unchanged frontend test job's median also falls from 263s to
+210s, so the full elapsed difference cannot be attributed to the dependency
+change. Holding the new baseline's other durations fixed and removing Helm's
+remaining wait gives savings of 0, 0, 54, 29 and 0 seconds, and a modeled median
+of 7m17s. This is a tighter observational bound than the earlier seven-run
+profile, not an additional measured result.
+
+The direct scheduling effect is clear: candidates start 4-5s into the candidate
+runs, and Helm's median start moves from 240s to 110s. Frontend is the last
+validation in four candidate samples; Helm is last in one. Candidate attempt 4
+has a 212s Helm job and slower backend signing/attestation/container setup,
+raising summed time to 22m01s. Attempt 6 has a 297s frontend job and 63s promotion.
+Both samples remain included. Peak concurrent job intervals are seven in each
+cohort; creation-to-start delay has a 2s median in both, with ranges 1-7s and 1-3s.
+
+Controls and validation:
+
+- Actual tested merge commits `364c15e` and `5801a61` have identical application,
+  chart and script trees. Every workflow/action pin and all other runtime
+  configuration are unchanged. The gate retains all eight required ancestors.
+- Every measured run has 28 successful jobs and 16 expected skips, including
+  Helm validation and digest/signature/provenance-gated promotion. Each runs
+  1,178 frontend and 1,230 backend tests successfully, with 60 existing backend
+  skips. All 40 image builds report cached RUN/COPY/WORKDIR vertices and separate
+  image-specific cache imports/writes.
+- Both cohorts use Ubuntu 26.04 runner images `20261111.196.1` and
+  `20261111.82.6`; their distribution varies. Observed tool versions remain the
+  same: provisioned Docker 29.4.2, installed Docker 29.7.2, Buildx v0.38.2, kind
+  v0.33.0 and Kubernetes v1.37.0. Hosted runner variability remains a limitation.
+- The existing promotion suite passes all 85 tests, covering failed/skipped/
+  cancelled results, candidate identity, supersession and interrupted publication.
+  Actionlint, offline zizmor, formatting, Markdownlint, textlint and local links
+  pass. No new fixture cluster or duplicate platform-semantics test is added.
+
+Keep cold/source-changing performance and unsuccessful-run resource costs open.
+For example, an independently failing CI-image build can now leave a production
+candidate and Helm running where they previously skipped. The unchanged
+promotion gate rejects the failed/skipped required results, but that does not
+eliminate speculative work. This series does not measure that cost or exercise
+live main/release publication. Raw logs and timing JSON remain in the ignored
+review workspace; this ADR is the committed evidence summary.
+
+After review, P6 is eligible for a bounded frontend-sharding experiment: frontend
+is now usually the final validation. It would require a Node.js workflow change;
+this phase needs no additional Container API. Preserve report aggregation and
+compare summed time before adoption. Publish/adopt the pending Container release
+before merging Pleey, and await review before starting another phase.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
