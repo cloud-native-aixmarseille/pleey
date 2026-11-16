@@ -25,7 +25,7 @@
     "_lint:unused-exports": "node ./scripts/find-unused-exports.mjs ./src",
     "_lint:pagination": "node ./scripts/check-pagination.mjs",
     "test": "vitest run",
-    "test:ci": "vitest run --reporter=default --reporter=junit --outputFile=junit.xml --coverage.enabled --coverage.reporter=lcov --coverage.reporter=text",
+    "test:ci": "vitest run --reporter=default --reporter=junit --outputFile.junit=junit.xml --coverage.enabled --coverage.reporter=lcov --coverage.reporter=text",
     "test:watch": "vitest"
   },
   "dependencies": {

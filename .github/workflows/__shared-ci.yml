@@ -62,7 +62,7 @@ jobs:
 
   check-backend:
     name: Lint and test backend
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@6dee39a2a74172ea5539caa886a12b32765d5bd1 # 3.0.3
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@e1bca2205cb009dae83b1b11561ffe7c616874be # merged PR 608
     needs: build-backend-ci-image
     permissions:
       contents: read
@@ -121,7 +121,7 @@ jobs:
 
   check-frontend:
     name: Lint and test frontend
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@6dee39a2a74172ea5539caa886a12b32765d5bd1 # 3.0.3
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@e1bca2205cb009dae83b1b11561ffe7c616874be # merged PR 608
     needs: build-frontend-ci-image
     permissions:
       contents: read

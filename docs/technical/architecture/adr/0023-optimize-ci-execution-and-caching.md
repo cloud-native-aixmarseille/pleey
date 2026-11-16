@@ -2275,6 +2275,35 @@ this phase needs no additional Container API. Preserve report aggregation and
 compare summed time before adoption. Publish/adopt the pending Container release
 before merging Pleey, and await review before starting another phase.
 
+### P6 frontend sharding experiment: 2026-11-16
+
+P4.2 review is complete. Node [PR #608](https://github.com/hoverkraft-tech/ci-github-nodejs/pull/608)
+merged as `e1bca2205cb009dae83b1b11561ffe7c616874be`, with passing host/container
+sharding, complete-report assertions and failure-path tests. Adopt that immutable
+workflow revision in both application callers before collecting a fresh unsharded
+baseline. The frontend already resolves Vitest and its V8 coverage provider to
+5.1.0; no package upgrade is needed.
+
+Use reporter-specific `--outputFile.junit=junit.xml` and enable coverage reporting
+after test failures in both variants. The candidate then changes only the
+frontend workflow's `shards` option to two. Keep backend tests unsharded and retain
+jsdom, isolation, setup, coverage inclusion, timeouts and CPU-adaptive workers.
+There are no configured frontend coverage thresholds to defer. Preparation and
+lint remain single jobs; one merge publishes the existing JUnit/LCOV paths, and
+the existing promotion dependency requires the complete frontend workflow.
+
+Exclude one priming run per fixed head, then collect five consecutive full warm
+reruns per variant. Retain failures and slow samples. Compare elapsed and summed
+job time, shard/setup/transfer/merge overhead, test inventory and coverage
+denominators. Audit caches and runner revisions; sequential cohorts cannot
+eliminate hosted-runner variability. Use the actual CI image for a bounded local
+container-memory comparison, and distinguish this from unavailable hosted peak
+memory. Do not claim a gain before reviewing the results.
+
+The owner will publish upstream releases once the optimization plan is complete.
+Keep reviewed Node and Container commits pinned during the remaining experiments;
+adopt their eventual release pins as a final rollout step before merging Pleey.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

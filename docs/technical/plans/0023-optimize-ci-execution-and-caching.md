@@ -442,7 +442,7 @@ Released-pin adoption remains required before merging Pleey.
 - [ ] Observe cold/source-changing performance and unsuccessful-run resource cost. Warm successful runs and existing gate tests do not establish these costs.
 - [x] Compare five consecutive post-priming samples per variant with fixed source and workflow/action pins. Record observed tool/runner versions, elapsed/summed job time, scheduling delay and cache behavior. [Results](../architecture/adr/0023-optimize-ci-execution-and-caching.md#independent-candidate-start-results-2026-11-16): observed medians 7m32s to 6m43s elapsed and 20m39s to 20m18s summed; all ten samples pass. Retain the trial for review, with frontend/runner variability explicitly limiting attribution.
 - [x] Reprofile the remaining critical path: frontend is the last validation in four of five candidate samples. A bounded P6 experiment is now eligible; no additional Container API is justified by this phase.
-- [ ] Review the P4.2 change, CI and measured limitations before starting another phase. Cold/source-changing and failed-run costs remain open above.
+- [x] Review the P4.2 change, CI and measured limitations before starting another phase. Cold/source-changing and failed-run costs remain open above.
 
 ## P5: Parallelize suitable operations within one job
 
@@ -517,7 +517,8 @@ and aggregate gate.
 - [x] Reassess the prerequisite after Helm workflow adoption. The [current profile](../architecture/adr/0023-optimize-ci-execution-and-caching.md#ci-critical-path-profile-2026-11-16) does not justify sharding alone: its maximum elapsed benefit is seven seconds in one of seven observed runs. Revisit after the P4.2 DAG trial.
 - [x] Reassess after P4.2: the [five-sample candidate series](../architecture/adr/0023-optimize-ci-execution-and-caching.md#independent-candidate-start-results-2026-11-16) is frontend-limited in four runs. A two-shard trial is eligible after P4.2 review; no sharding implementation or gain is established yet.
 
-- [ ] Add explicit arguments/shard support upstream; current `test.command` is a package-script name, not arbitrary shell text.
+- [x] Add explicit arguments/shard support upstream: [Node PR #608](https://github.com/hoverkraft-tech/ci-github-nodejs/pull/608) merged with host/container CI and failure-path coverage. `test.command` remains a package-script name; arguments are forwarded separately.
+- [ ] Complete the [controlled consumer experiment](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p6-frontend-sharding-experiment-2026-11-16): use the same reviewed upstream pin and reporter configuration in both variants, then compare five post-priming full reruns per fixed head.
 - [ ] Matrix only the test job: two shards, `max-parallel: 2`, `fail-fast: false`, failures fatal. Keep one preparation/lint/build path.
 - [ ] Execute the complete discovered frontend suite across shards with identical source/image/Vitest/config and produce blob/coverage payloads; P1 retained the original jsdom setup.
 - [ ] Upload payloads even after test failure, including required hidden paths. Distinguish run/attempt/project/shard and prevent stale downloads/overwrites.
@@ -532,6 +533,10 @@ options to preserve the existing report paths and verify payloads with the insta
 version. See [Vitest sharding](https://vitest.dev/guide/improving-performance.html#sharding).
 
 **Rollback:** restore one test job while retaining proven environment/worker tuning.
+
+Upstream releases are deferred until the whole optimization plan is complete,
+as requested by the owner. Keep reviewed immutable commits pinned during trials;
+adopt the eventual Node and Container releases before merging Pleey.
 
 ## P7: Evaluate remaining opportunities
 
