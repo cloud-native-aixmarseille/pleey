@@ -2055,15 +2055,15 @@ or P8 acceptance. Elapsed time runs from `run_started_at` to the last completed
 non-skipped job; summed time adds job intervals, including setup and cleanup. It
 is not billed CPU time. Existing logs do not establish peak memory or CPU use.
 
-| Run | Head | Elapsed | Summed jobs | Helm job | Frontend test job | Last required check before promotion |
-| --- | --- | --- | --- | --- | --- | --- |
-| [43729464622](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43729464622) | `d4ceedf` | 6m58s | 20m49s | 2m48s | 4m27s | Frontend, 7s after Helm |
-| [43741069208](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43741069208) | `446568f` | 7m02s | 20m20s | 2m54s | 4m07s | Helm, 17s after frontend |
-| [43748026072](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43748026072) | `669a539` | 7m26s | 18m46s | 2m56s | 3m03s | Helm, 107s after frontend |
-| [43749980314](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43749980314) | `6158382` | 7m02s | 20m23s | 2m52s | 3m04s | Helm, 86s after frontend |
-| [43761313764](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43761313764) | `fd765b8` | 7m26s | 19m37s | 3m04s | 2m46s | Helm, 136s after frontend |
-| [43764873866](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43764873866) | `98baf05` | 7m23s | 19m29s | 2m57s | 2m57s | Helm, 111s after frontend |
-| [43769038955](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43769038955) | `b69e064` | 6m51s | 20m06s | 2m40s | 3m55s | Helm, 25s after frontend |
+| Run                                                                                        | Head      | Elapsed | Summed jobs | Helm job | Frontend test job | Last required check before promotion |
+| ------------------------------------------------------------------------------------------ | --------- | ------- | ----------- | -------- | ----------------- | ------------------------------------ |
+| [43729464622](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43729464622) | `d4ceedf` | 6m58s   | 20m49s      | 2m48s    | 4m27s             | Frontend, 7s after Helm              |
+| [43741069208](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43741069208) | `446568f` | 7m02s   | 20m20s      | 2m54s    | 4m07s             | Helm, 17s after frontend             |
+| [43748026072](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43748026072) | `669a539` | 7m26s   | 18m46s      | 2m56s    | 3m03s             | Helm, 107s after frontend            |
+| [43749980314](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43749980314) | `6158382` | 7m02s   | 20m23s      | 2m52s    | 3m04s             | Helm, 86s after frontend             |
+| [43761313764](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43761313764) | `fd765b8` | 7m26s   | 19m37s      | 3m04s    | 2m46s             | Helm, 136s after frontend            |
+| [43764873866](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43764873866) | `98baf05` | 7m23s   | 19m29s      | 2m57s    | 2m57s             | Helm, 111s after frontend            |
+| [43769038955](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43769038955) | `b69e064` | 6m51s   | 20m06s      | 2m40s    | 3m55s             | Helm, 25s after frontend             |
 
 Median elapsed is 7m02s (range 6m51s-7m26s); median summed job time is 20m06s
 (18m46s-20m49s). Every run has 28 successful jobs and 16 expected skips. Helm
