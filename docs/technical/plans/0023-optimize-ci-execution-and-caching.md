@@ -429,13 +429,15 @@ Replace the temporary commit pins with that release before merging Pleey.
 ### P4.2: Profile and trial independent candidate starts
 
 The [2026-11-16 profile](../architecture/adr/0023-optimize-ci-execution-and-caching.md#ci-critical-path-profile-2026-11-16)
-recommends this Pleey-only experiment before adding upstream APIs. It does not
-replace the accepted DAG until the trial is reviewed. Complete the released Helm
-adoption above first, then hold that version fixed during comparison.
+recommends this Pleey-only experiment before adding upstream APIs. The user
+authorized the trial on 2026-11-16. Hold the reviewed merged Container commit
+fixed in both variants while its release is pending; see the
+[trial decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#independent-candidate-start-trial-2026-11-16).
+Released-pin adoption remains required before merging Pleey.
 
 - [x] Profile the seven latest completed PR runs using job/step timestamps and logs; verify identical application/chart/script trees at the actual tested merge commits. Helm is last in six runs; frontend is last by seven seconds in one. These are observations across workflow revisions, not a controlled benchmark.
 - [x] Verify that production candidates consume no CI-image output and currently import separate image-specific caches. Model earlier candidate starts while retaining every validation/promotion dependency; record the assumptions and increased failed-run waste risk in the ADR.
-- [ ] Trial both production candidates starting alongside CI images. Retain application-check dependencies, successful candidate/security prerequisites for Helm, and the complete promotion gate. No additional jobs or Container API are required.
+- [x] Implement both production candidates starting alongside CI images. Retain application-check dependencies, successful candidate/security prerequisites for Helm, and the complete promotion gate. No additional jobs or Container API are required; hosted comparison and final adoption remain below.
 - [ ] Verify failure, cancellation and supersession handling; no consumer tags may move when any required branch fails. Check cold/source-changing builds and separate cache writers.
 - [ ] Compare five consecutive post-priming samples per variant with fixed inputs/tooling. Include elapsed/summed job time, scheduling delay, cache behavior and unsuccessful-run waste; accept or revert before another phase.
 - [ ] Reprofile the remaining critical path before deciding whether P6 sharding or an upstream setup/verification change is justified.

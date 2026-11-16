@@ -154,7 +154,6 @@ jobs:
   build-backend-candidate:
     name: Build backend production candidate
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
-    needs: build-backend-ci-image
     permissions:
       attestations: write
       contents: read
@@ -184,7 +183,6 @@ jobs:
   build-frontend-candidate:
     name: Build frontend production candidate
     uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
-    needs: build-frontend-ci-image
     permissions:
       attestations: write
       contents: read

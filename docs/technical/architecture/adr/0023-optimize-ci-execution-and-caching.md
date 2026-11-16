@@ -392,9 +392,11 @@ output to succeed. It evaluates failed, cancelled, and unexpectedly skipped jobs
 explicitly; a skipped dependency must not produce a passing aggregate check.
 This follows GitHub's [job dependency semantics](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-jobs).
 
-The released cache implementation and a proposed trial of independent candidate
-starts are assessed in the [2026-11-16 profile](#ci-critical-path-profile-2026-11-16).
-The trial has not replaced the ordering above.
+The released cache implementation is assessed in the
+[2026-11-16 profile](#ci-critical-path-profile-2026-11-16). The
+[independent-candidate trial](#independent-candidate-start-trial-2026-11-16)
+supersedes only the CI-image-to-candidate ordering above for measurement; final
+adoption remains subject to review.
 
 This requires a publication contract before changing `needs`. The existing
 `images[].tag` override already selects a forced tag and disables `latest` in the
@@ -2154,6 +2156,45 @@ last required check in five of the seven replayed timelines. Defer new Node.js
 shard inputs, additional Helm caching/setup APIs and Container changes until an
 experiment demonstrates the need. This profile does not change the runtime DAG
 or complete live main/release validation, fault experiments or P8 acceptance.
+
+### Independent candidate-start trial: 2026-11-16
+
+The user approved proceeding after the profile. Remove only each production
+candidate's dependency on its CI-image workflow. Both CI images and both production
+candidates now start independently. Application checks still wait for their own
+CI images, and Helm waits for both successful candidate workflows, including
+signing and attestation. Keep promotion's complete dependency inventory and
+`always()` result validation; skipped, failed or cancelled required branches
+cannot authorize publication. No job, permission, cache configuration or upstream
+API is added.
+
+Container's next release is still pending. To proceed with the authorized trial,
+supersede the release-first measurement sequencing: keep reviewed Container commit
+`00958991595e51ab23139e37af35c542d4009b2e` and every other workflow/action pin fixed
+in both variants. Adopt the published Container release before merging Pleey, as
+required by the Helm rollout. Do not combine that dependency update with the
+timing experiment.
+
+Baseline is PR head `4ade9b754018d10e25652f42e496614b7f4d6a78`, using successful
+[run 43817335453](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43817335453)
+attempt 1 as priming, followed by five consecutive full reruns. Do not advance the
+remote PR head during that series: promotion deliberately rejects superseded
+source. The candidate's initial successful CI run primes its series, followed by
+five consecutive full reruns on its fixed head. Keep every sample and investigate
+failures rather than replacing them. Record attempt-specific timing, queue gaps,
+runner/tool identities, cache behavior, check/test inventories and promotion.
+
+Use the existing promotion contract suite for failed/skipped/cancelled result,
+candidate identity, supersession and interrupted-publication coverage. Check the
+consumer's complete ancestor inventory and unchanged gate inputs. This two-edge
+change does not justify duplicating native GitHub dependency semantics or adding
+fixture clusters. Keep cold/source-changing performance and unsuccessful-run
+resource observations explicit; a warm successful-run series does not validate
+those costs. Earlier speculative work remains the principal trade-off.
+
+Retain the trial only after comparing measured elapsed time and summed successful
+job time. If it regresses, restore the two dependencies independently of the
+reviewed Helm changes. Record the result and await review before another phase.
 
 ### Follow-Up
 
