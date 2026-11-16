@@ -77,8 +77,9 @@ report fails the action. The bundled parser runs without installing its own
 dependencies or changing the application's Node.js version. Keep report
 producers, consumers and mappings aligned.
 
-Each production candidate builds after its service's CI image, alongside that
-service's lint and tests. The shared Helm CI workflow always installs both
+CI images and production candidates build independently. Each application's
+lint and tests wait for its own CI image. Candidates use separate image-specific
+caches; they do not import the current run's CI-image cache. The shared Helm CI workflow always installs both
 candidates by digest, including for application-only changes. Its single job prepares the
 umbrella archive and validates its checksum, chart-testing policies and rendering
 with the packaged CI recovery values. Static validation must succeed before a
