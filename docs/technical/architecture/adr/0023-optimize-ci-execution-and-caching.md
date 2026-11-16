@@ -2899,6 +2899,123 @@ security validation before adoption. Retain raw measurements in the ignored
 review workspace, remove experiment builders/caches/images, and await P7.5 review
 before P7.6. Upstream release pins remain unchanged for the agreed batch release.
 
+### P7.6 registry-cache evaluation: 2026-11-16
+
+P7.5 is reviewed; its final [CI run](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43936303265)
+passed 30 jobs with 18 expected skips. Evaluate P7.6's prerequisite before changing
+the cache backend: sustained GHA cache-transfer cost or eviction must justify a
+registry trial. Keep the released cache contract and deferred batch-release pins
+while collecting evidence.
+
+Profile the latest five successful PR runs and classify intervening failed or
+cancelled attempts separately. Distinguish BuildKit layer imports/exports,
+application instruction hits, package-cache snapshot restore/extraction and
+ordinary image publication. Compare these with complete build-job and workflow
+intervals; concurrent spans must not be summed as critical-path savings. Record
+current cache inventory, size, age and configured limits through read-only APIs.
+A current inventory is not an eviction history, and different revisions are not
+a controlled backend comparison.
+
+Inspect registry support at the consumed upstream revision, including cache-mount
+behavior, credentials, trusted/PR writer separation, retention and bypass. If the
+prerequisite is not established, record a deferral without creating registry
+state or adding configuration. If a trial is justified, define the scoped
+candidate here before implementation, then exercise absence, denied writes,
+changed inputs and cleanup and use the existing native acceptance protocol.
+
+### P7.6 findings and disposition
+
+Profile attempt 1 of successful runs
+[43936303265](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43936303265),
+[43924980329](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43924980329),
+[43923640841](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43923640841),
+[43916625115](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43916625115)
+and [43911395028](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43911395028).
+Their full-workflow elapsed times are 423s, 353s, 465s, 421s and 475s. These
+different-head observations characterize current costs, not backend speedups.
+
+| Image               | Build job median (range) | GHA layer export median (range) | Slowest manifest import median (range) |
+| ------------------- | ------------------------ | ------------------------------- | -------------------------------------- |
+| Backend CI          | 54s (48s-79s)            | 1.4s (0.8s-2.3s)                | 0.3s (0.1s-0.6s)                       |
+| Frontend CI         | 60s (47s-64s)            | 2.0s (0.7s-2.0s)                | 0.6s (0.1s-0.8s)                       |
+| Backend production  | 56s (53s-69s)            | 2.8s (2.3s-3.0s)                | 0.5s (0.5s-0.7s)                       |
+| Frontend production | 55s (42s-58s)            | 2.8s (1.2s-3.3s)                | 0.5s (0.1s-1.2s)                       |
+
+All 20 builds report `CACHED` for every application RUN/COPY/WORKDIR instruction
+(235 hits), including dependency installation and compilation. Each restores its
+exact mount snapshot, skips extraction and skips saving that existing key.
+Snapshot restore takes 0.266s-1.128s; mount injection takes 1.270s-2.745s. The
+four snapshot archives are only 737-782 bytes. This verifies current restoration,
+not useful package-download contents or dependency-refresh behavior; the P2.4
+snapshot-freshness limitation remains separate from the layer backend.
+
+Use BuildKit's reported vertex durations for layer imports/exports and runner
+action durations for snapshot handling. Manifest-import timing does not measure
+all possible lazy layer downloads. Image publication is a separate exporter
+(2.2s-4.8s in these builds) and can overlap cache export; neither their sum nor
+the four concurrent jobs' cache time is a projected workflow saving. No cache
+error, timeout or throttling warning appears in these build logs.
+
+Retain intervening cancelled run
+[43922703488](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43922703488)
+separately. All four image builds succeed before cancellation. Its layer exports
+take 1.6s, 2.8s, 4.9s and 9.7s, including the slowest observed backend CI export.
+The source range from `3ef06e5` to `80e5ed7` adds backend scope tests and the shared
+Helm-docs helper. Logs show backend compilation/pruning and changed source/script
+copies, while dependency-install layers remain cached; the tools layer is
+materialized from a cached blob. These rebuilds have changed inputs and do not
+establish eviction. Across all 24 successful image builds, including that
+cancelled workflow, median layer export is 2.2s and maximum is 9.7s.
+
+The read-only inventory contains 566 entries totaling 10,606,052,564 bytes
+(9.88 GiB): 10,515,010,510 bytes are BuildKit blobs, 2,870,736 bytes are BuildKit
+indices, and the four current mount snapshots total 3,035 bytes. Remaining bytes
+belong to other tool/dependency caches. The usage endpoint reports 563 entries
+with the same byte total; its
+[approximately five-minute refresh](https://docs.github.com/en/rest/actions/cache#get-github-actions-cache-usage-for-a-repository)
+means it is not an atomic match for the paginated inventory. The four mount
+snapshots were created on November 11 or 13 and still restore exactly.
+
+Merged PR refs #558, #560 and #563 account for 76 entries and 2.73 GiB; their last
+access is November 13. Leave these caches untouched: this snapshot neither shows
+recurring eviction of active inputs nor justifies overriding retention. GitHub's
+[documented default policy](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#usage-limits-and-eviction-policy)
+expires entries after seven days without access and evicts older entries under
+storage pressure. Configurable storage/retention reads return HTTP 402, requiring
+a payment method; authentication is valid. Consequently the repository's actual
+configured limits are unverified, and 9.88 GiB must not be presented as a measured
+percentage of its quota. No setting or billing change was made.
+
+The consumed [build action](https://github.com/hoverkraft-tech/ci-github-container/blob/00958991595e51ab23139e37af35c542d4009b2e/actions/docker/build-image/action.yml)
+already supports `cache-type: registry`. It resolves a separate `<image>/cache`
+package and uses the configured cache registry, defaulting to the push registry.
+For example, frontend CI on PR #553 would import
+`ghcr.io/cloud-native-aixmarseille/pleey/frontend-ci/cache:pr-553-linux-amd64`
+and its `main-linux-amd64` fallback, exporting only the PR reference with `max`.
+The [pinned reference generator](https://github.com/int128/docker-build-cache-config-action/blob/7c213417f21aecb9c6e78743e90ffd55d5fa24ad/src/infer.ts)
+provides this addressing; tag names alone do not enforce writer permissions.
+Registry mode skips GHA mount snapshot restore and cache-dance persistence.
+Pleey's current image cleanup list also does not include these separate cache
+packages. Switching therefore changes recovery and lifecycle behavior as well
+as layer transport.
+
+**Defer registry-backed caches:** the prerequisite is not established. Keep GHA,
+the existing targeted `cache-type: false` bypass, current retention and upstream
+pins. Do not provision cache packages, add credentials or expand cleanup/API
+configuration. If recurring cache misses or sustained transfer cost later justify
+a trial, require trusted cache writers to be isolated from PR writers by registry
+permissions, preserve per-image/platform/branch addressing, and explicitly decide
+mount persistence. Assign cache-package retention/quota and cleanup ownership,
+including closed PRs and superseded versions, before enabling exports. Measure
+authentication, transfer, storage and cleanup together.
+
+No registry absence, denied-write, changed-input or retention-cleanup trial was
+run. Those checks and five post-priming native comparisons remain adoption
+requirements, including the [registry backend's missing-cache behavior](https://docs.docker.com/build/cache/backends/registry/).
+This phase changes only the ADR/checklist and awaits review in PR #553. Raw
+snapshots, source inspection and logs remain in the ignored review workspace.
+P7.7 follows review; the upstream batch release remains deferred.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

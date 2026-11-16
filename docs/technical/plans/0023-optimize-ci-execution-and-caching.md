@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint reporting optimization reviewed; P7.4 cleanup/docs reviewed; P7.5 runner/shared-builder deferrals await review; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint reporting optimization reviewed; P7.4 cleanup/docs reviewed; P7.5 runner/shared-builder deferrals reviewed; P7.6 registry-cache deferral awaits review; P7 required-secret change reviewed, setup/cache experiments deferred; P7.7 and P8 acceptance pending.
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -623,15 +623,20 @@ record local measurements and their limits. This phase changes no production run
 - [x] **Defer paid larger runners.** Four/eight/eight/four CPU samples pass the same 1,178 tests with identical coverage denominators. Eight CPUs reduce median local suite time by 29.3% but consume 38.4% more CPU time; peak memory remains below 3 GiB. Keep standard runners and adaptive workers. Hosted queue/billing measurements and five native samples require a separately justified trial.
 - [x] **Defer shared builders.** Eight local frontend builds compare separate builders with Bake for warm and source-changing inputs. Summed builder time falls, but warm CI availability is 1.38s later and the source-change improvement is only 0.90s with overlapping ranges. Coupled production availability is 10.35s-20.11s later. Do not extend to backend or add an upstream API without better evidence.
 - [x] Assess the complete DAG: service checks consume their own CI image, Helm consumes production candidates, and promotion waits for all validations. Preserve independent starts and the current digest/security contracts. Local OCI results do not establish native DAG savings or signature/provenance equivalence; no production candidate is retained for acceptance.
-- [ ] Review P7.5 in Pleey #553 before P7.6. Keep the upstream release deferred until the remaining evaluations are complete.
+- [x] Review P7.5 in Pleey #553 before P7.6. The user approved the deferrals after [final CI](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43936303265) passed 30 jobs with 18 expected skips on `33560b5`. The upstream release remains deferred.
 
 ### P7.6: Registry-backed cache
 
 **Owners:** container tooling and registry administration.
 
-- [ ] Require evidence that GHA export/eviction still dominates after P2.4.
-- [ ] Define trusted/PR writer scopes, retention/quota and targeted bypass. Include authentication, transfer, storage and cleanup costs.
-- [ ] Exercise cache absence, denied writes, changed inputs and retention cleanup before adoption; restore GHA/bypass on regression.
+The [P7.6 evaluation](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p76-findings-and-disposition)
+records native logs, current cache inventory and the consumed registry contract.
+
+- [x] **Defer registry-backed caches:** five successful runs contain 20 builds with all 235 application instructions cached and 0.7s-3.3s layer exports. Retain the intervening cancelled run's 9.7s outlier; its changed-input rebuilds do not establish eviction. GHA transfer/eviction is not a demonstrated dominant cost.
+- [x] Inspect addressing, writer boundaries, mount persistence, retention and bypass. Registry mode already exists, but skips mount persistence and creates separate cache packages outside current image cleanup. Future adoption requires enforced trusted/PR writer isolation and explicit lifecycle ownership; keep existing GHA/bypass now.
+- [x] Record capacity limits honestly: inventory is 9.88 GiB, including 2.73 GiB under merged PR refs, but actual configured limits are unavailable through the billing-restricted API. No cache deletion, capacity or billing change is justified by this snapshot.
+- [x] Defer registry failure/recovery trials with the backend change. Absence, denied writes, changed inputs, retention cleanup and five native acceptance samples remain mandatory before adoption; none were run for a registry candidate in P7.6.
+- [ ] Review P7.6 in Pleey #553 before P7.7. No upstream implementation or release is needed for this deferral.
 
 ### P7.7: Trusted main-image reuse for releases
 
