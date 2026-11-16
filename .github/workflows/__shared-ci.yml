@@ -133,7 +133,7 @@ jobs:
       working-directory: /usr/src/app
       build: ""
       lint: '{"command":"lint:ci","report-file":"biome-report.sarif"}'
-      test: '{"command":"test:ci","shards":2,"report-file":"junit.xml,coverage/lcov.info"}'
+      test: '{"command":"test:ci","report-file":"junit.xml,coverage/lcov.info"}'
       container: |
         {
           "image": ${{ toJSON(fromJSON(needs.build-frontend-ci-image.outputs.built-images)['frontend-ci'].images[0]) }},

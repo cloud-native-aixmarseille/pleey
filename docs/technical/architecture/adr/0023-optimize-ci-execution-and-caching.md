@@ -2304,6 +2304,101 @@ The owner will publish upstream releases once the optimization plan is complete.
 Keep reviewed Node and Container commits pinned during the remaining experiments;
 adopt their eventual release pins as a final rollout step before merging Pleey.
 
+The unsharded control is `ba41c124f72e81af3b1d89bb0222fd61ff48db76`, tested as
+merge commit `ce538202f204914a89f960040622916567afa3ad` in
+[run 43844109762](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43844109762).
+The two-shard candidate is `a4847728b2d7d4f8d9ef8da59291d9a39326d89c`, tested as
+`300ef8f9c3c2fa6cf2492167f80d257cc107c62a` in
+[run 43850629182](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43850629182).
+Their tested `application`, `charts` and `scripts` trees are identical. Both
+cohorts use the same Node and Container workflow pins. Attempt 1 primes each
+head; attempts 2-6 are the five consecutive measured full reruns. Archive native
+JUnit/LCOV and shard payloads before starting each rerun, because the previous
+attempt's artifacts are not reliably downloadable afterwards.
+
+The bounded local comparison uses the actual control CI image,
+`ghcr.io/cloud-native-aixmarseille/pleey/frontend-ci@sha256:c530536c792f892d53c1d25f3e3ace5cbbe0e934e66428fa30442c2157274c9d`.
+Fresh containers run serially with four available CPUs, an 8 GiB limit, no swap,
+Node 26.13.0 and unchanged CPU-adaptive workers. The unsharded suite passes all
+1,178 tests; shards pass 583 and 595. The merged inventory and detailed coverage
+denominators match across all 651 files. Covered line/function/branch totals also
+match locally; raw LCOV hit frequencies need not be identical.
+
+Cgroup peak memory is 1.87 GiB unsharded, 1.66/1.71 GiB per shard and 0.24 GiB
+for merging, with no OOM or memory-limit events. These single serial observations
+establish local fit and report equivalence, not a general memory improvement:
+host page-cache/order and hosted-runner hardware are uncontrolled, and hosted
+peak memory is unavailable. Local native test durations are 189.57s unsharded
+and 97.18s/86.45s per shard. The actual merge takes about 1.84s; Vitest's displayed
+merged duration sums source executions and must not be reported as merge wall time.
+
+### P6 frontend sharding results: 2026-11-16
+
+**Disposition: reject two-shard adoption for Pleey now.** Restore the unsharded
+workflow after the bounded trial. Keep the independently useful reporter-specific
+JUnit path, coverage after test failures and reviewed Node workflow pin. The
+upstream sharding implementation remains available to other consumers; no
+additional upstream change or release is needed for this decision.
+
+All ten measured full runs pass, with no discarded samples. The control executes
+28 successful jobs with 18 expected skips; the candidate executes 30 with 17.
+Attempt numbers below refer to each fixed run linked in the experiment protocol.
+Elapsed time runs from workflow start to the last completed job; summed time
+adds successful job intervals, including setup and cleanup, and is not a bill.
+
+| Attempt | Unsharded elapsed | Unsharded summed jobs | Two-shard elapsed | Two-shard summed jobs |
+| ------- | ----------------- | --------------------- | ----------------- | --------------------- |
+| 2       | 5m50s             | 20m13s                | 5m34s             | 20m12s                |
+| 3       | 6m36s             | 20m54s                | 6m07s             | 21m59s                |
+| 4       | 6m09s             | 20m24s                | 5m13s             | 19m42s                |
+| 5       | 6m06s             | 18m54s                | 5m58s             | 22m08s                |
+| 6       | 6m58s             | 21m28s                | 5m42s             | 20m50s                |
+| Median  | 6m09s             | 20m24s                | 5m42s             | 20m50s                |
+| Range   | 5m50s-6m58s       | 18m54s-21m28s         | 5m13s-6m07s       | 19m42s-22m08s         |
+
+Observed elapsed time falls 27s (7.3%), while summed job time rises 26s (2.1%).
+The frontend test path, including merge and its dispatch delay, falls from a
+215s median (175-263s) to 177s (167-199s). Its summed job time rises from 215s to
+288s (267-344s), a 73s/34.0% increase; every sharded sample consumes more frontend
+job time than every unsharded sample. Unchanged jobs also run faster in the
+candidate cohort, with a median summed duration of 956s versus 1,022s. Those
+unrelated differences cannot be credited to sharding and mask part of its added
+frontend work. Frontend remains the last validation in four of five samples in
+both cohorts; Helm is last in the other sample.
+
+The shards actually overlap for 98-147s, start within one second of each other,
+and wait 2-3s for the merge job after both finish. Job creation-to-start delay is
+1-7s in the control and 1-3s in the candidate, with a 2s median in each; peak
+active job count remains seven. The merge job costs 31-39s, median 36s, although
+its native merge command costs only 1.55-2.18s. The two payload artifacts total
+about 1.38 MB per run; uploads take 1.11-2.51s each and downloads 0.77-1.92s.
+Extra job/container startup is the main avoidable overhead, not artifact size.
+
+All 40 measured image builds reuse all 470 tracked RUN/COPY/WORKDIR operations.
+Upstream workflow revisions are identical across cohorts. Both use Ubuntu 26.04
+runner-image revisions `20261111.196.1` and `20261111.82.6`, with varying allocation;
+Node is 26.13.0 and Vitest/coverage-v8 are 5.1.0. These sequential cohorts retain
+hosted-runner variability. Their elapsed ranges overlap, so the observed median
+is not a guaranteed saving. We decline adoption on the measured latency/cost
+trade-off rather than claim that sharding cannot help. Any renewed adoption trial
+needs additional interleaved samples and a reason to expect less startup overhead.
+
+Every measured frontend report contains the same 1,178 passing tests; backend
+reports retain 1,230 passes and 60 expected skips. Detailed coverage denominators
+match: frontend has 651 files, 8,296 lines, 2,465 functions and 5,496 branches.
+Covered-hit totals vary within the unsharded control too, so raw hit counts are
+not treated as a requirement for byte-identical coverage reports. Each candidate
+also passes complete-set, checksum, run/attempt/source/project and shard-identity
+checks on both blob payloads. One merge emits the existing JUnit/LCOV reports.
+
+Node PR #608's existing tests cover failed-test reporting, failed shards with a
+successful merge, missing/stale payloads, cancellation scheduling and configured
+coverage thresholds. Pleey configures no frontend coverage thresholds. The
+promotion dependency still requires the complete frontend workflow; live Pleey
+fault injection, cancellation, cold/source-changing runs, main/release validation
+and P8 acceptance remain open. Raw reports, logs and measurement scripts stay in
+the ignored review workspace; this ADR records the committed evidence summary.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
