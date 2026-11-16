@@ -438,9 +438,11 @@ Released-pin adoption remains required before merging Pleey.
 - [x] Profile the seven latest completed PR runs using job/step timestamps and logs; verify identical application/chart/script trees at the actual tested merge commits. Helm is last in six runs; frontend is last by seven seconds in one. These are observations across workflow revisions, not a controlled benchmark.
 - [x] Verify that production candidates consume no CI-image output and currently import separate image-specific caches. Model earlier candidate starts while retaining every validation/promotion dependency; record the assumptions and increased failed-run waste risk in the ADR.
 - [x] Implement both production candidates starting alongside CI images. Retain application-check dependencies, successful candidate/security prerequisites for Helm, and the complete promotion gate. No additional jobs or Container API are required; hosted comparison and final adoption remain below.
-- [ ] Verify failure, cancellation and supersession handling; no consumer tags may move when any required branch fails. Check cold/source-changing builds and separate cache writers.
-- [ ] Compare five consecutive post-priming samples per variant with fixed inputs/tooling. Include elapsed/summed job time, scheduling delay, cache behavior and unsuccessful-run waste; accept or revert before another phase.
-- [ ] Reprofile the remaining critical path before deciding whether P6 sharding or an upstream setup/verification change is justified.
+- [x] Verify the unchanged promotion dependency inventory and gate inputs; reuse all 85 existing promotion tests for failed/skipped/cancelled results, candidate identity, supersession and interrupted publication. Confirm image-specific cache writers remain separate.
+- [ ] Observe cold/source-changing performance and unsuccessful-run resource cost. Warm successful runs and existing gate tests do not establish these costs.
+- [x] Compare five consecutive post-priming samples per variant with fixed source and workflow/action pins. Record observed tool/runner versions, elapsed/summed job time, scheduling delay and cache behavior. [Results](../architecture/adr/0023-optimize-ci-execution-and-caching.md#independent-candidate-start-results-2026-11-16): observed medians 7m32s to 6m43s elapsed and 20m39s to 20m18s summed; all ten samples pass. Retain the trial for review, with frontend/runner variability explicitly limiting attribution.
+- [x] Reprofile the remaining critical path: frontend is the last validation in four of five candidate samples. A bounded P6 experiment is now eligible; no additional Container API is justified by this phase.
+- [ ] Review the P4.2 change, CI and measured limitations before starting another phase. Cold/source-changing and failed-run costs remain open above.
 
 ## P5: Parallelize suitable operations within one job
 
@@ -513,6 +515,7 @@ unsharded. **Files:** upstream Node workflow/test action, frontend scripts/confi
 and aggregate gate.
 
 - [x] Reassess the prerequisite after Helm workflow adoption. The [current profile](../architecture/adr/0023-optimize-ci-execution-and-caching.md#ci-critical-path-profile-2026-11-16) does not justify sharding alone: its maximum elapsed benefit is seven seconds in one of seven observed runs. Revisit after the P4.2 DAG trial.
+- [x] Reassess after P4.2: the [five-sample candidate series](../architecture/adr/0023-optimize-ci-execution-and-caching.md#independent-candidate-start-results-2026-11-16) is frontend-limited in four runs. A two-shard trial is eligible after P4.2 review; no sharding implementation or gain is established yet.
 
 - [ ] Add explicit arguments/shard support upstream; current `test.command` is a package-script name, not arbitrary shell text.
 - [ ] Matrix only the test job: two shards, `max-parallel: 2`, `fail-fast: false`, failures fatal. Keep one preparation/lint/build path.
