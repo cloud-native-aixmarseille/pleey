@@ -17,6 +17,7 @@ export default defineConfig({
     testTimeout: 15000,
     coverage: {
       provider: 'v8',
+      reportOnFailure: true,
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.{ts,tsx}'],
       exclude: [
