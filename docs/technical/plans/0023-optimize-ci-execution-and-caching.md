@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint reporting optimization measured and implemented, review pending; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint reporting optimization reviewed; P7.4 cleanup/docs profiling in progress; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -553,7 +553,7 @@ root Dockerfile/linter configuration.
 - [x] Assess smaller profiles and splitting: **deferred**, with no replacement/split trial. No maintained smaller profile preserving the required inventory was identified; splitting the current image repeats pull/setup work. Preserve every scanner, scan scope and vulnerability-data freshness rule.
 - [x] Compare five paired post-priming samples: **adopt `MULTI_STATUS=false`** through the existing Pleey input. Median lint-job time is 125s versus 105s; reporting is 22.82s versus 7.43s, improving in every pair. Runner variation and overlapping job ranges limit broader claims. Keep the image, validators, summaries, failure semantics and Common defaults unchanged; see the [results](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-lint-reporting-measurements-and-adoption).
 - [x] Remove the diagnostic workflow and retain only the existing environment setting plus contributor guidance. No new upstream API, dependency, test infrastructure or release is required.
-- [ ] Complete user review of P7.1 before another phase.
+- [x] Complete user review of P7.1 before another phase. User approved P7.4 on 2026-11-16.
 
 **Rollback:** remove `MULTI_STATUS=false` to restore individual validator statuses.
 Final-head CI must pass before handoff; its result is recorded in PR #553 checks.

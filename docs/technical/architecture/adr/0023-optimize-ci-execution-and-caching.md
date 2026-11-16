@@ -2619,6 +2619,70 @@ final-head PR CI must pass before handoff. No upstream change or release is need
 Raw timing artifacts, inventories and scripts remain in the ignored review
 workspace. Full-workflow acceptance and remaining P7/P8 work remain open.
 
+### P7 main cleanup and Helm docs profiling: 2026-11-16
+
+P7.1 review is complete. Inspect the twelve latest main push runs without rerunning
+cleanup or bot publication for measurement. Nine succeeded, two were cancelled
+and one failed before docs generation. Successful samples span 2026-10-29 through
+2026-11-13 and use older main inputs/pins than PR #553; they are observational
+profiles, not a controlled comparison of the optimized branch. Never treat the
+cancelled jobs' zero/negative placeholder timestamps as execution measurements.
+
+The nine successful runs spend a median 144s summed across cleanup preparation
+and four image jobs (92s-242s). Cleanup already overlaps CI and finishes before
+it. Helm docs take a median 30s (23s-43s), adding a median 33s after CI completes
+(25s-45s, including dispatch). The latest run,
+[43426111766](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43426111766),
+spends 49s-71s in each cleanup job and 43s in docs. Its cleanup logs show registry
+selection, manifest work and deletion dominate setup. Docs in this run and
+[42202381593](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42202381593)
+complete without a generated documentation change.
+
+Keep cleanup's existing parallel jobs and deletion rules. Defer batching: sharing
+runner setup does not remove most observed work or shorten the current critical
+path. Instead, fix duplicate concurrent PR-state requests in the existing upstream
+selector in [Container PR #981](https://github.com/hoverkraft-tech/ci-github-container/pull/981). A page's versions currently start requests before resolved states enter
+the cache. Share pending promises within one invocation, and refresh on every
+invocation to avoid stale or cross-repository state. Preserve API-failure behavior
+and all tag-selection protections. Synthetic fixtures establish avoided request
+counts; the local credential lacks `read:packages`, so no current inventory or
+production request-volume reduction is claimed. Upstream review and the eventual
+batch release precede Pleey adoption.
+
+For Helm docs, keep the current job after successful CI and add a read-only input
+check before invoking the generator. Compare the triggering checkout with the
+latest successful push run of this same main workflow. Verify branch, event,
+success, commit identity and Git ancestry before allowing a skip. Read Git's
+complete NUL-delimited diff with rename detection disabled, so both old and new
+paths are examined. Do not rely on the latest push's `before` SHA: failed or
+cancelled runs can leave chart changes pending across later unrelated pushes.
+GitHub's [workflow-runs API](https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-workflow)
+provides the required workflow/event/branch/conclusion filters.
+
+Only application, end-to-end test, documentation and root `README.md` changes qualify as unrelated
+to the current chart-doc generator. Changes under `charts/`, shared scripts,
+workflow/action pins, root configuration and every unknown path require generation.
+If generator templates/configuration begin consuming a currently unrelated tree,
+update this policy in the same change. Include existing generated chart docs in
+the relevant inputs, so manual edits still trigger regeneration. Missing history,
+API errors, invalid metadata, incomplete Git output, unavailable/non-ancestor
+commits and checkout mismatches run the generator. Reruns always generate, keeping
+an explicit repair path. No persisted cache marker or new upstream API is needed.
+
+Keep bot writes behind successful CI and preserve the existing generator's
+publication behavior. Defer overlapping generation with CI: the present action
+combines generation with bot publication, and separating these would add artifact
+transfer and publication coordination for a 23s-43s historical job. First measure
+the cheaper input check and avoid unchanged work. Release documentation generation
+remains unconditional after release-file mutations.
+
+Validate unchanged/changed inputs, cancelled-run catch-up, renamed paths, missing
+or invalid baselines, API/Git failure and reruns through the existing backend
+Vitest harness. Replay historical source comparisons read-only and measure the
+check in a nonpublishing native probe before retaining it. Final PR CI must pass;
+main bot-write behavior is not exercised by a PR probe. Keep raw logs and scripts
+in the ignored review workspace.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
