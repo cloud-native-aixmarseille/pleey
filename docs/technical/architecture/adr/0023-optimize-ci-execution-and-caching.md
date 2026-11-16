@@ -2744,6 +2744,161 @@ operations on different revisions; they do not establish a controlled net
 workflow saving. Raw logs, the excluded priming attempt and failed fixture stay
 in the ignored review workspace. P7.4 awaits user review; no release is requested.
 
+**Review completion, 2026-11-16:** the user approved P7.4. Container PR #981
+merged as `bfe9968` after moving the selector and its five tests into the standard
+action package and reusable Node CI/reporting pattern. Its
+[final CI run](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43928322641)
+passes 226 jobs with 61 expected skips. Pleey's
+[final P7.4 run](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43924980329)
+passes 30 jobs with 18 expected nested skips. Adoption remains deferred to the
+agreed batch release.
+
+### P7.5 runner and shared-builder experiment: 2026-11-16
+
+The user approved the next phase after Container PR #981 merged. Keep its cleanup
+fix for the eventual batch release; this experiment does not update upstream pins.
+Profile the five latest successful PR runs before selecting another production
+change. Different heads and runner allocations make these observations a current
+bottleneck profile, not a controlled before/after comparison.
+
+The latest run, [43924980329](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43924980329),
+uses four CPUs and 15.61 GiB RAM per build runner. All application build layers
+hit cache. Image-build jobs take 52s-60s, frontend tests take 180s and Helm takes
+164s; frontend finishes only seven seconds after Helm. Shortening one branch can
+expose another as the critical path. Existing hosted logs report capacity but
+do not establish CPU saturation or peak memory.
+
+Use bounded local experiments to screen the remaining hypotheses before adding
+workflow APIs or changing runner classes:
+
+- Reuse the P6 immutable frontend CI image and unchanged frontend source tree.
+  Run the existing unsharded suite serially with four and eight available CPUs,
+  in four/eight/eight/four order, retaining CPU-adaptive workers and an identical
+  8 GiB memory limit. Record cgroup CPU time, peak memory, throttling/OOM events,
+  host CPU topology/pressure, test inventory and coverage denominators. These
+  workstation samples establish local scaling and resource use, not hosted-runner
+  performance or production adoption.
+- Compare separate CI/production builders with one builder running both targets
+  through [Buildx Bake](https://docs.docker.com/build/bake/). Start with the frontend
+  Dockerfile on the current critical branch; extend to the backend only if the
+  result justifies further work. Use isolated builders, explicit resource limits
+  and local image outputs. Include unchanged and source-changing inputs, record when CI output
+  becomes available, and clean only experiment-owned resources. Keep compilation,
+  output export and setup intervals distinct. Local cache and OCI output timings
+  do not substitute for GHA cache, registry publication, signing or attestation.
+
+Do not adopt a shared builder from reduced summed build time alone: GitHub job
+outputs become available to downstream jobs after the whole job completes.
+Account for any CI-image delay in the complete validation graph. Preserve the
+existing digest, signature, provenance and promotion contracts. A promising
+local result needs a fixed-input native comparison before production adoption;
+an unfavorable or inconclusive result may justify explicit deferral.
+
+Keep standard runners for this screening. GitHub documents that
+[larger runners are billed even for public repositories](https://docs.github.com/en/actions/concepts/runners/larger-runners#billing).
+No paid runner or persistent builder is provisioned. Raw measurements and
+disposable scripts remain in the ignored review workspace; record results here
+and update the execution checklist before requesting review.
+
+### P7.5 screening results and disposition
+
+The five successful PR runs used for profiling are
+[43924980329](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43924980329),
+[43923640841](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43923640841),
+[43916625115](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43916625115),
+[43911395028](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43911395028)
+and [43902090512](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43902090512).
+Frontend tests finish 7s, 32s, 76s, 100s and 70s after Helm respectively. These are
+observations across different revisions, not five acceptance samples.
+
+The CPU screen uses Pleey head `e9ce8c3` and the P6 frontend CI image
+`sha256:c530536c792f892d53c1d25f3e3ace5cbbe0e934e66428fa30442c2157274c9d`.
+Its frontend Git tree matches the current head exactly
+(`ab295e5e07aa04ba4bb266f018b67211932f5f2d`). Node is `26.13.0` and the
+unchanged Vitest setting is `maxWorkers: '100%'`. Each fresh container runs
+`npm run test:ci` with 8 GiB RAM and no additional swap. The workstation has six
+physical cores and twelve logical CPUs: the four-CPU samples use CPUs 0-3, while
+the eight-CPU samples use CPUs 0-7, including two sibling threads. This is not a
+comparison between GitHub runner classes.
+
+| Available CPUs | Suite wall time, two samples | Median wall time | Mean CPUs used | Peak memory   | Median CPU time |
+| -------------- | ---------------------------- | ---------------- | -------------- | ------------- | --------------- |
+| 4              | 175.349s, 164.891s           | 170.120s         | 3.82-3.86      | 1.87-1.88 GiB | 652.947 CPU-s   |
+| 8              | 118.453s, 122.211s           | 120.332s         | 7.48-7.53      | 2.79-2.98 GiB | 903.423 CPU-s   |
+
+All four runs pass the same 1,178 tests and cover the same 651 files, 8,296 lines,
+2,465 functions and 5,496 branches. Normalized test inventories and per-file
+coverage denominators match exactly. Coverage hit counts vary in both CPU groups;
+this screen does not claim identical coverage hits. No OOM or memory-limit event
+occurs; aggregate CPU throttling is below 0.069s in every run. Timing covers the
+test command between cgroup probes, excluding image pull and container startup.
+
+Eight CPUs reduce local median wall time by 29.3%, while median consumed CPU time
+increases by 38.4%. Memory stays below 3 GiB, so this does not establish a need for
+more RAM. **Defer paid larger runners:** retain standard runners and adaptive
+workers. A future hosted trial needs an agreed cost budget, actual queue/billing
+measurements and five post-priming native samples. The existing Helm branch caps
+the whole-DAG benefit; neither local speedup nor two samples justify claiming a
+production saving or provisioning paid capacity.
+
+The builder screen uses the actual frontend Dockerfile at `e9ce8c3`, two isolated
+four-CPU builders versus one four-CPU builder, and 8 GiB RAM without extra swap
+per builder. Independent builders run concurrently on disjoint CPU sets
+`0,1,6,7` and `2,3,8,9`; the shared builder uses `0,1,6,7`. Each set contains two
+physical cores and their sibling threads. Docker is `29.9.3`, Buildx is `0.39.0`
+and BuildKit is pinned to the same `0.34.2` image digest observed in native CI,
+`sha256:c5f8862f52499773af85bc07695b2379ef08e8002352b0df2c4864c91d78dabe`.
+Native CI uses Docker `29.7.2` and Buildx `0.38.2`; local timings are not portable
+to that environment.
+
+Prime CI and production caches once, then import those unchanged, target-specific
+local caches into fresh builders for every sample. Run separate/shared/shared/separate
+for each scenario. The source-change scenario appends an identical comment to
+the frontend entry point, forcing source COPY and compilation while retaining
+the same compiled application content. All eight measured builds pass; priming
+and its initial Buildx filesystem-entitlement failure are excluded. Runtime
+configuration and compiled application file contents match across all outputs.
+This checks the exercised outputs, not complete filesystem or security equivalence.
+
+The following local intervals include builder bootstrap and OCI export, excluding
+priming, output inspection and cleanup. Availability means the build command has
+completed; both shared targets therefore wait for the combined command, matching
+the dependency imposed by GitHub job outputs.
+
+| Inputs        | Builders    | Median CI availability (range) | Median production availability | Median summed builder wall time |
+| ------------- | ----------- | ------------------------------ | ------------------------------ | ------------------------------- |
+| Warm          | Separate    | 13.95s (13.85s-14.05s)         | 4.99s                          | 18.94s                          |
+| Warm          | Shared Bake | 15.33s (15.26s-15.41s)         | 15.33s                         | 15.33s                          |
+| Source change | Separate    | 40.40s (40.10s-40.70s)         | 19.39s                         | 59.78s                          |
+| Source change | Shared Bake | 39.50s (38.74s-40.25s)         | 39.50s                         | 39.50s                          |
+
+Bake eliminates one compilation in each source-change sample: separate builders
+compile twice, taking 3.1s-3.6s each, while the shared builder compiles once in
+2.0s-2.3s. Both warm strategies reuse compilation. Summed builder wall time falls
+19.0% warm and 33.9% after the source change, but CI availability is 1.38s later
+warm and only 0.90s earlier after the change, with overlapping source-change
+ranges. Production availability is 10.35s and 20.11s later respectively.
+
+**Defer shared builders:** the local screen does not establish a useful CI-start
+improvement and couples Helm startup to the larger CI export. Keep separate CI
+images and production candidates; do not extend the trial to the backend or add
+an upstream grouping/Bake API on this evidence. The current build action owns
+its builder, and the reusable workflow applies candidate publication to all its
+matrix images. Grouping mixed CI/production targets would need to preserve
+per-image metadata, cache scopes, signing, attestation and promotion boundaries.
+The current full DAG still starts each service's checks after its CI image,
+Helm after production candidates, and promotion after all validations.
+
+These two-sample local comparisons exclude hosted queueing, GHA cache transfer,
+registry publication, signatures and provenance. OCI exports disable local
+attestations; production security settings are unchanged. No native candidate
+DAG or billing comparison was run, and summed local builder wall time is not
+billed compute. This phase adopts no runner or workflow change. Any reconsideration
+requires the existing five-sample native acceptance protocol and complete digest/
+security validation before adoption. Retain raw measurements in the ignored
+review workspace, remove experiment builders/caches/images, and await P7.5 review
+before P7.6. Upstream release pins remain unchanged for the agreed batch release.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
