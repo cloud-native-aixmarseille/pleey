@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing implemented and measured, review pending; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint profiling in progress; P7 required-secret change reviewed, setup/cache experiments deferred; remaining P7 experiments and P8 acceptance pending.
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -549,7 +549,7 @@ acceptance requirement; record adoption, rejection or explicit deferral.
 **Owners:** `hoverkraft-tech/docker-base-images`, `ci-github-common` and Pleey's
 root Dockerfile/linter configuration.
 
-- [ ] Profile layers/pulls and enabled validators; inventory actual tools. The current image is already slim and validators already overlap.
+- [ ] Profile layers/pulls and enabled validators; inventory actual tools. Saved logs identify pull and reporting costs; the [P7.1 trial](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-repository-lint-profiling-2026-11-16) collects native discovery/validator timings and compares individual status reporting on/off.
 - [ ] Trial maintained smaller profiles or splitting only when smaller pulls outweigh extra jobs/setup. Preserve scanners, rendered-chart coverage and vulnerability-data freshness.
 - [ ] Compare elapsed/summed time; restore the existing profile if no net benefit. Do not remove checks to meet targets.
 
@@ -588,7 +588,7 @@ The following trials remain conditional on changed measurements.
 - [x] Verify documentation/service/shared/schema/chart/workflow/rename/unknown classification and failure/skip/cancellation handling with 40 focused tests in the existing harness. Read-only API checks classify five real documentation PRs and three representative full-CI PRs correctly; native workflows verify both expected result sets. The rename regression check detects a missing previous-path guard.
 - [x] Record five control, full-route and documentation-probe samples, including routing overhead and the slow artifact download sample. Adopt the narrow scope: documentation-probe medians are 2m 37s elapsed and 3m 15s summed job time, versus 6m 31s and 20m 35s for the control. Routed full CI measures 6m 34s and 21m 18s, with 13s median combined routing-job time. All fifteen attempts pass; see the [dated evidence and limitations](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-routing-measurements-and-adoption).
 - [x] Remove the temporary probe after successful native validation and measurement; retain only the production workflows, helper/tests and contributor guidance.
-- [ ] Complete user review before another phase.
+- [x] Complete user review before another phase. User approved P7.1 profiling on 2026-11-16.
 
 Final-head CI must pass before handoff; its result is recorded in PR #553 checks.
 

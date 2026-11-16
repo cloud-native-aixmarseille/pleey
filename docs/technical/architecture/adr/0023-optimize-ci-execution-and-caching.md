@@ -2519,6 +2519,46 @@ and overall P8 acceptance remain open. No upstream change or release is required
 for this increment. Raw reports, logs and measurement scripts remain in the
 ignored review workspace, outside the PR diff.
 
+### P7 repository lint profiling: 2026-11-16
+
+P7 routing review is complete. Inspect the saved fifteen routing samples before
+changing the shared linter image. Native lint-job medians are 142s (control),
+136s (routed full CI) and 133s (documentation probe). Pull-through-extraction
+medians are 48.15s, 45.61s and 46.11s; the observed interval from the first
+commit-status response to summary upload is 22.99s, 22.30s and 21.68s. This last
+interval includes remaining status calls and summary/comment work, not just API
+time. Default warning-level logs do not isolate discovery or validator time.
+
+The pinned image already uses Super-Linter's slim distribution, whose validators
+run in parallel. A locally derived image occupies 6.07 GB; this is not a compressed
+registry transfer measurement. Removing toolchains from the shared image would
+change other consumers' supported validators. Do not introduce a custom image or
+split jobs without evidence that saved pulls outweigh repeated setup and ongoing
+maintenance.
+
+Trial the supported [`MULTI_STATUS=false` setting](https://github.com/super-linter/super-linter/blob/v9.0.0/README.md#environment-variables)
+through Pleey's existing `linter-env` input. It disables individual commit-status
+posts, not validators, failure exit codes, the Actions job check or summaries.
+It does not create a replacement commit status. `Validate PR checks` remains the
+PR result gate; CodeQL and action pinning remain independent checks. Fresh API
+reads confirm no effective main branch rules, no classic protection and a disabled
+default-branch ruleset. None currently requires these individual statuses.
+
+A saved documentation attempt illustrates the distinction: Checkov passed in the
+summary, but its status POST returned HTTP 502. All seventeen validators appear
+in the native result summary, although only sixteen status responses succeeded.
+Use native results, not posted status counts, to establish check equivalence.
+
+Use a temporary PR-only, nonpublishing probe with sequential control/candidate
+matrix jobs, identical checkout, image digest, validators and summary comments.
+Enable native detailed output and INFO logging in both jobs to measure discovery,
+validator execution and reporting. Exclude one priming attempt, then retain five
+consecutive paired attempts, including slow or failed samples. The probe omits
+Common's small environment/plugin-discovery setup and uploads detailed outputs;
+its timings characterize the lint job, not a full-workflow speedup. Keep production
+configuration unchanged until the comparison passes. Remove the probe afterward.
+No new reusable-workflow input or upstream default change is needed.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
