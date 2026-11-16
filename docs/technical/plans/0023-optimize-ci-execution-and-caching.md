@@ -422,9 +422,23 @@ Replace the temporary commit pins with that release before merging Pleey.
 - [x] Implement shared validation and release entrypoints: `helm-chart-ci.yml` owns checkout, Prepare/Lint/Test and cleanup with read permissions; `helm-chart-release.yml` reuses it and publishes the exact uploaded artifact in a separate job. See the [composition decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#reusable-helm-workflow-implementation-2026-11-15).
 - [x] Review upstream CI, artifact identity, validation gates and recovery before releasing the replacement. PR #979 merged after [CI 43765776306](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43765776306) passed with 222 successful jobs and 54 expected skips. Interrupted-run and production rollout checks remain open.
 - [x] Prepare Pleey's migration against the reviewed merge commit: replace `tests-charts` with `helm-chart-ci.yml`, retaining candidate overrides, successful `validated-images` outputs and the promotion dependency inventory. Use `helm-chart-release.yml` after final release metadata is committed, preserving the existing OCI address and validating its image defaults.
-- [ ] Validate and review PR #553's prerelease integration; fix any demonstrated upstream gap before releasing Container once. Keep existing action/workflow fixture coverage instead of adding duplicate clusters.
+- [x] Validate and review PR #553's prerelease integration. [CI 43769038955](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43769038955) passed at `b69e064` with 28 successful jobs and 16 expected skips; user approval received on 2026-11-16. No additional upstream fix was needed.
 - [ ] Publish one Container release, verify its generated documentation and replace PR #553's temporary merged-commit pins with the released commit. Review the resulting CI before merging Pleey.
 - [ ] Validate the resulting release chart and compare elapsed/summed job time; keep live release and overall performance acceptance open until actually exercised.
+
+### P4.2: Profile and trial independent candidate starts
+
+The [2026-11-16 profile](../architecture/adr/0023-optimize-ci-execution-and-caching.md#ci-critical-path-profile-2026-11-16)
+recommends this Pleey-only experiment before adding upstream APIs. It does not
+replace the accepted DAG until the trial is reviewed. Complete the released Helm
+adoption above first, then hold that version fixed during comparison.
+
+- [x] Profile the seven latest completed PR runs using job/step timestamps and logs; verify identical application/chart/script trees at the actual tested merge commits. Helm is last in six runs; frontend is last by seven seconds in one. These are observations across workflow revisions, not a controlled benchmark.
+- [x] Verify that production candidates consume no CI-image output and currently import separate image-specific caches. Model earlier candidate starts while retaining every validation/promotion dependency; record the assumptions and increased failed-run waste risk in the ADR.
+- [ ] Trial both production candidates starting alongside CI images. Retain application-check dependencies, successful candidate/security prerequisites for Helm, and the complete promotion gate. No additional jobs or Container API are required.
+- [ ] Verify failure, cancellation and supersession handling; no consumer tags may move when any required branch fails. Check cold/source-changing builds and separate cache writers.
+- [ ] Compare five consecutive post-priming samples per variant with fixed inputs/tooling. Include elapsed/summed job time, scheduling delay, cache behavior and unsuccessful-run waste; accept or revert before another phase.
+- [ ] Reprofile the remaining critical path before deciding whether P6 sharding or an upstream setup/verification change is justified.
 
 ## P5: Parallelize suitable operations within one job
 
@@ -495,6 +509,8 @@ potential overlap; this does not eliminate all kind startup time.
 **Prerequisite:** P1.5 complete and frontend tests still critical. Keep backend
 unsharded. **Files:** upstream Node workflow/test action, frontend scripts/config
 and aggregate gate.
+
+- [x] Reassess the prerequisite after Helm workflow adoption. The [current profile](../architecture/adr/0023-optimize-ci-execution-and-caching.md#ci-critical-path-profile-2026-11-16) does not justify sharding alone: its maximum elapsed benefit is seven seconds in one of seven observed runs. Revisit after the P4.2 DAG trial.
 
 - [ ] Add explicit arguments/shard support upstream; current `test.command` is a package-script name, not arbitrary shell text.
 - [ ] Matrix only the test job: two shards, `max-parallel: 2`, `fail-fast: false`, failures fatal. Keep one preparation/lint/build path.
