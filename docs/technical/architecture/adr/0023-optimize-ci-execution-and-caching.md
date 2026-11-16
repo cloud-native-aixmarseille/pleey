@@ -2399,6 +2399,63 @@ fault injection, cancellation, cold/source-changing runs, main/release validatio
 and P8 acceptance remain open. Raw reports, logs and measurement scripts stay in
 the ignored review workspace; this ADR records the committed evidence summary.
 
+### P7 documentation-only PR routing: 2026-11-16
+
+P6 review is complete. Evaluate a narrow PR-only scheduling policy before broader
+service routing. The sampled 100 merged PRs targeting main contain no changes
+limited to `docs/**/*.md` and the root `README.md`. Nine file lists stop at 100
+entries and one has a count discrepancy; each already contains an excluded path,
+so none can qualify. The one completely observed all-Markdown PR,
+[PR #457](https://github.com/cloud-native-aixmarseille/pleey/pull/457), also changes
+agent instructions. This history alone does not justify routing.
+
+The current queue provides a concrete use case: five of eleven open PRs qualify,
+[PR #499](https://github.com/cloud-native-aixmarseille/pleey/pull/499) and mixed
+implementation PR #553 do not. Eligible documentation PRs are
+[#510](https://github.com/cloud-native-aixmarseille/pleey/pull/510),
+[#513](https://github.com/cloud-native-aixmarseille/pleey/pull/513),
+[#534](https://github.com/cloud-native-aixmarseille/pleey/pull/534),
+[#537](https://github.com/cloud-native-aixmarseille/pleey/pull/537) and
+[#556](https://github.com/cloud-native-aixmarseille/pleey/pull/556).
+These are PR counts, not a measured share of CI runs or a forecast of savings.
+Documentation-only commits within a mixed PR remain full CI.
+
+Use the existing shared workflow with a default-disabled documentation-only
+input. PR routing retains repository lint, Actions CodeQL and action pinning,
+while omitting application images/checks, Helm installation and promotion only
+for the narrow documentation scope. Main and release always take the full path.
+The runtime dependency map remains conservative: application source/locks,
+backend schema and frontend code generation, shared scripts, Docker inputs,
+charts, workflow/action configuration and every unknown path select full CI.
+
+A read-only PR job classifies the complete paginated file list against the event's
+head/base identity, checking that identity again after enumeration. Both sides
+of a rename must qualify. Empty/incomplete data, unknown statuses, identity
+changes and API failures select full CI. The PR job and its final result check
+reuse a repository script, covered by the existing backend Vitest harness used
+for shared scripts; do not add a package or test framework.
+
+Expose actual shared-workflow job results to a PR-only `CI result` job. It checks
+the classifier and workflow outcomes plus the exact expected job set: repository
+lint succeeds in both modes, every application/publication job succeeds in full
+mode and is skipped in documentation mode. Missing, additional, failed,
+cancelled or unexpectedly skipped results fail validation. Keep image promotion's
+existing dependency contract unchanged; a documentation result is not permission
+to publish images. The new result job has a purpose that the former redundant
+aggregate job did not: validating planned skips across two scheduling modes.
+
+Do not use top-level path filters: [skipped workflows can leave required checks pending](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs),
+whereas [skipped jobs can satisfy required checks](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions).
+Branch-rule enforcement of the final check remains part of P8, distinct from
+implementing the check. No new Common/Node/Container API or release is needed.
+
+Validate malformed/incomplete input, renames, changed identities, API failure,
+both expected result sets and failure/skip/cancellation propagation. Exercise
+the documentation branch through a nonpublishing workflow probe before retaining
+it, and check the normal full PR route. Measure both routing overhead and avoided
+work; do not attribute the P6 application's timings directly to this new revision.
+Retain raw observations in the ignored review workspace and record results here.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
