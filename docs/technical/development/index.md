@@ -78,6 +78,11 @@ verifies the selected route and the exact results of every shared CI job,
 rejecting failed, cancelled, missing or unexpectedly skipped checks. Configure
 required-check rules against this stable result when enforcing PR CI.
 
+Repository lint publishes each validator's result in its job summary, PR comment
+and uploaded native summary. Individual validator commit-status posts are disabled
+through `MULTI_STATUS=false` in the shared workflow. Validator failures still fail
+the lint job and the PR result check.
+
 On the full CI route, the `build-backend-ci-image` and `build-frontend-ci-image` jobs compile, publish,
 sign and attest the application CI images. The `check-backend` and
 `check-frontend` jobs run lint and tests after their own image workflow completes.
