@@ -155,22 +155,24 @@ export function ThemeDocumentEditor({
     <ThemeValidationContext value={{ field: fieldPath, descriptionId }}>
       <div data-theme-editor ref={editorRef}>
         <ContentStack gap="lg">
-          <ThemeStudioToolbar
-            name={document.name}
-            onNameChange={(name) => history.change({ ...document, name }, 'name')}
-            onBack={onBack}
-            onUndo={history.undo}
-            onRedo={history.redo}
-            canUndo={history.canUndo}
-            canRedo={history.canRedo}
-            disabled={disabled || !!draft.recoverable}
-            saveDisabled={
-              disabled || !valid || !!draft.recoverable || failure === 'conflict' || !savePermission.allowed
-            }
-            savePermission={savePermission.permission}
-            savePermissionReason={savePermission.reason}
-            status={status}
-          />
+          <div data-tour="theme-toolbar">
+            <ThemeStudioToolbar
+              name={document.name}
+              onNameChange={(name) => history.change({ ...document, name }, 'name')}
+              onBack={onBack}
+              onUndo={history.undo}
+              onRedo={history.redo}
+              canUndo={history.canUndo}
+              canRedo={history.canRedo}
+              disabled={disabled || !!draft.recoverable}
+              saveDisabled={
+                disabled || !valid || !!draft.recoverable || failure === 'conflict' || !savePermission.allowed
+              }
+              savePermission={savePermission.permission}
+              savePermissionReason={savePermission.reason}
+              status={status}
+            />
+          </div>
           {savedTheme && !dirty && <SupportingText>{t('theme.studio.savedHelp')}</SupportingText>}
           {(failure || !valid || draft.recoverable || draft.unavailable || uploading) && (
             <ContentStack>
@@ -254,7 +256,11 @@ export function ThemeDocumentEditor({
             sidebarWidth="wide"
             sidebar={
               <div hidden={mobile && mobileView !== 'edit'}>
-                <aside className="theme-studio-inspector" aria-label={t('theme.studio.controls')}>
+                <aside
+                  data-tour="theme-controls"
+                  className="theme-studio-inspector"
+                  aria-label={t('theme.studio.controls')}
+                >
                   <ElevatedPanel>
                     <ContentStack gap="lg">
                       <ContentStack gap="sm">

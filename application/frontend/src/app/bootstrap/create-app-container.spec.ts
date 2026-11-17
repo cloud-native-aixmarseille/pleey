@@ -72,7 +72,7 @@ describe('createAppContainer', () => {
 
       // Assert
       expect(container.isBound(AppProviderFactoryToken)).toBe(true);
-      expect(providerFactories).toHaveLength(11);
+      expect(providerFactories).toHaveLength(12);
     });
   });
 });

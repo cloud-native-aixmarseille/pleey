@@ -1,0 +1,139 @@
+.driver-popover.pleey-guide {
+  width: min(22rem, calc(100vw - 2rem));
+  min-width: 0;
+  max-width: none;
+  padding: var(--ui-spacing-lg);
+  border: 1px solid var(--ui-color-border-subtle);
+  border-top: 3px solid var(--ui-color-brand-primary);
+  border-radius: var(--ui-radius-panel);
+  background:
+    linear-gradient(var(--ui-color-surface-panel), var(--ui-color-surface-panel)), var(--ui-color-surface-canvas);
+  box-shadow: var(--ui-shadow-elevated);
+  color: var(--ui-color-text-primary);
+  font-family: var(--ui-typography-body-family);
+}
+
+.driver-popover.pleey-guide .driver-popover-progress-text {
+  display: block;
+  margin-bottom: var(--ui-spacing-xs);
+  padding-inline-end: 2.75rem;
+  color: light-dark(var(--mantine-color-brand-8), var(--ui-color-text-link));
+  font-family: var(--ui-typography-mono-family);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.driver-popover.pleey-guide .driver-popover-title {
+  padding-inline-end: var(--ui-spacing-sm);
+  color: var(--ui-color-text-primary);
+  font-family: var(--ui-typography-display-family);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.driver-popover.pleey-guide .driver-popover-description {
+  margin-top: var(--ui-spacing-sm);
+  color: var(--ui-color-text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+.driver-popover.pleey-guide .pleey-guide-reference {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-top: var(--ui-spacing-xs);
+  color: light-dark(var(--mantine-color-brand-8), var(--ui-color-text-link));
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.driver-popover.pleey-guide .driver-popover-footer {
+  margin-top: var(--ui-spacing-sm);
+  padding-top: var(--ui-spacing-md);
+  border-top: 1px solid var(--ui-color-border-subtle);
+}
+
+.driver-popover.pleey-guide .driver-popover-navigation-btns {
+  display: flex;
+  gap: var(--ui-spacing-sm);
+}
+
+.driver-popover.pleey-guide .driver-popover-footer-btn {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  margin: 0;
+  padding: var(--ui-spacing-xs) var(--ui-spacing-md);
+  border: 1px solid var(--ui-color-border-subtle);
+  border-radius: var(--ui-radius-pill);
+  background: transparent;
+  color: var(--ui-color-text-primary);
+  font-family: var(--ui-typography-body-family);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  text-shadow: none;
+  transition:
+    background-color var(--ui-motion-quick),
+    color var(--ui-motion-quick);
+}
+
+.driver-popover.pleey-guide .driver-popover-prev-btn:hover {
+  background: var(--ui-color-surface-neutral-muted);
+}
+
+.driver-popover.pleey-guide .driver-popover-next-btn {
+  border-color: transparent;
+  background: light-dark(var(--mantine-color-brand-8), var(--mantine-color-brand-5));
+  box-shadow: var(--ui-shadow-accent-glow);
+  color: light-dark(var(--ui-color-text-on-action), var(--ui-color-text-inverse));
+}
+
+.driver-popover.pleey-guide .driver-popover-next-btn:hover {
+  background: light-dark(var(--mantine-color-brand-9), var(--mantine-color-brand-4));
+}
+
+.driver-popover.pleey-guide .driver-popover-close-btn {
+  top: var(--ui-spacing-xs);
+  right: var(--ui-spacing-xs);
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--ui-radius-pill);
+  color: var(--ui-color-text-soft);
+  font-size: 1.5rem;
+}
+
+.driver-popover.pleey-guide .driver-popover-close-btn:hover {
+  background: var(--ui-color-surface-neutral-muted);
+  color: var(--ui-color-text-primary);
+}
+
+.driver-popover.pleey-guide button:focus-visible,
+.driver-popover.pleey-guide a:focus-visible {
+  outline: 2px solid light-dark(var(--mantine-color-brand-8), var(--ui-color-text-link));
+  outline-offset: 3px;
+}
+
+.driver-popover.pleey-guide .driver-popover-arrow-side-left {
+  border-left-color: var(--ui-color-surface-canvas);
+}
+
+.driver-popover.pleey-guide .driver-popover-arrow-side-right {
+  border-right-color: var(--ui-color-surface-canvas);
+}
+
+.driver-popover.pleey-guide .driver-popover-arrow-side-top {
+  border-top-color: var(--ui-color-surface-canvas);
+}
+
+.driver-popover.pleey-guide .driver-popover-arrow-side-bottom {
+  border-bottom-color: var(--ui-color-surface-canvas);
+}

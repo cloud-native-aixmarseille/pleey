@@ -13,3 +13,5 @@ export const DEFAULT_PARTY_SETTINGS: PartySettings = {
   randomizeOptionOrder: false,
   randomizeStageOrder: false,
 };
+
+export const PARTY_READING_TIME_LIMITS = { min: 0, max: 30 } as const;

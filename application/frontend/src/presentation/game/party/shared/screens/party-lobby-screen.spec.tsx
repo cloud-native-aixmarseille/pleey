@@ -41,6 +41,10 @@ import { PartyLobbyRuntimeRedirectResolver } from './party-lobby-runtime-redirec
 import { PartyLobbyScreen } from './party-lobby-screen';
 import { PartyLobbyRouteKind, PartyScreenSection } from './use-party-lobby-screen-state';
 
+vi.mock('../../../../shared/guide/guide-context', () => ({
+  useGuide: () => ({ isCompleted: () => false, startTour: () => false, stopTour: () => undefined }),
+}));
+
 const runtimeGameType = Object.values(GameType)[0] as GameType;
 
 const guestIdentifier = new GuestIdentifierMockFactory().create();

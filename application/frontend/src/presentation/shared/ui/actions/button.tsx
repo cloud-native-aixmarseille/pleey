@@ -5,8 +5,7 @@ import { useId } from 'react';
 import type { ActionPermission } from '../../../../domains/shared/value-objects/action-permission';
 import { usePresentationTranslation } from '../../i18n/use-presentation-translation';
 import { uiThemeTokens } from '../foundation/ui-theme';
-import { ContentStack } from '../layout/containers';
-import { SupportingText } from '../layout/typography';
+import { Tooltip } from '../overlay/tooltip';
 
 type ButtonIntent = 'primary' | 'secondary' | 'ghost';
 type ButtonIntentCompat = ButtonIntent | 'outline';
@@ -310,27 +309,47 @@ export function Button({
       }
     />
   );
-  return isPermissionDenied ? (
-    <ContentStack gap="xs">
-      {button}
-      <ButtonPermissionDescription id={descriptionId} reason={permissionReason} />
-    </ContentStack>
-  ) : (
-    button
-  );
+  if (!isPermissionDenied) {
+    return button;
+  }
+
+  return <PermissionDeniedButton button={button} descriptionId={descriptionId} permissionReason={permissionReason} />;
 }
 
-function ButtonPermissionDescription({
-  id,
-  reason,
+function PermissionDeniedButton({
+  button,
+  descriptionId,
+  permissionReason,
 }: {
-  readonly id: string;
-  readonly reason: string | null | undefined;
+  readonly button: ReactNode;
+  readonly descriptionId: string;
+  readonly permissionReason: string | null | undefined;
 }) {
   const { t } = usePresentationTranslation();
+  const reason = permissionReason ?? t('common.permissions.unavailable');
+
   return (
-    <div id={id}>
-      <SupportingText>{reason ?? t('common.permissions.unavailable')}</SupportingText>
-    </div>
+    <Tooltip label={reason} withArrow>
+      {/* biome-ignore lint/a11y/noNoninteractiveTabindex: permission-denied tooltip needs a keyboard focus target while the button stays disabled */}
+      <span aria-describedby={descriptionId} style={{ display: 'inline-flex' }} tabIndex={0}>
+        {button}
+        <span
+          id={descriptionId}
+          style={{
+            border: 0,
+            clip: 'rect(0 0 0 0)',
+            height: '1px',
+            margin: '-1px',
+            overflow: 'hidden',
+            padding: 0,
+            position: 'absolute',
+            whiteSpace: 'nowrap',
+            width: '1px',
+          }}
+        >
+          {reason}
+        </span>
+      </span>
+    </Tooltip>
   );
 }

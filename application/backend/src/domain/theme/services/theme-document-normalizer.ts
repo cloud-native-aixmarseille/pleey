@@ -150,7 +150,7 @@ export class ThemeDocumentNormalizer {
             changes?.surface?.[background] !== undefined ||
             changes?.text?.[foreground] !== undefined
           ) {
-            this.assertContrast(text[foreground], surface[background], canvas, 4.5, scheme + '.text.' + foreground);
+            this.assertContrast(text[foreground], surface[background], canvas, 4.5, `${scheme}.text.${foreground}`);
           }
         }
         if (
@@ -158,7 +158,7 @@ export class ThemeDocumentNormalizer {
           changes?.surface?.canvas !== undefined ||
           changes?.surface?.[background] !== undefined
         ) {
-          this.assertContrast(border.accent, surface[background], canvas, 3, scheme + '.border.accent');
+          this.assertContrast(border.accent, surface[background], canvas, 3, `${scheme}.border.accent`);
         }
       }
       for (const [foreground, background] of [
@@ -179,7 +179,7 @@ export class ThemeDocumentNormalizer {
           changes?.surface?.[semantic] !== undefined ||
           changes?.surface?.canvas !== undefined
         ) {
-          this.assertContrast(text[semantic], surface[semantic], canvas, 4.5, scheme + '.text.' + semantic);
+          this.assertContrast(text[semantic], surface[semantic], canvas, 4.5, `${scheme}.text.${semantic}`);
         }
       }
       for (const scale of ['accent', 'highlight', 'success'] as const) {
@@ -190,7 +190,7 @@ export class ThemeDocumentNormalizer {
       }
       if (document.overrides.colorScales?.accent || changes?.text?.onAction !== undefined) {
         for (const index of scheme === 'light' ? [7, 8] : [4, 5])
-          this.assertContrast(text.onAction, scales.accent[index], canvas, 4.5, scheme + '.text.onAction');
+          this.assertContrast(text.onAction, scales.accent[index], canvas, 4.5, `${scheme}.text.onAction`);
       }
     }
   }
@@ -218,7 +218,7 @@ export class ThemeDocumentNormalizer {
     const first = this.luminance(this.rgb(foreground, surface));
     const second = this.luminance(surface);
     const contrast = (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
-    if (contrast < minimum) this.invalid(field + '.contrast');
+    if (contrast < minimum) this.invalid(`${field}.contrast`);
   }
   private invalid(field: string): never {
     throw new ThemeError(ThemeErrorCode.INVALID_DOCUMENT, { field });

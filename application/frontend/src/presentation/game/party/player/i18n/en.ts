@@ -2,6 +2,16 @@ export const gamePartyPlayerEn = {
   game: {
     party: {
       player: {
+        guide: {
+          player_lobby:
+            'Wait for the host to start. During a quiz, select the answers before the timer ends. During a prediction, choose an outcome and wait for the result.',
+          player_scoring:
+            'Answer changes depend on the party settings. Follow the results and leaderboard between stages; the host controls the pace.',
+          join_identity:
+            "Open the host's join link. Use your account or choose a guest nickname. Enter the password if the party is private.",
+          join_submit:
+            'Join the party, then wait in the lobby for the host. If joining is unavailable, check the party status and ask the host for help.',
+        },
         route: {
           generateGuestNameCta: 'Generate name',
           guestAvatarAlt: 'Guest avatar preview for {{username}}',

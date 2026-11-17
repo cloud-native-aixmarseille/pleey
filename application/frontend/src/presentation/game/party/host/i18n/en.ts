@@ -2,6 +2,13 @@ export const gamePartyHostEn = {
   game: {
     party: {
       host: {
+        guide: {
+          host_controls:
+            'Start when players have joined and content is ready. During play, use the host controls to advance, pause or reveal results. Read confirmations before restarting or ending a party.',
+          host_share:
+            'Share the join link, QR code or party code. For a private party, share the password with your players too.',
+          host_players: 'Check the players in the lobby before starting. The host can remove a player from the party.',
+        },
         permissions: {
           HOST_REQUIRED: 'Only the host can perform this action.',
           PARTY_NOT_WAITING: 'The party must be waiting to start.',

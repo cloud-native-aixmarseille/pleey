@@ -13,6 +13,10 @@ const gameTypeId = gameTypeIdentifier.parse(12);
 
 const { navigateMock } = vi.hoisted(() => ({ navigateMock: vi.fn() }));
 
+vi.mock('../../../../shared/guide/guide-context', () => ({
+  useGuide: () => ({ isCompleted: () => false, startTour: () => false, stopTour: () => undefined }),
+}));
+
 vi.mock('../../../../shared/i18n/use-presentation-translation', async () => {
   const { PresentationTranslationMockFactory } = await import(
     'src/test-utils/mocks/presentation-translation-mock-factory'

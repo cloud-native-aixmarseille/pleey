@@ -2,6 +2,14 @@ export const quizFr = {
   game: {
     types: {
       quiz: {
+        guide: {
+          authoring_tabs:
+            "Utilisez Configuration pour le titre et la description. Questions contient l'éditeur. Vérification contrôle le contenu avant le lancement.",
+          authoring_list:
+            'Ajoutez des questions et réorganisez leur ordre dans la liste. Sélectionnez une question pour la modifier.',
+          authoring_editor:
+            'Rédigez la question, ajoutez des réponses et indiquez les bonnes réponses. Choisissez la durée et les points, puis enregistrez. Une question vrai/faux a une seule bonne réponse.',
+        },
         title: 'Quiz',
         description: 'Des manches de questions chronométrées pour le jeu en direct.',
         management: {

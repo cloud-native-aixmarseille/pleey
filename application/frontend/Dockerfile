@@ -78,6 +78,16 @@ FROM base AS ci
 COPY --chown=node:node --from=build /usr/src/app/ /usr/src/app/
 COPY --chown=node:node ./application/backend/src/schema.gql /usr/src/backend/src/schema.gql
 COPY --chown=node:node ./scripts /usr/src/shared-scripts
+COPY --chown=node:node ./docs /usr/src/repository/docs
+COPY --chown=node:node ./README.md ./AGENTS.md ./CONTRIBUTING.md /usr/src/repository/
+COPY --chown=node:node ./application/frontend/src /usr/src/repository/application/frontend/src
+COPY --chown=node:node ./application/backend/src/domain /usr/src/repository/application/backend/src/domain
+COPY --chown=node:node ./application/backend/src/presentation/game/types/quiz/graphql/types/quiz-inputs.ts /usr/src/repository/application/backend/src/presentation/game/types/quiz/graphql/types/quiz-inputs.ts
+COPY --chown=node:node ./application/backend/src/presentation/game/types/prediction/graphql/types/prediction-inputs.ts /usr/src/repository/application/backend/src/presentation/game/types/prediction/graphql/types/prediction-inputs.ts
+COPY --chown=node:node ./application/backend/prisma/seed.ts /usr/src/repository/application/backend/prisma/seed.ts
+COPY --chown=node:node ./application/frontend/package-lock.json /usr/src/repository/application/frontend/package-lock.json
+COPY --chown=node:node ./e2e/package-lock.json ./e2e/usage.config.ts ./e2e/playwright.config.ts /usr/src/repository/e2e/
+COPY --chown=node:node ./e2e/tests/usage /usr/src/repository/e2e/tests/usage
 
 CMD [ "tail", "-f", "/dev/null" ]
 

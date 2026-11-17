@@ -48,3 +48,8 @@ Review and generation instruction files are configured from `.vscode/settings.js
 - **List query pagination**: follow [ADR 0011](docs/technical/architecture/adr/0011-standardize-list-query-pagination.md) and the linked development guidance; run the pagination guard for both applications.
 - **Conventional Commits** for all commit messages
 - **List query pagination**: follow [ADR 0011](docs/technical/architecture/adr/0011-standardize-list-query-pagination.md) and the linked development guidance; run the pagination guard for both applications.
+
+## End user guidance
+
+For user-visible changes, follow [guide authoring](docs/technical/development/frontend/user-guides.md)
+and update the relevant manifest, i18n copy, generated documentation and screenshots together.

@@ -88,6 +88,7 @@ export type AppIconName =
   | 'game'
   | 'github'
   | 'grip-vertical'
+  | 'help'
   | 'info'
   | 'language'
   | 'light-mode'
@@ -148,6 +149,7 @@ const iconRegistry: Record<AppIconName, ComponentType<IconProps>> = {
   game: IconDeviceGamepad2,
   github: IconBrandGithub,
   'grip-vertical': IconGripVertical,
+  help: IconHelpCircle,
   info: IconInfoCircle,
   language: IconLanguage,
   'light-mode': IconSun,

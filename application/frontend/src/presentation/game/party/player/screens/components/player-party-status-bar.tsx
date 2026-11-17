@@ -1,5 +1,6 @@
 import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyStatus } from '../../../../../../domains/game/party/shared/entities/party-status';
+import { GuideLaunch } from '../../../../../shared/guide/guide-launch';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { usePresentationMediaQuery } from '../../../../../shared/ui/layout/use-presentation-media-query';
 import { ProtectedLeavePartyAction } from '../../../shared/screens/components/protected-leave-party-action';
@@ -30,14 +31,17 @@ export function PlayerPartyStatusBar({ onLeaveParty, pausedText, party, variant 
       })}
       statusLabel={t(`game.party.status.${party.status.toLowerCase()}`)}
       trailing={
-        <ProtectedLeavePartyAction
-          cancelLabel={t('game.party.player.route.cancelLeavePartyCta')}
-          confirmLabel={t('game.party.player.route.confirmLeavePartyCta')}
-          dialogMessage={t('game.party.player.route.leavePartyConfirmMessage')}
-          dialogTitle={t('game.party.player.route.leavePartyConfirmTitle')}
-          leaveLabel={t('game.party.player.route.leavePartyCta')}
-          onLeaveParty={onLeaveParty}
-        />
+        <>
+          {variant === 'lobby' ? <GuideLaunch guideId="player-play" /> : null}
+          <ProtectedLeavePartyAction
+            cancelLabel={t('game.party.player.route.cancelLeavePartyCta')}
+            confirmLabel={t('game.party.player.route.confirmLeavePartyCta')}
+            dialogMessage={t('game.party.player.route.leavePartyConfirmMessage')}
+            dialogTitle={t('game.party.player.route.leavePartyConfirmTitle')}
+            leaveLabel={t('game.party.player.route.leavePartyCta')}
+            onLeaveParty={onLeaveParty}
+          />
+        </>
       }
       title={t('game.party.route.statusTitle', { pin: party.pin })}
       supportingText={supportingText}

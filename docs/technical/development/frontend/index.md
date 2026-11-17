@@ -14,3 +14,7 @@ This reference documents the current approved frontend state only. Update it in 
 
 Use [ADR 0014](../../architecture/adr/0014-unify-resource-scoped-permissions.md)
 for server decisions, localized disabled-action reasons, and access refresh.
+
+## End user documentation
+
+See [guide authoring, generation and validation](./user-guides.md).

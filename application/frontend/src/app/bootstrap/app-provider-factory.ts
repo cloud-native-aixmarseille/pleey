@@ -29,6 +29,7 @@ export enum AppProviderOrder {
   WORKSPACE = 700,
   PARTY = 800,
   MEDIA = 850,
+  GUIDE = 900,
 }
 
 export function createAppProviderFactories(container: Container): readonly AppProviderFactory[] {

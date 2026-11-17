@@ -1,5 +1,6 @@
 const CI_JOBS = [
   "linter",
+  "check-user-guides",
   "check-ci-routing",
   "build-backend-ci-image",
   "check-backend",
@@ -67,7 +68,8 @@ export function assertCiResult({ scope, classification, workflow, jobs }) {
     throw new Error("The shared workflow returned an unexpected set of CI jobs.");
   }
   for (const name of CI_JOBS) {
-    const expected = scope === "documentation" && name !== "linter" ? "skipped" : "success";
+    const expected =
+      scope === "documentation" && !["linter", "check-user-guides"].includes(name) ? "skipped" : "success";
     if (jobs[name]?.result !== expected) {
       throw new Error(`CI job "${name}" must be ${expected} for ${scope} changes.`);
     }

@@ -2,6 +2,13 @@ export const quizEn = {
   game: {
     types: {
       quiz: {
+        guide: {
+          authoring_tabs:
+            'Use Setup for the game title and description. Questions holds the editor; Review checks readiness before hosting.',
+          authoring_list: 'Add questions and arrange their order in the list. Select a question to edit it.',
+          authoring_editor:
+            'Write the question, add answers and mark the correct ones. Choose the duration and points, then save. True/false questions have one correct answer.',
+        },
         title: 'Quiz',
         description: 'Timed question rounds for live play.',
         management: {

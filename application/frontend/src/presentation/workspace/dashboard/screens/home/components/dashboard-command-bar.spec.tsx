@@ -10,6 +10,10 @@ import { DashboardCommandBar } from './dashboard-command-bar';
 const organizationFixtureFactory = new OrganizationFixtureFactory();
 const projectFixtureFactory = new ProjectFixtureFactory();
 
+vi.mock('../../../../../shared/guide/guide-context', () => ({
+  useGuide: () => ({ isCompleted: () => false, startTour: vi.fn(), stopTour: vi.fn() }),
+}));
+
 vi.mock('../../../../../shared/i18n/use-presentation-translation', async () => {
   const { PresentationTranslationMockFactory } = await import(
     'src/test-utils/mocks/presentation-translation-mock-factory'

@@ -22,6 +22,24 @@ describe('Tooltip', () => {
     expect(await screen.findByText('Helpful hint')).toBeInTheDocument();
   });
 
+  it('shows the tooltip label when reached with keyboard focus', async () => {
+    // Arrange
+    const user = userEvent.setup();
+
+    renderWithUiProvider(
+      <Tooltip label="Helpful hint">
+        <button type="button">Focus me</button>
+      </Tooltip>,
+    );
+
+    // Act
+    await user.tab();
+
+    // Assert
+    expect(screen.getByRole('button', { name: 'Focus me' })).toHaveFocus();
+    expect(await screen.findByText('Helpful hint')).toBeInTheDocument();
+  });
+
   it('does not show the tooltip label when disabled', async () => {
     // Arrange
     const user = userEvent.setup();

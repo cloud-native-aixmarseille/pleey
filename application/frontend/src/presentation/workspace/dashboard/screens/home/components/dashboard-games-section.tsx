@@ -173,6 +173,7 @@ export function DashboardGamesSection({
             {t('dashboard.games.actions.importGame')}
           </Button>
           <Button
+            data-tour="create-game"
             disabled={!hasSelectedProject || isCreatingGame}
             intent="primary"
             leftSection={<AppIcon name="game" size={14} />}

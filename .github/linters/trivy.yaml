@@ -19,6 +19,8 @@ scan:
     # Vendored backend subchart tarballs are third-party dependencies.
     - charts/application/charts/backend/charts/*.tgz
   skip-dirs:
+    - .cache
+    - .cache/**
     - charts/dist
     - charts/dist/**
     - charts/application/charts/backend/charts

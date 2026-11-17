@@ -2,6 +2,14 @@ export const gamePartyHostFr = {
   game: {
     party: {
       host: {
+        guide: {
+          host_controls:
+            'Lancez la partie quand les joueurs ont rejoint le lobby et que le contenu est prêt. Pendant le jeu, avancez, mettez en pause ou révélez les résultats avec les commandes hôte. Lisez les confirmations avant de redémarrer ou terminer une partie.',
+          host_share:
+            'Partagez le lien, le QR code ou le code de la partie. Pour une partie privée, transmettez aussi le mot de passe aux joueurs.',
+          host_players:
+            "Vérifiez les joueurs présents avant de lancer la partie. L'hôte peut retirer un joueur de la partie.",
+        },
         permissions: {
           HOST_REQUIRED: "Seul l'hôte peut effectuer cette action.",
           PARTY_NOT_WAITING: 'La partie doit être en attente.',

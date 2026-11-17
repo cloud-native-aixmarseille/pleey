@@ -1,5 +1,11 @@
 export const themeEn = {
   theme: {
+    guide: {
+      theme_toolbar:
+        'Choose a starting theme from the library. Name your theme and save when ready. Saving requires permission in this organization.',
+      theme_controls:
+        'Adjust brand colors, style and assets. Preview your changes before saving. On a phone, switch between editing and preview.',
+    },
     studio: {
       title: 'Theme Studio',
       makeYours: 'Make it yours.',

@@ -7,6 +7,7 @@ const identity = { head: "head", base: "base", before: snapshot, after: snapshot
 const successfulJobs = Object.fromEntries(
   [
     "linter",
+    "check-user-guides",
     "check-ci-routing",
     "build-backend-ci-image",
     "check-backend",
@@ -19,7 +20,7 @@ const successfulJobs = Object.fromEntries(
   ].map((name) => [name, { result: "success" }]),
 );
 const documentationJobs = Object.fromEntries(
-  Object.keys(successfulJobs).map((name) => [name, { result: name === "linter" ? "success" : "skipped" }]),
+  Object.keys(successfulJobs).map((name) => [name, { result: ["linter", "check-user-guides"].includes(name) ? "success" : "skipped" }]),
 );
 
 describe("pull request CI routing", () => {

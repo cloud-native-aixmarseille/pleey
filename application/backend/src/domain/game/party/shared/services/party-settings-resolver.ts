@@ -1,5 +1,5 @@
 import { GameValidationFailedError } from '../../../errors';
-import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '../entities/party-settings';
+import { DEFAULT_PARTY_SETTINGS, PARTY_READING_TIME_LIMITS, type PartySettings } from '../entities/party-settings';
 
 interface ResolvePartySettingsInput {
   readonly organizationDefaultSettings?: PartySettings | null;
@@ -21,8 +21,8 @@ export class PartySettingsResolver {
     };
     if (
       !Number.isInteger(settings.questionReadingTimeSeconds) ||
-      settings.questionReadingTimeSeconds < 0 ||
-      settings.questionReadingTimeSeconds > 30
+      settings.questionReadingTimeSeconds < PARTY_READING_TIME_LIMITS.min ||
+      settings.questionReadingTimeSeconds > PARTY_READING_TIME_LIMITS.max
     ) {
       throw new GameValidationFailedError({
         questionReadingTimeSeconds: settings.questionReadingTimeSeconds,

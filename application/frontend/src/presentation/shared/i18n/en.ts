@@ -8,6 +8,43 @@ export const sharedEn = {
     },
   },
   shared: {
+    guide: {
+      docs: {
+        setting: 'Setting',
+        default: 'Default',
+        allowed: 'Allowed values',
+        domain: 'Domain',
+        code: 'Code',
+        source: 'Source',
+        name: 'Name',
+        value: 'Value',
+        action: 'Action',
+        reason: 'Disabled reason type',
+        gameSettings: 'Quiz and prediction editor defaults',
+        minimum: 'Minimum (integer)',
+        seconds: 'seconds',
+        language: 'English',
+
+        index: 'User guides',
+        launchHelp:
+          'On your Pleey instance, open the relevant screen and select the question-mark button in its header to show the guide. The links below use the local installation; replace the host and any :parameter with your own address and resource identifier. Player guidance is available in the lobby before timed play.',
+        facts: 'Reference',
+        settings: 'Party settings',
+        permissions: 'Resource permissions',
+        errors: 'Error codes',
+        types: 'Game types',
+      },
+      start: 'Show guide',
+      replay: 'Replay guide',
+      next: 'Next',
+      previous: 'Previous',
+      done: 'Finish',
+      close: 'Close guide',
+      reference: 'Read the reference',
+      progress: 'Step {{current}} of {{total}}',
+      unavailable:
+        'This guide needs its screen to be ready. Close any dialog, select the relevant tab, then try again.',
+    },
     branding: {
       logoAlt: 'Pleey logo',
     },

@@ -81,7 +81,9 @@ describe('GameItemCard', () => {
     );
 
     // Assert
-    expect(await screen.findByText('dashboard.games.permissions.createParty.hostHasActiveParty')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('tooltip', { name: 'dashboard.games.permissions.createParty.hostHasActiveParty' }),
+    ).toBeInTheDocument();
   });
 
   it('shows the no-stages tooltip when the game has no configured stages', async () => {
@@ -110,7 +112,9 @@ describe('GameItemCard', () => {
     );
 
     // Assert
-    expect(await screen.findByText('dashboard.games.permissions.createParty.noStagesAvailable')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('tooltip', { name: 'dashboard.games.permissions.createParty.noStagesAvailable' }),
+    ).toBeInTheDocument();
   });
 
   it('renders launch readiness from the backend permission entry', () => {
