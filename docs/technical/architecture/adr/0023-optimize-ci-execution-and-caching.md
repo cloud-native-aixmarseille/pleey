@@ -3067,7 +3067,7 @@ selection, failed-run catch-up and safe fallback. Remove Pleey's duplicate helpe
 and tests when adopting that implementation; release generation stays unconditional.
 [Container PR #985](https://github.com/hoverkraft-tech/ci-github-container/pull/985)
 implements the guard with 56 focused Node 24 tests. Both docs callers preview
-`8197258101e6351bddb4625469882baec54d93f2`; replace these two preview references with
+`18eb44d394746f292429fb1232a6c9d886e75d8d`; replace these two preview references with
 a released immutable commit before merging Pleey. Other upstream callers retain
 the released versions recorded above.
 
