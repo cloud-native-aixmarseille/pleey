@@ -13,7 +13,7 @@ permissions: {}
 
 jobs:
   clean:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
     permissions:
       contents: read
       id-token: write
@@ -62,7 +62,7 @@ jobs:
             core.setOutput('required', required);
             core.info(required ? 'Generate Helm documentation.' : 'Helm documentation inputs are unchanged since successful main CI.');
 
-      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
+      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
         if: steps.docs-scope.outputs.required == 'true'
         with:
           working-directory: ./charts

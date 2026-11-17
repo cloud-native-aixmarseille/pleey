@@ -26,7 +26,7 @@ permissions: {}
 
 jobs:
   linter:
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@c63b4ce928082260ab263abc01faf3c1fa20c52b # 4.2.3
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@d606f77fad305ef07dfde3db5270f5e324019c97 # 4.2.4
     permissions:
       actions: read
       contents: read
@@ -45,7 +45,7 @@ jobs:
   build-backend-ci-image:
     name: Build backend CI image
     if: github.event_name != 'pull_request' || !inputs.documentation-only
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
     permissions:
       attestations: write
       contents: read
@@ -72,7 +72,7 @@ jobs:
 
   check-backend:
     name: Lint and test backend
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@e1bca2205cb009dae83b1b11561ffe7c616874be # merged PR 608
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@98d91b1cc347efc64cd5fb20bc0ebc076acad114 # 3.1.0
     needs: build-backend-ci-image
     permissions:
       contents: read
@@ -105,7 +105,7 @@ jobs:
   build-frontend-ci-image:
     name: Build frontend CI image
     if: github.event_name != 'pull_request' || !inputs.documentation-only
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
     permissions:
       attestations: write
       contents: read
@@ -132,7 +132,7 @@ jobs:
 
   check-frontend:
     name: Lint and test frontend
-    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@e1bca2205cb009dae83b1b11561ffe7c616874be # merged PR 608
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@98d91b1cc347efc64cd5fb20bc0ebc076acad114 # 3.1.0
     needs: build-frontend-ci-image
     permissions:
       contents: read
@@ -165,7 +165,7 @@ jobs:
   build-backend-candidate:
     name: Build backend production candidate
     if: github.event_name != 'pull_request' || !inputs.documentation-only
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
     permissions:
       attestations: write
       contents: read
@@ -195,7 +195,7 @@ jobs:
   build-frontend-candidate:
     name: Build frontend production candidate
     if: github.event_name != 'pull_request' || !inputs.documentation-only
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
     permissions:
       attestations: write
       contents: read
@@ -225,7 +225,7 @@ jobs:
   tests-charts:
     name: Test production candidates with Helm
     needs: [build-backend-candidate, build-frontend-candidate]
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/helm-chart-ci.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/helm-chart-ci.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
     permissions:
       contents: read
       packages: read
@@ -264,7 +264,7 @@ jobs:
       - build-backend-candidate
       - build-frontend-candidate
       - tests-charts
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@00958991595e51ab23139e37af35c542d4009b2e # merged PR 979
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
     permissions:
       actions: read
       attestations: read

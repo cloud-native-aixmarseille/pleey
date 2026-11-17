@@ -3016,6 +3016,37 @@ This phase changes only the ADR/checklist and awaits review in PR #553. Raw
 snapshots, source inspection and logs remain in the ignored review workspace.
 P7.7 follows review; the upstream batch release remains deferred.
 
+### Released tooling adoption: 2026-11-17
+
+The user published the upstream releases and requested their adoption in PR #553.
+This supersedes the temporary merged-commit pins and the earlier batch-release
+deferral. Resolve each stable release tag to its immutable commit and update all
+Pleey workflow consumers, including main cleanup, auxiliary workflows and release
+helpers.
+
+| Repository          | Previous pin              | Release                                                                            | Immutable commit                           |
+| ------------------- | ------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------ |
+| ci-github-common    | 4.2.3                     | [4.2.4](https://github.com/hoverkraft-tech/ci-github-common/releases/tag/4.2.4)    | `d606f77fad305ef07dfde3db5270f5e324019c97` |
+| ci-github-nodejs    | Merged PR #608, `e1bca22` | [3.1.0](https://github.com/hoverkraft-tech/ci-github-nodejs/releases/tag/3.1.0)    | `98d91b1cc347efc64cd5fb20bc0ebc076acad114` |
+| ci-github-container | Merged PR #979, `0095899` | [4.0.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/4.0.0) | `7442ea53022a6365d3be7259634aaaf095bf5d3f` |
+| ci-github-publish   | 3.0.6                     | [3.0.7](https://github.com/hoverkraft-tech/ci-github-publish/releases/tag/3.0.7)   | `80fa7011b27f49f2e04a19f932d36047d17a28f2` |
+
+Container 4.0.0 includes the breaking prepared-chart release contract from PR #979,
+already integrated in Pleey, and the reviewed PR #981 cleanup fix that deduplicates
+concurrent PR-state lookups. Its build, promotion and Helm workflow interfaces are
+unchanged from Pleey's temporary pin. Node 3.1.0 differs from the consumed PR #608
+commit only in generated documentation; retain the unsharded configuration chosen
+in P6. Publish 3.0.7 changes documentation only. Common 4.2.4 updates internal
+dependencies, including Node setup in lint and PR-title validation, with no caller
+input or permission changes.
+
+Preserve the current DAG, validation gates, report configuration, cache policy and
+digest/security contracts. This is release adoption, with no new optimization or
+performance claim. Validate released metadata against every caller, run workflow
+and documentation checks, and require full native PR CI before review. Record the
+current run in PR #553; historical measurements above remain tied to their original
+revisions. P7.6 review, P7.7 evaluation and P8 rollout/acceptance remain open.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
