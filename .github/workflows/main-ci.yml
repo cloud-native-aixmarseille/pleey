@@ -48,7 +48,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@2b3fa105ac2f5ebfc6ac3c62285204dc4a0e2341 # Preview: Container PR #985; replace with release before merge
+      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@8197258101e6351bddb4625469882baec54d93f2 # Preview: Container PR #985; replace with release before merge
         with:
           working-directory: ./charts
           skip-if-only-changed: |
