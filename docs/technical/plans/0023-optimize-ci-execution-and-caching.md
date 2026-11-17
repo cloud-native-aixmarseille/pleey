@@ -664,6 +664,7 @@ See the [review decision](../architecture/adr/0023-optimize-ci-execution-and-cac
 
 - [x] Wrap PR classification in a local composite action, retaining the shared routing policy and the final expected-results gate.
 - [x] Move Helm docs change detection to [Container PR #985](https://github.com/hoverkraft-tech/ci-github-container/pull/985), configure only unrelated paths in Pleey, and remove the duplicate helper/tests. Its action package has 56 focused Node 24 tests.
+- [x] Preview bundled Helm docs formatting from the same upstream PR, removing runtime npm setup while retaining caller configuration and plugins. The 67 source/bundle tests include 11 formatter cases; release pins and main/release rollout validation remain pending.
 - [x] Split final release-chart validation from publication using existing Container interfaces. Only validation receives test configuration; publication consumes the validated artifact ID/checksum.
 - [ ] Review both PRs and their final-head CI. Main bot publication/cancellation and the release path still require rollout validation.
 - [ ] Release the upstream docs action and replace both explicit preview pins before merging Pleey.

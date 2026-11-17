@@ -3067,9 +3067,20 @@ selection, failed-run catch-up and safe fallback. Remove Pleey's duplicate helpe
 and tests when adopting that implementation; release generation stays unconditional.
 [Container PR #985](https://github.com/hoverkraft-tech/ci-github-container/pull/985)
 implements the guard with 56 focused Node 24 tests. Both docs callers preview
-`b325e702d1d63e6ced2f66b98f15f25543537b57`; replace these two preview references with
+`2b3fa105ac2f5ebfc6ac3c62285204dc4a0e2341`; replace these two preview references with
 a released immutable commit before merging Pleey. Other upstream callers retain
 the released versions recorded above.
+
+Extend the same upstream PR to run documentation formatting from committed
+JavaScript, removing runtime Node.js setup, npm installation and npx calls.
+Preserve caller configuration, ignores and custom modules; callers still own
+installation of their optional extensions. Upstream ADR 0012 records the public
+API adapters, embedded dictionary and bundler choice. Its 67 source and isolated
+Node.js 24 tests include the existing 56 routing cases plus 11 formatter cases.
+The isolated run has no action dependencies or network. Both preview calls use
+this distribution; the main change gate and unconditional release generation
+remain unchanged. These local checks do not establish workflow timing savings
+or validate main/release bot publication.
 
 Separate the final release-chart validation and publication jobs using existing
 Container 4.0.0 interfaces. `helm-chart-ci.yml` prepares and validates the committed
