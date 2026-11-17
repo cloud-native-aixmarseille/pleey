@@ -2434,7 +2434,9 @@ of a rename must qualify. Empty/incomplete data, unknown statuses, identity
 changes and API failures select full CI. Failure to execute the scope job itself
 blocks CI and fails the result check. The PR job and its final result check
 reuse a repository script, covered by the existing backend Vitest harness used
-for shared scripts; do not add a package or test framework.
+for shared scripts; do not add a package or test framework. The later
+[action ownership review](#review-pr-routing-action-ownership-2026-11-17)
+supersedes the harness location while retaining Vitest.
 
 Expose actual shared-workflow job results to a PR-only `Validate PR checks` job. It checks
 the classifier and workflow outcomes plus the exact expected job set: repository
@@ -3118,6 +3120,37 @@ Pleey's new native CI before continuing; the earlier local/hosted evidence remai
 tied to its original revisions. Main bot publication/cancellation, production
 release validation, performance acceptance and required-check enforcement remain
 open. Release adoption makes no additional performance claim.
+
+### Review: PR routing action ownership, 2026-11-17
+
+The follow-up review requests placing the routing policy and its tests beside
+`determine-pr-checks/action.yml`. Move both into that action directory and replace
+the backend-relative/container fallback lookup with a direct module import.
+The composite action resolves its policy through `github.action_path`; the final
+PR result job imports the same module from the checked-out action directory.
+
+This supersedes the backend-harness choice in P7.3. Give the action a private npm
+package using the same Vitest version as the applications, with its own lockfile
+and Dependabot coverage. Reuse the existing 40 cases; no additional framework,
+runtime dependencies or application-image copies are needed.
+
+Run the tests through the existing Node CI workflow in an independent full-route
+job, alongside image builds. Include that job in both promotion dependencies and
+the final expected-results manifest. Documentation-only PRs skip it, as they do
+application checks. Installation and test execution stay out of the scope job,
+so classification does not delay every CI branch with test setup.
+
+Retain the final PR result check: a successful reusable workflow can contain a
+skipped job, whereas full CI requires every declared validation to succeed.
+The check rejects an unexpectedly skipped backend check even when the shared
+workflow reports success, and rejects missing or additional job results.
+Read-only API inspection on this date found no active required-check rule on
+`main`; enforcing this result before merge remains P8 work.
+
+Validate the relocated suite, JUnit/LCOV production, workflow/action lint and
+updated documentation, then require native PR CI before resolving the review.
+This ownership change makes no new performance claim; historical routing
+measurements remain tied to their original test placement and revisions.
 
 ### Follow-Up
 

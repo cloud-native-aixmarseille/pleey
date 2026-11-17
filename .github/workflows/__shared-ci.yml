@@ -42,6 +42,24 @@ jobs:
         VALIDATE_BIOME_LINT=false
         KUBERNETES_KUBECONFORM_OPTIONS=-ignore-missing-schemas -ignore-filename-pattern .*Chart\.yaml -ignore-filename-pattern .*values.*\.yaml -ignore-filename-pattern .*values\.schema\.json -ignore-filename-pattern charts/.*/templates/.* -ignore-filename-pattern charts/.*/crds/.*
 
+  check-ci-routing:
+    name: Test CI routing
+    if: github.event_name != 'pull_request' || !inputs.documentation-only
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@98d91b1cc347efc64cd5fb20bc0ebc076acad114 # 3.1.0
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+      security-events: write
+      packages: read
+    with:
+      working-directory: .github/actions/determine-pr-checks
+      build: ""
+      lint: ""
+      test: '{"command":"test:ci","report-file":"junit.xml,coverage/lcov.info","comment":false}'
+      code-ql: "" # FIXME: Set `javascript` when CodeQL will be available (paid feature)
+      dependency-review: false # FIXME: Set `true` when Dependency Review will be available (paid feature)
+
   build-backend-ci-image:
     name: Build backend CI image
     if: github.event_name != 'pull_request' || !inputs.documentation-only
@@ -259,6 +277,7 @@ jobs:
     if: always() && (github.event_name != 'pull_request' || !inputs.documentation-only)
     needs:
       - linter
+      - check-ci-routing
       - check-backend
       - check-frontend
       - build-backend-candidate

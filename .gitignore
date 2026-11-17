@@ -79,7 +79,7 @@ coverage/
 .nyc_output/
 *.lcov
 application/**/eslint-report.json
-application/**/junit.xml
+**/junit.xml
 application/**/biome-report.sarif
 
 # E2E test artifacts

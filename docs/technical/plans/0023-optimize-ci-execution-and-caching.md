@@ -585,12 +585,12 @@ The following trials remain conditional on changed measurements.
 
 ### P7.3: Conservative PR routing
 
-**Files:** shared/PR workflows, `scripts/ci-pr-routing.mjs` and its existing backend Vitest harness.
+**Files:** shared/PR workflows and the policy/test package in `.github/actions/determine-pr-checks/`.
 
 - [x] Assess the current need before implementation: zero of 100 sampled merged PRs match the narrow scope, but five of eleven open PRs do. The [routing decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-documentation-only-pr-routing-2026-11-16) limits this increment to root `README.md` and Markdown files under `docs/`; mixed PRs retain full CI.
 - [x] Map dependencies including shared scripts, backend schema/frontend codegen, workflow/action config, Dockerfiles and charts. All paths outside the narrow documentation scope and uncertain API data select full CI. Failure to execute classification blocks CI.
 - [x] Route at job level using an explicit expected-check manifest validated by `Validate PR checks`; permit only planned skips. Keep main/release full. Both the [full route](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43887557272) and [nonpublishing documentation probe](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43887557111) passed native validation. Branch-rule enforcement remains part of P8.
-- [x] Verify documentation/service/shared/schema/chart/workflow/rename/unknown classification and failure/skip/cancellation handling with 40 focused tests in the existing harness. Read-only API checks classify five real documentation PRs and three representative full-CI PRs correctly; native workflows verify both expected result sets. The rename regression check detects a missing previous-path guard.
+- [x] Verify documentation/service/shared/schema/chart/workflow/rename/unknown classification and failure/skip/cancellation handling with 40 focused Vitest tests, now colocated with the action after the ownership review. Read-only API checks classify five real documentation PRs and three representative full-CI PRs correctly; native workflows verify both expected result sets. The rename regression check detects a missing previous-path guard.
 - [x] Record five control, full-route and documentation-probe samples, including routing overhead and the slow artifact download sample. Adopt the narrow scope: documentation-probe medians are 2m 37s elapsed and 3m 15s summed job time, versus 6m 31s and 20m 35s for the control. Routed full CI measures 6m 34s and 21m 18s, with 13s median combined routing-job time. All fifteen attempts pass; see the [dated evidence and limitations](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-routing-measurements-and-adoption).
 - [x] Remove the temporary probe after successful native validation and measurement; retain only the production workflows, helper/tests and contributor guidance.
 - [x] Complete user review before another phase. User approved P7.1 profiling on 2026-11-16.
@@ -668,6 +668,7 @@ See the [review decision](../architecture/adr/0023-optimize-ci-execution-and-cac
 - [x] Split final release-chart validation from publication using existing Container interfaces. Only validation receives test configuration; publication consumes the validated artifact ID/checksum.
 - [x] Review and merge upstream PR #985, then release Container 4.1.0.
 - [x] Replace both documentation previews and align all Container callers with the immutable 4.1.0 release; see the [adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#container-410-adoption-2026-11-17).
+- [x] Colocate the routing policy and its 40 existing tests with the local action. Run the private Vitest package independently through shared Node CI, cover it with Dependabot, and require its result before promotion. See the [ownership decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#review-pr-routing-action-ownership-2026-11-17).
 - [ ] Review Pleey's released-pin CI. Main bot publication/cancellation and the release path still require rollout validation.
 
 ## P8: Complete acceptance and documentation
