@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_PARTY_SETTINGS } from '../../../domain/game/party/shared/entities/party-settings';
 import { PrismaPartySettingsMapper } from './prisma-party-settings.mapper';
 
-describe('PrismaPartySettingsMapper reading time', () => {
+describe('PrismaPartySettingsMapper', () => {
   it.each([0, 5, 30])('persists and reloads %s seconds', (seconds) => {
     // Arrange
     const mapper = new PrismaPartySettingsMapper();

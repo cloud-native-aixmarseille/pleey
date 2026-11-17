@@ -2,6 +2,13 @@ export const predictionEn = {
   game: {
     types: {
       prediction: {
+        guide: {
+          authoring_tabs:
+            'Use Setup for the game details. Prompts holds the editor; Review checks readiness before hosting.',
+          authoring_list: 'Add prompts and arrange their order. Select a prompt to edit the possible outcomes.',
+          authoring_editor:
+            'Write a prompt and its possible outcomes, then save. During the party, the host resolves the outcome before revealing results.',
+        },
         title: 'Prediction',
         description: 'Prediction prompts with outcomes and score reveals.',
         management: {

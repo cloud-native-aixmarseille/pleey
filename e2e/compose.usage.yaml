@@ -1,0 +1,61 @@
+---
+# Use only with compose.yaml and scripts/run-usage-docs.sh, which assigns a disposable project.
+services:
+  postgres:
+    ports: !reset []
+  media-storage:
+    ports: !reset []
+  backend:
+    image: "${USAGE_BACKEND_IMAGE:-pleey-backend}"
+    user: "${USAGE_UID:-1000}:${USAGE_GID:-1000}"
+    restart: "no"
+    environment:
+      GRAPHQL_SCHEMA_OUTPUT_PATH: /usr/src/repository/.cache/usage-docs/schema.gql
+      I18N_WATCH_ENABLED: "false"
+      TMPDIR: /usr/src/repository/.cache/usage-docs/tmp
+      NPM_CONFIG_CACHE: /usr/src/repository/.cache/usage-docs/npm
+    volumes:
+      - ${USAGE_WORK_DIRECTORY:?Use scripts/run-usage-docs.sh}:/usr/src/repository/.cache/usage-docs
+    command:
+      - sh
+      - -c
+      - |
+        npm run db:generate && npx prisma db push && npm run seed &&
+        npx tsc -p tsconfig.build.json --outDir /usr/src/repository/.cache/usage-docs/backend --incremental false &&
+        cp -r src/i18n /usr/src/repository/.cache/usage-docs/backend/i18n &&
+        ln -sfn ../../../application/backend/node_modules /usr/src/repository/.cache/usage-docs/backend/node_modules &&
+        node /usr/src/repository/.cache/usage-docs/backend/app/main.js
+    labels:
+      traefik.enable: "false"
+  frontend:
+    image: "${USAGE_FRONTEND_IMAGE:-pleey-frontend}"
+    user: "${USAGE_UID:-1000}:${USAGE_GID:-1000}"
+    restart: "no"
+    environment:
+      VITE_CACHE_DIR: /usr/src/repository/.cache/usage-docs/vite
+      TMPDIR: /usr/src/repository/.cache/usage-docs/tmp
+    volumes:
+      - ${USAGE_WORK_DIRECTORY:?Use scripts/run-usage-docs.sh}:/usr/src/repository/.cache/usage-docs
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+    labels:
+      traefik.enable: "false"
+  media-delivery:
+    labels:
+      traefik.enable: "false"
+  mailpit:
+    labels:
+      traefik.enable: "false"
+  e2e-tests:
+    user: "${USAGE_UID:-1000}:${USAGE_GID:-1000}"
+    environment:
+      NPM_CONFIG_CACHE: /repository/.cache/usage-docs/npm
+      TMPDIR: /repository/.cache/usage-docs/tmp
+    volumes:
+      - ./:/repository
+      - ${USAGE_WORK_DIRECTORY:?Use scripts/run-usage-docs.sh}:/repository/.cache/usage-docs
+    labels:
+      traefik.enable: "false"
+networks:
+  traefik-proxy:
+    external: false
+    name: "${COMPOSE_PROJECT_NAME}-docs-proxy"

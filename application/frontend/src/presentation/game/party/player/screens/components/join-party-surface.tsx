@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect } from 'react';
+import { GuideLaunch } from '../../../../../shared/guide/guide-launch';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { UserAvatar } from '../../../../../shared/ui/data/user-avatar';
@@ -7,7 +8,7 @@ import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
 import { AccentIconBadge } from '../../../../../shared/ui/icons/accent-icon-badge';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
-import { ActionRow, ContentStack } from '../../../../../shared/ui/layout/containers';
+import { ActionRow, ContentStack, FlexGrowItem, StretchRow } from '../../../../../shared/ui/layout/containers';
 import { ElevatedPanel, HeroPanel } from '../../../../../shared/ui/layout/panels';
 import { Eyebrow, Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
 import { usePresentationMediaQuery } from '../../../../../shared/ui/layout/use-presentation-media-query';
@@ -141,6 +142,7 @@ export function JoinPartySurface({
 
   const submitButton = (
     <Button
+      data-tour="join-submit"
       disabled={isJoinDisabled}
       intent="primary"
       rightSection={<AppIcon name="arrow-right" size={18} />}
@@ -153,12 +155,17 @@ export function JoinPartySurface({
 
   if (isMobile) {
     return (
-      <section aria-label={t('game.party.player.route.joinPanelLabel')}>
+      <section data-tour="join-identity" aria-label={t('game.party.player.route.joinPanelLabel')}>
         <ElevatedPanel padding="md">
           <form noValidate onSubmit={handleSubmit}>
             <ContentStack gap="md">
+              <StretchRow>
+                <FlexGrowItem>
+                  <Heading level={2}>{t('game.party.player.route.joinHeroTitle')}</Heading>
+                </FlexGrowItem>
+                <GuideLaunch guideId="player-join" />
+              </StretchRow>
               <ContentStack align="center" gap="sm">
-                <Heading level={2}>{t('game.party.player.route.joinHeroTitle')}</Heading>
                 {pin ? (
                   <PartyPinPreview
                     ariaLabel={t('game.party.route.pinAriaLabel', { pin })}
@@ -187,9 +194,12 @@ export function JoinPartySurface({
               <AppIcon name="game" size={28} />
             </AccentIconBadge>
             <Eyebrow>{t('game.party.player.route.joinHeroEyebrow')}</Eyebrow>
-            <Heading hero level={1}>
-              {t('game.party.player.route.joinHeroTitle')}
-            </Heading>
+            <StretchRow>
+              <Heading hero level={1}>
+                {t('game.party.player.route.joinHeroTitle')}
+              </Heading>
+              <GuideLaunch guideId="player-join" />
+            </StretchRow>
             {pin ? (
               <PartyPinPreview
                 ariaLabel={t('game.party.route.pinAriaLabel', { pin })}
@@ -201,7 +211,7 @@ export function JoinPartySurface({
         </HeroPanel>
       </header>
 
-      <section aria-label={t('game.party.player.route.joinPanelLabel')}>
+      <section data-tour="join-identity" aria-label={t('game.party.player.route.joinPanelLabel')}>
         <ElevatedPanel padding="lg">
           <form noValidate onSubmit={handleSubmit}>
             <ContentStack gap="lg">

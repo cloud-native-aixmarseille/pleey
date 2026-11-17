@@ -1,5 +1,6 @@
 import { Container, type ContainerModule } from 'inversify';
 import { formContainerModule } from './modules/form/container';
+import { guideContainerModule } from './modules/guide/container';
 import { identityContainerModule } from './modules/identity/container';
 import { keyboardContainerModule } from './modules/keyboard/container';
 import { mediaContainerModule } from './modules/media/container';
@@ -11,6 +12,7 @@ import { uiContainerModule } from './modules/ui/container';
 import { workspaceContainerModule } from './modules/workspace/container';
 
 const bootstrapContainerModules = [
+  guideContainerModule,
   uiContainerModule,
   translationContainerModule,
   routingContainerModule,

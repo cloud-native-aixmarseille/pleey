@@ -1,5 +1,14 @@
 export const dashboardFr = {
   dashboard: {
+    guide: {
+      workspace: 'Choisissez une organisation et un projet. Le catalogue affiche les jeux du projet sélectionné.',
+      create_game:
+        "Créez un quiz ou un jeu de pronostics, puis ouvrez son éditeur pour ajouter du contenu. Sélectionnez d'abord un projet.",
+      create_party:
+        "Utilisez la carte d'un jeu pour créer une partie. Vérifiez ses paramètres et son éventuel mot de passe avant de confirmer. Les actions désactivées indiquent ce qui manque.",
+      launch:
+        'Ouvrez votre partie en cours pour inviter des joueurs. Lancez-la depuis le lobby hôte une fois le jeu et les joueurs prêts.',
+    },
     console: {
       title: "Console de l'espace de travail",
       subtitle: 'Choisissez un espace, puis passez de la préparation au lancement sans quitter le tableau de bord.',

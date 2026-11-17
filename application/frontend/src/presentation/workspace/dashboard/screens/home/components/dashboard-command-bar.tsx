@@ -1,8 +1,9 @@
 import type { Organization, OrganizationId } from '../../../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../../../domains/project/entities/project';
+import { GuideLaunch } from '../../../../../shared/guide/guide-launch';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
-import { ContentStack } from '../../../../../shared/ui/layout/containers';
+import { ContentStack, FlexGrowItem, StretchRow } from '../../../../../shared/ui/layout/containers';
 import { ElevatedPanel } from '../../../../../shared/ui/layout/panels';
 import { Heading, SupportingText } from '../../../../../shared/ui/layout/typography';
 import { DashboardMetricsStrip } from './dashboard-metrics-strip';
@@ -61,10 +62,15 @@ export function DashboardCommandBar({
     <div role="toolbar" aria-label={t('dashboard.workspace.sectionTitle')}>
       <ElevatedPanel padding="lg">
         <ContentStack gap="md">
-          <ContentStack gap="xs">
-            <Heading level={1}>{t('dashboard.console.title')}</Heading>
-            <SupportingText>{t('dashboard.console.subtitle')}</SupportingText>
-          </ContentStack>
+          <StretchRow>
+            <FlexGrowItem>
+              <ContentStack gap="xs">
+                <Heading level={1}>{t('dashboard.console.title')}</Heading>
+                <SupportingText>{t('dashboard.console.subtitle')}</SupportingText>
+              </ContentStack>
+            </FlexGrowItem>
+            <GuideLaunch guideId="dashboard-home" />
+          </StretchRow>
           <DashboardWorkspaceSelectors
             hasMoreOrganizations={hasMoreOrganizations}
             hasMoreProjects={hasMoreProjects}

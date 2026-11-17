@@ -97,83 +97,89 @@ export function DashboardHomeScreen({
 
   return (
     <ContentStack gap="lg">
-      <DashboardCommandBar
-        organizations={organizations}
-        hasMoreOrganizations={hasMoreOrganizations}
-        projects={projects}
-        organizationId={organizationId}
-        selectedOrganizationLabel={selectedOrganization?.name ?? null}
-        projectId={projectId}
-        selectedProjectLabel={selectedProject?.name ?? null}
-        hasMoreProjects={hasMoreProjects}
-        isOrganizationsLoading={isOrganizationsLoading}
-        isLoadingMoreOrganizations={isLoadingMoreOrganizations}
-        isWorkspaceLoading={isWorkspaceLoading}
-        isLoadingMoreProjects={isLoadingMoreProjects}
-        onOrganizationChange={handleOrganizationChange}
-        onOrganizationSearchChange={handleOrganizationSearchChange}
-        onLoadMoreOrganizations={handleLoadMoreOrganizations}
-        onProjectChange={handleProjectChange}
-        onProjectSearchChange={handleProjectSearchChange}
-        onLoadMoreProjects={handleLoadMoreProjects}
-        onManageOrganizations={handleManageOrganizations}
-        onManageProjects={handleManageProjects}
-        dashboard={organizationDashboard}
-      />
+      <div data-tour="workspace">
+        <DashboardCommandBar
+          organizations={organizations}
+          hasMoreOrganizations={hasMoreOrganizations}
+          projects={projects}
+          organizationId={organizationId}
+          selectedOrganizationLabel={selectedOrganization?.name ?? null}
+          projectId={projectId}
+          selectedProjectLabel={selectedProject?.name ?? null}
+          hasMoreProjects={hasMoreProjects}
+          isOrganizationsLoading={isOrganizationsLoading}
+          isLoadingMoreOrganizations={isLoadingMoreOrganizations}
+          isWorkspaceLoading={isWorkspaceLoading}
+          isLoadingMoreProjects={isLoadingMoreProjects}
+          onOrganizationChange={handleOrganizationChange}
+          onOrganizationSearchChange={handleOrganizationSearchChange}
+          onLoadMoreOrganizations={handleLoadMoreOrganizations}
+          onProjectChange={handleProjectChange}
+          onProjectSearchChange={handleProjectSearchChange}
+          onLoadMoreProjects={handleLoadMoreProjects}
+          onManageOrganizations={handleManageOrganizations}
+          onManageProjects={handleManageProjects}
+          dashboard={organizationDashboard}
+        />
+      </div>
 
       <StatusBanner tone="error">{workspaceErrorMessage ? t(workspaceErrorMessage) : null}</StatusBanner>
 
-      <DashboardActivePartySection
-        currentParty={currentParty}
-        currentPartyErrorMessage={currentPartyErrorMessage}
-        isCurrentPartyLoading={isCurrentPartyLoading}
-        partyRouteResolver={resolvePartyRoute}
-        resolvePartyGameTypeBadge={resolvePartyGameTypeBadge}
-      />
+      <div data-tour="launch">
+        <DashboardActivePartySection
+          currentParty={currentParty}
+          currentPartyErrorMessage={currentPartyErrorMessage}
+          isCurrentPartyLoading={isCurrentPartyLoading}
+          partyRouteResolver={resolvePartyRoute}
+          resolvePartyGameTypeBadge={resolvePartyGameTypeBadge}
+        />
+      </div>
 
-      <DashboardGamesSection
-        hasSelectedProject={selectedProject !== null}
-        creatingPartyGameId={creatingPartyGameId}
-        createGameForm={createGameForm}
-        createGameErrorMessage={createGameErrorMessage}
-        games={games}
-        gameTypes={gameTypes}
-        gameTypesByKey={gameTypesByKey}
-        filters={filters}
-        isCreateGameDialogOpen={isCreateGameDialogOpen}
-        isCreatingGame={isCreatingGame}
-        importGameForm={importGameForm}
-        importGameFile={importGameFile}
-        importGameErrorMessage={importGameErrorMessage}
-        importExampleProvider={importExampleProvider}
-        importAcceptedFileTypes={importAcceptedFileTypes}
-        isImportGameDialogOpen={isImportGameDialogOpen}
-        isImportingGame={isImportingGame}
-        isGamesLoading={isGamesLoading}
-        gamesErrorMessage={gamesErrorMessage}
-        partyActionErrorMessage={partyActionErrorMessage}
-        selectedOrganization={selectedOrganization}
-        selectedProject={selectedProject}
-        totalFiltered={totalCount}
-        totalGames={overallCount}
-        totalPages={totalPages}
-        onCloseCreateGameDialog={handleCloseCreateGameDialog}
-        onCreateGame={handleCreateGame}
-        onCreateGameFormChange={handleCreateGameFormChange}
-        onOpenCreateGameDialog={handleOpenCreateGameDialog}
-        onCloseImportGameDialog={handleCloseImportGameDialog}
-        onImportGame={handleImportGame}
-        onImportGameFormChange={handleImportGameFormChange}
-        onImportGameFileChange={handleImportGameFileChange}
-        onOpenImportGameDialog={handleOpenImportGameDialog}
-        onCreateParty={handleCreateParty}
-        onSearchChange={setSearch}
-        onTypeFilterChange={setTypeFilter}
-        onSortFieldChange={setSortField}
-        onSortDirectionChange={setSortDirection}
-        onPageChange={setPage}
-        onManageGame={handleManageGame}
-      />
+      <div data-tour="create-party">
+        <DashboardGamesSection
+          hasSelectedProject={selectedProject !== null}
+          creatingPartyGameId={creatingPartyGameId}
+          createGameForm={createGameForm}
+          createGameErrorMessage={createGameErrorMessage}
+          games={games}
+          gameTypes={gameTypes}
+          gameTypesByKey={gameTypesByKey}
+          filters={filters}
+          isCreateGameDialogOpen={isCreateGameDialogOpen}
+          isCreatingGame={isCreatingGame}
+          importGameForm={importGameForm}
+          importGameFile={importGameFile}
+          importGameErrorMessage={importGameErrorMessage}
+          importExampleProvider={importExampleProvider}
+          importAcceptedFileTypes={importAcceptedFileTypes}
+          isImportGameDialogOpen={isImportGameDialogOpen}
+          isImportingGame={isImportingGame}
+          isGamesLoading={isGamesLoading}
+          gamesErrorMessage={gamesErrorMessage}
+          partyActionErrorMessage={partyActionErrorMessage}
+          selectedOrganization={selectedOrganization}
+          selectedProject={selectedProject}
+          totalFiltered={totalCount}
+          totalGames={overallCount}
+          totalPages={totalPages}
+          onCloseCreateGameDialog={handleCloseCreateGameDialog}
+          onCreateGame={handleCreateGame}
+          onCreateGameFormChange={handleCreateGameFormChange}
+          onOpenCreateGameDialog={handleOpenCreateGameDialog}
+          onCloseImportGameDialog={handleCloseImportGameDialog}
+          onImportGame={handleImportGame}
+          onImportGameFormChange={handleImportGameFormChange}
+          onImportGameFileChange={handleImportGameFileChange}
+          onOpenImportGameDialog={handleOpenImportGameDialog}
+          onCreateParty={handleCreateParty}
+          onSearchChange={setSearch}
+          onTypeFilterChange={setTypeFilter}
+          onSortFieldChange={setSortField}
+          onSortDirectionChange={setSortDirection}
+          onPageChange={setPage}
+          onManageGame={handleManageGame}
+        />
+      </div>
     </ContentStack>
   );
 }

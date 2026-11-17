@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { PlayableManagementState } from '../../../../../domains/game/types/shared/management/playable-management';
+import { GuideLaunch } from '../../../../shared/guide/guide-launch';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../shared/ui/actions/button';
 import { MenuActionButton } from '../../../../shared/ui/actions/menu-action-button';
@@ -9,6 +10,7 @@ import { Eyebrow, Heading, SupportingText } from '../../../../shared/ui/layout/t
 import { ManualMenuPanel, ManualMenuWrapper } from '../../../../shared/ui/overlay/manual-menu';
 
 interface PlayableManagementHeaderProps {
+  readonly guideId: string;
   readonly state: PlayableManagementState;
   readonly translationRoot: string;
   readonly saveStateLabel: string;
@@ -18,6 +20,7 @@ interface PlayableManagementHeaderProps {
 }
 
 export function PlayableManagementHeader({
+  guideId,
   onBack,
   onDeleteGame,
   onEditGame,
@@ -39,6 +42,7 @@ export function PlayableManagementHeader({
         </ActionRow>
       </ContentStack>
       <ActionRow justify="end">
+        <GuideLaunch guideId={guideId} />
         <Button intent="ghost" leftSection={<AppIcon name="arrow-left" size={14} />} onClick={onBack}>
           {t(`${translationRoot}.back`)}
         </Button>

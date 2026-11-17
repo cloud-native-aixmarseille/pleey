@@ -16,7 +16,7 @@ export class SharpThemeImageProcessor implements ThemeImageProcessorPort {
         : buffer.toString('ascii', 0, 4) === 'RIFF' && buffer.toString('ascii', 8, 12) === 'WEBP'
           ? 'webp'
           : null;
-    if (!format || mimeType !== 'image/' + format)
+    if (!format || mimeType !== `image/${format}`)
       throw new ThemeError(ThemeErrorCode.INVALID_ASSET, { reason: 'type' });
     if (format === 'png') {
       for (let offset = 8; offset + 12 <= buffer.length; ) {

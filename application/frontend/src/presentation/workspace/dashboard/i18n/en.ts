@@ -1,5 +1,14 @@
 export const dashboardEn = {
   dashboard: {
+    guide: {
+      workspace: 'Choose an organization and a project. The game catalog belongs to the selected project.',
+      create_game:
+        'Create a quiz or a prediction game, then open its editor to add content. You need a selected project.',
+      create_party:
+        'Use a game card to create a party. Review its settings and optional password before confirming. Disabled actions explain what is missing.',
+      launch:
+        'Open your current party to invite players. Start from the host lobby once the game and players are ready.',
+    },
     console: {
       title: 'Workspace console',
       subtitle: 'Pick a workspace, then move from setup to launch without leaving the dashboard.',

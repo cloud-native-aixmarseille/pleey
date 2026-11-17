@@ -2,6 +2,16 @@ export const gamePartyPlayerFr = {
   game: {
     party: {
       player: {
+        guide: {
+          player_lobby:
+            "Attendez le lancement par l'hôte. Dans un quiz, sélectionnez les réponses avant la fin du timer. Dans un pronostic, choisissez une option et attendez le résultat.",
+          player_scoring:
+            "La modification des réponses dépend des paramètres de la partie. Suivez les résultats et le classement entre les étapes. L'hôte donne le rythme.",
+          join_identity:
+            "Ouvrez le lien de l'hôte. Utilisez votre compte ou choisissez un pseudo invité. Saisissez le mot de passe si la partie est privée.",
+          join_submit:
+            "Rejoignez la partie, puis attendez l'hôte dans le lobby. Si vous ne pouvez pas rejoindre la partie, vérifiez son état et contactez l'hôte.",
+        },
         route: {
           generateGuestNameCta: 'Générer un pseudo',
           guestAvatarAlt: "Aperçu de l'avatar invité pour {{username}}",

@@ -120,6 +120,7 @@ services:
     volumes:
       - ./application/backend:/usr/src/app
       - ./scripts:/usr/src/shared-scripts:ro
+      - ./:/usr/src/repository:ro
     expose:
       - "3001"
     environment:
@@ -213,6 +214,7 @@ services:
       - ./application/frontend:/usr/src/app
       - ./application/backend:/usr/src/backend:ro
       - ./scripts:/usr/src/shared-scripts:ro
+      - ./:/usr/src/repository:ro
     expose:
       - "5173"
     depends_on:

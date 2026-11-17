@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { TranslationResourceComposer } from './translation-resource-composer';
@@ -32,7 +32,7 @@ function listSourceFiles(directory: string): string[] {
       return listSourceFiles(entryPath);
     }
 
-    return /\.(ts|tsx)$/.test(entry.name) ? [entryPath] : [];
+    return /\.(ts|tsx|mjs)$/.test(entry.name) ? [entryPath] : [];
   });
 }
 
@@ -55,12 +55,15 @@ function collectFrontendTranslationReferences(directory: string): {
   const resources = translationResourceComposer.compose();
   const translationNamespaces = Object.keys(resources.en.translation as Record<string, unknown>);
   const isTranslationKey = (candidate: string) => {
+    if (candidate.endsWith('.md')) return false;
     return translationNamespaces.some((namespace) => candidate === namespace || candidate.startsWith(`${namespace}.`));
   };
   const exactKeys = new Set<string>();
   const rootedKeys = new Set<string>();
 
-  for (const filePath of listSourceFiles(directory)) {
+  const scripts = [join(directory, '../../../scripts'), '/usr/src/shared-scripts'].find(existsSync);
+  const sourceFiles = [...listSourceFiles(directory), ...(scripts ? listSourceFiles(scripts) : [])];
+  for (const filePath of sourceFiles) {
     if (/\.(test|spec)\.(ts|tsx)$/.test(filePath)) {
       continue;
     }

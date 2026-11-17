@@ -15,21 +15,25 @@ export function PlayerLobbySurface({ onLeaveParty, party }: PlayerLobbySurfacePr
 
   return (
     <ContentStack gap="lg">
-      <PlayerPartyStatusBar onLeaveParty={onLeaveParty} party={party} variant="lobby" />
+      <div data-tour="player-lobby">
+        <PlayerPartyStatusBar onLeaveParty={onLeaveParty} party={party} variant="lobby" />
+      </div>
 
       <SupportingText size="sm" tone="soft">
         {t('game.party.player.route.scoringExplanation')}
       </SupportingText>
 
-      <PartyLobbyPlayersPanel
-        ariaLabel={t('game.party.route.playersLabel')}
-        avatarAltLabel={(username) => t('game.party.route.playerAvatarAlt', { username })}
-        emptyMessage={t('game.party.route.emptyPlayers')}
-        players={party.players}
-        tileBadgeLabel={t('game.party.role.player')}
-        title={t('game.party.route.playersTitle')}
-        youBadgeLabel={t('game.party.route.youBadge')}
-      />
+      <div data-tour="player-scoring">
+        <PartyLobbyPlayersPanel
+          ariaLabel={t('game.party.route.playersLabel')}
+          avatarAltLabel={(username) => t('game.party.route.playerAvatarAlt', { username })}
+          emptyMessage={t('game.party.route.emptyPlayers')}
+          players={party.players}
+          tileBadgeLabel={t('game.party.role.player')}
+          title={t('game.party.route.playersTitle')}
+          youBadgeLabel={t('game.party.route.youBadge')}
+        />
+      </div>
     </ContentStack>
   );
 }

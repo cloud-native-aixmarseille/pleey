@@ -1,9 +1,11 @@
 import type { HostPartyRuntimeCommand } from '../../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
+import { PartyStatus } from '../../../../../../domains/game/party/shared/entities/party-status';
+import { GuideLaunch } from '../../../../../shared/guide/guide-launch';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
-import { WrapRow } from '../../../../../shared/ui/layout/containers';
+import { ActionRow, WrapRow } from '../../../../../shared/ui/layout/containers';
 import { ElevatedPanel } from '../../../../../shared/ui/layout/panels';
 import { Heading } from '../../../../../shared/ui/layout/typography';
 import { HostAdvanceStageAction } from './host-advance-stage-action';
@@ -47,7 +49,7 @@ export function HostPartyStatusBar({
   });
 
   return (
-    <header aria-label={t('game.party.route.statusBarLabel')}>
+    <header data-tour="host-controls" aria-label={t('game.party.route.statusBarLabel')}>
       <ElevatedPanel padding="md">
         <WrapRow gap="sm" wrap="nowrap">
           <AppIcon name="game" size={20} />
@@ -72,18 +74,21 @@ export function HostPartyStatusBar({
             pendingCommand={pendingHostRuntimeCommand}
           />
           <div style={{ marginInlineStart: 'auto' }}>
-            <HostRuntimeCommandMenu
-              controls={hostRuntimeControls}
-              onAdvanceStage={onAdvanceStage}
-              onPauseParty={onPauseParty}
-              onRequestEndParty={onRequestEndParty}
-              onRestartStage={onRestartStage}
-              onResumeParty={onResumeParty}
-              onRevealStageResult={onRevealStageResult}
-              onRewindParty={onRewindParty}
-              onRewindStage={onRewindStage}
-              pendingCommand={pendingHostRuntimeCommand}
-            />
+            <ActionRow gap="xs">
+              {party.status === PartyStatus.WAITING ? <GuideLaunch guideId="host-party" /> : null}
+              <HostRuntimeCommandMenu
+                controls={hostRuntimeControls}
+                onAdvanceStage={onAdvanceStage}
+                onPauseParty={onPauseParty}
+                onRequestEndParty={onRequestEndParty}
+                onRestartStage={onRestartStage}
+                onResumeParty={onResumeParty}
+                onRevealStageResult={onRevealStageResult}
+                onRewindParty={onRewindParty}
+                onRewindStage={onRewindStage}
+                pendingCommand={pendingHostRuntimeCommand}
+              />
+            </ActionRow>
           </div>
         </WrapRow>
       </ElevatedPanel>

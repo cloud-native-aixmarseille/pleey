@@ -39,7 +39,9 @@
     "test:cov": "vitest --coverage",
     "test:ui": "vitest --ui",
     "test:e2e": "vitest --config ./test/vitest.config.e2e.mts",
-    "test:ci": "vitest run --reporter=default --reporter=junit --outputFile=junit.xml --coverage.enabled --coverage.reporter=lcov --coverage.reporter=text"
+    "test:ci": "vitest run --reporter=default --reporter=junit --outputFile=junit.xml --coverage.enabled --coverage.reporter=lcov --coverage.reporter=text",
+    "docs:generate": "node scripts/generate-usage-reference.mjs",
+    "docs:check": "node scripts/generate-usage-reference.mjs --check"
   },
   "dependencies": {
     "@apollo/server": "^5.5.1",

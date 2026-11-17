@@ -36,23 +36,27 @@ export function HostLobbySurface({
   return (
     <ContentStack gap="lg">
       <ResponsiveGrid columns={{ base: 1, lg: 2 }}>
-        <PartyLobbySharePanel
-          ariaLabel={t('game.party.host.route.sharePanelLabel')}
-          copyLabel={t('game.party.host.route.copyJoinLink')}
-          enterCodeLabel={t('game.party.host.route.enterCode')}
-          heading={t('game.party.host.route.shareHeading')}
-          joinUrl={joinUrl}
-          orVisitLabel={t('game.party.host.route.orVisit')}
-          pin={party.pin}
-          pinAriaLabel={t('game.party.route.pinAriaLabel', { pin: party.pin })}
-          scanLabel={t('game.party.host.route.scanToJoin')}
-        />
+        <div data-tour="host-share">
+          <PartyLobbySharePanel
+            ariaLabel={t('game.party.host.route.sharePanelLabel')}
+            copyLabel={t('game.party.host.route.copyJoinLink')}
+            enterCodeLabel={t('game.party.host.route.enterCode')}
+            heading={t('game.party.host.route.shareHeading')}
+            joinUrl={joinUrl}
+            orVisitLabel={t('game.party.host.route.orVisit')}
+            pin={party.pin}
+            pinAriaLabel={t('game.party.route.pinAriaLabel', { pin: party.pin })}
+            scanLabel={t('game.party.host.route.scanToJoin')}
+          />
+        </div>
 
-        <HostPartyPlayersPanel
-          onKickPlayer={(player) => void kickPlayer(player)}
-          pendingKickedPlayerKey={pendingKickedPlayerKey}
-          players={party.players}
-        />
+        <div data-tour="host-players">
+          <HostPartyPlayersPanel
+            onKickPlayer={(player) => void kickPlayer(player)}
+            pendingKickedPlayerKey={pendingKickedPlayerKey}
+            players={party.players}
+          />
+        </div>
       </ResponsiveGrid>
 
       <HostRuntimeConfirmationDialog

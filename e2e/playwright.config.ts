@@ -33,6 +33,8 @@ if (forbiddenHostPattern.test(apiBaseUrl)) {
 
 export default defineConfig({
   testDir: "./tests",
+  // User guides require the dedicated seeded stack and repository mounts.
+  testIgnore: "**/usage/**",
 
   // Maximum time one test can run for
   timeout: 30 * 1000,

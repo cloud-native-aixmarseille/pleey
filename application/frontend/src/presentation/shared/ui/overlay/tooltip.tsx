@@ -10,7 +10,12 @@ interface TooltipProps {
 
 export function Tooltip({ children, disabled = false, label, withArrow = false }: TooltipProps) {
   return (
-    <MantineTooltip disabled={disabled} label={label} withArrow={withArrow}>
+    <MantineTooltip
+      disabled={disabled}
+      events={{ focus: true, hover: true, touch: true }}
+      label={label}
+      withArrow={withArrow}
+    >
       {children}
     </MantineTooltip>
   );

@@ -8,6 +8,43 @@ export const sharedFr = {
     },
   },
   shared: {
+    guide: {
+      docs: {
+        setting: 'Paramètre',
+        default: 'Valeur par défaut',
+        allowed: 'Valeurs autorisées',
+        domain: 'Domaine',
+        code: 'Code',
+        source: 'Source',
+        name: 'Nom',
+        value: 'Valeur',
+        action: 'Action',
+        reason: 'Type de motif de refus',
+        gameSettings: "Valeurs initiales de l'éditeur de quiz et de pronostics",
+        minimum: 'Minimum (entier)',
+        seconds: 'secondes',
+        language: 'Français',
+
+        index: 'Guides utilisateur',
+        launchHelp:
+          "Sur votre instance Pleey, ouvrez l'écran concerné puis utilisez le bouton avec un point d'interrogation dans son en-tête pour voir le guide. Les liens ci-dessous utilisent l'installation locale. Remplacez l'hôte et les :paramètres par votre adresse et vos identifiants. Le guide joueur est disponible dans le lobby, avant le jeu chronométré.",
+        facts: 'Référence',
+        settings: 'Paramètres de partie',
+        permissions: 'Droits sur les ressources',
+        errors: "Codes d'erreur",
+        types: 'Types de jeu',
+      },
+      start: 'Voir le guide',
+      replay: 'Revoir le guide',
+      next: 'Suivant',
+      previous: 'Précédent',
+      done: 'Terminer',
+      close: 'Fermer le guide',
+      reference: 'Lire la documentation',
+      progress: 'Étape {{current}} sur {{total}}',
+      unavailable:
+        "Ce guide nécessite que l'écran soit prêt. Fermez les fenêtres, sélectionnez l'onglet concerné et réessayez.",
+    },
     branding: {
       logoAlt: 'Logo Pleey',
     },

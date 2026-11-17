@@ -249,7 +249,7 @@
                     "message": "Presentation code must not import Mantine directly. Use components from src/presentation/shared/ui instead."
                   },
                   {
-                    "group": ["react-router-dom", "react-i18next", "@tanstack/react-form"],
+                    "group": ["react-router-dom", "react-i18next", "@tanstack/react-form", "driver.js", "driver.js/*"],
                     "message": "Presentation layer must consume routing and translation through presentation hooks/components backed by existing-layer adapters instead of importing framework packages directly."
                   }
                 ]
@@ -356,7 +356,7 @@
                     "message": "Presentation layer cannot import from app layer. App is the composition boundary and may depend on presentation, not the reverse."
                   },
                   {
-                    "group": ["react-router-dom", "react-i18next", "@tanstack/react-form"],
+                    "group": ["react-router-dom", "react-i18next", "@tanstack/react-form", "driver.js", "driver.js/*"],
                     "message": "Presentation layer must consume routing and translation through presentation hooks/components backed by existing-layer adapters instead of importing framework packages directly."
                   }
                 ]

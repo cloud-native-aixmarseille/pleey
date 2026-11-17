@@ -86,6 +86,7 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
         {state ? (
           <ContentStack align="stretch" gap="lg">
             <PlayableManagementHeader
+              guideId={props.allowMedia ? 'quiz-authoring' : 'prediction-authoring'}
               onBack={viewModel.navigateBack}
               onDeleteGame={viewModel.requestDeleteGame}
               onEditGame={openSetupTab}
@@ -95,13 +96,15 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
               state={state}
               translationRoot={props.translationRoot}
             />
-            <PlayableManagementTabs
-              activeTab={activeTab}
-              onOpenStages={openStagesTab}
-              onOpenReview={openReviewTab}
-              onOpenSetup={openSetupTab}
-              translationRoot={props.translationRoot}
-            />
+            <div data-tour="authoring-tabs">
+              <PlayableManagementTabs
+                activeTab={activeTab}
+                onOpenStages={openStagesTab}
+                onOpenReview={openReviewTab}
+                onOpenSetup={openSetupTab}
+                translationRoot={props.translationRoot}
+              />
+            </div>
             {viewModel.error ? <InsetPanel tone="accent">{viewModel.error}</InsetPanel> : null}
             {activeTab === PlayableManagementTab.SETUP ? (
               <PlayableManagementTabPanel>
@@ -119,27 +122,31 @@ export function PlayableContentManagementScreen(props: PlayableContentManagement
             {activeTab === PlayableManagementTab.STAGES ? (
               <PlayableManagementTabPanel>
                 <PlayableManagementEditorLayout>
-                  <PlayableManagementStageRail
-                    itemKindConfig={props.itemKindConfig}
-                    items={state.items}
-                    onAddItem={() => viewModel.selectItem(null)}
-                    onDeleteItem={viewModel.requestDeleteItem}
-                    onMoveItem={(fromIndex, toIndex) => void viewModel.reorderItems(fromIndex, toIndex)}
-                    onSelectItem={viewModel.selectItem}
-                    selectedItemId={viewModel.selectedItemId}
-                    translationRoot={props.translationRoot}
-                  />
-                  <SectionContainer paddingX="none">
-                    <PlayableManagementPromptEditor
-                      allowMedia={props.allowMedia}
-                      editorState={viewModel.editorState}
-                      isSaving={viewModel.isSaving}
+                  <div data-tour="authoring-list">
+                    <PlayableManagementStageRail
                       itemKindConfig={props.itemKindConfig}
-                      itemNumber={selectedItem ? selectedItem.position + 1 : null}
-                      onSave={() => void viewModel.saveItem()}
-                      setEditorState={viewModel.setEditorState}
+                      items={state.items}
+                      onAddItem={() => viewModel.selectItem(null)}
+                      onDeleteItem={viewModel.requestDeleteItem}
+                      onMoveItem={(fromIndex, toIndex) => void viewModel.reorderItems(fromIndex, toIndex)}
+                      onSelectItem={viewModel.selectItem}
+                      selectedItemId={viewModel.selectedItemId}
                       translationRoot={props.translationRoot}
                     />
+                  </div>
+                  <SectionContainer paddingX="none">
+                    <div data-tour="authoring-editor">
+                      <PlayableManagementPromptEditor
+                        allowMedia={props.allowMedia}
+                        editorState={viewModel.editorState}
+                        isSaving={viewModel.isSaving}
+                        itemKindConfig={props.itemKindConfig}
+                        itemNumber={selectedItem ? selectedItem.position + 1 : null}
+                        onSave={() => void viewModel.saveItem()}
+                        setEditorState={viewModel.setEditorState}
+                        translationRoot={props.translationRoot}
+                      />
+                    </div>
                   </SectionContainer>
                 </PlayableManagementEditorLayout>
               </PlayableManagementTabPanel>

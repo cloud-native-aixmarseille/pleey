@@ -65,9 +65,9 @@ for the decision and measurement constraints.
 ## Repository Static Linting
 
 Pull requests limited to the root `README.md` and Markdown files under `docs/`
-run repository lint, Actions CodeQL and action pinning. Application builds,
+run repository lint, Actions CodeQL, action pinning and the user-documentation reference/freshness checks. Application builds,
 application lint/tests, CI routing tests, Helm installation and image promotion are skipped for
-that scope. All other PRs, main and release run full CI. Documentation-only
+that scope. All other PRs, main and release run full CI, including isolated browser validation of user guides. Documentation-only
 commits within a mixed PR still run full CI.
 
 The [PR workflow](../../../.github/workflows/pull-request-ci.yml) uses the

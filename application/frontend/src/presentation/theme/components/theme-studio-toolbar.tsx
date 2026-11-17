@@ -1,4 +1,5 @@
 import type { ThemePermissions } from '../../../domains/theme/value-objects/theme-permissions';
+import { GuideLaunch } from '../../shared/guide/guide-launch';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { Button } from '../../shared/ui/actions/button';
 import { IconTriggerButton } from '../../shared/ui/actions/icon-trigger-button';
@@ -49,6 +50,7 @@ export function ThemeStudioToolbar({
             <FlexGrowItem>
               <Heading level={1}>{t('theme.studio.title')}</Heading>
             </FlexGrowItem>
+            <GuideLaunch guideId="theme-studio" />
           </StretchRow>
           <Input
             label={t('theme.builder.name')}

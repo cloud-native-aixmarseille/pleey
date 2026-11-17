@@ -1,5 +1,11 @@
 export const themeFr = {
   theme: {
+    guide: {
+      theme_toolbar:
+        "Choisissez un thème de départ dans la bibliothèque. Nommez votre thème et enregistrez quand il est prêt. L'enregistrement nécessite les droits dans cette organisation.",
+      theme_controls:
+        "Réglez les couleurs, le style et les médias. Vérifiez le rendu avant d'enregistrer. Sur téléphone, alternez entre édition et aperçu.",
+    },
     studio: {
       savedHelp:
         'Prêt pour votre prochain événement. Sélectionnez ce thème dans ses paramètres ; les parties existantes gardent leur apparence.',

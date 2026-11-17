@@ -3,7 +3,7 @@ import { GameValidationFailedError } from '../../../errors';
 import { DEFAULT_PARTY_SETTINGS } from '../entities/party-settings';
 import { PartySettingsResolver } from './party-settings-resolver';
 
-describe('PartySettingsResolver reading time', () => {
+describe('PartySettingsResolver', () => {
   it.each([
     { organization: undefined, project: undefined, override: undefined, expected: 3 },
     { organization: 5, project: undefined, override: undefined, expected: 5 },

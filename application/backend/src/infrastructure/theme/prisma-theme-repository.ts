@@ -92,7 +92,7 @@ export class PrismaThemeRepository implements ThemeRepository {
     });
     return {
       id: this.assetIdentifier.parse(asset.id),
-      url: '/api/theme-assets/' + asset.id,
+      url: `/api/theme-assets/${asset.id}`,
       width: asset.width,
       height: asset.height,
     };
@@ -106,7 +106,7 @@ export class PrismaThemeRepository implements ThemeRepository {
   }
   private toDomain(theme: Theme): ManagedTheme {
     return {
-      id: this.themeIdentifier.parse('custom:' + theme.id),
+      id: this.themeIdentifier.parse(`custom:${theme.id}`),
       organizationId: this.organizationIdentifier.parse(theme.organizationId),
       revision: theme.revision,
       document: this.validator.parse(theme.document),

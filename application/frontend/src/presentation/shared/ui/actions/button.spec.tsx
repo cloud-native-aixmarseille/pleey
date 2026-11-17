@@ -1,12 +1,14 @@
 import { fireEvent, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '../../../../test-utils/render-with-providers';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
 import { Button } from './button';
 
 describe('Button', () => {
-  it('associates a visible denial reason with the disabled action', () => {
+  it('associates a tooltip denial reason with the disabled action', async () => {
     // Arrange
+    const user = userEvent.setup();
     const onClick = vi.fn();
     renderWithProviders(
       <Button
@@ -20,11 +22,35 @@ describe('Button', () => {
     const button = screen.getByRole('button', { name: 'Create project' });
     // Act
     fireEvent.click(button);
+    await user.hover(button.parentElement as HTMLElement);
     // Assert
     expect(button).toBeDisabled();
     expect(button).toHaveAccessibleDescription('Join the organization first.');
-    expect(screen.getByText('Join the organization first.')).toBeVisible();
+    expect(await screen.findByRole('tooltip', { name: 'Join the organization first.' })).toBeInTheDocument();
     expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it('shows the denial tooltip when reached with keyboard focus', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    renderWithProviders(
+      <Button
+        permission={{ allowed: false, reason: 'MEMBER_REQUIRED' }}
+        permissionReason="Join the organization first."
+      >
+        Create project
+      </Button>,
+    );
+    const button = screen.getByRole('button', { name: 'Create project' });
+
+    // Act
+    await user.tab();
+
+    // Assert
+    expect(button.parentElement).toHaveFocus();
+    expect(button).toBeDisabled();
+    expect(button).toHaveAccessibleDescription('Join the organization first.');
+    expect(await screen.findByRole('tooltip', { name: 'Join the organization first.' })).toBeInTheDocument();
   });
 
   describe('render()', () => {

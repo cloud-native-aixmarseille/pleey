@@ -1,5 +1,13 @@
 ---
 vulnerabilities:
+  - id: CVE-2026-112366
+    purls:
+      - pkg:npm/picomatch@4.0.7
+    expired_at: 2026-12-18
+    statement: >-
+      Accepted temporary exception: the advisory has no fixed package version
+      available for this dependency graph. The compatible lockfile update path
+      is blocked by a breaking knip/vitest dependency upgrade.
   - id: CVE-2026-118764
     purls:
       - pkg:npm/minimatch@3.1.5

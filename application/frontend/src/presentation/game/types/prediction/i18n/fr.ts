@@ -2,6 +2,14 @@ export const predictionFr = {
   game: {
     types: {
       prediction: {
+        guide: {
+          authoring_tabs:
+            "Utilisez Configuration pour les détails du jeu. Les pronostics se préparent dans l'éditeur. Vérification contrôle le contenu avant le lancement.",
+          authoring_list:
+            'Ajoutez des pronostics et organisez leur ordre. Sélectionnez un pronostic pour modifier les options.',
+          authoring_editor:
+            "Rédigez le pronostic et ses options, puis enregistrez. Pendant la partie, l'hôte indique le résultat avant de le révéler.",
+        },
         title: 'Pronostic',
         description: 'Des prompts de pronostic avec résultats et score final.',
         management: {
