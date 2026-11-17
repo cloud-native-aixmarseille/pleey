@@ -27,14 +27,7 @@ jobs:
           persist-credentials: false
 
       - id: scope
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          script: |
-            const script = require('node:url').pathToFileURL(`${process.env.GITHUB_WORKSPACE}/scripts/ci-pr-routing.mjs`);
-            const { resolvePullRequestScope } = await import(script.href);
-            const scope = await resolvePullRequestScope({ github, context });
-            core.setOutput('scope', scope);
-            core.info(`CI scope: ${scope}`);
+        uses: $/.github/actions/determine-pr-checks
 
   ci:
     needs: scope
@@ -56,6 +49,7 @@ jobs:
 
   ci-result:
     name: Validate PR checks
+    # Enforce the complete result set, including which skips the selected route permits.
     if: always()
     needs: [scope, ci]
     runs-on: ubuntu-latest

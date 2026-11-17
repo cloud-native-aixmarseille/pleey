@@ -1,0 +1,21 @@
+---
+name: Determine PR checks
+description: Classify this repository's complete PR changes using its shared CI routing policy.
+outputs:
+  scope:
+    description: The documentation or full validation scope; uncertainty selects full.
+    value: ${{ steps.scope.outputs.scope }}
+runs:
+  using: composite
+  steps:
+    - id: scope
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        POLICY_PATH: ${{ github.workspace }}/scripts/ci-pr-routing.mjs
+      with:
+        script: |
+          const { pathToFileURL } = require('node:url');
+          const { resolvePullRequestScope } = await import(pathToFileURL(process.env.POLICY_PATH));
+          const scope = await resolvePullRequestScope({ github, context });
+          core.setOutput('scope', scope);
+          core.info(`CI scope: ${scope}`);

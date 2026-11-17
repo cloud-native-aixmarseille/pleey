@@ -3047,6 +3047,44 @@ and documentation checks, and require full native PR CI before review. Record th
 current run in PR #553; historical measurements above remain tied to their original
 revisions. P7.6 review, P7.7 evaluation and P8 rollout/acceptance remain open.
 
+### Review: CI action boundaries and release phases, 2026-11-17
+
+PR #553 review requests moving Helm documentation change detection into its
+upstream action, wrapping PR classification in a local action, and removing test
+configuration from the publication job.
+
+Expose PR classification through a repository-local composite action. Keep the
+tested routing policy shared with the final result assertion. The scope job is
+still necessary to provide inputs before the reusable CI workflow starts.
+Retain `Validate PR checks`: the selected route must produce the complete expected
+set of successes and skips, and a failed classifier must not leave an accepted
+PR check. A skipped GitHub job alone does not enforce that contract.
+
+Move the documentation policy into `ci-github-container/actions/helm/generate-docs`
+with an opt-in literal path list. Keep Pleey's unrelated paths in its caller and
+preserve successful CI as the bot-write gate. The upstream action owns baseline
+selection, failed-run catch-up and safe fallback. Remove Pleey's duplicate helper
+and tests when adopting that implementation; release generation stays unconditional.
+[Container PR #985](https://github.com/hoverkraft-tech/ci-github-container/pull/985)
+implements the guard with 56 focused Node 24 tests. Both docs callers preview
+`b325e702d1d63e6ced2f66b98f15f25543537b57`; replace these two preview references with
+a released immutable commit before merging Pleey. Other upstream callers retain
+the released versions recorded above.
+
+Separate the final release-chart validation and publication jobs using existing
+Container 4.0.0 interfaces. `helm-chart-ci.yml` prepares and validates the committed
+release SHA with read-only permissions and uploads its exact archive. A subsequent
+publication job requires successful validation and draft creation, downloads only
+that artifact ID, and calls `release-chart` with the original archive/checksum.
+Keep test registry and installation settings only on validation. Preserve the OCI
+address, signing, immutable artifact handoff and publication-only retry behavior.
+Calling the signing action directly makes Pleey's `release.yml` the chart signer
+workflow instead of the intermediate reusable release workflow. No chart-verifier
+policy in Pleey depends on that intermediate identity; image promotion and its
+accepted signer contract are unchanged.
+The earlier composed release workflow remains valid for callers wanting both
+phases behind one entrypoint; Pleey now exposes them separately for review.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

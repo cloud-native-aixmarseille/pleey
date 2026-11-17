@@ -70,9 +70,10 @@ application lint/tests, Helm installation and image promotion are skipped for
 that scope. All other PRs, main and release run full CI. Documentation-only
 commits within a mixed PR still run full CI.
 
-The [PR workflow](../../../.github/workflows/pull-request-ci.yml) checks the full
-paginated PR file list against its triggering head/base revisions. Both paths of
-a rename must qualify. Missing, stale or incomplete API data selects full CI;
+The [PR workflow](../../../.github/workflows/pull-request-ci.yml) uses the
+[local classification action](../../../.github/actions/determine-pr-checks/action.yml)
+to check the full paginated PR file list against its triggering head/base
+revisions. Both paths of a rename must qualify. Missing, stale or incomplete API data selects full CI;
 failure to execute the scope job blocks the workflow. `Validate PR checks`
 verifies the selected route and the exact results of every shared CI job,
 rejecting failed, cancelled, missing or unexpectedly skipped checks. Configure
@@ -137,13 +138,15 @@ The [release workflow](../../../.github/workflows/release.yml) generates a Gemin
 summary followed by the complete changelog when it creates the draft release.
 The model and provider are configured in its `changelog-summary` input.
 
-After preparing and committing release metadata and image defaults, the shared
-Helm release workflow checks out that commit, packages the final chart, and runs
-static validation and installation tests. Tests use its committed image digests,
+After preparing and committing release metadata and image defaults,
+`Validate final release chart` calls the shared Helm CI workflow to check out that
+commit, package the final chart, and run static validation and installation tests.
+Tests use its committed image digests,
 packaged recovery values and cluster-specific operator/pull-secret overrides.
-Validation has read-only registry permissions. A separate publication job downloads
-the exact validated artifact ID, verifies its checksum, then publishes and signs
-the unchanged archive. The chart remains at
+Validation has read-only registry permissions. `Publish validated release chart`
+waits for validation and draft creation, downloads the exact validated artifact ID,
+and calls `release-chart` to verify its checksum, publish and sign the unchanged
+archive. Test configuration belongs only to validation. The chart remains at
 `ghcr.io/cloud-native-aixmarseille/pleey/charts/application/pleey`.
 
 GitHub release publication waits for chart publication. Release runs are serialized
@@ -154,17 +157,21 @@ closed; after their seven-day retention, rerun the full workflow to validate aga
 ## Documentation Maintenance
 
 The [main workflow](../../../.github/workflows/main-ci.yml) generates Helm docs
-after successful CI when chart or generator inputs may have changed. It compares
-the triggering checkout with the latest successful main push run, including
+after successful CI when chart or generator inputs may have changed. The
+`helm/generate-docs` action compares the triggering checkout with the latest
+successful main push run, including
 changes left pending by failed or cancelled runs. Only changes confined to
 `application/`, `docs/`, `e2e/` and the root `README.md` can skip generation.
 Charts, generated chart docs, shared scripts, workflow/action pins, root
 configuration and unknown paths require generation.
 
-Missing history, API/Git failures, checkout mismatches and uncertain ancestry
-keep generation enabled. Rerun main CI to force regeneration. If chart-doc
+Missing history, API/Git failures, incomplete comparisons, local changes, checkout
+mismatches and uncertain ancestry keep generation enabled. Rerun main CI to force
+regeneration. If chart-doc
 templates or configuration begin consuming an excluded tree, update the
-[input policy](../../../scripts/ci-helm-docs.mjs) and its tests in the same change.
+`skip-if-only-changed` input in the main workflow. Keep the action after required
+checks on every default-branch push; independent filters would make its successful
+workflow baseline unreliable.
 Release documentation generation remains unconditional after release metadata
 changes. Bot writes still wait for successful CI.
 
