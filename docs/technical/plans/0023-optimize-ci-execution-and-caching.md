@@ -669,7 +669,10 @@ See the [review decision](../architecture/adr/0023-optimize-ci-execution-and-cac
 - [x] Review and merge upstream PR #985, then release Container 4.1.0.
 - [x] Replace both documentation previews and align all Container callers with the immutable 4.1.0 release; see the [adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#container-410-adoption-2026-11-17).
 - [x] Colocate the routing policy and its 40 existing tests with the local action. Run the private Vitest package independently through shared Node CI, cover it with Dependabot, and require its result before promotion. See the [ownership decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#review-pr-routing-action-ownership-2026-11-17).
-- [ ] Review Pleey's released-pin CI. Main bot publication/cancellation and the release path still require rollout validation.
+- [x] Move validated-artifact identity checks, download and cleanup into the release action in [Container PR #988](https://github.com/hoverkraft-tech/ci-github-container/pull/988). Pleey previews the action with immutable ID/basename/checksum inputs; see the [ownership decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#review-release-artifact-ownership-2026-11-17).
+- [x] Retain the final PR result check after explicit user review of its additional expected-job/skip validation.
+- [ ] Review and release Container #988, then replace Pleey's release-action preview with its immutable release pin before merge.
+- [ ] Review Pleey's updated CI. Main bot publication/cancellation and the release path still require rollout validation.
 
 ## P8: Complete acceptance and documentation
 
