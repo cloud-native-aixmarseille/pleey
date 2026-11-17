@@ -3,7 +3,7 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream Helm phases and reusable workflows merged, release deferred until the plan is complete; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint reporting optimization reviewed; P7.4 cleanup/docs reviewed; P7.5 runner/shared-builder deferrals reviewed; P7.6 registry-cache deferral awaits review; P7 required-secret change reviewed, setup/cache experiments deferred; P7.7 and P8 acceptance pending.
+- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream releases adopted on 2026-11-17, including the Helm reusable workflows and cleanup fix; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint reporting optimization reviewed; P7.4 cleanup/docs reviewed; P7.5 runner/shared-builder deferrals reviewed; P7.6 registry-cache deferral awaits review; P7 required-secret change reviewed, setup/cache experiments deferred; P7.7 and P8 acceptance pending.
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
@@ -402,10 +402,10 @@ independently proven setup/cache improvements.
 The [upstream ADR](https://github.com/hoverkraft-tech/ci-github-container/blob/main/docs/adr/0007-separate-helm-pipeline-phases.md)
 owns the artifact and input contracts. Review each implementation increment before
 starting the next. Prepare, Lint and Test are released. Release's archive-input
-contract and shared workflows merged in PR #979. PR #553 now validates the merged
-commit before one upstream release at the end of the optimization plan, as requested by the user. See the
-[prerelease integration decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#validate-the-merged-helm-workflows-before-one-upstream-release-2026-11-15).
-Replace the temporary commit pins with that release before merging Pleey.
+contract and shared workflows from PR #979 are released in Container 4.0.0.
+PR #553 now uses its immutable release commit. The
+[release adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#released-tooling-adoption-2026-11-17)
+records the replacement of the temporary integration pins.
 
 - [x] Review the four-phase ADR and the prepared-archive handoff. User approval recorded on 2026-11-13.
 - [x] Implement Prepare: finish metadata/default changes, resolve locked dependencies and current local subcharts, then package once with a checksum.
@@ -423,7 +423,7 @@ Replace the temporary commit pins with that release before merging Pleey.
 - [x] Review upstream CI, artifact identity, validation gates and recovery before releasing the replacement. PR #979 merged after [CI 43765776306](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43765776306) passed with 222 successful jobs and 54 expected skips. Interrupted-run and production rollout checks remain open.
 - [x] Prepare Pleey's migration against the reviewed merge commit: replace `tests-charts` with `helm-chart-ci.yml`, retaining candidate overrides, successful `validated-images` outputs and the promotion dependency inventory. Use `helm-chart-release.yml` after final release metadata is committed, preserving the existing OCI address and validating its image defaults.
 - [x] Validate and review PR #553's prerelease integration. [CI 43769038955](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43769038955) passed at `b69e064` with 28 successful jobs and 16 expected skips; user approval received on 2026-11-16. No additional upstream fix was needed.
-- [ ] Publish one Container release, verify its generated documentation and replace PR #553's temporary merged-commit pins with the released commit. Review the resulting CI before merging Pleey.
+- [x] Adopt the published Container 4.0.0 commit in place of every temporary merged-commit pin. Other released tooling and review checks are tracked in the release adoption section below.
 - [ ] Validate the resulting release chart and compare elapsed/summed job time; keep live release and overall performance acceptance open until actually exercised.
 
 ### P4.2: Profile and trial independent candidate starts
@@ -604,11 +604,11 @@ Final-head CI must pass before handoff; its result is recorded in PR #553 checks
 **Owners:** main workflow, upstream cleanup and chart-doc generator inputs.
 
 - [x] Profile cleanup and docs across nine successful historical main runs. Cleanup median summed time is 144s, already overlapping CI; docs median is 30s. **Batching deferred:** setup is not the dominant cleanup cost and cleanup is outside the critical path. [Profile and limits](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p7-main-cleanup-and-helm-docs-profiling-2026-11-16).
-- [x] Remove duplicate concurrent PR-state lookups in [Container PR #981](https://github.com/hoverkraft-tech/ci-github-container/pull/981). Five focused tests and [full native CI](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43921404974) pass. The synthetic fixture reduces 100 lookups to one; production timing is not established. Upstream review and the planned batch release precede adoption.
+- [x] Remove duplicate concurrent PR-state lookups in [Container PR #981](https://github.com/hoverkraft-tech/ci-github-container/pull/981). Five focused tests and [full native CI](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43921404974) pass. The synthetic fixture reduces 100 lookups to one; production timing is not established. The reviewed fix is now adopted through Container 4.0.0.
 - [x] **Adopt** a conservative main docs input check, retaining successful CI as the bot-write gate. Compare from the latest successful main run so cancelled/failed intermediate pushes cannot hide pending chart changes. Missing history, API/Git uncertainty and reruns generate docs. **Parallel generation/publication deferred:** avoid unchanged work before adding an artifact/publication contract.
 - [x] Verify no-change and changed inputs with a read-only native probe; cover cancelled-run catch-up, renamed inputs, invalid history and reruns with 30 focused tests. A latest-push-only mutation fails the catch-up test. [Results and limitations](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p74-validation-and-disposition).
 - [ ] Complete native main bot-write/cancellation verification during P8 rollout. A read-only PR probe does not establish publication behavior under concurrent main pushes.
-- [x] Review P7.4 before another implementation phase. Container #981 merged as `bfe9968` on 2026-11-16 after adopting the standard action package/CI pattern; [final CI](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43928322641) passed 226 jobs. The user approved P7.5; release remains deferred.
+- [x] Review P7.4 before another implementation phase. Container #981 merged as `bfe9968` on 2026-11-16 after adopting the standard action package/CI pattern; [final CI](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/43928322641) passed 226 jobs. The user approved P7.5; the fix is released in Container 4.0.0 and adopted on 2026-11-17.
 
 **Rollback:** restore current topology/invocation without changing retention.
 
@@ -623,7 +623,7 @@ record local measurements and their limits. This phase changes no production run
 - [x] **Defer paid larger runners.** Four/eight/eight/four CPU samples pass the same 1,178 tests with identical coverage denominators. Eight CPUs reduce median local suite time by 29.3% but consume 38.4% more CPU time; peak memory remains below 3 GiB. Keep standard runners and adaptive workers. Hosted queue/billing measurements and five native samples require a separately justified trial.
 - [x] **Defer shared builders.** Eight local frontend builds compare separate builders with Bake for warm and source-changing inputs. Summed builder time falls, but warm CI availability is 1.38s later and the source-change improvement is only 0.90s with overlapping ranges. Coupled production availability is 10.35s-20.11s later. Do not extend to backend or add an upstream API without better evidence.
 - [x] Assess the complete DAG: service checks consume their own CI image, Helm consumes production candidates, and promotion waits for all validations. Preserve independent starts and the current digest/security contracts. Local OCI results do not establish native DAG savings or signature/provenance equivalence; no production candidate is retained for acceptance.
-- [x] Review P7.5 in Pleey #553 before P7.6. The user approved the deferrals after [final CI](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43936303265) passed 30 jobs with 18 expected skips on `33560b5`. The upstream release remains deferred.
+- [x] Review P7.5 in Pleey #553 before P7.6. The user approved the deferrals after [final CI](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43936303265) passed 30 jobs with 18 expected skips on `33560b5`. Released-pin adoption is recorded below.
 
 ### P7.6: Registry-backed cache
 
@@ -647,6 +647,16 @@ records native logs, current cache inventory and the consumed registry contract.
 - [ ] Exercise matching/mismatching inputs and metadata through representative nonpublishing validation; compare saved work without publishing solely to benchmark.
 
 **Rollback:** use the existing release rebuild path.
+
+## Released tooling adoption: 2026-11-17
+
+The [dated adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#released-tooling-adoption-2026-11-17)
+records the exact versions, commits and compatibility assessment.
+
+- [x] Resolve the latest stable Common, Node.js, Container and Publish tags to immutable commits and replace all 23 caller references across eight workflows.
+- [x] Replace the temporary Node/Container merge pins with releases, adopting the reviewed cleanup fix while retaining the existing Helm interfaces and unsharded frontend tests.
+- [x] Audit the 18 consumed action/workflow entrypoints against their released metadata, preserving caller inputs, outputs, secrets and permissions.
+- [ ] Review the released documentation and resulting PR #553 CI before proceeding or merging. P7.6 review, P7.7 and P8 remain open.
 
 ## P8: Complete acceptance and documentation
 
