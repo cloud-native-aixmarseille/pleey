@@ -3,6 +3,10 @@
 - Status: Accepted
 - Proposed date: 2026-11-05
 - Accepted date: 2026-11-05
+- Implementation: merged in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553) on 2026-11-17; required PR check enabled and main CI passed. Remaining publication/cancellation and release checks are tracked in the [plan](../../plans/0023-optimize-ci-execution-and-caching.md).
+
+The Decision section describes the implemented design. Dated entries describe the
+state and evidence at that time; their pending work is not the current task list.
 
 ## Context
 
@@ -92,7 +96,7 @@ enforcement, rather than replacing an existing required check.
 ### P0 baseline protocol: 2026-11-05
 
 The first phase records the accepted direction, validation inventory and a
-controlled PR baseline. Its [machine-readable evidence](./evidence/0023-ci-baseline.json)
+controlled PR baseline. Its [machine-readable evidence](#historical-evidence-archive)
 records source fingerprints, locked tools, enforcement state and attempt-specific
 measurements. The starting main commit is
 [`aa7d9223`](https://github.com/cloud-native-aixmarseille/pleey/commit/aa7d922386c5b707d19bf5bc8da9715c4f4066f1).
@@ -176,7 +180,7 @@ The first revision's Markdown-formatting failure was corrected. Its cancelled
 attempt is retained separately: the first failed step completed after 137s, and
 its consumed job time is not included in successful-run statistics.
 
-The [test inventory](./evidence/0023-test-inventory.csv) records 162 backend files
+The [test inventory](#historical-evidence-archive) records 162 backend files
 (149 passed, 13 skipped; 1,218 passed and 60 skipped tests) and 228 frontend files
 (1,178 passed tests). Inventories and printed coverage summaries match across the
 three equivalent runs. Existing optional disabled jobs remain outside the required
@@ -191,7 +195,7 @@ P1/P6 experiments. Cache transfer spans can overlap and must not be summed to
 estimate workflow elapsed time.
 
 Raw job/step intervals, resolved inputs, cache events and test summaries are linked
-from the [evidence JSON](./evidence/0023-ci-baseline.json). The plan documents
+from the [evidence JSON](#historical-evidence-archive). The plan documents
 attempt-specific API collection. Review P0 before starting any P1 implementation;
 controlled main/release validation remains subject to the protocol above.
 
@@ -309,7 +313,7 @@ emitted; the baseline is not hermetic. The run evidence also retains Prisma
 `P1001` log occurrences before successful chart installation for the planned
 readiness work.
 
-The [evidence bundle](./evidence/0023-ci-baseline.json) links every attempt's job
+The [evidence bundle](#historical-evidence-archive) links every attempt's job
 and step CSV, input identity, cache observation, printed test/coverage summary and
 runner metadata. Its original strict cache-hit classification remains available
 for comparison with the revised inclusion rule. P0 implementation and PR baseline
@@ -353,400 +357,167 @@ not the initial decision.
 
 ## Decision
 
-Choose option 2. Implementation proceeds one phase at a time, with a separate PR
-and CI validation for each phase. The user reviews each phase before the next
-begins. Acceptance of this direction does not claim that optimizations have been
-implemented or savings achieved. Adopt each change only with its correctness
-checks and measured benefit; measure elapsed time and resource use separately.
+Use the full-DAG approach from option 2. The selected implementation is merged in
+[PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553) as
+`b9c798e2182a27d42bae7161af1a78cac1a31cbc`. This section describes the implemented
+contracts; the dated entries retain the decisions, experiments and limitations
+that led to them. The [plan](../../plans/0023-optimize-ci-execution-and-caching.md)
+tracks completion, and the [development guide](../../development/index.md)
+describes day-to-day operation and recovery.
 
 ### Execution graph and publication gates
 
-Replace the global sequence of application checks followed by production work with
-independent validation branches. The intended graph is:
+The implemented full PR route is:
 
 ```mermaid
 flowchart TD
     S[Resolved source and build inputs] --> L[Repository and workflow checks]
+    S --> R[Routing-policy tests]
     S --> B[Backend CI image]
     S --> F[Frontend CI image]
+    S --> BP[Backend production candidate]
+    S --> FP[Frontend production candidate]
     B --> BC[Backend lint and tests]
-    F --> FC[Frontend lint and tests plus merged coverage]
-    B --> BP[Backend production candidate]
-    F --> FP[Frontend production candidate]
-    BP --> H[Fresh Helm installation and tests]
+    F --> FC[Frontend lint and tests]
+    BP --> H[Prepare, lint and test chart by digest]
     FP --> H
-    L --> G[Required CI result]
+    L --> P[Verify evidence and promote tested digests]
+    R --> P
+    BC --> P
+    FC --> P
+    BP --> P
+    FP --> P
+    H --> P
+    P --> G[Validate PR checks]
+    L --> G
+    R --> G
     BC --> G
     FC --> G
     H --> G
-    BP --> G
-    FP --> G
-    G --> P[Promote tested digests and prepare release artifacts]
 ```
 
-Image nodes include their required signing and attestations. Production candidate
-builds start after their CI images, in parallel with application checks, and reuse
-the completed CI cache. Helm needs both candidate digests, not the outcome of
-unit tests. The final gate requires every expected validation branch and security
-output to succeed. It evaluates failed, cancelled, and unexpectedly skipped jobs
-explicitly; a skipped dependency must not produce a passing aggregate check.
-This follows GitHub's [job dependency semantics](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-jobs).
+Each application check waits only for its own signed and attested CI image.
+Production candidates start independently and use separate image-specific caches.
+They do not wait for, or import the current run's CI-image cache. This adopts the
+[independent-candidate result](#independent-candidate-start-results-2026-11-16).
+Helm waits for both production digests and overlaps remaining application checks.
 
-The released cache implementation is assessed in the
-[2026-11-16 profile](#ci-critical-path-profile-2026-11-16). The
-[independent-candidate trial](#independent-candidate-start-trial-2026-11-16)
-supersedes only the CI-image-to-candidate ordering above for measurement; final
-adoption remains subject to review.
+The [shared workflow](../../../../.github/workflows/__shared-ci.yml) exposes the
+actual jobs `build-backend-ci-image`, `build-frontend-ci-image`, `check-backend`,
+`check-frontend`, `build-backend-candidate`, `build-frontend-candidate`,
+`tests-charts`, `check-ci-routing`, `linter` and `promote-images`. Reuse the released
+workflows; do not copy their implementation into Pleey.
 
-This requires a publication contract before changing `needs`. The existing
-`images[].tag` override already selects a forced tag and disables `latest` in the
-[metadata action](https://github.com/hoverkraft-tech/ci-github-container/blob/5ffc3c81daacc57700a14bb91d67edbc67eedc1d/actions/docker/get-image-metadata/action.yml).
-Reuse it for run/attempt-scoped candidate identifiers without moving consumer tags
-early. The missing contract separates temporary tags from planned destinations
-and final OCI metadata, then governs promotion, reruns, and cleanup. Promotion
-retags the tested immutable digest after the gate, without rebuilding. Supply the
-planned release version/OCI metadata at build time, retain signatures/provenance,
-and verify the promoted digest matches the chart-tested artifact. Validate the
-rendered release chart again after release-file updates. Update required-check
-configuration together with job names so branch protection remains effective.
+Candidates carry final planned OCI metadata before validation. Promotion checks
+signatures, provenance, the current workflow run/attempt and every declared
+validation result before moving consumer tags. It preserves the tested digest
+without rebuilding or signing a replacement. Release consumers receive only the
+promoted `built-prod-images` output. Missing, failed, cancelled or unexpectedly
+skipped validation cannot authorize promotion.
 
-Expose separate backend/frontend completions so frontend checks need not wait for
-backend images. The current workflow already accepts a one-image list: Pleey can
-use two explicit caller jobs, each with its own downstream lane. A matrix child
-cannot release a downstream caller while the entire reusable-workflow call is
-still running. Benchmark the extra publication/setup work from separate calls;
-retain the shared barrier if that overhead outweighs the overlap until upstream
-setup reductions land. Reuse the workflow rather than copying its internals.
+The final PR job `Validate PR checks` runs after shared CI and validates its exact
+expected job set, including promotion and permitted documentation-only skips.
+It is required on main by [ruleset 27474278](https://github.com/cloud-native-aixmarseille/pleey/rules/27474278),
+bound to the GitHub Actions integration and requiring an up-to-date branch.
+The explicitly approved PR-only exception covers the existing documentation bot;
+its PRs can merge without this CI check. Other rules are unchanged. See the
+[rollout record](#p8-main-rollout-2026-11-17) for the policy and verification.
 
-For the illustrated PR/main runs, the application branch spans 338s/325s and the
-subsequent production-plus-Helm branch spans 405s/506s. Ideal overlap could hide up
-to 338s/325s. This is a critical-path model, not a forecast: queueing, contention,
-promotion work, and cache changes can reduce the gain. Do not add this estimate
-to individual setup/cache estimates. Speculative candidate work also increases
-work on failing commits; measure that cost and retain superseded-PR cancellation.
+### Reusable tooling and application validation
 
-### GitHub Actions parallelization plan
+The current action/workflow pins are maintained in `.github/workflows/`, with
+released tooling adoption recorded [below](#container-420-adoption-2026-11-17).
+Node CI prepares command/path metadata on the host and omits the empty build job
+for prebuilt application images. Docker compilation remains mandatory. Backend
+and frontend lint/test jobs run independently; explicit JUnit, LCOV and Biome
+SARIF paths are parsed by the bundled Common action, with missing reports fatal.
 
-Use job parallelism for separate runners and bounded step parallelism for shared
-setup. GitHub's current [workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstepsparallel)
-supports a `parallel` group and `background` with `wait`, including `uses` steps.
-Joins expose outputs and propagate failures. Native concurrency cannot be declared
-inside a composite action; an entire composite can run in the background from a
-workflow. Verify runner/parser and workflow-linter support before adoption.
+Frontend tests retain jsdom and the shared setup, with CPU-relative workers and
+native overrides. The P1 Node/jsdom split did not justify adoption. Isolation,
+test discovery and coverage remain enabled. Production uses one unsharded test job: the
+[two-shard experiment was rejected](#p6-frontend-sharding-results-2026-11-16).
+Repository lint retains its validators, Actions analysis and pinning check;
+duplicate per-validator status posts are disabled while summaries and artifacts
+remain available. No passing test, lint decision or coverage report is cached
+across source revisions.
 
-#### Separate jobs and matrices
+Single-platform image publication reuses build digests and limits setup to the
+required tools. Signatures and attestations remain mandatory. Multi-platform
+assembly and its validation remain upstream responsibilities.
 
-Translate the intended DAG into the following dependencies. These are proposed
-job names, not existing workflow inputs; candidate publication still requires the
-contract described above.
+### Build caches and declared inputs
 
-| Proposed jobs                                                          | Required predecessors (`needs`)                                               | Work that can overlap                                                                                     |
-| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `repository-lint`, `build-backend-ci-image`, `build-frontend-ci-image` | None beyond resolved workflow inputs                                          | Repository checks and both service builds. Existing independent semantic/security checks remain parallel. |
-| `backend-lint`, `backend-tests`                                        | `build-backend-ci-image`                                                      | Each other, frontend checks, and backend candidate production.                                            |
-| `frontend-lint`, `frontend-tests`                                      | `build-frontend-ci-image`                                                     | Each other, backend checks, and frontend candidate production. Tests may become a shard matrix.           |
-| `backend-candidate`                                                    | `build-backend-ci-image`                                                      | Application lint/tests and frontend candidate production.                                                 |
-| `frontend-candidate`                                                   | `build-frontend-ci-image`                                                     | Application lint/tests and backend candidate production.                                                  |
-| `frontend-reports` when sharded                                        | Every `frontend-tests` matrix entry                                           | Backend checks and candidate/chart work. Merge only after all shard results are available.                |
-| `chart-install`                                                        | `backend-candidate`, `frontend-candidate`                                     | Remaining application tests, lint, and report aggregation.                                                |
-| `ci-result`                                                            | Every expected validation branch, report merge, and candidate/security result | Final aggregation only; require success rather than merely completion.                                    |
-| `promote`                                                              | `ci-result`, `backend-candidate`, `frontend-candidate`                        | No early publication; consume the tested digest outputs directly.                                         |
+Retain GHA layer caching and the released mount-persistence implementation.
+Application, image, platform and permitted branch access separate cache scopes;
+Dockerfile instructions, copied inputs, build arguments and resolved bases govern
+layer validity. Mount snapshot keys include image, platform, target, context,
+Dockerfile content and build arguments. Exact snapshots are optional download
+acceleration and do not replace
+`npm ci` when its layer is invalidated. Automatic snapshot refresh, cross-image
+imports and export-mode controls remain deferred after the
+[P2.4 review](#p24-upstream-cache-review-2026-11-11).
 
-Lint and tests already overlap after the current Node setup/build gates. The
-change removes those unnecessary prerequisites for prebuilt images and the wait
-for the other service; it does not claim to introduce concurrency already present.
+Both application Dockerfiles mount `/home/node/.npm` as UID/GID 1000. Dependency
+manifests precede source copies; Prisma/schema, GraphQL/codegen, configuration and
+shared-script inputs reach their consumers. `.dockerignore` excludes local
+installed dependencies, generated outputs, reports and credentials. Keep secrets
+outside cache contents and PR writers outside trusted cache references.
 
-For the two-shard frontend experiment, use this native job-strategy fragment in
-the upstream test-only job after shard arguments and artifact merging are supported:
+`cache-type: "false"` bypasses layer imports/exports and persisted mounts without
+deleting existing cache entries. Base pins and lockfiles identify declared
+inputs; cached OS package updates do not guarantee freshness. Cold reproducibility
+means successful builds and equivalent behavior, not byte-identical images from
+mutable package repositories. Registry-backed caches remain
+[deferred](#p76-findings-and-disposition).
 
-```yaml
-strategy:
-  fail-fast: false
-  max-parallel: 2
-  matrix:
-    shard: [1, 2]
-```
+### Helm, main and release
 
-Both shards should finish to provide complete diagnostics; either failure still
-fails validation. Keep required jobs' `continue-on-error` disabled. Size
-`max-parallel` against measured runner availability and registry/cache pressure;
-it limits that matrix, not the entire workflow. The existing workflow `concurrency`
-group cancels superseded runs and is not a substitute for matrix scheduling.
-See GitHub's [matrix controls](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations).
+The released Helm workflow prepares one archive, lints it before cluster creation,
+and tests that archive/checksum in an isolated installation. It packages current
+local subcharts and follows declared external dependency identities. Test does
+not rebuild dependencies or consume another action's private JavaScript. Prepared
+files and clusters are cleaned on success or failure.
 
-#### Concurrent operations within one runner
+The backend Deployment and migration Job require the database secret and use the
+workload image's production Prisma client for bounded, authenticated readiness.
+The supported default is 128 MiB for readiness; migration retries are not a startup
+synchronization mechanism. The old BusyBox image override is removed.
 
-Benchmark these only where shared setup is cheaper than another runner startup:
+Documentation-only PR routing is limited to root `README.md` and Markdown under
+`docs/`. Renames, mixed/shared/unknown inputs and uncertain API data select full
+CI. Classification failure blocks the final gate. Main and release always use
+full CI. Main cleanup remains parallel; docs generation runs after successful CI,
+skipping only proven unrelated changes since the last successful main run.
+Formatting uses the released bundled action. Release docs generation is unconditional.
 
-- In upstream chart preparation, overlap external Helm dependency preparation
-  with kind creation after checkout and required tools are ready, after verifying
-  they do not mutate shared files. Cluster credentials/secrets and chart installation wait
-  for the required outputs; installation requires both operations to succeed.
-  This needs an upstream orchestration change because today's operations live
-  inside a composite action. The measured preparation span is 4–11s, so that is
-  the overlap opportunity in those samples, not the full 45s kind bootstrap.
-- After profiling application lint, trial a bounded pair of read-only checks
-  with independent inputs, such as typechecking and a compatible source guard.
-  Preserve each exit status and log. Keep code generation before its consumers,
-  and serialize mutating formatters, dependency installation, and checks sharing
-  writable outputs. Retain sequential execution if CPU/memory contention loses
-  the benefit; do not parallelize all existing lint scripts indiscriminately.
+Release preparation updates chart/image defaults and commits generated files.
+`Validate final release chart` validates the resulting release SHA and uploads its
+archive. Publication requires both that validation and draft creation, then consumes
+the immutable artifact ID, archive basename and checksum. The release action owns
+download/identity checks, signing and cleanup. Publication-only retries reuse the
+validated artifact; image promotion still requires a full current-run validation.
+Cross-run main-image reuse remains [deferred](#p77-findings-and-disposition) because
+release version metadata changes image identity.
 
-Prefer native orchestration where phases already have workflow-level interfaces.
-For the chart composite, compare exposing shared phases upstream with the smaller
-change of supervising two CLI subprocesses internally; do not copy the action into
-Pleey or repeat setup by invoking the complete action after external preparation.
-For subprocesses, keep separate logs/statuses and propagate every failure. Both
-approaches require bounded concurrency, explicit joins, cancellation and timeout
-handling, and temporary-cluster cleanup. A successful final command must never
-mask a failed child. Do not add an action solely to emulate platform concurrency.
+### Retained experiment decisions and acceptance
 
-### Reusable-workflow setup and image publication
+Do not enable rejected or deferred options merely because the upstream API exists.
+The [plan's disposition table](../../plans/0023-optimize-ci-execution-and-caching.md#experiment-dispositions)
+links the retained results for step parallelism, lint/tool images, shared builders,
+paid runners, registry caches and release-image reuse. Main cleanup batching and
+parallel docs publication were not justified by the measured critical path.
 
-- Set the existing Node workflow `build` input empty after verifying equivalent
-  Dockerfile inputs. This skips duplicate compilation but still starts its build
-  job. Upstream should remove that empty job and make tests independent of a
-  missing build, while preserving an actual build dependency for non-prebuilt use.
-- Move pure container/path/command normalization out of the Node `setup` container
-  job. Validate known inputs once in the lightweight preparation job; do not pull
-  each application image merely to prepare metadata. Lint and test containers
-  can then start independently with the same resolved inputs. Keep filesystem
-  existence/access checks inside those actual containers; metadata preparation
-  cannot validate another container's `/usr/src/app`.
-- Optimize the single-platform publication path to carry forward the build's
-  digest/tag metadata without Docker/Buildx initialization or tag inspection.
-  Actual manifest creation is already skipped for one platform; retain assembly
-  and validation for multi-platform images.
-- Give signing/attestation actions only their actual tools and authentication.
-  Attestation needs subject metadata and the attestation action, not a Docker
-  daemon. Preserve all subjects, signatures, provenance and permissions checks.
-  Consider combining tiny metadata/security steps within a suitable job only if
-  it does not broaden untrusted build-step privileges.
-- Benchmark compiling CI/prod targets on one builder, including a
-  [Buildx Bake](https://docs.docker.com/build/bake/) variant, against cross-job cache
-  reuse. It may save repeated setup/export, but holding the CI image until both
-  targets finish can delay tests. Do not adopt it solely because build time falls.
+The [five final warm samples](#p8-warm-results-2026-11-17) meet the observed combined
+PR target of at least 10% lower median elapsed time without increased median summed
+job time. The final-versus-P0 comparison is historical; use the controlled phase
+comparisons for individual adoption decisions. Retain slow, failed and cancelled
+attempts, distinguish job seconds from billing, and do not add individual savings.
 
-### Application tests, lint, and reports
-
-Use [frontend Vitest configuration](../../../../application/frontend/vitest.config.js)
-and [test setup](../../../../application/frontend/test/setup.ts) to split verified
-DOM-free tests into a Node project with minimal setup. Keep component and
-browser-dependent tests in jsdom. Classify by actual imports and behavior, not
-directory names alone; keep discovery, isolation, mocks, and coverage equivalent.
-The [Vitest performance guide](https://vitest.dev/guide/improving-performance.html)
-supports reducing environment/setup overhead before adding workers.
-
-Measure effective CPU count, worker count, memory, and slow files. Benchmark the
-current `maxWorkers: '50%'` against runner-sized limits without disabling test
-isolation or adding retries. Backend execution is much shorter, so keep one
-backend test job initially.
-
-If frontend tests remain critical, benchmark two frontend shards before increasing
-the count. Use a test-only matrix, not copies of the entire Node workflow. The
-current `test.command` is a package-script name passed as one argument; it is not
-an arbitrary command line supporting appended shard flags. Upstream needs explicit
-test arguments/shards and [Vitest report merging](https://vitest.dev/guide/improving-performance.html#sharding).
-Upload uniquely named blob/coverage artifacts, require the complete shard set,
-and merge once. Apply any configured coverage thresholds and publish coverage/annotations once
-to the merged result. Preserve failures even when report upload/merge succeeds;
-verify the same test inventory and coverage denominator as the unsharded run.
-
-For both applications, use the existing explicit report-file inputs instead of
-automatic discovery. Point tests at `junit.xml` and `coverage/lcov.info`. For lint,
-emit a [supported Biome SARIF report](https://biomejs.dev/reference/cli/#reporter-flags)
-and configure its exact path; validate failing-rule annotations and nonzero exit
-status before replacing the current JSON output. Upstream should bundle the report
-parser to avoid installing its Node dependencies inside every report step.
-
-Do not cache passing tests, coverage decisions, lint decisions, or generated
-reports across source revisions. Consider transform/typecheck caches only after
-profiling: frontend transform accounts for about 3% of tracked phase time, so
-cache transfer may outweigh the computation saved. Profile individual lint guards
-and share repeated parsing within a process where demonstrated; do not blindly
-parallelize memory-heavy TypeScript checks or remove architecture guards.
-
-### Build, dependency, and artifact caches
-
-The targets below retain the original decision. The
-[P2.4 review](#p24-upstream-cache-review-2026-11-11) narrows the current implementation
-to internal mount isolation and read-only write protection; cross-image imports,
-dependency refresh and export-mode tuning remain deferred.
-
-Retain the existing GitHub Actions layer backend initially. Add upstream controls
-for production to import both its own and its application's CI cache, while keeping
-distinct target/platform/branch export scopes. Preserve `mode=max` on the CI graph;
-compare production `min`/`max` using total import/build/export time. The pinned
-workflow exposes `cache-type`, not arbitrary imports or export modes. Also compare
-a registry backend if sustained export cost or eviction remains significant,
-with separate trusted/PR write scopes and an explicit retention policy.
-
-| Data                       | Reuse and invalidation contract                                                                                                                                                                                                                                                            |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| BuildKit layers            | Versioned application/target/platform scopes within permitted branch access. Dockerfile instructions, copied inputs, build arguments and resolved base-image content determine validity. A scope name is not proof of matching content.                                                    |
-| npm downloads              | Mount the effective npm cache path with the runtime UID/GID. Versioned key includes application, target, platform, Node/npm toolchain, Dockerfile and lockfile. Restore prefixes retain application/target/platform/toolchain identity. `npm ci` still runs when its layer is invalidated. |
-| External Helm dependencies | Cache downloaded external packages using tool version, repository identity and dependency manifests/locks. Repackage local `file://` subcharts from current source; a lockfile alone does not identify their templates or values.                                                          |
-| Generated/build output     | Pass the current run's digest-qualified images. Any prepared chart artifact also includes the source SHA and chart/input fingerprint. Do not restore installed dependencies, `dist`, Prisma/GraphQL output, or local chart packages from broad fallback archives.                          |
-| Test artifacts             | Run/attempt/project/shard-qualified artifacts, with complete-set checks before merge. They transfer current results and never authorize skipping another commit's checks.                                                                                                                  |
-
-Both Dockerfiles install as UID 1000 but mount `/root/.npm`; verify the effective
-cache path and fix its ownership. Upstream cache-mount keys currently omit the
-lockfile, and exact hits prevent snapshot refresh. Correct that download-cache
-contract without claiming it currently causes stale installed dependencies.
-Mount persistence and layer export are
-[separate mechanisms](https://docs.docker.com/build/ci/github-actions/cache/#cache-mounts).
-
-Keep dependency manifests ahead of source copies and include Prisma schema/config,
-frontend GraphQL inputs, shared scripts, and build configuration in their consumers'
-invalidation. Exclude local dependencies, build output, reports, and credentials
-from the Docker context. The observed context transfer is only 0.2s, so this is
-input hygiene, not a measured speed improvement.
-
-Honor GitHub's [cache access restrictions](https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#restrictions-for-accessing-a-cache).
-Keep credentials outside cache contents and PR writers outside trusted cache refs.
-Record cache sizes, hit rates, export duration, and eviction before adding capacity
-or cleanup. Provide targeted bypass/reset and base-image refresh; elapsed time and
-changed secret values do not automatically invalidate
-[package-install layers](https://docs.docker.com/build/cache/invalidation/).
-Do not add cache-mount extraction actions already supplied upstream.
-
-### Repository lint
-
-Keep repository lint concurrent with builds. Retain the already slim shared image
-and parallel validator execution. Do not split it into jobs that each pay the
-70–87s image pull without a measured net gain.
-
-The [pinned shared image](https://github.com/hoverkraft-tech/docker-base-images/blob/f9548de813c9d592cbed18718ad64969c09a91f9/images/super-linter/Dockerfile)
-and [Super-Linter documentation](https://github.com/super-linter/super-linter/blob/v9.0.0/README.md)
-establish the existing slim/parallel behavior. In `hoverkraft-tech/docker-base-images`
-and `ci-github-common`, profile image layers
-and per-validator durations, remove demonstrably unused tool content from a
-maintained image profile, and benchmark separate security/general-lint profiles
-only where smaller pulls outweigh added startup. Preserve enabled scanners and
-their input sets, including rendered-chart scans. Time-dependent vulnerability
-databases need freshness checks; they are not identified by the application SHA.
-CodeQL Actions analysis and action pinning are short independent checks and stay.
-
-### Helm installation and setup
-
-First address the observed database race in the
-[migration job](../../../../charts/application/charts/backend/templates/migration-job.yaml)
-and [backend deployment](../../../../charts/application/charts/backend/templates/deployment.yaml):
-wait for bounded authenticated database readiness rather than only a secret file,
-preserving explicit failure and migration diagnostics. The
-[PR chart log](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42039011250/job/127291211531)
-and [main chart log](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/42004084531/job/127174316167)
-show the failed attempts. Measure eliminated retries in fresh installations. Do
-not shorten timeouts, suppress migration errors, or reuse a live database to make
-the chart job appear faster.
-
-Propose a small readiness command in the production backend image, reusing its
-installed Prisma client/adapter for an authenticated query. Both init containers
-use the workload image and the existing secret URI, with bounded connection/query
-attempts and an overall deadline. Verify imports in the pruned image; replace the
-BusyBox-specific defaults coherently. This avoids another client image while
-preserving external-database/TLS support and sanitized failure diagnostics.
-
-Keep a fresh kind cluster and the full umbrella installation. Benchmark the existing
-upstream [ci-helm tool image](https://github.com/hoverkraft-tech/docker-base-images/blob/3083aa27c7ec3bab1d5f0d200aae1576fabcdb73/images/ci-helm/Dockerfile)
-against installing tools, including compatibility and pull cost.
-Cache eligible external dependency downloads as above. Record kind bootstrap,
-image pulls, operator/database readiness, migrations, tests, and cleanup separately.
-Preloading pinned images or larger runners remains an experiment when those
-measurements justify the transfer/compute cost; do not archive the entire Docker
-daemon or persist cluster state.
-
-The action already exposes separate lint/install switches, but invoking it twice
-duplicates preparation for under 1s of lint. Move static chart validation earlier
-only if upstream provides reusable prepared inputs/tooling at a net gain. Preserve
-local subchart source identity when transferring a prepared artifact. The main
-elapsed-time opportunity is overlapping installation with application checks.
-
-### Auxiliary workflows, main, and release
-
-PR/main concurrency cancellation already exists; retain it. Do not cancel an active
-release halfway through publication. Keep semantic checks, release preparation,
-and issue automation independent from heavy CI; they are short and do not explain
-the current critical path. Restrict greetings to the required PR lifecycle event
-instead of repeating first-interaction work on every synchronization.
-
-Main's registry cleanup is already parallel. Consolidating its four per-image jobs
-upstream may save runner/setup work, but cannot shorten today's critical path.
-Prepare generated Helm docs independently when their source inputs are available;
-gate bot writes on successful CI, and omit generation when relevant chart/generator
-inputs have not changed. Keep generated readmes under their existing generators.
-
-After the core DAG is stable, add conservative job-level input routing for
-documentation-only changes and unaffected services. The required aggregate check
-must still run and validate the routing decision. Include shared scripts, GraphQL
-schema/codegen, workflow/action configuration, Dockerfiles and chart inputs in the
-dependency map; unknown changes and routing failures run the full pipeline. Keep
-main/release full initially. This is an explicit scheduling policy, not a cached
-test result or a top-level path filter that leaves required checks pending.
-
-Release optimization can reuse a previously tested, trusted main image only when
-the exact source and complete build-input identity match, provenance is retained,
-and freshness policy permits it. Source SHA alone is insufficient for mutable base
-images, toolchain inputs, or release-specific metadata. Otherwise rebuild. Do not
-promote a PR artifact based only on its branch name. Validate chart packaging after
-release-file mutations; do not reuse test evidence for a different rendered chart.
-This is a later experiment, not a prerequisite for the candidate DAG.
-
-### Delivery sequence and ownership
-
-| Wave                      | Pleey changes                                                                                                                                                     | Upstream changes / dependency                                                                                                                                                                                                                                       |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1: Independent reductions | Disable duplicate compilation; verify npm mount; explicit reports; Node/jsdom test split; profile workers and lint; fix chart readiness; narrow greeting trigger. | None required for the initial candidates. Validate each separately.                                                                                                                                                                                                 |
-| 2: Remove setup overhead  | Adopt reviewed pinned releases; retain current publication ordering meanwhile.                                                                                    | `ci-github-nodejs`: lightweight prepare and optional build dependency. `ci-github-common`: bundled report parser. `ci-github-container`: single-platform metadata path, minimal signing/attestation setup, cache controls/keys, measured chart-preparation overlap. |
-| 3: Shorten the DAG        | Benchmark explicit per-service calls using existing inputs; add candidate branches, final required gate, branch-protection migration and digest promotion.        | `ci-github-container` candidate-only tag policy and promotion contract. Do not remove existing publication gates before these exist.                                                                                                                                |
-| 4: Profile-driven scaling | Two frontend shards if still critical; conservative change routing; compare runner classes and release reuse.                                                     | `ci-github-nodejs` test-only shards and merged reports/coverage; optional linter/tool image profiles in `ci-github-common` and `docker-base-images`.                                                                                                                |
-
-If an upstream change is unavailable, retain the independently measured local
-improvements and current safe gate. Do not invent unsupported inputs, fork whole
-reusable workflows, or turn upstream dependencies into a blocker for all of #475.
-Change action metadata/source and regenerate any affected readmes upstream.
-
-### Measurement and acceptance
-
-Capture source/action revisions, resolved images/toolchains, runner class/CPU,
-queue delay, job/step timing, critical-path spans, peak memory, cache transfers,
-image bytes, report time, and resource usage. Separate PR, main and release;
-separate warm, cold, dependency-changing and source-changing samples. Measure the
-whole workflow and time to first actionable failure, not just one faster command.
-
-Compare at least five consecutive runs after cache priming before/after each
-candidate, retaining cache misses and recording
-median and range. The target for the combined work is at least 10% lower median
-elapsed time for targeted workflows, without increasing median summed job time
-for successful runs. This is an acceptance target, not a predicted saving.
-Measure failed/cancelled-run resource usage separately because speculative work
-can increase it. Larger runners also require a cost comparison. Individual changes
-may yield smaller gains or fix invalidation/readiness without material regression.
-Do not require every small change to achieve the aggregate 10% target.
-
-Validation must include:
-
-- Fully bypassed layer and mount caches; lockfile, source, Prisma/schema,
-  shared-script, build-config, Dockerfile/base-image, and local-chart changes.
-- Same discovered tests, isolation and coverage denominator after environment or
-  shard changes; missing/failed shards fail the gate; reports preserve failures.
-- Actual overlap in the Actions timeline, bounded matrix/worker/step concurrency,
-  and failure propagation/cleanup for native steps and subprocesses. Confirm
-  extra parallel jobs do not just move execution time into the runner queue.
-- A deliberate lint/test/chart/security failure and unexpected skip/cancellation;
-  none may promote a candidate or produce a passing required check.
-- Digest identity through build, signing, attestation, chart testing and promotion;
-  release metadata and rendered chart verified after release preparation.
-- Fresh database bootstrap without relying on failed-migration retries, recovery
-  diagnostics on genuine failure, and unchanged chart validation coverage.
-- Safe PR/trusted cache boundaries, reruns, superseded-run cancellation, and a
-  representative release path without publishing a release just to benchmark it.
-
-Cold-cache reproducibility means successful builds and equivalent behavior from
-declared inputs, not byte-identical images from mutable OS package repositories.
-Report variance and reliability failures; collect more samples when timing ranges
-overlap substantially. Roll back regressions/flakiness, and record dated results
-with the ADR and implementation review. No optimization has been benchmarked here.
+[Cold execution and representative final-chart validation](#p8-cold-build-and-final-chart-validation-2026-11-17)
+pass without a benchmark release. Existing input/fault tests, unchanged inventories,
+coverage denominators and digest handoffs are reconciled in the plan. A live release
+and main cancellation/publication verification remain open until their actual
+results are recorded; neither is established by PR success or a nonpublishing probe.
 
 ## Consequences
 
@@ -823,7 +594,7 @@ settings so externally supplied database certificates remain accessible.
 BusyBox overrides and use the workload image. Enablement and resource overrides
 remain supported.
 
-[Local validation evidence](evidence/0023-p1-local-validation.json) records the
+[Local validation evidence](#historical-evidence-archive) records the
 frontend experiments, compile/lint/test failure probes, report parsing, cache
 checks and cold installation. The four-worker container completed all 1,178 tests
 on four CPUs with an aggregate cgroup peak of 2,134,478,848 bytes, below its 8 GiB
@@ -851,7 +622,7 @@ at source revision `25dbd1befd78cfccac0d07543751f9b5a23a90fd` and tested merge r
 `b44fa2f6b8cd250bdfdfe5a2e4bc0e2712f32002`. The application bases, emitted runner image,
 Buildx/BuildKit and pinned upstream workflow revisions match P0. The full priming
 run passed and was excluded; the next five consecutive attempts all passed.
-[Machine-readable comparison](evidence/0023-p1-ci-comparison.json) links each job/step
+[Machine-readable comparison](#historical-evidence-archive) links each job/step
 CSV, preserves test inventories and records both superseded cancelled runs.
 
 | Metric (median)                     | P0      | P1     | Change         |
@@ -3490,6 +3261,48 @@ not verify their changes. The alternative is an upstream change to stop skipping
 CI and wait for the generated PR's checks. Neither policy change is applied in
 this phase. Review this trade-off before enabling enforcement, then verify normal
 PR blocking and bot publication on main.
+
+### Historical evidence archive
+
+The 21 generated CSV/JSON files for P0/P1 are removed from the current source tree.
+Their measured results, inventories, fault findings and limitations remain in the
+dated entries above. The original records remain available in the immutable
+[pre-cleanup Git snapshot](https://github.com/cloud-native-aixmarseille/pleey/tree/b9c798e2182a27d42bae7161af1a78cac1a31cbc/docs/technical/architecture/adr/evidence).
+Native run links identify later validation. Keep new raw logs and generated reports
+outside the repository; record decisions and concise dated findings in this ADR.
+
+### P8 main rollout: 2026-11-17
+
+The user explicitly approved the main-only required check, the existing docs bot's
+PR-only exception and merging #553. [Ruleset 27474278](https://github.com/cloud-native-aixmarseille/pleey/rules/27474278)
+requires `Validate PR checks` from integration `15368`, with strict branch freshness.
+Only `cloud-native-aixmarseille-bot` (integration `1091322`) has a PR-only bypass.
+The previous disabled `default-branch` ruleset is unchanged. This implements the
+policy proposed in the [pre-merge record](#p8-required-check-rollout-constraint-2026-11-17).
+
+PR #553 was rebase-merged as `b9c798e2182a27d42bae7161af1a78cac1a31cbc`, with a source
+tree identical to reviewed head `aadc07a`. GitHub rule suite `5181182109` records
+`required_status_checks: pass` for the human merge, without a bypass.
+[Main CI](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44125303893)
+passed all 36 executed jobs with 28 expected nested skips. It took 11m 08s elapsed
+and 53m 54s summed job time, including parallel image cleanup; this single rollout
+run is not a controlled main performance comparison. Documentation generation and
+bundled formatting ran successfully after CI, but produced no change to commit,
+so no bot PR or merge occurred. The configured exception has not yet been exercised
+by a live bot write. Publication/cancellation and a legitimate release remain open.
+
+Read-only inspection of ordinary PRs verifies both gate outcomes against the same
+main base: [#571](https://github.com/cloud-native-aixmarseille/pleey/pull/571) has a
+failed `Validate PR checks` result and is blocked, while
+[#569](https://github.com/cloud-native-aixmarseille/pleey/pull/569) has a successful
+gate, no failed checks and a clean merge state. No unrelated PR was merged to test
+the rule. These are observations on this date, not claims about their future state.
+
+The final pre-merge validation on `aadc07a` also passed in 16m 03s, with 30m 38s
+summed job time. Its Buildx setup action took 600.6s, including a 579.3s pause after
+printing the BuildKit version. All 47 application build instructions were cached.
+This retained setup outlier is outside the predefined five-sample series; its
+cause is unestablished and it does not justify changing layer-cache policy.
 
 ### Follow-Up
 
