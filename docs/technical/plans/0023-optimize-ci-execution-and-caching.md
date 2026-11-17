@@ -636,15 +636,17 @@ records native logs, current cache inventory and the consumed registry contract.
 - [x] Inspect addressing, writer boundaries, mount persistence, retention and bypass. Registry mode already exists, but skips mount persistence and creates separate cache packages outside current image cleanup. Future adoption requires enforced trusted/PR writer isolation and explicit lifecycle ownership; keep existing GHA/bypass now.
 - [x] Record capacity limits honestly: inventory is 9.88 GiB, including 2.73 GiB under merged PR refs, but actual configured limits are unavailable through the billing-restricted API. No cache deletion, capacity or billing change is justified by this snapshot.
 - [x] Defer registry failure/recovery trials with the backend change. Absence, denied writes, changed inputs, retention cleanup and five native acceptance samples remain mandatory before adoption; none were run for a registry candidate in P7.6.
-- [ ] Review P7.6 in Pleey #553 before P7.7. No upstream implementation or release is needed for this deferral.
+- [x] Review P7.6 in Pleey #553 before P7.7. The user approved proceeding on 2026-11-17. No upstream implementation or release is needed for this deferral.
 
 ### P7.7: Trusted main-image reuse for releases
 
 **Files:** release workflow and promotion contract.
 
-- [ ] Match source/build identity, resolved base/toolchain, freshness and final metadata to a trusted validated main digest; otherwise rebuild. Source SHA alone is insufficient.
-- [ ] Preserve signatures/provenance and validate charts after release-file mutations.
-- [ ] Exercise matching/mismatching inputs and metadata through representative nonpublishing validation; compare saved work without publishing solely to benchmark.
+- [x] **Defer cross-run image reuse:** main and release require different OCI version metadata even at the same source SHA. Keep cached builds and current-run promotion. The [P7.7 evaluation](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p77-findings-and-disposition) records the contract, alternatives and conditions for revisiting it; no upstream change or release is needed.
+- [x] Preserve signatures/provenance and final chart validation after release-file mutations. Relabeling would change the digest and require new evidence; the unchanged promotion contract rejects previous-run candidates.
+- [x] Reuse passing nonpublishing native metadata cases and run the existing 85 promotion tests for matching/mismatching evidence. Profile five recent PR runs: production jobs sum to a median 186s, but eliminating their wait advances the observed promotion dependency barrier by at most 17s once and zero four times. These are screening observations, not a release benchmark.
+- [x] Defer cross-run input/freshness and failure/recovery trials with adoption. A future candidate still requires resolved source/build/base/toolchain identity, matching final metadata, trusted validation and five native comparisons; none is replaced by a source-SHA comparison. No benchmark release was published.
+- [ ] Review P7.7 in Pleey #553 before P8 acceptance and rollout.
 
 **Rollback:** use the existing release rebuild path.
 
@@ -656,7 +658,7 @@ records the exact versions, commits and compatibility assessment.
 - [x] Resolve the latest stable Common, Node.js, Container and Publish tags to immutable commits and replace all 23 caller references across eight workflows.
 - [x] Replace the temporary Node/Container merge pins with releases, adopting the reviewed cleanup fix while retaining the existing Helm interfaces and unsharded frontend tests.
 - [x] Audit the 18 consumed action/workflow entrypoints against their released metadata, preserving caller inputs, outputs, secrets and permissions.
-- [ ] Review the released documentation and resulting PR #553 CI before proceeding or merging. P7.6 review, P7.7 and P8 remain open.
+- [x] Review the released documentation and resulting PR #553 CI before proceeding. The user approved the 4.2.0 adoption on 2026-11-17; P7.7 review and P8 remain open before merging.
 
 ## Review follow-up: CI boundaries, 2026-11-17
 
@@ -672,7 +674,7 @@ See the [review decision](../architecture/adr/0023-optimize-ci-execution-and-cac
 - [x] Move validated-artifact identity checks, download and cleanup into the release action in [Container PR #988](https://github.com/hoverkraft-tech/ci-github-container/pull/988). Pleey supplies immutable ID/basename/checksum inputs to the released action; see the [ownership decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#review-release-artifact-ownership-2026-11-17).
 - [x] Retain the final PR result check after explicit user review of its additional expected-job/skip validation.
 - [x] Merge Container #988 after green PR CI, wait for main CI, release 4.2.0, and align all thirteen Container references with its immutable commit. The [adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#container-420-adoption-2026-11-17) records the main/release evidence and released contract audit.
-- [ ] Review Pleey's updated CI. Main bot publication/cancellation and the release path still require rollout validation.
+- [x] Review Pleey's updated CI. The user approved proceeding after [CI on `62951de`](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44078803765) passed. Main bot publication/cancellation and the release path still require rollout validation.
 
 ## P8: Complete acceptance and documentation
 

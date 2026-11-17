@@ -3212,6 +3212,105 @@ Earlier CI evidence retains its original revisions. Production release rollout,
 main bot publication/cancellation, P7.6 review, P7.7 and P8 acceptance remain open;
 this release adoption makes no additional performance claim.
 
+### P7.7 release-image reuse evaluation: 2026-11-17
+
+After reviewing P7.6 and the released artifact-ownership changes, the user
+authorized evaluating release-image reuse. Inspect the current release caller and
+Container 4.2.0 before proposing a cross-run promotion API. Main and release must
+agree on effective build inputs, resolved dependencies, trusted validation,
+freshness and final image metadata. A matching source SHA alone is insufficient.
+
+Use existing native run timings to screen potential savings, separating summed
+job time from the critical path. Historical releases predate this PR and cannot
+serve as acceptance samples for its new pipeline. Reuse existing promotion tests
+for matching/current and stale/mismatching evidence; inspect metadata generation
+without registry writes. Keep application checks and final chart validation after
+release-file mutations. Do not publish a release solely to benchmark reuse.
+
+Adopt only if an unchanged trusted digest can satisfy the release contract with
+measurable benefit. Otherwise retain cached builds and document the deferral,
+including the prerequisites for revisiting it. Any changed metadata/digest or
+cross-run trust contract needs its own reviewed design and validation before use.
+
+### P7.7 findings and disposition
+
+**Defer cross-run release-image reuse.** The current metadata contract prevents a
+main digest from being an unchanged release image, even with identical application
+inputs. Keep the cached candidate builds, current-run promotion and final chart
+validation. No Container API change or release is needed for this disposition.
+
+The [release caller](../../../../.github/workflows/release.yml) supplies its planned
+version through `production-image-tag`; main leaves that input empty.
+Container's [metadata action](https://github.com/hoverkraft-tech/ci-github-container/blob/b055d6ce0f3a5e223615ad494d88d92e17af11e5/actions/docker/get-image-metadata/action.yml)
+sets both the intended tag and OCI version. Existing nonpublishing native tests
+at the exact released commit demonstrate the difference:
+[event tags](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/44076718333/job/134017355656)
+produce `org.opencontainers.image.version=main`, while a
+[forced version](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/44076718333/job/134017355724)
+produces `1.2.3` at the same source revision. Both tests also verify that candidate
+mode preserves ordinary labels/annotations, excluding creation timestamps, and
+records the intended destinations without publishing them.
+
+Retagging preserves the original version label. Changing it requires a new image
+config and manifest digest under the
+[OCI descriptor contract](https://github.com/opencontainers/image-spec/blob/v1.1.1/descriptor.md),
+so existing digest-bound signatures and attestations cannot certify that changed
+image. A metadata-only repack could reuse layers, but it would need new signing,
+provenance and validation. The existing cached build already reuses layers while
+producing the required metadata; a second assembly path is not justified here.
+
+The released [promotion contract](https://github.com/hoverkraft-tech/ci-github-container/blob/b055d6ce0f3a5e223615ad494d88d92e17af11e5/actions/docker/promote-images/src/contract.js)
+requires matching candidate/validation outputs, source revision, current run and
+attempt. Its [provenance check](https://github.com/hoverkraft-tech/ci-github-container/blob/b055d6ce0f3a5e223615ad494d88d92e17af11e5/actions/docker/promote-images/src/promotion.js)
+also verifies that exact invocation and digest. A previous main run cannot pass by
+changing caller metadata. Rerunning the unchanged promotion suite with Node
+26.13.1 passes all 85 tests in 0.136s, including matching publication, stale source,
+run/attempt rejection, mismatched validation, manifest identity and provenance
+failure. These use controlled dependencies and make no registry writes. Reuse the
+passing native metadata tests above; no duplicate fixture or test suite is added.
+
+Five recent successful PR runs screen the opportunity in the current parallel
+DAG. Each includes eight production-image jobs: preparation, build, publication
+and attestation for each application. Their summed duration is a resource proxy,
+not elapsed savings or billing. Source revisions and cache histories differ;
+these observations are not a controlled release benchmark.
+
+| PR run                                                                                     | Summed production-image jobs | Production jobs, first start to last finish | Helm completion relative to last other required check |
+| ------------------------------------------------------------------------------------------ | ---------------------------- | ------------------------------------------- | ----------------------------------------------------- |
+| [44078803765](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44078803765) | 193s                         | 123s                                        | 17s after                                             |
+| [44071922098](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44071922098) | 171s                         | 94s                                         | 40s before                                            |
+| [44067581302](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44067581302) | 194s                         | 105s                                        | 91s before                                            |
+| [44063939455](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44063939455) | 186s                         | 102s                                        | 72s before                                            |
+| [44057516743](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44057516743) | 178s                         | 102s                                        | 70s before                                            |
+
+Median production job sum is 186s (171s-194s); the two build jobs account for a
+median 111s (103s-115s). The last other required check is frontend testing in all
+five runs. Holding other jobs and scheduling fixed, making production candidates
+available immediately can advance the promotion dependency barrier by at most
+17s in one run and zero in the other four. Even the 186s job-sum opportunity is an
+upper bound before lookup, trust verification and any replacement assembly work.
+This does not predict release latency or savings from changing other CI jobs.
+
+The latest successful Pleey release remains
+[2026-09-09](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/34379449211),
+before this pipeline. Do not claim a current release baseline or publish solely
+for a comparison. No cross-run candidate is retained, and cross-run freshness,
+registry failure/recovery and five native before/after samples were not tested.
+
+Revisit only if production builds become a demonstrated release bottleneck and a
+reviewed policy permits identical final metadata. A future contract must bind a
+trusted successful main run and immutable digest to effective source/build inputs,
+resolved bases/toolchain and freshness, with rebuild on missing or mismatching
+evidence. Pinned bases alone do not pin the Dockerfiles' network package updates;
+cached rebuilds also do not establish freshness by themselves. Preserve original
+provenance and validate the final chart after release-file mutations. Require the
+deferred matching/mismatching and recovery trials before adopting reuse.
+
+Only this ADR and the checklist change. Raw timings, metadata logs and local test
+output remain in the ignored review workspace. User review of this deferral
+precedes P8 acceptance and rollout; the earlier release and main-rollout gaps
+remain open.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
