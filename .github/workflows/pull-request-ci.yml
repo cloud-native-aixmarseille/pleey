@@ -49,7 +49,7 @@ jobs:
 
   ci-result:
     name: Validate PR checks
-    # Enforce the complete result set, including which skips the selected route permits.
+    # A successful reusable workflow may contain skipped jobs. Reject skips outside the selected route.
     if: always()
     needs: [scope, ci]
     runs-on: ubuntu-latest
@@ -69,7 +69,7 @@ jobs:
           JOB_RESULTS: ${{ needs.ci.outputs.job-results }}
         with:
           script: |
-            const script = require('node:url').pathToFileURL(`${process.env.GITHUB_WORKSPACE}/scripts/ci-pr-routing.mjs`);
+            const script = require('node:url').pathToFileURL(`${process.env.GITHUB_WORKSPACE}/.github/actions/determine-pr-checks/ci-pr-routing.mjs`);
             const { assertCiResult } = await import(script.href);
             assertCiResult({
               scope: process.env.CI_SCOPE,

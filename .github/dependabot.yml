@@ -5,6 +5,7 @@ updates:
   - package-ecosystem: "npm"
     open-pull-requests-limit: 20
     directories:
+      - "/.github/actions/determine-pr-checks"
       - "/application/backend"
       - "/application/frontend"
     versioning-strategy: increase

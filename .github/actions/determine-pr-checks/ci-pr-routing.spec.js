@@ -1,20 +1,13 @@
-import { existsSync } from "node:fs";
-import { resolve } from "node:path";
-import { pathToFileURL } from "node:url";
 import { describe, expect, it, vi } from "vitest";
+import * as routing from "./ci-pr-routing.mjs";
 
-const script = [
-  resolve(process.cwd(), "../../scripts/ci-pr-routing.mjs"),
-  "/usr/src/shared-scripts/ci-pr-routing.mjs",
-].find(existsSync);
-if (!script) throw new Error("Unable to locate the CI routing script.");
-const routing = await import(pathToFileURL(script).href);
 const snapshot = { head: { sha: "head" }, base: { sha: "base" }, changed_files: 1 };
 const documentation = { filename: "docs/technical/example.md", status: "modified" };
 const identity = { head: "head", base: "base", before: snapshot, after: snapshot };
 const successfulJobs = Object.fromEntries(
   [
     "linter",
+    "check-ci-routing",
     "build-backend-ci-image",
     "check-backend",
     "build-frontend-ci-image",

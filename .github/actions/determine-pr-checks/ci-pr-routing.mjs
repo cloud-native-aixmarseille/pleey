@@ -1,5 +1,6 @@
 const CI_JOBS = [
   "linter",
+  "check-ci-routing",
   "build-backend-ci-image",
   "check-backend",
   "build-frontend-ci-image",

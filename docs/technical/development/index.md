@@ -66,7 +66,7 @@ for the decision and measurement constraints.
 
 Pull requests limited to the root `README.md` and Markdown files under `docs/`
 run repository lint, Actions CodeQL and action pinning. Application builds,
-application lint/tests, Helm installation and image promotion are skipped for
+application lint/tests, CI routing tests, Helm installation and image promotion are skipped for
 that scope. All other PRs, main and release run full CI. Documentation-only
 commits within a mixed PR still run full CI.
 
@@ -76,8 +76,18 @@ to check the full paginated PR file list against its triggering head/base
 revisions. Both paths of a rename must qualify. Missing, stale or incomplete API data selects full CI;
 failure to execute the scope job blocks the workflow. `Validate PR checks`
 verifies the selected route and the exact results of every shared CI job,
-rejecting failed, cancelled, missing or unexpectedly skipped checks. Configure
-required-check rules against this stable result when enforcing PR CI.
+rejecting failed, cancelled, missing or unexpectedly skipped checks. A successful
+reusable workflow can contain skipped jobs; the final check rejects a skipped
+backend check when the full route requires it. Configure required-check rules
+against this stable result when enforcing PR CI. The workflow does not configure
+those repository rules itself.
+
+The classification policy and its Vitest suite live beside the local action.
+Run `npm ci --ignore-scripts` and `npm run test:ci` from
+`.github/actions/determine-pr-checks` to produce JUnit and LCOV reports. On full CI,
+`Test CI routing` uses the shared Node workflow independently of application image
+builds, and must succeed before image promotion. Dependabot maintains the action's
+test dependencies; neither application image includes this package.
 
 Repository lint publishes each validator's result in its job summary, PR comment
 and uploaded native summary. Individual validator commit-status posts are disabled
