@@ -3184,6 +3184,34 @@ rejection fixture for native artifact transfer and failure cleanup. Pleey PR CI
 does not execute production release publication. Require both PRs' native checks
 and retain release rollout validation separately.
 
+### Container 4.2.0 adoption: 2026-11-17
+
+The user authorized merging Container #988 after successful PR CI, waiting for
+main CI, publishing through the release workflow and adopting the result here.
+[PR #988](https://github.com/hoverkraft-tech/ci-github-container/pull/988) merged
+as `01c4f027368af68a73aebdcecc3baabd3c1f654d`.
+[Main CI](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/44074356699)
+passed all 242 executed jobs with 86 expected skips. A subsequent bot commit
+changed only the generated release-action and composed-workflow documentation.
+The [release workflow](https://github.com/hoverkraft-tech/ci-github-container/actions/runs/44076718333)
+then validated that exact revision, passing 220 jobs with 90 expected skips,
+and published [4.2.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/4.2.0) at
+`b055d6ce0f3a5e223615ad494d88d92e17af11e5`.
+
+Replace the release-action preview and all twelve other Container references with
+that immutable release commit. All thirteen callers match the eight released
+interfaces. The action's runtime metadata and implementation match the reviewed
+preview; the post-merge differences are generated documentation only. Other
+consumed interfaces retain their inputs, outputs, secrets and permission contracts.
+No caller API or Node.js runtime migration is needed.
+
+This completes the upstream release prerequisite for artifact ownership. Keep the
+reviewed final PR check and separate validation/publication phases. Run workflow
+and documentation checks and require native CI for the adopted pins in PR #553.
+Earlier CI evidence retains its original revisions. Production release rollout,
+main bot publication/cancellation, P7.6 review, P7.7 and P8 acceptance remain open;
+this release adoption makes no additional performance claim.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

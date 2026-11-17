@@ -57,7 +57,7 @@ jobs:
           persist-credentials: false
 
       - name: Update chart image defaults
-        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@b055d6ce0f3a5e223615ad494d88d92e17af11e5 # 4.2.0
         with:
           path: charts/application
           values: >-
@@ -123,7 +123,7 @@ jobs:
             ]
 
       - name: Set up Helm
-        uses: hoverkraft-tech/ci-github-container/actions/helm/setup@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/setup@b055d6ce0f3a5e223615ad494d88d92e17af11e5 # 4.2.0
 
       - name: Refresh umbrella Chart.lock
         shell: bash
@@ -131,7 +131,7 @@ jobs:
 
       - name: Regenerate Helm chart documentation
         id: generate-docs
-        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@b055d6ce0f3a5e223615ad494d88d92e17af11e5 # 4.2.0
         with:
           working-directory: ./charts
           checkout-ref: ""
@@ -166,7 +166,7 @@ jobs:
   validate-release-chart:
     name: Validate final release chart
     needs: [plan-release, prepare-release-files]
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/helm-chart-ci.yml@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/helm-chart-ci.yml@b055d6ce0f3a5e223615ad494d88d92e17af11e5 # 4.2.0
     permissions:
       contents: read
       packages: read
@@ -200,7 +200,7 @@ jobs:
       id-token: write
     steps:
       - name: Publish and sign unchanged archive
-        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@9fd7b3250c11a2f86e9132fc0ab9901946d6294a # PR #988 preview; replace with its release before merge
+        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@b055d6ce0f3a5e223615ad494d88d92e17af11e5 # 4.2.0
         with:
           artifact-id: ${{ needs.validate-release-chart.outputs.artifact-id }}
           archive-name: ${{ needs.validate-release-chart.outputs.archive-name }}
