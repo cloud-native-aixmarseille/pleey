@@ -57,7 +57,7 @@ jobs:
           persist-credentials: false
 
       - name: Update chart image defaults
-        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/update-chart-values@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
         with:
           path: charts/application
           values: >-
@@ -123,7 +123,7 @@ jobs:
             ]
 
       - name: Set up Helm
-        uses: hoverkraft-tech/ci-github-container/actions/helm/setup@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/setup@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
 
       - name: Refresh umbrella Chart.lock
         shell: bash
@@ -131,7 +131,7 @@ jobs:
 
       - name: Regenerate Helm chart documentation
         id: generate-docs
-        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@4b1bf5c4af6ed515cc1797961e80bf9e726af721 # Preview: Container PR #985; replace with release before merge
+        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
         with:
           working-directory: ./charts
           checkout-ref: ""
@@ -166,7 +166,7 @@ jobs:
   validate-release-chart:
     name: Validate final release chart
     needs: [plan-release, prepare-release-files]
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/helm-chart-ci.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/helm-chart-ci.yml@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
     permissions:
       contents: read
       packages: read
@@ -223,7 +223,7 @@ jobs:
           digest-mismatch: error
 
       - name: Publish and sign unchanged archive
-        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
         with:
           archive: ${{ steps.download.outputs.download-path }}/${{ needs.validate-release-chart.outputs.archive-name }}
           checksum: ${{ needs.validate-release-chart.outputs.checksum }}

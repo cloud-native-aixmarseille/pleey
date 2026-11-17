@@ -3066,10 +3066,10 @@ preserve successful CI as the bot-write gate. The upstream action owns baseline
 selection, failed-run catch-up and safe fallback. Remove Pleey's duplicate helper
 and tests when adopting that implementation; release generation stays unconditional.
 [Container PR #985](https://github.com/hoverkraft-tech/ci-github-container/pull/985)
-implements the guard with 56 focused Node 24 tests. Both docs callers preview
-`4b1bf5c4af6ed515cc1797961e80bf9e726af721`; replace these two preview references with
-a released immutable commit before merging Pleey. Other upstream callers retain
-the released versions recorded above.
+implements the guard with 56 focused Node 24 tests. During review, both docs
+callers previewed `4b1bf5c4af6ed515cc1797961e80bf9e726af721`; other upstream
+callers retained the released versions recorded above. The release adoption below
+replaces these temporary references.
 
 Extend the same upstream PR to run documentation formatting from committed
 JavaScript, removing runtime Node.js setup, npm installation and npx calls.
@@ -3095,6 +3095,29 @@ policy in Pleey depends on that intermediate identity; image promotion and its
 accepted signer contract are unchanged.
 The earlier composed release workflow remains valid for callers wanting both
 phases behind one entrypoint; Pleey now exposes them separately for review.
+
+### Container 4.1.0 adoption: 2026-11-17
+
+[Container PR #985](https://github.com/hoverkraft-tech/ci-github-container/pull/985)
+was merged and published in
+[4.1.0](https://github.com/hoverkraft-tech/ci-github-container/releases/tag/4.1.0).
+The stable tag resolves to `988ccc2b85dec5822e801d7bc0622cad7cc94870`. Adopt that
+immutable commit for all 13 Container references in the shared CI, main and
+release workflows, replacing the two documentation previews and eleven 4.0.0 pins.
+
+The released documentation action's metadata, source, dependencies and distribution
+match reviewed commit `4b1bf5c`; only its generated readme differs. Retain the
+main caller's `skip-if-only-changed` policy and the release caller's unconditional
+generation. The other consumed interfaces have unchanged inputs, outputs and
+permissions. Outside the documentation action, runtime changes from 4.0.0 to 4.1.0
+update internal Common and Publish references to versions Pleey already uses.
+No caller API migration or new optimization phase is needed.
+
+This completes the release prerequisite for the documentation action. Review
+Pleey's new native CI before continuing; the earlier local/hosted evidence remains
+tied to its original revisions. Main bot publication/cancellation, production
+release validation, performance acceptance and required-check enforcement remain
+open. Release adoption makes no additional performance claim.
 
 ### Follow-Up
 
