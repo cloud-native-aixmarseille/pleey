@@ -3152,6 +3152,38 @@ updated documentation, then require native PR CI before resolving the review.
 This ownership change makes no new performance claim; historical routing
 measurements remain tied to their original test placement and revisions.
 
+### Review: release artifact ownership, 2026-11-17
+
+The next PR #553 review requests moving artifact identity checks, download and
+cleanup out of Pleey's publication job into `helm/release-chart`.
+[Container PR #988](https://github.com/hoverkraft-tech/ci-github-container/pull/988)
+adds mutually exclusive local archive or `artifact-id`/`archive-name` inputs,
+both requiring the original checksum. The action owns same-run exact-ID download,
+artifact digest enforcement, archive checksum verification before registry login,
+and cleanup of its private download directory, including after failure.
+Local archives remain caller-owned. The composed upstream release workflow also
+uses this interface; validation configuration stays in separate jobs.
+
+Pleey's publication job now passes the validation outputs directly to one action.
+Preview only this action at immutable commit
+`9fd7b3250c11a2f86e9132fc0ab9901946d6294a`; the other Container callers retain
+4.1.0. Upstream review, release and replacement of this preview pin are required
+before merging Pleey. Preserve successful validation/draft dependencies, the
+publication namespace, signing identity and publication-only retry behavior.
+The prior release split remains accepted; this change moves artifact ownership.
+
+The user explicitly chose to retain `Validate PR checks` after revisiting its
+purpose. Promotion already rejects unsuccessful full-route dependencies. The
+final PR job additionally validates the exact result set and documentation-only
+skips, and supplies one stable result for future required-check rules. Those
+rules remain P8 work; no branch protection is changed in this review.
+
+Upstream local validation passes 32 Node 24 tests, including 12 input and cleanup
+ownership cases. Reuse the existing composed-release integration and checksum
+rejection fixture for native artifact transfer and failure cleanup. Pleey PR CI
+does not execute production release publication. Require both PRs' native checks
+and retain release rollout validation separately.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.

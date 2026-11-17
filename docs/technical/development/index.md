@@ -154,9 +154,11 @@ commit, package the final chart, and run static validation and installation test
 Tests use its committed image digests,
 packaged recovery values and cluster-specific operator/pull-secret overrides.
 Validation has read-only registry permissions. `Publish validated release chart`
-waits for validation and draft creation, downloads the exact validated artifact ID,
-and calls `release-chart` to verify its checksum, publish and sign the unchanged
-archive. Test configuration belongs only to validation. The chart remains at
+waits for validation and draft creation, then passes the immutable artifact ID,
+archive basename and original checksum to `release-chart`. The action validates
+these inputs, downloads only that artifact, verifies its digest and archive
+checksum, publishes and signs the unchanged bytes, and cleans downloaded files
+on success or failure. Test configuration belongs only to validation. The chart remains at
 `ghcr.io/cloud-native-aixmarseille/pleey/charts/application/pleey`.
 
 GitHub release publication waits for chart publication. Release runs are serialized
