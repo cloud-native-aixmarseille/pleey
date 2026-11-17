@@ -60,3 +60,4 @@ If a change can alter how the system is structured, operated, or extended, it ne
 - 0019: [Separate question reading from answering time](./0019-separate-question-reading-from-answering-time.md) - Proposed - 2026-11-04
 - 0021: [Preserve true/false answer order](./0021-preserve-true-false-answer-order.md) - Proposed - 2026-11-04
 - 0023: [Optimize CI execution and caching](./0023-optimize-ci-execution-and-caching.md) - Accepted - 2026-11-05
+- 0024: [Share game previews through revocable links](./0024-share-game-previews-through-revocable-links.md) - Proposed - 2026-11-10
