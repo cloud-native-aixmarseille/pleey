@@ -658,6 +658,16 @@ records the exact versions, commits and compatibility assessment.
 - [x] Audit the 18 consumed action/workflow entrypoints against their released metadata, preserving caller inputs, outputs, secrets and permissions.
 - [ ] Review the released documentation and resulting PR #553 CI before proceeding or merging. P7.6 review, P7.7 and P8 remain open.
 
+## Review follow-up: CI boundaries, 2026-11-17
+
+See the [review decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#review-ci-action-boundaries-and-release-phases-2026-11-17).
+
+- [x] Wrap PR classification in a local composite action, retaining the shared routing policy and the final expected-results gate.
+- [x] Move Helm docs change detection to [Container PR #985](https://github.com/hoverkraft-tech/ci-github-container/pull/985), configure only unrelated paths in Pleey, and remove the duplicate helper/tests. Its action package has 56 focused Node 24 tests.
+- [x] Split final release-chart validation from publication using existing Container interfaces. Only validation receives test configuration; publication consumes the validated artifact ID/checksum.
+- [ ] Review both PRs and their final-head CI. Main bot publication/cancellation and the release path still require rollout validation.
+- [ ] Release the upstream docs action and replace both explicit preview pins before merging Pleey.
+
 ## P8: Complete acceptance and documentation
 
 - [ ] Compare at least five consecutive post-priming samples before/after each retained candidate; retain cache misses, report median/range/run links and investigate overlapping timing distributions.

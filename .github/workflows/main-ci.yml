@@ -46,25 +46,15 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
           persist-credentials: false
 
-      - name: Determine whether Helm docs inputs changed
-        id: docs-scope
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        env:
-          RUN_ATTEMPT: ${{ github.run_attempt }}
-        with:
-          script: |
-            const script = require('node:url').pathToFileURL(`${process.env.GITHUB_WORKSPACE}/scripts/ci-helm-docs.mjs`);
-            const { needsHelmDocs } = await import(script.href);
-            const required = await needsHelmDocs({ github, context, attempt: Number(process.env.RUN_ATTEMPT) });
-            core.setOutput('required', required);
-            core.info(required ? 'Generate Helm documentation.' : 'Helm documentation inputs are unchanged since successful main CI.');
-
-      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
-        if: steps.docs-scope.outputs.required == 'true'
+      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@b325e702d1d63e6ced2f66b98f15f25543537b57 # Preview: Container PR #985; replace with release before merge
         with:
           working-directory: ./charts
+          skip-if-only-changed: |
+            application/
+            docs/
+            e2e/
+            README.md
           github-app-client-id: ${{ vars.CI_BOT_APP_ID }}
           github-app-key: ${{ secrets.CI_BOT_APP_PRIVATE_KEY }} # zizmor: ignore[secrets-outside-env] repository automation uses a dedicated app secret without untrusted code execution

@@ -131,7 +131,7 @@ jobs:
 
       - name: Regenerate Helm chart documentation
         id: generate-docs
-        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+        uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@b325e702d1d63e6ced2f66b98f15f25543537b57 # Preview: Container PR #985; replace with release before merge
         with:
           working-directory: ./charts
           checkout-ref: ""
@@ -163,14 +163,13 @@ jobs:
             }
           github-token: ${{ github.token }}
 
-  publish-release-artifacts:
-    name: Validate and publish release chart
-    needs: [plan-release, ci, prepare-release-files, draft-release]
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/helm-chart-release.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+  validate-release-chart:
+    name: Validate final release chart
+    needs: [plan-release, prepare-release-files]
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/helm-chart-ci.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
     permissions:
       contents: read
-      id-token: write
-      packages: write
+      packages: read
     with:
       path: charts/application
       ref: ${{ needs.prepare-release-files.outputs.release-sha }}
@@ -183,11 +182,69 @@ jobs:
       helm-set: |
         backend.cloudnativepgOperator.enabled=true
         global.imagePullSecrets[0].name=regcred
-      test-oci-registry: ${{ vars.OCI_REGISTRY }}
-      test-oci-registry-username: ${{ github.repository_owner }}
       oci-registry: ${{ vars.OCI_REGISTRY }}
       oci-registry-username: ${{ github.repository_owner }}
-      oci-repository: ${{ github.repository }}/charts/application
+      upload-artifact: true
+
+  publish-release-artifacts:
+    name: Publish validated release chart
+    needs: [validate-release-chart, draft-release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: helm-chart-publication-${{ github.repository_id }}-${{ vars.OCI_REGISTRY }}-${{ github.repository }}/charts/application
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: Require validated artifact identity
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          ARTIFACT_ID: ${{ needs.validate-release-chart.outputs.artifact-id }}
+          ARCHIVE_NAME: ${{ needs.validate-release-chart.outputs.archive-name }}
+          CHECKSUM: ${{ needs.validate-release-chart.outputs.checksum }}
+        with:
+          script: |
+            const path = require('node:path');
+            const { ARTIFACT_ID, ARCHIVE_NAME, CHECKSUM } = process.env;
+            if (!/^[1-9][0-9]*$/.test(ARTIFACT_ID) || !/^[a-f0-9]{64}$/.test(CHECKSUM)
+              || !ARCHIVE_NAME.endsWith('.tgz') || path.basename(ARCHIVE_NAME) !== ARCHIVE_NAME) {
+              throw new Error('Successful validation must supply one artifact ID, archive basename and checksum.');
+            }
+
+      - name: Download exact validated archive
+        id: download
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.validate-release-chart.outputs.artifact-id }}
+          path: ${{ runner.temp }}/helm-publish-${{ needs.validate-release-chart.outputs.artifact-id }}
+          digest-mismatch: error
+
+      - name: Publish and sign unchanged archive
+        uses: hoverkraft-tech/ci-github-container/actions/helm/release-chart@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+        with:
+          archive: ${{ steps.download.outputs.download-path }}/${{ needs.validate-release-chart.outputs.archive-name }}
+          checksum: ${{ needs.validate-release-chart.outputs.checksum }}
+          oci-registry: ${{ vars.OCI_REGISTRY }}
+          oci-registry-username: ${{ github.repository_owner }}
+          oci-registry-password: ${{ github.token }}
+          oci-repository: ${{ github.repository }}/charts/application
+
+      - name: Clean downloaded archive
+        if: always()
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          ARTIFACT_ID: ${{ needs.validate-release-chart.outputs.artifact-id }}
+        with:
+          script: |
+            if (/^[1-9][0-9]*$/.test(process.env.ARTIFACT_ID)) {
+              const path = require('node:path');
+              require('node:fs').rmSync(path.join(process.env.RUNNER_TEMP, `helm-publish-${process.env.ARTIFACT_ID}`), {
+                recursive: true, force: true,
+              });
+            }
 
   publish-release:
     needs: [draft-release, publish-release-artifacts]
