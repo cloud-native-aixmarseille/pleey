@@ -123,12 +123,32 @@ because their source directories already supply those dependencies. Keep these
 rules aligned with local subcharts to avoid duplicate files in packaged charts.
 
 The shared workflow returns `validated-images` only after successful validation
-and cleanup. The promotion job requires repository lint, both
+and cleanup. The promotion job requires repository lint, routing-policy tests, both
 application checks and their reports, both candidate builds and Helm validation
 to succeed before updating consumer tags. Release steps receive only promoted
 metadata through `built-prod-images` and wait for the entire shared workflow.
 See [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 for the workflow decisions and remaining rollout work.
+
+For cache diagnosis, set the container workflow's `cache-type` input to the string
+`"false"` on the affected image jobs. This bypasses layer imports/exports and
+persisted mount snapshots without deleting existing cache entries. Run the full
+validation pipeline, then restore the normal cache setting. Cached builds do not
+guarantee fresh OS packages; keep base-image updates and dependency maintenance
+separate from cache-hit measurements.
+
+Image promotion requires candidates built and validated in the current workflow
+run and attempt. After a failed or cancelled promotion, rerun the full workflow;
+rerunning only promotion with previous-attempt outputs is rejected. Published
+tags are updated individually, so an interrupted promotion can leave a partial
+set of tags. The promotion journal prevents an older run from overwriting a newer
+claim. Preserve that journal and use the full validation path for recovery.
+
+Release chart publication consumes the artifact ID, archive name and checksum
+from `Validate final release chart`. A publication-only retry can reuse that
+validated artifact while it remains available; do not rebuild or mutate the archive
+in the publication job. If the artifact is unavailable, validate a new archive
+before publishing it.
 
 `make lint` runs both application lint pipelines, then Super-linter with the configurations under `.github/linters/`.
 

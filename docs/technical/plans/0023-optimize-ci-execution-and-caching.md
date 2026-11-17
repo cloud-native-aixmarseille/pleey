@@ -3,13 +3,15 @@
 - Issue: [#475](https://github.com/cloud-native-aixmarseille/pleey/issues/475)
 - Decision: [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md)
 - Created: 2026-11-05
-- Implementation status: P0 reviewed and merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552); P1-P4 implementation and P4.2's controlled candidate-start trial reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553); upstream releases adopted on 2026-11-17, including the Helm reusable workflows and cleanup fix; P5 deferral reviewed; P6 rejection reviewed; P7 documentation-only routing reviewed; P7.1 lint reporting optimization reviewed; P7.4 cleanup/docs reviewed; P7.5 runner/shared-builder deferrals reviewed; P7.6 registry-cache deferral awaits review; P7 required-secret change reviewed, setup/cache experiments deferred; P7.7 and P8 acceptance pending.
+- Implementation status: P0 merged in [PR #552](https://github.com/cloud-native-aixmarseille/pleey/pull/552). Selected P1-P7 changes and adopted/rejected/deferred experiment decisions are reviewed in [PR #553](https://github.com/cloud-native-aixmarseille/pleey/pull/553), with released upstream tooling adopted on 2026-11-17. P8 pre-merge acceptance is recorded for review; main/release rollout and required-check enforcement remain pending.
 
 Delivery: passing CI and user review between phases. At the user's request, continue Pleey implementation in existing PR #553, including P3 and subsequent Pleey phases while that PR remains open. Upstream phases are reviewed in their own PRs before adoption.
 
 The ADR owns architecture, dated evidence, cache contracts and acceptance
 requirements. This file owns execution and progress. Unchecked items describe planned work. Completed items link the implementation
 and its verification; proposed upstream interfaces remain future work.
+Unchecked trials under a rejected or deferred option are prerequisites for
+reconsideration, not authorization to implement that option.
 
 Complete checkboxes with PR/run links and measured results. For experiments,
 record "adopted", "rejected" or "deferred" with the reason. Keep independent
@@ -58,7 +60,8 @@ gh run view RUN_ID --repo cloud-native-aixmarseille/pleey --json headSha,event,c
 gh api --paginate repos/cloud-native-aixmarseille/pleey/actions/runs/RUN_ID/jobs
 gh api repos/cloud-native-aixmarseille/pleey/actions/runs/RUN_ID/attempts/ATTEMPT
 gh api --paginate 'repos/cloud-native-aixmarseille/pleey/actions/runs/RUN_ID/attempts/ATTEMPT/jobs?per_page=100'
-gh api repos/cloud-native-aixmarseille/pleey/actions/runs/RUN_ID/attempts/ATTEMPT/logs > /tmp/pleey-ci-run-logs.zip
+mkdir -p .cache/agent-work/issue-475
+gh api repos/cloud-native-aixmarseille/pleey/actions/runs/RUN_ID/attempts/ATTEMPT/logs > .cache/agent-work/issue-475/run-RUN_ID-attempt-ATTEMPT-logs.zip
 gh api repos/cloud-native-aixmarseille/pleey/branches/main/protection
 gh api 'repos/cloud-native-aixmarseille/pleey/rulesets?includes_parents=true'
 gh api repos/cloud-native-aixmarseille/pleey/rules/branches/main
@@ -240,7 +243,7 @@ See the [dated adoption decision](../architecture/adr/0023-optimize-ci-execution
 - [x] Collect fresh baseline and candidate series: one priming run plus five consecutive samples each, with unchanged application inputs and recorded runner/tool versions. All ten measured runs passed; no samples were replaced.
 - [x] Record elapsed time, summed job time, preparation overhead and report overhead; retain failures and cache misses with their classification. [Median elapsed fell 12.1% and summed job time 12.0%](../architecture/adr/0023-optimize-ci-execution-and-caching.md#completed-p2-adoption-comparison-2026-11-11); overlapping ranges, priming misses and the superseded premeasurement run remain explicit.
 - [x] Complete nonpublishing release-helper and explicit missing-report failure checks against the released bundles and input-resolution scripts. See the local preflight results in the dated adoption decision; hosted Pleey validation remains separate.
-- [ ] Validate generated distribution commits on real dependency-bot PRs separately; merging the reusable workflow is not end-to-end evidence.
+- [x] Verify a real dependency-bot update: [Publish PR #516](https://github.com/hoverkraft-tech/ci-github-publish/pull/516) contains an automated distribution commit from [writer run 43363588960](https://github.com/hoverkraft-tech/ci-github-publish/actions/runs/43363588960), followed by successful checks. This establishes the shared Dependabot path at that revision, not live Renovate coverage or every later caller revision.
 - [x] Update PR #553 with the final scope and results. **Reviewed on 2026-11-11** as part of PR #553.
 
 ### P2.3: Remove redundant publication/security setup
@@ -358,10 +361,10 @@ allowed by the execution order; P4 still requires both. See the
 - [x] Validate final hosted CI after cleanup, image digest handoffs, signing/attestations and application reports. [Run 43108346715](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43108346715) passed 25 jobs with 12 intentional skips; inventories and coverage denominators match.
 - [x] Record user review of the P3 implementation in PR #553 on 2026-11-12 and authorization to continue. Controlled performance validation remains open above.
 
-The aggregate job and required-check rollout are deferred at the user's request.
-Revisit them before candidate promotion in P4. No repository rules change in P3.
-The ADR preserves the earlier gate checks and incident-affected initial runs as
-historical evidence.
+P3 ended without an aggregate job. P7 subsequently added the reviewed
+`Validate PR checks` gate; required-check enforcement remains a P8 rollout step.
+No repository rules changed in P3. The ADR preserves the earlier gate checks and
+incident-affected initial runs as historical evidence.
 
 **Rollback:** restore the shared CI-image barrier and matching application
 workflow dependencies.
@@ -646,7 +649,7 @@ records native logs, current cache inventory and the consumed registry contract.
 - [x] Preserve signatures/provenance and final chart validation after release-file mutations. Relabeling would change the digest and require new evidence; the unchanged promotion contract rejects previous-run candidates.
 - [x] Reuse passing nonpublishing native metadata cases and run the existing 85 promotion tests for matching/mismatching evidence. Profile five recent PR runs: production jobs sum to a median 186s, but eliminating their wait advances the observed promotion dependency barrier by at most 17s once and zero four times. These are screening observations, not a release benchmark.
 - [x] Defer cross-run input/freshness and failure/recovery trials with adoption. A future candidate still requires resolved source/build/base/toolchain identity, matching final metadata, trusted validation and five native comparisons; none is replaced by a source-SHA comparison. No benchmark release was published.
-- [ ] Review P7.7 in Pleey #553 before P8 acceptance and rollout.
+- [x] Review P7.7 in Pleey #553 before P8 acceptance and rollout. The user approved proceeding after [CI on `f30bb34`](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44088882435/attempts/1) passed.
 
 **Rollback:** use the existing release rebuild path.
 
@@ -658,7 +661,7 @@ records the exact versions, commits and compatibility assessment.
 - [x] Resolve the latest stable Common, Node.js, Container and Publish tags to immutable commits and replace all 23 caller references across eight workflows.
 - [x] Replace the temporary Node/Container merge pins with releases, adopting the reviewed cleanup fix while retaining the existing Helm interfaces and unsharded frontend tests.
 - [x] Audit the 18 consumed action/workflow entrypoints against their released metadata, preserving caller inputs, outputs, secrets and permissions.
-- [x] Review the released documentation and resulting PR #553 CI before proceeding. The user approved the 4.2.0 adoption on 2026-11-17; P7.7 review and P8 remain open before merging.
+- [x] Review the released documentation and resulting PR #553 CI before proceeding. The user approved the 4.2.0 adoption and P7.7 on 2026-11-17; P8 remains open.
 
 ## Review follow-up: CI boundaries, 2026-11-17
 
@@ -678,28 +681,39 @@ See the [review decision](../architecture/adr/0023-optimize-ci-execution-and-cac
 
 ## P8: Complete acceptance and documentation
 
-- [ ] Compare at least five consecutive post-priming samples before/after each retained candidate; retain cache misses, report median/range/run links and investigate overlapping timing distributions.
-- [ ] Meet the combined target: at least 10% lower median elapsed time on targeted workflows without increased median summed successful-job time. Individual small changes need not each save 10%.
-- [ ] Report failed/cancelled-run waste and runner-class compute cost separately.
-- [ ] Complete the correctness matrix below, linking evidence and identifying untested cases explicitly.
-- [ ] Revert regressions/flakes and record rejected experiments while retaining independently proven changes.
-- [ ] Update [current development guidance](../development/index.md) with implemented DAG, inputs, cache scopes, routing and recovery. Regenerate upstream/Helm documentation through existing tooling.
-- [ ] Link implementation PRs and dated measurements from the ADR; update decision/plan status and prepare issue completion evidence.
+The [acceptance protocol](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p8-acceptance-protocol-2026-11-17)
+separates checks available before merge from rollout checks requiring the new
+workflow on main. Keep production release validation separate from benchmarks.
 
-| Scenario                    | Required evidence                                                                                         |
-| --------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Warm execution              | Same intended inputs/checks, known cache state and full timing breakdown                                  |
-| Cold execution              | Both layer and mount caches bypassed; declared-input build/test/install succeed                           |
-| Dependency/toolchain change | Lockfile, Dockerfile and resolved base/toolchain changes invalidate intended work                         |
-| Application input change    | Source, Prisma/schema/config, GraphQL/codegen, shared scripts and build configuration reach consumers     |
-| Chart change                | Current local templates/values repackaged; external dependencies follow declared identity                 |
-| Test execution change       | Same inventory, isolation and coverage denominator; complete shards if enabled                            |
-| Validation failure          | Lint/test/chart/security/report failures block the gate and promotion                                     |
-| Skip/cancel/rerun           | Unexpected skips fail; no stale evidence, orphaned children/clusters or unchecked promotion               |
-| Publication                 | Digest identity through build, security, chart and promotion; correct release metadata/rendered chart     |
-| Database startup/failure    | Healthy cold initialization avoids failed-migration retries; genuine failures are bounded and diagnosable |
-| Cache trust/recovery        | PR/trusted writer boundaries hold; missing/bypassed caches remain correct                                 |
-| Release                     | Representative supported path verified without publishing solely for measurement                          |
+- [x] Record five consecutive final PR samples after a separate primer and reconcile them with the recorded phase comparisons. Retain every slow sample and cache observation, report median/range/run links, and investigate variation. The final-versus-P0 comparison is historical; controlled phase comparisons remain the evidence for individual adoption decisions. Main/release rollout is separate below.
+- [x] Meet the observed combined PR target: final median elapsed time is 7m 51s versus P0's 15m 31s (49.4% lower), and summed job time is 21m 29s versus 26m 58s (20.3% lower). This historical comparison includes intervening dependency/runner changes; preserve the controlled phase comparisons and their limits. Individual small changes need not each save 10%.
+- [x] Report failed/cancelled-run work and runner-class compute cost separately. The [P8 evidence](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p8-unsuccessful-runs-and-automation-evidence-2026-11-17) retains both unsuccessful runs; summed execution is not billing or a causal waste estimate. Standard hosted compute is free for this public repository; storage remains separate.
+- [x] Reconcile the pre-merge correctness matrix below against existing tests and the native cold/release-chart probe. Link evidence and identify untested cases explicitly; this does not complete main/release rollout.
+- [x] Record rejected/deferred experiments and retain reviewed changes. The five final PR samples pass without an observed flake; retain slow samples and do not infer that five passes rule out future failures.
+- [x] Update [current development guidance](../development/index.md) with the implemented DAG, inputs, cache scopes, routing, full-run image recovery and validated-chart publication retries. Upstream generated docs are included in the adopted releases; native Helm docs generation/publication remains a main/release rollout check.
+- [x] Link implementation PRs and dated measurements from the ADR and prepare issue completion evidence. Keep #475 and P8 open for the explicit rollout checks below.
+
+| Scenario                    | Evidence and remaining scope                                                                                                                                                                                                                                                                                                                                                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Warm execution              | Five fixed-head full-CI attempts after a primer; application inventories and coverage denominators, layer hits, queue/tool versions and digest handoffs audited. See the [P8 results](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p8-warm-results-2026-11-17).                                                                                                                                                  |
+| Cold execution              | [Native cold validation](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p8-cold-build-and-final-chart-validation-2026-11-17) passes with application layer caching and mount persistence disabled. All application build instructions execute; the test inventories/coverage denominators match warm execution.                                                                                                    |
+| Dependency/toolchain change | [P1 invalidation probes](../architecture/adr/evidence/0023-p1-local-validation.json) force installation after lockfile changes. Current Docker input ordering is unchanged from P1; only the pinned Nginx digest changed. Subsequent dependency/toolchain adoptions passed native CI. This is not a new exhaustive P8 invalidation matrix.                                                                                        |
+| Application input change    | P1 compile-failure and context probes retain application, Prisma/config, schema/codegen and shared-script inputs. Current Dockerfiles retain those COPY boundaries. Full CI still runs for application/shared/unknown changes; the routing suite covers that selection.                                                                                                                                                           |
+| Chart change                | Native Helm checks package current local subcharts and install production digests. The final release-chart probe passes after mutating versions and image defaults, preparing and installing the resulting archive; its uploaded contents/checksum are audited.                                                                                                                                                                   |
+| Test execution change       | The unsharded application inventories and coverage denominators match the retained control. The 40 relocated routing cases match the former backend cases by name/result; all 60 backend skips predate this work. Sharding remains rejected.                                                                                                                                                                                      |
+| Validation failure          | [P1 compile/lint/test fault probes](../architecture/adr/evidence/0023-p1-local-validation.json), P2 strict-report checks, existing routing/promotion tests and a [native lint failure](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p8-unsuccessful-runs-and-automation-evidence-2026-11-17) establish the failure gates. Do not equate success-only runs with fault coverage.                                   |
+| Skip/cancel/rerun           | The 40 routing cases reject missing/unexpected results. Existing 85 promotion tests cover current-run/attempt evidence and recovery. Native cancellation rejects promotion/final gate; five full reruns succeed. Main bot cancellation/publication remains a rollout check.                                                                                                                                                       |
+| Publication                 | Each warm attempt attests, installs and promotes the same production digests. A [real Dependabot distribution commit](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p8-unsuccessful-runs-and-automation-evidence-2026-11-17) closes P2's bot-write gap at that revision. Main docs publication remains open.                                                                                                      |
+| Database startup/failure    | P1's twelve readiness cases and production-client TLS/stall/SIGTERM probes cover bounded failure/cleanup. Fresh-cluster checks retain authenticated readiness and migration installation; the 128 MiB correction and secret prerequisite remain adopted.                                                                                                                                                                          |
+| Cache trust/recovery        | Released GHA cache scope/writer rules remain unchanged. Existing upstream coverage protects these contracts; current native cold execution verifies bypass. No new live untrusted-fork write trial was run. Registry-backed caches and their separate adoption trials remain deferred.                                                                                                                                            |
+| Release                     | The [nonpublishing final-chart probe](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p8-cold-build-and-final-chart-validation-2026-11-17) verifies metadata, uploaded archive integrity and fresh installation. Existing upstream tests cover validated-artifact identity and publication retry. A real Pleey release is reserved for legitimate rollout, including bot file preparation, signing and publication. |
+
+Rollout remains separate from the pre-merge evidence:
+
+- [ ] Review P8 results and the [required-check/bot policy trade-off](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p8-required-check-rollout-constraint-2026-11-17) before changing repository rules.
+- [ ] Merge reviewed #553, require successful main CI, and verify docs generation/publication plus cancelled-run catch-up on main.
+- [ ] Enforce `Validate PR checks` for main with the approved bot policy, preserving unrelated rules; verify ordinary PR blocking and bot publication.
+- [ ] Validate the next legitimate Pleey release through final file preparation, exact validated chart publication and signing. Do not publish solely for measurement.
 
 Close the plan when selected optimizations meet these requirements and remaining
 experiments have explicit adopted, rejected or deferred dispositions.

@@ -3311,6 +3311,186 @@ output remain in the ignored review workspace. User review of this deferral
 precedes P8 acceptance and rollout; the earlier release and main-rollout gaps
 remain open.
 
+### P8 acceptance protocol: 2026-11-17
+
+The user approved P7.7 and authorized final acceptance. Freeze the selected
+implementation at `f30bb34c3b7ddcce719f95a3de80f5a9a648e5e1` while collecting
+five consecutive full reruns after its successful priming attempt. Retain every
+attempt, cache miss and failure, with attempt-specific job/log/report identity.
+Compare elapsed and summed successful-job time, runner/tool versions, test
+inventories and coverage denominators. Keep the historical P0 comparison separate
+from controlled phase comparisons; intervening dependency and runner changes
+limit attribution.
+
+Reconcile the correctness matrix against existing evidence before adding trials.
+Missing cold, changed-input, unsuccessful-run and final release-chart checks must
+use isolated inputs and preserve publication gates. No production release is
+published for measurement. Main bot writes and required-check enforcement require
+the new workflow on main and remain distinct rollout checks. Preserve unrelated
+branch rules and user changes; do not enable the disabled broad ruleset as a
+substitute for one narrowly scoped required check.
+
+Both release bot variables are available: `CI_BOT_APP_ID` is repository-scoped and
+`CI_BOT_APP_CLIENT_ID` is inherited from the organization. The different caller
+names do not establish a missing-variable defect; retain both current callers.
+
+### P8 warm results: 2026-11-17
+
+All five consecutive measured attempts passed, with 32 executed jobs and 28
+expected nested skips each. The fixed PR head is `f30bb34`, base `437c94c`, and
+tested merge revision `926098db9491f0bac3b6a6851d798887be0589cc`. Attempt 1 is the
+excluded primer. No sample was replaced.
+
+| Attempt                                                                                     | Elapsed | Summed job time |
+| ------------------------------------------------------------------------------------------- | ------- | --------------- |
+| [2](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44088882435/attempts/2) | 8m 20s  | 22m 16s         |
+| [3](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44088882435/attempts/3) | 6m 56s  | 21m 27s         |
+| [4](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44088882435/attempts/4) | 8m 33s  | 22m 32s         |
+| [5](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44088882435/attempts/5) | 7m 51s  | 21m 29s         |
+| [6](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44088882435/attempts/6) | 6m 21s  | 20m 16s         |
+
+| Metric                   | P0 median (range)         | Final median (range)      | Historical change |
+| ------------------------ | ------------------------- | ------------------------- | ----------------- |
+| Elapsed                  | 15m 31s (15m 00s-16m 46s) | 7m 51s (6m 21s-8m 33s)    | 49.4% lower       |
+| Summed executed-job time | 26m 58s (26m 23s-28m 14s) | 21m 29s (20m 16s-22m 32s) | 20.3% lower       |
+
+The observed combined result meets the 10% elapsed reduction target without
+increasing summed successful-job time. This is a historical comparison, not a
+controlled estimate of the whole optimization's causal effect: legitimate
+dependency/base updates, reusable-tool releases and runner images changed since
+P0. Retain the controlled comparisons recorded for individual phases, including
+the independent-candidate and routing trials; do not add their percentages.
+
+Frontend tests finish last among validation jobs in all five attempts. Job-time
+medians (ranges) are frontend tests 227s (169s-269s), backend tests 81s (72s-86s),
+Helm 163s (160s-203s), repository lint 115s (92s-127s), and promotion 72s
+(50s-188s). All four image pipelines together consume a median 375s
+(366s-390s); they overlap and this sum is not wall time. Scope selection, routing
+tests/preparation and the final gate sum to 40s (35s-45s). Job creation-to-start
+delays range from 1s to 7s; elapsed time also includes dependency gaps.
+
+The 188s promotion sample is retained. Its logs show longer signature/provenance
+verification and registry operations, including 27.4s and 23.6s cosign waits and
+a 25.3s attestation wait. No cache miss explains it. All 235 application
+RUN/COPY/WORKDIR instructions across the twenty builds are cached. Runners are
+standard four-CPU Ubuntu hosts, with image revisions `20261111.196.1` and
+`20261111.82.6`; logs include Docker 29.4.2/29.7.2, Buildx 0.38.2, kind 0.33.0
+and Kubernetes 1.37.0. These versions describe the samples, not new project pins.
+
+Every application JUnit/LCOV archive was captured before the next rerun. All
+1,178 frontend tests and 1,230 backend tests pass; the existing 60 backend skips
+remain. Application inventories and coverage denominators match across all five
+samples. Compared with the retained P7 control, the only inventory difference is
+40 backend cases that match the relocated routing suite by name/result exactly;
+application coverage denominators are unchanged. Routing's 40 tests pass
+in native logs throughout; its separate archives are available for attempts 3-6.
+The earlier routing artifacts were already deleted by reruns before collection,
+so do not claim an attempt-2 routing archive. Frontend coverage denominators are
+8,296 lines / 5,496 branches / 2,465 functions; backend denominators are
+6,327 / 3,511 / 1,799. Coverage hit counts vary; this is not a coverage gain.
+
+For each attempt and service, the attested candidate digest matches Helm's image
+override and the reference consumed by successful promotion. The same source can
+produce different image digests across attempts because image metadata changes;
+identity is checked within the attempt, not inferred from the source SHA alone.
+
+Summed job seconds describe consumed execution, not billed minutes. Pleey is
+public and uses standard hosted runners, whose compute is
+[free for public repositories](https://docs.github.com/en/billing/concepts/product-billing/github-actions).
+No paid runner is introduced. Artifact/cache storage is a separate resource;
+these measurements do not establish a storage bill or savings. A transient local
+log-download failure was recovered without rerunning or discarding a CI sample.
+Raw job records, logs, report archives and normalized comparisons remain in the
+ignored review workspace rather than the PR diff.
+
+### P8 cold build and final chart validation: 2026-11-17
+
+[Run 44113028502](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44113028502)
+passes on isolated probe commit `0c37a48`, based on `f30bb34`. Application, chart
+and script sources are unchanged. The temporary workflow disables caching on all
+four application image jobs and, after full shared CI, prepares and installs a
+chart with representative release versions and promoted image defaults. Its
+31 executed jobs pass, with 28 expected nested skips. Elapsed time is 10m 04s;
+summed job time is 28m 47s, including the additional final-chart job. This single
+correctness probe is not a cold-versus-warm performance comparison.
+
+All four Docker commands use `--no-cache`, omit cache imports/exports and disable
+mount persistence. All 47 application RUN/COPY/WORKDIR instructions execute
+without a cache hit. This bypass concerns application build caches; it does not
+claim to disable unrelated runner tool caches. Backend, frontend and routing
+JUnit inventories and coverage denominators match the warm series exactly.
+Both production candidates retain signatures/provenance, pass fresh-cluster
+installation by digest, and promote only the isolated version
+`0.0.0-p8-44113028502-1`. Neither `main` nor `latest` is a promotion destination.
+
+The additional final-chart job applies the release caller's version/image-default
+updates before preparation, lint and installation. Artifact `14341549310` contains
+`pleey-0.0.0-p8-44113028502-1.tgz`; its SHA-256 is
+`9fb4311287e7ff3da11c500e915fea589b36268455a9f1c797dc6da24e48c48a`, matching the
+checksum consumed by both lint and test. Inspection verifies root/subchart
+versions and appVersions, local dependency versions in Chart.yaml/Chart.lock, and
+both promoted image digests. Runtime-only operator and registry-secret overrides
+do not alter the archived defaults. Both Helm jobs delete their clusters and
+successfully clean their prepared archives.
+
+The probe does not call release planning, bot file publication, chart publication
+or GitHub release creation. Those remain rollout checks on the next legitimate
+release. The uploaded archive is retained for review and the temporary workflow
+does not enter PR #553. Current input invalidation/failure evidence is reconciled
+in the [checklist](../../plans/0023-optimize-ci-execution-and-caching.md#p8-complete-acceptance-and-documentation):
+Docker input boundaries and ignore rules match P1, apart from the updated Nginx
+digest, so reuse the existing fault/context/invalidation cases. Do not present
+them as a newly executed exhaustive native input-change matrix.
+
+### P8 unsuccessful runs and automation evidence: 2026-11-17
+
+Retain unsuccessful work separately from successful-run performance:
+
+| Run                                                                                        | Outcome                 | Elapsed | Summed executed-job time | Production candidate jobs |
+| ------------------------------------------------------------------------------------------ | ----------------------- | ------- | ------------------------ | ------------------------- |
+| [43900217479](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/43900217479) | Repository lint failure | 6m 36s  | 20m 28s                  | 2m 47s                    |
+| [44050009703](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44050009703) | Cancelled run           | 6m 30s  | 20m 09s                  | 3m 02s                    |
+
+Both runs reject promotion and fail `Validate PR checks`. These are representative
+costs of unsuccessful runs, not a controlled estimate of extra waste introduced
+by independent candidates. The cancelled run's timestamps do not identify when
+cancellation was requested. Preserve the existing fail-closed routing and
+current-run/attempt promotion checks; do not trade them for a shorter success path.
+
+The real dependency-bot distribution update required by P2 is verified in
+[Publish PR #516](https://github.com/hoverkraft-tech/ci-github-publish/pull/516).
+[Writer run 43363588960](https://github.com/hoverkraft-tech/ci-github-publish/actions/runs/43363588960)
+committed regenerated `actions/release/prepare/dist/index.js` as `d8bb0d6` after
+the Dependabot update, with the unchanged-head guard passing. The resulting
+commit has no failed checks; the subsequent writer skips an unnecessary commit.
+This establishes the shared Dependabot path at that revision, not a live Renovate
+trial or validation of every later caller version.
+
+### P8 required-check rollout constraint: 2026-11-17
+
+The stable check is `Validate PR checks`, produced by the `github-actions` app
+(integration ID `15368`). Main currently has no effective branch rules or classic
+protection. Its existing `default-branch` ruleset is disabled and also contains
+unrelated approval, signature, quality and security rules. Leave that ruleset
+unchanged.
+
+There is a concrete interaction to resolve before requiring the check. The
+released Helm documentation generator commits with `[skip ci]`; GitHub documents
+that a required check for a skipped workflow
+[remains pending](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs).
+The bot's existing `gh pr merge --admin` invocation does not itself grant a
+ruleset bypass. Enforcing the check without addressing this would block generated
+documentation PRs, including release-file preparation.
+
+Propose a separate main-only required-check ruleset, bound to integration `15368`,
+requiring an up-to-date branch. If retaining the current bot publication contract,
+the existing `cloud-native-aixmarseille-bot` app (ID `1091322`) needs a PR-only
+bypass of that rule. This exempts that app's PRs from the CI requirement; it does
+not verify their changes. The alternative is an upstream change to stop skipping
+CI and wait for the generated PR's checks. Neither policy change is applied in
+this phase. Review this trade-off before enabling enforcement, then verify normal
+PR blocking and bot publication on main.
+
 ### Follow-Up
 
 - Review each phase PR and its CI evidence before beginning the next phase.
