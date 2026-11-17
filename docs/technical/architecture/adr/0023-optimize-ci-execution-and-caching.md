@@ -3067,14 +3067,14 @@ selection, failed-run catch-up and safe fallback. Remove Pleey's duplicate helpe
 and tests when adopting that implementation; release generation stays unconditional.
 [Container PR #985](https://github.com/hoverkraft-tech/ci-github-container/pull/985)
 implements the guard with 56 focused Node 24 tests. Both docs callers preview
-`18eb44d394746f292429fb1232a6c9d886e75d8d`; replace these two preview references with
+`4b1bf5c4af6ed515cc1797961e80bf9e726af721`; replace these two preview references with
 a released immutable commit before merging Pleey. Other upstream callers retain
 the released versions recorded above.
 
 Extend the same upstream PR to run documentation formatting from committed
 JavaScript, removing runtime Node.js setup, npm installation and npx calls.
 Preserve caller configuration, ignores and custom modules; callers still own
-installation of their optional extensions. Upstream ADR 0012 records the public
+installation of their optional extensions. Upstream ADR 0011 records the public
 API adapters, embedded dictionary and bundler choice. Its 67 source and isolated
 Node.js 24 tests include the existing 56 routing cases plus 11 formatter cases.
 The isolated run has no action dependencies or network. Both preview calls use
