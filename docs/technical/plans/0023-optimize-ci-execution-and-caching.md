@@ -664,10 +664,11 @@ See the [review decision](../architecture/adr/0023-optimize-ci-execution-and-cac
 
 - [x] Wrap PR classification in a local composite action, retaining the shared routing policy and the final expected-results gate.
 - [x] Move Helm docs change detection to [Container PR #985](https://github.com/hoverkraft-tech/ci-github-container/pull/985), configure only unrelated paths in Pleey, and remove the duplicate helper/tests. Its action package has 56 focused Node 24 tests.
-- [x] Preview bundled Helm docs formatting from the same upstream PR, removing runtime npm setup while retaining caller configuration and plugins. The 67 source/bundle tests include 11 formatter cases; release pins and main/release rollout validation remain pending.
+- [x] Adopt bundled Helm docs formatting from Container 4.1.0, removing runtime npm setup while retaining caller configuration and plugins. The 67 source/bundle tests include 11 formatter cases; main/release rollout validation remains pending.
 - [x] Split final release-chart validation from publication using existing Container interfaces. Only validation receives test configuration; publication consumes the validated artifact ID/checksum.
-- [ ] Review both PRs and their final-head CI. Main bot publication/cancellation and the release path still require rollout validation.
-- [ ] Release the upstream docs action and replace both explicit preview pins before merging Pleey.
+- [x] Review and merge upstream PR #985, then release Container 4.1.0.
+- [x] Replace both documentation previews and align all Container callers with the immutable 4.1.0 release; see the [adoption decision](../architecture/adr/0023-optimize-ci-execution-and-caching.md#container-410-adoption-2026-11-17).
+- [ ] Review Pleey's released-pin CI. Main bot publication/cancellation and the release path still require rollout validation.
 
 ## P8: Complete acceptance and documentation
 

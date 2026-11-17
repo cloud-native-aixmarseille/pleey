@@ -13,7 +13,7 @@ permissions: {}
 
 jobs:
   clean:
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/prune-pull-requests-images-tags.yml@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
     permissions:
       contents: read
       id-token: write
@@ -48,7 +48,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@4b1bf5c4af6ed515cc1797961e80bf9e726af721 # Preview: Container PR #985; replace with release before merge
+      - uses: hoverkraft-tech/ci-github-container/actions/helm/generate-docs@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
         with:
           working-directory: ./charts
           skip-if-only-changed: |

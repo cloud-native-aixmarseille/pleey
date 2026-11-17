@@ -45,7 +45,7 @@ jobs:
   build-backend-ci-image:
     name: Build backend CI image
     if: github.event_name != 'pull_request' || !inputs.documentation-only
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
     permissions:
       attestations: write
       contents: read
@@ -105,7 +105,7 @@ jobs:
   build-frontend-ci-image:
     name: Build frontend CI image
     if: github.event_name != 'pull_request' || !inputs.documentation-only
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
     permissions:
       attestations: write
       contents: read
@@ -165,7 +165,7 @@ jobs:
   build-backend-candidate:
     name: Build backend production candidate
     if: github.event_name != 'pull_request' || !inputs.documentation-only
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
     permissions:
       attestations: write
       contents: read
@@ -195,7 +195,7 @@ jobs:
   build-frontend-candidate:
     name: Build frontend production candidate
     if: github.event_name != 'pull_request' || !inputs.documentation-only
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-build-images.yml@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
     permissions:
       attestations: write
       contents: read
@@ -225,7 +225,7 @@ jobs:
   tests-charts:
     name: Test production candidates with Helm
     needs: [build-backend-candidate, build-frontend-candidate]
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/helm-chart-ci.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/helm-chart-ci.yml@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
     permissions:
       contents: read
       packages: read
@@ -264,7 +264,7 @@ jobs:
       - build-backend-candidate
       - build-frontend-candidate
       - tests-charts
-    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@7442ea53022a6365d3be7259634aaaf095bf5d3f # 4.0.0
+    uses: hoverkraft-tech/ci-github-container/.github/workflows/docker-promote-images.yml@988ccc2b85dec5822e801d7bc0622cad7cc94870 # 4.1.0
     permissions:
       actions: read
       attestations: read
