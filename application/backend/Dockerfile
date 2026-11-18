@@ -44,6 +44,7 @@ LABEL org.opencontainers.image.source="https://github.com/cloud-native-aixmarsei
 COPY --from=build-prod /usr/bin/dumb-init /usr/bin/dumb-init
 
 COPY --chown=node:node --from=build-prod /usr/src/app/node_modules /usr/src/app/node_modules
+COPY --chown=node:node --from=build-prod /usr/packages/pleey-domain /usr/packages/pleey-domain
 COPY --chown=node:node --from=build-prod /usr/src/app/prisma /usr/src/app/prisma
 COPY --chown=node:node --from=build-prod /usr/src/app/prisma.config.ts /usr/src/app/prisma.config.ts
 COPY --chown=node:node --from=build-prod /usr/src/app/dist /usr/src/app/dist
