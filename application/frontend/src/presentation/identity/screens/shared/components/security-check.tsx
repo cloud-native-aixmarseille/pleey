@@ -1,4 +1,4 @@
-import type { CaptchaAction } from '../../../../../application/identity/ports/captcha-widget.port';
+import type { CaptchaAction } from '@pleey/domain/identity';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { StatusBanner } from '../../../../shared/ui/feedback/status-banner';
 import { ContentStack } from '../../../../shared/ui/layout/containers';

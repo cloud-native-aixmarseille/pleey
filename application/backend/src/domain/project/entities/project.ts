@@ -1,10 +1,10 @@
+import { hasNonBlankProjectName } from '@pleey/domain/project';
+import type { ProjectId as SharedProjectId } from '@pleey/domain/project';
 import type { PartySettings } from '../../game/party/shared/entities/party-settings';
 import type { OrganizationId } from '../../organization/entities/organization';
 import type { ThemeId } from '../../theme/entities/theme-id';
 
-export type ProjectId = string & {
-  readonly __identifierBrand: 'ProjectId';
-};
+export type ProjectId = SharedProjectId;
 
 export class Project {
   constructor(
@@ -18,6 +18,6 @@ export class Project {
   ) {}
 
   hasValidName(): boolean {
-    return this.name.trim().length > 0;
+    return hasNonBlankProjectName(this.name);
   }
 }

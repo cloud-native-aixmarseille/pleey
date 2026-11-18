@@ -1,3 +1,1 @@
-export type GameId = string & {
-  readonly __identifierBrand: 'GameId';
-};
+export type { GameId } from '@pleey/domain/game';

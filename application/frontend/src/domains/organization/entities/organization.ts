@@ -1,10 +1,10 @@
+import {
+  type OrganizationId as SharedOrganizationId,
+} from '@pleey/domain/organization';
 import type { PartySettings } from '../../game/party/shared/entities/party-settings';
 import type { ThemeId } from '../../theme/entities/theme-id';
 import type { OrganizationPermissions } from '../value-objects/organization-permissions';
-
-export type OrganizationId = string & {
-  readonly __identifierBrand: 'OrganizationId';
-};
+export type OrganizationId = SharedOrganizationId;
 
 export enum OrganizationRole {
   OWNER = 'owner',
