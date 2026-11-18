@@ -73,6 +73,8 @@ FROM tools AS ci
 
 COPY --chown=node:node --from=build /usr/src/app/ /usr/src/app/
 COPY --chown=node:node --from=build /usr/packages/pleey-domain /usr/packages/pleey-domain
+COPY --chown=node:node ./application/frontend/codegen.ts /usr/src/frontend/codegen.ts
+COPY --chown=node:node ./application/frontend/src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts /usr/src/frontend/src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts
 COPY --chown=node:node ./scripts /usr/src/shared-scripts
 
 CMD [ "tail", "-f", "/dev/null" ]

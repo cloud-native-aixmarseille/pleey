@@ -1,47 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { pathToFileURL } from "node:url";
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const packageRoot = path.resolve(scriptDir, "../../../packages/pleey-domain");
-
-const requiredFiles = [
-  "package.json",
-  "README.md",
-  "tsconfig.json",
-  "empty.js",
-  "empty.cjs",
-  "empty.d.ts",
+const candidates = [
+  path.resolve(import.meta.dirname, "../../../scripts/check-shared-domain-package.mjs"),
+  "/usr/src/shared-scripts/check-shared-domain-package.mjs",
 ];
 
-for (const file of requiredFiles) {
-  if (!fs.existsSync(path.join(packageRoot, file))) {
-    throw new Error(`Missing shared package file: ${file}`);
-  }
+const sharedScriptPath = candidates.find((candidate) => fs.existsSync(candidate));
+
+if (!sharedScriptPath) {
+  throw new Error("Unable to locate the shared domain package checker script.");
 }
 
-const packageJsonPath = path.join(packageRoot, "package.json");
-const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+const { runProject } = await import(pathToFileURL(sharedScriptPath).href);
 
-if (packageJson.name !== "@pleey/domain") {
-  throw new Error(`Unexpected shared package name: ${packageJson.name}`);
-}
-
-const expectedExports = [
-  ".",
-  "./shared/primitives",
-  "./identity",
-  "./organization",
-  "./project",
-  "./game",
-  "./party",
-  "./theme",
-  "./media",
-  "./errors",
-];
-
-for (const entry of expectedExports) {
-  if (!packageJson.exports?.[entry]) {
-    throw new Error(`Missing shared package export: ${entry}`);
-  }
-}
+runProject("frontend");

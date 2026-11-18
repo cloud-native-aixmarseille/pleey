@@ -1,0 +1,36 @@
+{
+  "validClientToServerEvents": [
+    "advance-stage",
+    "end-party",
+    "join-party",
+    "kick-player",
+    "leave-party",
+    "observe-party",
+    "pause-party",
+    "request-party-media",
+    "restart-stage",
+    "resume-party",
+    "rejoin-party",
+    "reveal-stage-result",
+    "rewind-party",
+    "rewind-stage",
+    "start-party",
+    "stop-observing-party",
+    "submit-action"
+  ],
+  "invalidClientToServerEvents": [
+    "joinParty",
+    "party-runtime-notice",
+    "rewind-party-now"
+  ],
+  "validServerToClientEvents": [
+    "party-runtime-notice",
+    "party-snapshot",
+    "party-updated"
+  ],
+  "invalidServerToClientEvents": [
+    "partyRuntimeNotice",
+    "submit-action",
+    "party-state"
+  ]
+}

@@ -103,10 +103,10 @@ Done when:
 
 ## P2 - Cross-application contract fixtures and verification harness
 
-- [ ] Add shared fixtures for valid/invalid domain inputs and serialized outputs.
-- [ ] Add producer/consumer compatibility checks for affected GraphQL/Socket payloads.
-- [ ] Add package API surface checks (no accidental export leaks).
-- [ ] Add linter rules or guard checks to block framework imports in shared package.
+- [x] Add shared fixtures for valid/invalid domain inputs and serialized outputs.
+- [x] Add producer/consumer compatibility checks for affected GraphQL/Socket payloads.
+- [x] Add package API surface checks (no accidental export leaks).
+- [x] Add linter rules or guard checks to block framework imports in shared package.
 
 Done when:
 
