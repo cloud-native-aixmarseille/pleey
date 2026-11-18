@@ -1,3 +1,5 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
+import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
@@ -27,8 +29,6 @@ import {
   OrganizationActionDisabledReason,
   type OrganizationPermissions,
 } from '../../domains/organization/value-objects/organization-permissions';
-import { decodeActionPermission } from '@pleey/domain/shared/primitives';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
   AddOrganizationMemberDocument,

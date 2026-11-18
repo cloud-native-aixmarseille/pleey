@@ -1,5 +1,5 @@
-import { useEffect, useEffectEvent, useState } from 'react';
 import type { PaginationQuery } from '@pleey/domain/shared/primitives';
+import { useEffect, useEffectEvent, useState } from 'react';
 import { useAuth } from '../contexts/auth-context';
 
 interface AccountPageOptions<TResult> {

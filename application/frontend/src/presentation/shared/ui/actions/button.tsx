@@ -1,8 +1,8 @@
 import type { ButtonProps as MantineButtonProps } from '@mantine/core';
 import { Button as MantineButton } from '@mantine/core';
+import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import type { ButtonHTMLAttributes, ComponentPropsWithoutRef, ReactNode } from 'react';
 import { useId } from 'react';
-import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import { usePresentationTranslation } from '../../i18n/use-presentation-translation';
 import { uiThemeTokens } from '../foundation/ui-theme';
 import { Tooltip } from '../overlay/tooltip';
