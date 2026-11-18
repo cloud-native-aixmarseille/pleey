@@ -1,3 +1,4 @@
+import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-identifier';
@@ -32,7 +33,6 @@ import {
   PartyRuntimeNoticeKind,
 } from '../../../../domains/game/party/shared/ports/party-observation.port';
 import { GameType } from '../../../../domains/game/types/shared/game-type';
-import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
 import type {
   PartyJoinMessage,

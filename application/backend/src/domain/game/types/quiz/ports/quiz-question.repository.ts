@@ -1,6 +1,5 @@
+import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { StoredMediaAsset } from '../../../../media/entities/stored-media-asset';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
-import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { SelectableOption } from '../../shared/entities/selectable-option';
 import type { QuizId } from '../entities/quiz';
 import { QuizQuestion, type QuizQuestionId, type QuizQuestionType } from '../entities/quiz-question';

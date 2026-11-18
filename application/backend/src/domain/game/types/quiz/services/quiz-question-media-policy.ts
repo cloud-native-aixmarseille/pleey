@@ -1,5 +1,5 @@
-import { createDomainError } from '../../../../shared/errors/domain-error';
 import { SHARED_QUESTION_MEDIA_POLICY } from '@pleey/domain/game';
+import { createDomainError } from '../../../../shared/errors/domain-error';
 import { QUIZ_ERROR_DEFINITIONS, QuizErrorCode } from '../enums/quiz-error-code.enum';
 
 const SUPPORTED_QUESTION_MEDIA_MIME_TYPES = new Set(SHARED_QUESTION_MEDIA_POLICY.acceptedMimeTypes);
