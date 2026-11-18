@@ -1,8 +1,8 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { useEffect, useState } from 'react';
 import type { Organization, OrganizationId } from '../../../../../domains/organization/entities/organization';
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
 import type { ListOrganizationMembersQuery } from '../../../../../domains/organization/ports/organization-repository';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { usePresentationDebouncedValue } from '../../../../shared/hooks/use-presentation-debounced-value';
 import type { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 

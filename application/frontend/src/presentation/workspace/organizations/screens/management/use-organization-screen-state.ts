@@ -1,3 +1,4 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { useEffect, useRef } from 'react';
 import type { Organization } from '../../../../../domains/organization/entities/organization';
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
@@ -12,7 +13,6 @@ import type {
   DeleteProjectCommand,
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import {
   type DashboardWorkspaceSelectionGateway,

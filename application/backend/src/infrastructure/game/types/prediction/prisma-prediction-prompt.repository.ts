@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import { PredictionPromptIdentifier } from '../../../../application/game/types/prediction/services/prediction-prompt-identifier';
 import { PredictionSelectableOptionIdentifier } from '../../../../application/game/types/prediction/services/prediction-selectable-option-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
@@ -14,8 +15,6 @@ import type {
   PredictionPromptRepository,
 } from '../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
-import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { PrismaService } from '../../../database/prisma-service';
 import {
   PrismaSelectableOptionMapper,

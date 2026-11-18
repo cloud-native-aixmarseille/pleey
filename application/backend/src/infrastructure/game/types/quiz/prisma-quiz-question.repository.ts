@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { Prisma } from '@prisma/client';
 import { QuizQuestionIdentifier } from '../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { QuizSelectableOptionIdentifier } from '../../../../application/game/types/quiz/services/quiz-selectable-option-identifier';
@@ -18,8 +19,6 @@ import type {
 } from '../../../../domain/game/types/quiz/ports/quiz-question.repository';
 import type { StoredMediaAsset } from '../../../../domain/media/entities/stored-media-asset';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
-import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { PrismaService } from '../../../database/prisma-service';
 import { PrismaMediaAssetLifecycle } from '../../../media/prisma-media-asset-lifecycle';
 import {

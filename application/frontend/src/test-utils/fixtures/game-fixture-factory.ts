@@ -1,3 +1,4 @@
+import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { GameIdentifier } from '../../application/game/shared/services/identifiers/game-identifier';
 import { GameTypeIdentifier } from '../../application/game/types/shared/services/game-type-identifier';
 import { GameTypeParser } from '../../application/game/types/shared/services/game-type-parser';
@@ -9,7 +10,6 @@ import {
   LaunchReadinessDisabledReason,
 } from '../../domains/game/management/entities/dashboard-game-list-item';
 import { GameType, type GameTypeId } from '../../domains/game/types/shared/game-type';
-import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const gameIdentifier = new GameIdentifier();

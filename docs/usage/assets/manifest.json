@@ -1,5 +1,5 @@
 {
-  "sourceHash": "115e9696b207c89e3cf563bfdac56b744742602379c11bb5859177ba979b46c4",
+  "sourceHash": "fbb4b93a09483f1937281de72b4411919d7609e5a6ad12ce4a582d959dad655b",
   "screenshots": {
     "host-party-host-controls-en.png": "a9435045f795af129ae160a7eef2cb77df607172ca3c5409cb682c7d3a9870e0",
     "host-party-host-share-en.png": "175f4be23b1937b5c99c1e2a32809a11949104ff2648719b85b480ec08f33e3a",
@@ -16,16 +16,16 @@
     "quiz-authoring-authoring-editor-en.png": "3cfc9f14d25fdbb252da1a563700d8b86e0a830247b5b54fa87db0f1a18b02c8",
     "theme-studio-theme-toolbar-en.png": "d3fc0a42381c904b1f823ae91fd89e8f7fd9b680fc939055a53c9ea15466a37a",
     "theme-studio-theme-controls-en.png": "0f3fa6d388c2287fe69f3a10ca88d8b1f7049639a4d4ca24be24da57922a09f2",
-    "dashboard-home-workspace-en.png": "67e682ede20b5ea96623dfecea6f1b72d8ffff7ac3c6184810ef0b24261c4aea",
+    "dashboard-home-workspace-en.png": "b214ef69e002723105353ee6658270974b344668f1018db8137a35c7a2683260",
     "dashboard-home-create-game-en.png": "773ec535fbac3835a9f2860d617de2e4900e14da84eba586f2f7fc3511c9870e",
-    "dashboard-home-create-party-en.png": "75ab699737a5c61d2c4f0c5a489c2668346e2f18e58109e04d3794c8ff05e1d6",
+    "dashboard-home-create-party-en.png": "90eb17a13c3148e3c3639b73de745b7207bfac63cab1a10163c87aa38bd86c1d",
     "dashboard-home-launch-en.png": "c8557a75659402023cd7afc9c757dd646b94450d662006269bedfe40021f44c6",
     "host-party-host-controls-fr.png": "138f478bdd6ed98e2affc877810fc0ec9cdf71173b9e43cb0499d8ad44d0cf2f",
     "host-party-host-share-fr.png": "af4634ebee871456174e86c1ede115aa43cb7ac0640e394fcfee161cf625b398",
     "host-party-host-players-fr.png": "a86d4a6af81d323631f9c16b63e14db5cad0520edcb403bf3f5f9724719b7b96",
-    "player-join-join-identity-fr.png": "9b0a1341d747bee4778fe070e03a31a52919d5d5af7a3707d943a010b663345b",
-    "player-join-join-submit-fr.png": "ac9870079451a34f683d6c8e6725f472b6f377e327effb044e7c71be7fd880b4",
-    "player-play-player-lobby-fr.png": "baf7c0306d061f814a2681f6609b769f5755b438e58af4d248c8972b046aade1",
+    "player-join-join-identity-fr.png": "2252394e630b7ec4ea0acab82cbbf3471c6cf7588c7e1b2df366586c80599ec0",
+    "player-join-join-submit-fr.png": "f72346d1cfb0a8d75e0d2ade5e22f6d14186446aea9abeac6c02f9de6e42f0c6",
+    "player-play-player-lobby-fr.png": "33dc0ce630dfc259b2185e733f8eda6fae520c757a12f74de1d5765ce7df0267",
     "player-play-player-scoring-fr.png": "2f04368f26b41c0b34537dca037cbcf2459371fadb4d66ab353bf0728879af07",
     "prediction-authoring-authoring-tabs-fr.png": "6068e65937f4fb16a2a5de0c6cd6e19478ac8641abf719ef00f6889c28ee5731",
     "prediction-authoring-authoring-list-fr.png": "ec2348bb2136e62bdb4d3904f70b1a6bbc59d9dd6a67f846f5f53a28b019b08e",
@@ -35,9 +35,9 @@
     "quiz-authoring-authoring-editor-fr.png": "b6fe372c5c742675194019b80955401bb9e175708bfd634cc5a42e51ad1caece",
     "theme-studio-theme-toolbar-fr.png": "d1360e617f50f9cf3a448ba7d3998498ce553a3a201a52945d8db08fa7fd2631",
     "theme-studio-theme-controls-fr.png": "81b8f8cf7d92b4bb19443e6ca4b2dac421897dbc8b5f4a709ca6f8a2368fad96",
-    "dashboard-home-workspace-fr.png": "0694df7246984b9e5845cfa3faa1e209f05540a19f65b11a24f2b015a85ea733",
+    "dashboard-home-workspace-fr.png": "4fc5b42dcb83933de272ca2841032e3f2139b93199c70a6d43f619b56566c84a",
     "dashboard-home-create-game-fr.png": "12e7ae580a10b9cbd991f2e86c146ca2fc02f69225043baf927991a8030c59a2",
-    "dashboard-home-create-party-fr.png": "3a2d7e73cd72f8719ec85b87590d7a7a215ac5ec604217ed5b37ab450a6dbf63",
+    "dashboard-home-create-party-fr.png": "cd0684da5746321282599e7c0a75503b819d29c608aa36beed8e287d1e9a3416",
     "dashboard-home-launch-fr.png": "8b85a0ce06e4cae9662cc5d20002f112b873d6d9bfc0573e7be63eba0d8a8017"
   }
 }

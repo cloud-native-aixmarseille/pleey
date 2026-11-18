@@ -1,3 +1,4 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { vi } from 'vitest';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
@@ -27,7 +28,6 @@ import type {
   ProjectRepository,
   UpdateProjectCommand,
 } from '../../domains/project/ports/project-repository';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { DashboardReadGatewayMockFactory } from '../mocks/dashboard-read-gateway-mock-factory';
 import { OrganizationFixtureFactory } from './organization-fixture-factory';
 import { ProjectFixtureFactory } from './project-fixture-factory';

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import type { Prisma, OrganizationMember as PrismaOrganizationMember } from '@prisma/client';
 import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
@@ -14,7 +15,6 @@ import type {
   OrganizationMemberRepository,
   OrganizationMemberWriteContext,
 } from '../../../domain/organization/ports/organization-member.repository';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { PrismaService } from '../../database/prisma-service';
 
 type PrismaOrganizationMemberRecord = PrismaOrganizationMember & {

@@ -1,3 +1,4 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { vi } from 'vitest';
 import { PartyIdentifier } from '../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../application/game/party/shared/services/identifiers/party-pin-identifier';
@@ -5,7 +6,6 @@ import { GameIdentifier } from '../../application/game/shared/services/identifie
 import type { DashboardWorkspaceGateway } from '../../application/workspace/dashboard/facades/dashboard-workspace.facade';
 import { PartyRole } from '../../domains/game/party/shared/entities/party-role';
 import { PartyStatus } from '../../domains/game/party/shared/entities/party-status';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { coerceUuidV7TestValue } from '../fixtures/uuid-v7-test-value';
 
 const partyIdentifier = new PartyIdentifier();

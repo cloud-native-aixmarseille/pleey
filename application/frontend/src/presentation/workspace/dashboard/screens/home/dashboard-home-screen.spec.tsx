@@ -1,3 +1,4 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, vi, it as vitestIt } from 'vitest';
@@ -11,7 +12,6 @@ import type { GameTypeDescriptor } from '../../../../../domains/game/types/share
 import type { Organization, OrganizationId } from '../../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../../domains/project/entities/project';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { DashboardHomeScreenFixtureFactory } from '../../../../../test-utils/fixtures/dashboard-home-screen-fixture-factory';
 import { GameFixtureFactory } from '../../../../../test-utils/fixtures/game-fixture-factory';
 import {

@@ -1,5 +1,5 @@
-import type { Project, ProjectId } from '../../../../../../domains/project/entities/project';
 import type { ActionPermission } from '@pleey/domain/shared/primitives';
+import type { Project, ProjectId } from '../../../../../../domains/project/entities/project';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { Input } from '../../../../../shared/ui/forms/input';
