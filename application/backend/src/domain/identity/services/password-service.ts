@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PASSWORD_INPUT_MIN_LENGTH, isPasswordInputWithinUtf8ByteLimit } from '@pleey/domain/identity';
+import { isPasswordInputWithinUtf8ByteLimit, PASSWORD_INPUT_MIN_LENGTH } from '@pleey/domain/identity';
 import * as bcrypt from 'bcryptjs';
 
 /**

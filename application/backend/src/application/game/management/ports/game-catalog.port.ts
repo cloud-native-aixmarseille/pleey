@@ -1,5 +1,5 @@
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import type { GameSortDirection, GameSortField } from '@pleey/domain/game';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import type { GameId } from '../../../../domain/game/entities/game';
 import type { GamePermissions } from '../../../../domain/game/management/value-objects/game-permissions';
 import type { GameTypeId } from '../../../../domain/game/types/shared/entities/game-type';

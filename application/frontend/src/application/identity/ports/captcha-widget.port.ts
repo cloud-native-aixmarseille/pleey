@@ -1,5 +1,5 @@
-import type { ComponentType } from 'react';
 import type { CaptchaAction } from '@pleey/domain/identity';
+import type { ComponentType } from 'react';
 
 interface CaptchaWidgetLabels {
   readonly providerLabel: string;
