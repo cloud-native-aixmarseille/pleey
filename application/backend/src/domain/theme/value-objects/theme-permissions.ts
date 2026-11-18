@@ -1,5 +1,5 @@
-import type { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
 import type { ActionPermission } from '@pleey/domain/shared/primitives';
+import type { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
 
 export interface ThemePermissions {
   readonly read: ActionPermission<OrganizationErrorCode>;

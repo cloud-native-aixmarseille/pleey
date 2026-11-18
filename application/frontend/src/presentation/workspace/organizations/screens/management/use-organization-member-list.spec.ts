@@ -1,7 +1,7 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { OrganizationFixtureFactory } from '../../../../../test-utils/fixtures/organization-fixture-factory';
 import { OrganizationScreenFixtureFactory } from '../../../../../test-utils/fixtures/organization-screen-fixture-factory';
 import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';

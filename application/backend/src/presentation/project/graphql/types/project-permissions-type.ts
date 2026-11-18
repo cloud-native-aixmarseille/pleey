@@ -1,7 +1,7 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
-import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import { createActionPermissionType } from '../../../shared/graphql/types/action-permission-type';
 
 const ProjectActionDisabledReason = { ...OrganizationErrorCode, ...ProjectErrorCode };

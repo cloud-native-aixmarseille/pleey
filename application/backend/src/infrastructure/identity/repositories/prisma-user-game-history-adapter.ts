@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import type { UserId } from '../../../domain/identity/entities/user';
 import type { UserGameHistoryPage, UserGameHistoryPort } from '../../../domain/identity/ports/user-game-history.port';
-import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { PrismaService } from '../../database/prisma-service';
 
 @Injectable()
