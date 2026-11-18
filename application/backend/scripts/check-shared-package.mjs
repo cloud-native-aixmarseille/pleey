@@ -9,9 +9,9 @@ const requiredFiles = [
   "package.json",
   "README.md",
   "tsconfig.json",
-  "dist/empty.js",
-  "dist/empty.cjs",
-  "dist/empty.d.ts",
+  "empty.js",
+  "empty.cjs",
+  "empty.d.ts",
 ];
 
 for (const file of requiredFiles) {

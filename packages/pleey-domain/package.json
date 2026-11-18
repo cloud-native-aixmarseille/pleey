@@ -9,70 +9,72 @@
     "node": ">=22.15.0"
   },
   "files": [
-    "dist",
+    "empty.js",
+    "empty.cjs",
+    "empty.d.ts",
     "README.md",
     "package.json"
   ],
   "exports": {
     ".": {
-      "types": "./dist/empty.d.ts",
-      "import": "./dist/empty.js",
-      "require": "./dist/empty.cjs",
-      "default": "./dist/empty.js"
+      "types": "./empty.d.ts",
+      "import": "./empty.js",
+      "require": "./empty.cjs",
+      "default": "./empty.js"
     },
     "./shared/primitives": {
-      "types": "./dist/empty.d.ts",
-      "import": "./dist/empty.js",
-      "require": "./dist/empty.cjs",
-      "default": "./dist/empty.js"
+      "types": "./empty.d.ts",
+      "import": "./empty.js",
+      "require": "./empty.cjs",
+      "default": "./empty.js"
     },
     "./identity": {
-      "types": "./dist/empty.d.ts",
-      "import": "./dist/empty.js",
-      "require": "./dist/empty.cjs",
-      "default": "./dist/empty.js"
+      "types": "./empty.d.ts",
+      "import": "./empty.js",
+      "require": "./empty.cjs",
+      "default": "./empty.js"
     },
     "./organization": {
-      "types": "./dist/empty.d.ts",
-      "import": "./dist/empty.js",
-      "require": "./dist/empty.cjs",
-      "default": "./dist/empty.js"
+      "types": "./empty.d.ts",
+      "import": "./empty.js",
+      "require": "./empty.cjs",
+      "default": "./empty.js"
     },
     "./project": {
-      "types": "./dist/empty.d.ts",
-      "import": "./dist/empty.js",
-      "require": "./dist/empty.cjs",
-      "default": "./dist/empty.js"
+      "types": "./empty.d.ts",
+      "import": "./empty.js",
+      "require": "./empty.cjs",
+      "default": "./empty.js"
     },
     "./game": {
-      "types": "./dist/empty.d.ts",
-      "import": "./dist/empty.js",
-      "require": "./dist/empty.cjs",
-      "default": "./dist/empty.js"
+      "types": "./empty.d.ts",
+      "import": "./empty.js",
+      "require": "./empty.cjs",
+      "default": "./empty.js"
     },
     "./party": {
-      "types": "./dist/empty.d.ts",
-      "import": "./dist/empty.js",
-      "require": "./dist/empty.cjs",
-      "default": "./dist/empty.js"
+      "types": "./empty.d.ts",
+      "import": "./empty.js",
+      "require": "./empty.cjs",
+      "default": "./empty.js"
     },
     "./theme": {
-      "types": "./dist/empty.d.ts",
-      "import": "./dist/empty.js",
-      "require": "./dist/empty.cjs",
-      "default": "./dist/empty.js"
+      "types": "./empty.d.ts",
+      "import": "./empty.js",
+      "require": "./empty.cjs",
+      "default": "./empty.js"
     },
     "./media": {
-      "types": "./dist/empty.d.ts",
-      "import": "./dist/empty.js",
-      "require": "./dist/empty.cjs",
-      "default": "./dist/empty.js"
+      "types": "./empty.d.ts",
+      "import": "./empty.js",
+      "require": "./empty.cjs",
+      "default": "./empty.js"
     },
     "./errors": {
-      "types": "./dist/empty.d.ts",
-      "import": "./dist/empty.js",
-      "require": "./dist/empty.cjs",
-      "default": "./dist/empty.js"
+      "types": "./empty.d.ts",
+      "import": "./empty.js",
+      "require": "./empty.cjs",
+      "default": "./empty.js"
     },
     "./package.json": "./package.json"
   }
