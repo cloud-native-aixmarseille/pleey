@@ -121,6 +121,7 @@
   "overrides": {
     "deepmerge-ts": "8.0.2",
     "mysql2": "3.24.4",
+    "@graphql-tools/utils": "12.0.2",
     "nestjs-i18n": {
       "chokidar": "5.0.0"
     }
