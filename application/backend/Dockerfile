@@ -72,6 +72,7 @@ USER 1000:1000
 FROM tools AS ci
 
 COPY --chown=node:node --from=build /usr/src/app/ /usr/src/app/
+COPY --chown=node:node --from=build /usr/packages/pleey-domain /usr/packages/pleey-domain
 COPY --chown=node:node ./scripts /usr/src/shared-scripts
 
 CMD [ "tail", "-f", "/dev/null" ]

@@ -106,7 +106,7 @@ Done when:
 - [ ] Add shared fixtures for valid/invalid domain inputs and serialized outputs.
 - [ ] Add producer/consumer compatibility checks for affected GraphQL/Socket payloads.
 - [ ] Add package API surface checks (no accidental export leaks).
-- [ ] Add lint rules or guard checks to block framework imports in shared package.
+- [ ] Add linter rules or guard checks to block framework imports in shared package.
 
 Done when:
 
@@ -247,18 +247,18 @@ Done when:
 
 ## Domain-by-domain extraction matrix
 
-| Domain | Shared candidates | Must remain local |
-| --- | --- | --- |
-| Shared primitives | Permission and pagination vocabulary, common identifier/error descriptors | Backend-only normalized query defaults and non-shared convenience fields |
-| Identity | IDs, captcha action, public token vocabulary, password input rules | Hashing, signing, verification, recovery queues, session rotation/revocation |
-| Organization | IDs/roles/defaults, name validation, permission actions/reasons | Trusted membership loading, last-owner invariants, persistence workflows |
-| Project | IDs, common create/update contracts, name validation, permission vocabulary | Access projections, migration semantics, persistence capabilities |
-| Game management | IDs/types, shared metadata, sort/filter vocab, common contracts | Dashboard-specific projections, backend-only defaults, transport enum mapping |
-| Quiz and prediction | IDs, kinds, options/inputs semantics, common content/timing/points contracts | Authoring-private and unrevealed player payload boundaries |
-| Party | IDs, stages/roles/statuses, settings defaults/precedence, lifecycle/timing vocabulary, public receipts/snapshots | Incomplete runtime state, trusted context resolution, audience filtering |
-| Theme | IDs/defaults/patterns, token keys, curated palettes, normalization/contrast rules | Rendering logic, persistence, authorization, local error mapping |
-| Media | Public grant contract and safe metadata | Raw bytes, storage lifecycle, signed grant issuance and access checks |
-| Errors | Stable machine-readable business/permission codes | Local diagnostics, translated copy, transport/client integration failures |
+| Domain              | Shared candidates                                                                                                | Must remain local                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Shared primitives   | Permission and pagination vocabulary, common identifier/error descriptors                                        | Backend-only normalized query defaults and non-shared convenience fields      |
+| Identity            | IDs, captcha action, public token vocabulary, password input rules                                               | Hashing, signing, verification, recovery queues, session rotation/revocation  |
+| Organization        | IDs/roles/defaults, name validation, permission actions/reasons                                                  | Trusted membership loading, last-owner invariants, persistence workflows      |
+| Project             | IDs, common create/update contracts, name validation, permission vocabulary                                      | Access projections, migration semantics, persistence capabilities             |
+| Game management     | IDs/types, shared metadata, sort/filter vocab, common contracts                                                  | Dashboard-specific projections, backend-only defaults, transport enum mapping |
+| Quiz and prediction | IDs, kinds, options/inputs semantics, common content/timing/points contracts                                     | Authoring-private and unrevealed player payload boundaries                    |
+| Party               | IDs, stages/roles/statuses, settings defaults/precedence, lifecycle/timing vocabulary, public receipts/snapshots | Incomplete runtime state, trusted context resolution, audience filtering      |
+| Theme               | IDs/defaults/patterns, token keys, curated palettes, normalization/contrast rules                                | Rendering logic, persistence, authorization, local error mapping              |
+| Media               | Public grant contract and safe metadata                                                                          | Raw bytes, storage lifecycle, signed grant issuance and access checks         |
+| Errors              | Stable machine-readable business/permission codes                                                                | Local diagnostics, translated copy, transport/client integration failures     |
 
 ## Validation gates
 
@@ -310,14 +310,14 @@ Each PR must remain independently mergeable and include only one coherent slice.
 
 ## Risks and controls
 
-| Risk | Control |
-| --- | --- |
-| Shared package becomes a catch-all dump | Enforce eligibility rules and explicit feature entry points |
-| Authorization assumptions drift to frontend/shared | Keep server authority tests and boundary checks mandatory |
-| Wire contract drift during extraction | Require producer/consumer fixture checks before duplicate removal |
-| Framework imports leak into shared package | Add and enforce import-boundary guards for shared sources |
-| Docker/CI misses shared package changes | Update build contexts and CI route checks; verify with cold and warm runs |
-| Adapter complexity grows beyond benefit | Stop extraction for that subdomain and retain local implementation |
+| Risk                                               | Control                                                                   |
+| -------------------------------------------------- | ------------------------------------------------------------------------- |
+| Shared package becomes a catch-all dump            | Enforce eligibility rules and explicit feature entry points               |
+| Authorization assumptions drift to frontend/shared | Keep server authority tests and boundary checks mandatory                 |
+| Wire contract drift during extraction              | Require producer/consumer fixture checks before duplicate removal         |
+| Framework imports leak into shared package         | Add and enforce import-boundary guards for shared sources                 |
+| Docker/CI misses shared package changes            | Update build contexts and CI route checks; verify with cold and warm runs |
+| Adapter complexity grows beyond benefit            | Stop extraction for that subdomain and retain local implementation        |
 
 ## Stop conditions and re-scope triggers
 
