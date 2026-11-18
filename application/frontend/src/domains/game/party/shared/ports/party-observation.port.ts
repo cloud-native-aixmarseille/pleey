@@ -1,11 +1,10 @@
+import type { PartyRuntimeNoticeKind as SharedPartyRuntimeNoticeKind } from '@pleey/domain/party';
+import { PARTY_RUNTIME_NOTICE_KINDS } from '@pleey/domain/party';
 import type { PartyId } from '../entities/party';
 import type { PartyObservation } from '../entities/party-observation';
 
-export enum PartyRuntimeNoticeKind {
-  RestartStage = 'restartStage',
-  RewindParty = 'rewindParty',
-  RewindStage = 'rewindStage',
-}
+export const PartyRuntimeNoticeKind = PARTY_RUNTIME_NOTICE_KINDS;
+export type PartyRuntimeNoticeKind = SharedPartyRuntimeNoticeKind;
 
 export interface PartyObservationConnectionState {
   readonly epoch: number;

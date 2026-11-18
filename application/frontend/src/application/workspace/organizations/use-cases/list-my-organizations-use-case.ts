@@ -1,3 +1,4 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import type { Organization } from '../../../../domains/organization/entities/organization';
 import {
@@ -5,7 +6,6 @@ import {
   type OrganizationRepository,
   OrganizationRepositoryToken,
 } from '../../../../domains/organization/ports/organization-repository';
-import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
 
 @injectable()
 export class ListMyOrganizationsUseCase {

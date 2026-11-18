@@ -196,6 +196,16 @@ function parseConstObjectValues(sourceText, constName) {
   return asSortedUnique([...match[1].matchAll(/:\s*'([^']+)'/g)].map((entry) => entry[1]));
 }
 
+function parseJsConstObjectValues(sourceText, constName) {
+  const expression = new RegExp(`export const ${constName}\\s*=\\s*\\{([\\s\\S]*?)\\}\\s*;`);
+  const match = sourceText.match(expression);
+  if (!match) {
+    fail(`Unable to parse ${constName} from JS source.`);
+  }
+
+  return asSortedUnique([...match[1].matchAll(/:\s*['"]([^'"]+)['"]/g)].map((entry) => entry[1]));
+}
+
 function parseEnumValues(sourceText, enumName) {
   const expression = new RegExp(`export enum ${enumName}\\s*\\{([\\s\\S]*?)\\}`);
   const match = sourceText.match(expression);
@@ -254,6 +264,7 @@ function resolveCrossApplicationContractPaths(packageRoot) {
     ),
     fixturePath,
     graphqlFixturePath,
+    sharedPartyEventsPath: path.join(packageRoot, "party/index.js"),
   };
 }
 
@@ -261,9 +272,20 @@ function checkPartyRealtimeFixtures(paths) {
   const fixture = readJson(paths.fixturePath);
   const backendEventsText = fs.readFileSync(paths.backendEventsPath, "utf8");
   const frontendEventsText = fs.readFileSync(paths.frontendEventsPath, "utf8");
+  const readBackendOrSharedEvents = (constName) => {
+    try {
+      return parseConstObjectValues(backendEventsText, constName);
+    } catch (error) {
+      if (!paths.sharedPartyEventsPath || !backendEventsText.includes("@pleey/domain/party")) {
+        throw error;
+      }
 
-  const backendInboundEvents = parseConstObjectValues(backendEventsText, "PARTY_SOCKET_INBOUND_EVENTS");
-  const backendOutboundEvents = parseConstObjectValues(backendEventsText, "PARTY_SOCKET_OUTBOUND_EVENTS");
+      const sharedEventsText = fs.readFileSync(paths.sharedPartyEventsPath, "utf8");
+      return parseJsConstObjectValues(sharedEventsText, constName);
+    }
+  };
+  const backendInboundEvents = readBackendOrSharedEvents("PARTY_SOCKET_INBOUND_EVENTS");
+  const backendOutboundEvents = readBackendOrSharedEvents("PARTY_SOCKET_OUTBOUND_EVENTS");
 
   const frontendOutboundEvents = asSortedUnique(
     FRONTEND_TO_BACKEND_ENUMS.flatMap((enumName) => parseEnumValues(frontendEventsText, enumName)),

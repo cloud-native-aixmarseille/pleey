@@ -1,3 +1,4 @@
+import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import type { GameId } from '../../../../domains/game/entities/game';
 import type { DashboardGameListPage } from '../../../../domains/game/management/entities/dashboard-game-list-page';
@@ -7,8 +8,6 @@ import type { PartySettings } from '../../../../domains/game/party/shared/entiti
 import type { Organization, OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../domains/project/entities/project';
-import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
-import type { PaginationQuery } from '../../../../domains/shared/value-objects/pagination-query';
 import type { ThemeId } from '../../../../domains/theme/entities/theme-id';
 import { ListProjectGamesUseCase } from '../../../game/management/use-cases/list-project-games-use-case';
 import { CreatePartyUseCase } from '../../../game/party/host/use-cases/create-party-use-case';

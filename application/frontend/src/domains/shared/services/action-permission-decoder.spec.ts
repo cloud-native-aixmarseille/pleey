@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decodeActionPermission } from './action-permission-decoder';
+import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 
 enum TestPermissionReason {
   DENIED = 'DENIED',

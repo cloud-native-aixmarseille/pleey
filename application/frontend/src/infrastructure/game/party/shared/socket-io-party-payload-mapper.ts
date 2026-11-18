@@ -32,7 +32,7 @@ import {
   PartyRuntimeNoticeKind,
 } from '../../../../domains/game/party/shared/ports/party-observation.port';
 import { GameType } from '../../../../domains/game/types/shared/game-type';
-import { decodeActionPermission } from '../../../../domains/shared/services/action-permission-decoder';
+import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
 import type {
   PartyJoinMessage,

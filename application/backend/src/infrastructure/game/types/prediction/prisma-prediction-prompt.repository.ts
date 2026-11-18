@@ -14,8 +14,8 @@ import type {
   PredictionPromptRepository,
 } from '../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
-import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
-import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { PrismaService } from '../../../database/prisma-service';
 import {
   PrismaSelectableOptionMapper,

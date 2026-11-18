@@ -1,6 +1,6 @@
 import type { OrganizationId } from '../../organization/entities/organization';
-import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
-import type { PaginationQuery } from '../../shared/value-objects/pagination-query';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { ManagedTheme, ThemeAsset } from '../entities/managed-theme';
 import type { ThemeDocument } from '../entities/theme-document';
 import type { ThemeId } from '../entities/theme-id';

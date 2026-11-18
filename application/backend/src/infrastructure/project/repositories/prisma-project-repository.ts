@@ -7,7 +7,7 @@ import { ThemeIdentifier } from '../../../application/workspace/themes/services/
 import type { OrganizationId } from '../../../domain/organization/entities/organization';
 import { Project, type ProjectId } from '../../../domain/project/entities/project';
 import type { ProjectDefaultsInput, ProjectRepository } from '../../../domain/project/ports/project.repository';
-import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { PrismaService } from '../../database/prisma-service';
 import { PrismaPartySettingsMapper } from '../../game/shared/prisma-party-settings.mapper';
 

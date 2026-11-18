@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import type { PartySummary } from '../../../../../domain/game/party/shared/entities/party-summary';
-import type { PaginatedResult } from '../../../../../domain/shared/value-objects/paginated-result';
 import type { ListPartiesDto } from '../dto/list-parties.dto';
 import { PartyManagementPort } from '../ports/party-management.port';
 

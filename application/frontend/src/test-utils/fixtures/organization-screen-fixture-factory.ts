@@ -27,7 +27,7 @@ import type {
   ProjectRepository,
   UpdateProjectCommand,
 } from '../../domains/project/ports/project-repository';
-import type { PaginatedResult } from '../../domains/shared/value-objects/paginated-result';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { DashboardReadGatewayMockFactory } from '../mocks/dashboard-read-gateway-mock-factory';
 import { OrganizationFixtureFactory } from './organization-fixture-factory';
 import { ProjectFixtureFactory } from './project-fixture-factory';

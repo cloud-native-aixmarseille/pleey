@@ -8,7 +8,7 @@ import type { OrganizationMember } from '../../../../../domains/organization/ent
 import { OrganizationActionDisabledReason } from '../../../../../domains/organization/value-objects/organization-permissions';
 import type { Project, ProjectId } from '../../../../../domains/project/entities/project';
 import { ProjectActionDisabledReason } from '../../../../../domains/project/value-objects/project-permissions';
-import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { OrganizationFixtureFactory } from '../../../../../test-utils/fixtures/organization-fixture-factory';
 import { OrganizationScreenFixtureFactory } from '../../../../../test-utils/fixtures/organization-screen-fixture-factory';
 import { coerceUuidV7TestValue } from '../../../../../test-utils/fixtures/uuid-v7-test-value';

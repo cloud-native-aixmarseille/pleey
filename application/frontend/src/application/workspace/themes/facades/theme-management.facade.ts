@@ -1,6 +1,6 @@
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import type { OrganizationId } from '../../../../domains/organization/entities/organization';
-import type { PaginationQuery } from '../../../../domains/shared/value-objects/pagination-query';
 import type { ThemeDocument } from '../../../../domains/theme/entities/theme-document';
 import type { ThemeId } from '../../../../domains/theme/entities/theme-id';
 import {

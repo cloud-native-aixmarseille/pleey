@@ -9,6 +9,10 @@
     "node": ">=22.15.0"
   },
   "files": [
+    "shared/",
+    "game/",
+    "party/",
+    "theme/",
     "empty.js",
     "empty.cjs",
     "empty.d.ts",
@@ -23,10 +27,10 @@
       "default": "./empty.js"
     },
     "./shared/primitives": {
-      "types": "./empty.d.ts",
-      "import": "./empty.js",
-      "require": "./empty.cjs",
-      "default": "./empty.js"
+      "types": "./shared/primitives/index.d.ts",
+      "import": "./shared/primitives/index.js",
+      "require": "./shared/primitives/index.js",
+      "default": "./shared/primitives/index.js"
     },
     "./identity": {
       "types": "./empty.d.ts",
@@ -47,22 +51,22 @@
       "default": "./empty.js"
     },
     "./game": {
-      "types": "./empty.d.ts",
-      "import": "./empty.js",
-      "require": "./empty.cjs",
-      "default": "./empty.js"
+      "types": "./game/index.d.ts",
+      "import": "./game/index.js",
+      "require": "./game/index.js",
+      "default": "./game/index.js"
     },
     "./party": {
-      "types": "./empty.d.ts",
-      "import": "./empty.js",
-      "require": "./empty.cjs",
-      "default": "./empty.js"
+      "types": "./party/index.d.ts",
+      "import": "./party/index.js",
+      "require": "./party/index.js",
+      "default": "./party/index.js"
     },
     "./theme": {
-      "types": "./empty.d.ts",
-      "import": "./empty.js",
-      "require": "./empty.cjs",
-      "default": "./empty.js"
+      "types": "./theme/index.d.ts",
+      "import": "./theme/index.js",
+      "require": "./theme/index.js",
+      "default": "./theme/index.js"
     },
     "./media": {
       "types": "./empty.d.ts",

@@ -1,6 +1,6 @@
 import { OrganizationActionDisabledReason } from '../../../../domains/organization/value-objects/organization-permissions';
 import { ProjectActionDisabledReason } from '../../../../domains/project/value-objects/project-permissions';
-import type { ActionPermission } from '../../../../domains/shared/value-objects/action-permission';
+import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
 
 export function useWorkspacePermissionReason() {

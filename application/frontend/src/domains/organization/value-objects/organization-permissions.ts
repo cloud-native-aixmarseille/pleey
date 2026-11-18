@@ -1,4 +1,4 @@
-import type { Permissions } from '../../shared/value-objects/action-permission';
+import type { Permissions } from '@pleey/domain/shared/primitives';
 
 export enum OrganizationActionDisabledReason {
   UNAVAILABLE = 'PERMISSION_UNAVAILABLE',

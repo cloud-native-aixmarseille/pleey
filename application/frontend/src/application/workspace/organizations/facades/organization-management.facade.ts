@@ -1,3 +1,4 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import type { Organization } from '../../../../domains/organization/entities/organization';
 import type { OrganizationMember } from '../../../../domains/organization/entities/organization-member';
@@ -15,7 +16,6 @@ import type {
   DeleteProjectCommand,
   UpdateProjectCommand,
 } from '../../../../domains/project/ports/project-repository';
-import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
 import { CreateProjectUseCase } from '../../projects/use-cases/create-project-use-case';
 import { DeleteProjectUseCase } from '../../projects/use-cases/delete-project-use-case';
 import { UpdateProjectUseCase } from '../../projects/use-cases/update-project-use-case';

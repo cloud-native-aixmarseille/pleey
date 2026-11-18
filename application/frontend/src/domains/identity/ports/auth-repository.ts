@@ -1,5 +1,5 @@
-import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
-import type { PaginationQuery } from '../../shared/value-objects/pagination-query';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { AuthSession } from '../entities/auth-session';
 import type { User } from '../entities/user';
 import type { UserSessionOverview } from '../entities/user-session-details';

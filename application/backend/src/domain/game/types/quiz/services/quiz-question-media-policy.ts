@@ -1,22 +1,11 @@
 import { createDomainError } from '../../../../shared/errors/domain-error';
+import { SHARED_QUESTION_MEDIA_POLICY } from '@pleey/domain/game';
 import { QUIZ_ERROR_DEFINITIONS, QuizErrorCode } from '../enums/quiz-error-code.enum';
 
-const SUPPORTED_QUESTION_MEDIA_MIME_TYPES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'audio/mpeg',
-  'audio/wav',
-  'audio/x-wav',
-  'audio/wave',
-  'audio/vnd.wave',
-  'audio/ogg',
-  'video/mp4',
-  'video/webm',
-]);
+const SUPPORTED_QUESTION_MEDIA_MIME_TYPES = new Set(SHARED_QUESTION_MEDIA_POLICY.acceptedMimeTypes);
 
 export class QuizQuestionMediaPolicy {
-  readonly maxFileSizeBytes = 5 * 1024 * 1024;
+  readonly maxFileSizeBytes = SHARED_QUESTION_MEDIA_POLICY.maxFileSizeBytes;
 
   assertMimeType(mimeType: string, fileName: string): void {
     if (!SUPPORTED_QUESTION_MEDIA_MIME_TYPES.has(mimeType)) {

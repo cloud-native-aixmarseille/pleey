@@ -1,5 +1,5 @@
 import type { UserId } from '../../identity/entities/user';
-import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import type { OrganizationId } from '../entities/organization';
 import type { OrganizationMember, OrganizationMemberId } from '../entities/organization-member';
 import type { OrganizationRole } from '../enums/organization-role.enum';

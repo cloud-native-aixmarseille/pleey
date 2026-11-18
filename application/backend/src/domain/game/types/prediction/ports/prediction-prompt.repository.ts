@@ -1,5 +1,5 @@
-import type { PaginatedResult } from '../../../../shared/value-objects/paginated-result';
-import type { PaginationQuery } from '../../../../shared/value-objects/pagination-query';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { SelectableOption } from '../../shared/entities/selectable-option';
 import type { PredictionId } from '../entities/prediction';
 import { PredictionPrompt, type PredictionPromptId } from '../entities/prediction-prompt';

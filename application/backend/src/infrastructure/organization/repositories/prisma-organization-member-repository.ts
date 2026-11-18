@@ -14,7 +14,7 @@ import type {
   OrganizationMemberRepository,
   OrganizationMemberWriteContext,
 } from '../../../domain/organization/ports/organization-member.repository';
-import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { PrismaService } from '../../database/prisma-service';
 
 type PrismaOrganizationMemberRecord = PrismaOrganizationMember & {
