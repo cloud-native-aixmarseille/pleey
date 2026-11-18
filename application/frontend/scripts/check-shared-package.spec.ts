@@ -69,10 +69,12 @@ describe("shared domain package checker", () => {
       invalidServerToClientEvents: [],
     };
     fs.writeFileSync(fixturePath, JSON.stringify(fixture));
-    const backendEventsPath = path.resolve(
-      import.meta.dirname,
-      "../../../application/backend/src/presentation/game/party/realtime/party-socket-events.ts",
-    );
+    const backendEventsPath = [
+      path.resolve(import.meta.dirname, '../../../application/backend/src/presentation/game/party/realtime/party-socket-events.ts'),
+      '/usr/src/backend/src/presentation/game/party/realtime/party-socket-events.ts',
+      '/usr/src/app/src/presentation/game/party/realtime/party-socket-events.ts',
+      '/usr/application/backend/src/presentation/game/party/realtime/party-socket-events.ts',
+    ].find((candidate) => fs.existsSync(candidate));
     const frontendEventsPath = path.resolve(
       import.meta.dirname,
       "../src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts",
