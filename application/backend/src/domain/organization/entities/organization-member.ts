@@ -1,10 +1,9 @@
+import type { OrganizationMemberId as SharedOrganizationMemberId } from '@pleey/domain/organization';
 import type { UserId } from '../../identity/entities/user';
 import { OrganizationRole } from '../enums/organization-role.enum';
 import type { OrganizationId } from './organization';
 
-export type OrganizationMemberId = string & {
-  readonly __identifierBrand: 'OrganizationMemberId';
-};
+export type OrganizationMemberId = SharedOrganizationMemberId;
 
 /**
  * OrganizationMember Domain Entity

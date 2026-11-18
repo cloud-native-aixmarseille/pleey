@@ -1,6 +1,5 @@
 import type { ComponentType } from 'react';
-
-export type CaptchaAction = 'signup' | 'password-recovery';
+import type { CaptchaAction } from '@pleey/domain/identity';
 
 interface CaptchaWidgetLabels {
   readonly providerLabel: string;

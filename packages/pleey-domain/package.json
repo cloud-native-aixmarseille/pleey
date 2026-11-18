@@ -10,6 +10,9 @@
   },
   "files": [
     "shared/",
+    "identity/",
+    "organization/",
+    "project/",
     "game/",
     "party/",
     "theme/",
@@ -33,22 +36,22 @@
       "default": "./shared/primitives/index.js"
     },
     "./identity": {
-      "types": "./empty.d.ts",
-      "import": "./empty.js",
-      "require": "./empty.cjs",
-      "default": "./empty.js"
+      "types": "./identity/index.d.ts",
+      "import": "./identity/index.js",
+      "require": "./identity/index.js",
+      "default": "./identity/index.js"
     },
     "./organization": {
-      "types": "./empty.d.ts",
-      "import": "./empty.js",
-      "require": "./empty.cjs",
-      "default": "./empty.js"
+      "types": "./organization/index.d.ts",
+      "import": "./organization/index.js",
+      "require": "./organization/index.js",
+      "default": "./organization/index.js"
     },
     "./project": {
-      "types": "./empty.d.ts",
-      "import": "./empty.js",
-      "require": "./empty.cjs",
-      "default": "./empty.js"
+      "types": "./project/index.d.ts",
+      "import": "./project/index.js",
+      "require": "./project/index.js",
+      "default": "./project/index.js"
     },
     "./game": {
       "types": "./game/index.d.ts",

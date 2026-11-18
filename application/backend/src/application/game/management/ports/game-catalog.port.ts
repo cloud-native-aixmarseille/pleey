@@ -1,4 +1,5 @@
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
+import type { GameSortDirection, GameSortField } from '@pleey/domain/game';
 import type { GameId } from '../../../../domain/game/entities/game';
 import type { GamePermissions } from '../../../../domain/game/management/value-objects/game-permissions';
 import type { GameTypeId } from '../../../../domain/game/types/shared/entities/game-type';
@@ -8,8 +9,8 @@ export interface ListProjectGamesQuery {
   readonly projectId: ProjectId;
   readonly search?: string;
   readonly types?: readonly string[];
-  readonly sortField?: 'title' | 'createdAt';
-  readonly sortDirection?: 'asc' | 'desc';
+  readonly sortField?: GameSortField;
+  readonly sortDirection?: GameSortDirection;
   readonly page?: number;
   readonly pageSize?: number;
 }

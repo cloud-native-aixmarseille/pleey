@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { PASSWORD_INPUT_MIN_LENGTH, isPasswordInputWithinUtf8ByteLimit } from '@pleey/domain/identity';
 import { usePresentationForm } from '../../../shared/forms/use-presentation-form';
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
 import { useAuth } from '../../contexts/auth-context';
@@ -21,7 +22,8 @@ export function useResetPasswordScreenState() {
       onChange: ({ value }) => ({
         fields: {
           password:
-            value.password.length < 6 || new TextEncoder().encode(value.password).length > 72
+            value.password.length < PASSWORD_INPUT_MIN_LENGTH ||
+            !isPasswordInputWithinUtf8ByteLimit(value.password)
               ? t('auth.resetPassword.passwordPolicy')
               : undefined,
           confirmPassword:

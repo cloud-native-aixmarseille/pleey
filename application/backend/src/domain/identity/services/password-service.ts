@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PASSWORD_INPUT_MIN_LENGTH, isPasswordInputWithinUtf8ByteLimit } from '@pleey/domain/identity';
 import * as bcrypt from 'bcryptjs';
 
 /**
@@ -27,6 +28,10 @@ export class PasswordService {
    * Validates password strength
    */
   isValidPassword(password: string): boolean {
-    return password.length >= 6 && !bcrypt.truncates(password);
+    return (
+      password.length >= PASSWORD_INPUT_MIN_LENGTH &&
+      isPasswordInputWithinUtf8ByteLimit(password) &&
+      !bcrypt.truncates(password)
+    );
   }
 }
