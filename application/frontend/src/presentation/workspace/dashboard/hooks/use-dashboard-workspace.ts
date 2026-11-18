@@ -3,7 +3,7 @@ import type { DashboardWorkspaceGateway } from '../../../../application/workspac
 import type { Organization, OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../domains/project/entities/project';
-import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { usePresentationDebouncedValue } from '../../../shared/hooks/use-presentation-debounced-value';
 import { usePresentationFeedbackChannel } from '../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../shared/contexts/workspace-dependencies-context';

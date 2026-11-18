@@ -21,7 +21,7 @@ import { PartyRole } from '../../../domain/game/party/enums/party-role.enum';
 import { PinAlreadyInUseError } from '../../../domain/game/party/errors/pin-already-in-use.error';
 import type { PartySummary } from '../../../domain/game/party/shared/entities/party-summary';
 import type { UserId } from '../../../domain/identity/entities/user';
-import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { PrismaService } from '../../database/prisma-service';
 import { PrismaPartySettingsMapper } from '../shared/prisma-party-settings.mapper';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';

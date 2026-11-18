@@ -1,4 +1,4 @@
-import type { ActionPermission } from '../../../../shared/value-objects/action-permission';
+import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import { PartyCommandNotAvailableError, PartyStagesNotAvailableError } from '../../../errors';
 import { PartyStatus } from '../../enums/party-status.enum';
 import {

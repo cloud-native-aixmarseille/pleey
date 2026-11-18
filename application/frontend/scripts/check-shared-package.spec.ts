@@ -77,6 +77,10 @@ describe("shared domain package checker", () => {
       import.meta.dirname,
       "../src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts",
     );
+    const sharedPartyEventsPath = [
+      path.resolve(import.meta.dirname, '../../../packages/pleey-domain/party/index.js'),
+      '/usr/packages/pleey-domain/party/index.js',
+    ].find((candidate) => fs.existsSync(candidate));
 
     // Act + Assert
     try {
@@ -85,6 +89,7 @@ describe("shared domain package checker", () => {
           backendEventsPath,
           frontendEventsPath,
           fixturePath,
+          sharedPartyEventsPath,
         }),
       ).toThrow("Client-to-server fixture events must match backend inbound events");
     } finally {

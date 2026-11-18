@@ -1,4 +1,4 @@
-import type { Permissions } from '../../../shared/value-objects/action-permission';
+import type { Permissions } from '@pleey/domain/shared/primitives';
 import type { GameId } from '../../entities/game';
 import type { GameType, GameTypeId } from '../../types/shared/game-type';
 

@@ -27,8 +27,8 @@ import {
   OrganizationActionDisabledReason,
   type OrganizationPermissions,
 } from '../../domains/organization/value-objects/organization-permissions';
-import { decodeActionPermission } from '../../domains/shared/services/action-permission-decoder';
-import type { PaginatedResult } from '../../domains/shared/value-objects/paginated-result';
+import { decodeActionPermission } from '@pleey/domain/shared/primitives';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
   AddOrganizationMemberDocument,

@@ -6,7 +6,7 @@ import type {
   ListOrganizationMembersQuery,
   UpdateOrganizationMemberRoleCommand,
 } from '../../../../../domains/organization/ports/organization-repository';
-import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import type { useDashboardWorkspace } from '../../../dashboard/hooks/use-dashboard-workspace';
 import { useOrganizationMemberList } from './use-organization-member-list';

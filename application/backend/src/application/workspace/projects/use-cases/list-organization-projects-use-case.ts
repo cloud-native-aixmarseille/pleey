@@ -6,8 +6,8 @@ import type { OrganizationRepository } from '../../../../domain/organization/por
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
-import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
-import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
 import { OrganizationMembershipAccessService } from '../../organizations/services/organization-membership-access.service';
 import { ProjectPermissionService, type ProjectWithAccess } from '../services/project-permission-service';

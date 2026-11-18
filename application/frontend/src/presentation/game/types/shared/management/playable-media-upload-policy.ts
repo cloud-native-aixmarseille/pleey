@@ -1,16 +1,6 @@
+import { SHARED_QUESTION_MEDIA_POLICY } from '@pleey/domain/game';
+
 export const playableMediaUploadPolicy = {
-  acceptedMimeTypes: [
-    'image/jpeg',
-    'image/png',
-    'image/webp',
-    'audio/mpeg',
-    'audio/wav',
-    'audio/x-wav',
-    'audio/wave',
-    'audio/vnd.wave',
-    'audio/ogg',
-    'video/mp4',
-    'video/webm',
-  ],
-  maxBytes: 5 * 1024 * 1024,
+  acceptedMimeTypes: SHARED_QUESTION_MEDIA_POLICY.acceptedMimeTypes,
+  maxBytes: SHARED_QUESTION_MEDIA_POLICY.maxFileSizeBytes,
 } as const;

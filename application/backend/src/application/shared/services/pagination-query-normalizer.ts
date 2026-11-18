@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import type { PaginatedResult } from '../../../domain/shared/value-objects/paginated-result';
+import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import { PAGINATION_LIMITS } from '../../../domain/shared/value-objects/pagination-limits';
-import type { NormalizedPaginationQuery, PaginationQuery } from '../../../domain/shared/value-objects/pagination-query';
+
+interface NormalizedPaginationQuery {
+  readonly page: number;
+  readonly pageSize: number;
+  readonly search: string | undefined;
+  readonly skip: number;
+}
 
 @Injectable()
 export class PaginationQueryNormalizer {

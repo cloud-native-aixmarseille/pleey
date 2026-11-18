@@ -3,7 +3,7 @@
 - Issue: add when created
 - Decision: [ADR 0022](../architecture/adr/0022-evaluate-a-shared-frontend-backend-library.md)
 - Updated: 2026-11-18
-- Status: In progress (P1 implemented)
+- Status: In progress (P1-P3 implemented)
 
 This plan implements ADR 0022 through incremental slices that preserve current
 runtime authority and wire contracts while removing duplicated domain semantics.
@@ -117,26 +117,26 @@ Done when:
 
 ### P3.1 Theme
 
-- [ ] Extract shared theme IDs/defaults/patterns, token keys, curated palettes,
+- [x] Extract shared theme IDs/defaults/patterns, token keys, curated palettes,
       normalization/contrast rules, common metadata limits.
-- [ ] Keep local rendering, persistence, authorization, and local error mapping.
+- [x] Keep local rendering, persistence, authorization, and local error mapping.
 
 ### P3.2 Shared primitives
 
-- [ ] Extract permission and pagination vocabulary (`ActionPermission`,
+- [x] Extract permission and pagination vocabulary (`ActionPermission`,
       `Permissions`, `PaginatedResult`, `PaginationQuery`, shared max values).
-- [ ] Keep backend-only normalized query defaults local when not shared.
+- [x] Keep backend-only normalized query defaults local when not shared.
 
 ### P3.3 Validation policies
 
-- [ ] Extract pure policies (selectable options, media acceptance, party settings
+- [x] Extract pure policies (selectable options, media acceptance, party settings
       precedence/reading-time, password input validation only).
-- [ ] Keep hashing, secret handling, and persistence-backed validation local.
+- [x] Keep hashing, secret handling, and persistence-backed validation local.
 
 ### P3.4 Party/game public contracts
 
-- [ ] Extract common lifecycle/timing/receipt/snapshot contracts used by both apps.
-- [ ] Keep incomplete runtime state, audience filtering, and transport specifics local.
+- [x] Extract common lifecycle/timing/receipt/snapshot contracts used by both apps.
+- [x] Keep incomplete runtime state, audience filtering, and transport specifics local.
 
 Done when:
 

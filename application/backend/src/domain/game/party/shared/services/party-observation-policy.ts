@@ -1,4 +1,4 @@
-import type { ActionPermission } from '../../../../shared/value-objects/action-permission';
+import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import { GameErrorCode } from '../../../enums/game-error-code.enum';
 
 export class PartyObservationPolicy {

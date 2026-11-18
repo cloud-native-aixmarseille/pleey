@@ -1,4 +1,4 @@
-import type { PaginatedResult } from '../../shared/value-objects/paginated-result';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 
 export interface UserSessionDetails {
   readonly id: string;

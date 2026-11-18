@@ -1,6 +1,6 @@
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import { type AuthRepository, AuthRepositoryToken } from '../../../domains/identity/ports/auth-repository';
-import type { PaginationQuery } from '../../../domains/shared/value-objects/pagination-query';
 import type { AccountGateway } from '../ports/account.gateway';
 
 @injectable()

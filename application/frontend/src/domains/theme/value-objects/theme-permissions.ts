@@ -1,5 +1,5 @@
 import type { OrganizationActionDisabledReason } from '../../organization/value-objects/organization-permissions';
-import type { ActionPermission } from '../../shared/value-objects/action-permission';
+import type { ActionPermission } from '@pleey/domain/shared/primitives';
 
 export interface ThemePermissions {
   readonly read: ActionPermission<OrganizationActionDisabledReason>;

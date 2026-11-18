@@ -11,7 +11,7 @@ import { CannotDeleteLastProjectError, ProjectNotFoundError } from '../../../../
 import { ProjectPermissionPolicy } from '../../../../domain/project/services/project-permission-policy';
 import type { ProjectPermissions } from '../../../../domain/project/value-objects/project-permissions';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
-import type { ActionPermission } from '../../../../domain/shared/value-objects/action-permission';
+import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import { OrganizationMembershipAccessService } from '../../organizations/services/organization-membership-access.service';
 
 export type ProjectWithAccess = Project & { readonly permissions: ProjectPermissions };

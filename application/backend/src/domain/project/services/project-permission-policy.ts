@@ -1,5 +1,5 @@
 import type { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
-import type { ActionPermission } from '../../shared/value-objects/action-permission';
+import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import { ProjectErrorCode } from '../enums/project-error-code.enum';
 import type { ProjectPermissions } from '../value-objects/project-permissions';
 

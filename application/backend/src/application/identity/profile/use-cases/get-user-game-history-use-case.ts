@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import {
   type UserGameHistoryPort,
   UserGameHistoryPortProvider,
 } from '../../../../domain/identity/ports/user-game-history.port';
-import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
 
 @Injectable()
 export class GetUserGameHistoryUseCase {

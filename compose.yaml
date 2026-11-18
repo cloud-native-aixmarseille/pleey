@@ -119,6 +119,7 @@ services:
     user: "${UID:-1000}:${GID:-1000}" # Keep host-mounted files writable by the local user
     volumes:
       - ./application/backend:/usr/src/app
+      - ./packages:/usr/packages:ro
       - ./scripts:/usr/src/shared-scripts:ro
       - ./:/usr/src/repository:ro
     expose:
@@ -212,6 +213,7 @@ services:
     user: "${UID:-1000}:${GID:-1000}" # Keep host-mounted files writable by the local user
     volumes:
       - ./application/frontend:/usr/src/app
+      - ./packages:/usr/packages:ro
       - ./application/backend:/usr/src/backend:ro
       - ./scripts:/usr/src/shared-scripts:ro
       - ./:/usr/src/repository:ro

@@ -6,7 +6,7 @@ import { ThemeAssetIdentifier } from '../../application/workspace/themes/service
 import { ThemeDocumentValidator } from '../../application/workspace/themes/services/theme-document-validator';
 import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
 import type { OrganizationId } from '../../domain/organization/entities/organization';
-import type { PaginationQuery } from '../../domain/shared/value-objects/pagination-query';
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { ManagedTheme, ThemeAssetId } from '../../domain/theme/entities/managed-theme';
 import type { ThemeDocument } from '../../domain/theme/entities/theme-document';
 import type { ThemeId } from '../../domain/theme/entities/theme-id';

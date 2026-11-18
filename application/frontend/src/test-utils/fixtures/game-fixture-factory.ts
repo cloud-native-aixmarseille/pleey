@@ -9,7 +9,7 @@ import {
   LaunchReadinessDisabledReason,
 } from '../../domains/game/management/entities/dashboard-game-list-item';
 import { GameType, type GameTypeId } from '../../domains/game/types/shared/game-type';
-import { decodeActionPermission } from '../../domains/shared/services/action-permission-decoder';
+import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 
 const gameIdentifier = new GameIdentifier();

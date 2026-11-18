@@ -9,7 +9,7 @@ import {
 } from '../../../domains/game/management/entities/dashboard-game-list-item';
 import type { DashboardGameListPage } from '../../../domains/game/management/entities/dashboard-game-list-page';
 import type { DashboardGameListQuery } from '../../../domains/game/management/entities/dashboard-game-list-query';
-import { decodeActionPermission } from '../../../domains/shared/services/action-permission-decoder';
+import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { GraphqlClient } from '../../graphql/client/graphql-client';
 import {
   ProjectGamesDocument,

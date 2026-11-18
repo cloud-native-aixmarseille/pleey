@@ -18,8 +18,8 @@ import type {
 } from '../../../../domain/game/types/quiz/ports/quiz-question.repository';
 import type { StoredMediaAsset } from '../../../../domain/media/entities/stored-media-asset';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
-import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
-import type { PaginationQuery } from '../../../../domain/shared/value-objects/pagination-query';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { PrismaService } from '../../../database/prisma-service';
 import { PrismaMediaAssetLifecycle } from '../../../media/prisma-media-asset-lifecycle';
 import {

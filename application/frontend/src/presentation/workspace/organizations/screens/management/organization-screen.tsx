@@ -15,7 +15,7 @@ import type {
   DeleteProjectCommand,
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
-import type { PaginatedResult } from '../../../../../domains/shared/value-objects/paginated-result';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import { StatusBanner } from '../../../../shared/ui/feedback/status-banner';
 import { ContentStack } from '../../../../shared/ui/layout/containers';

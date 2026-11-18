@@ -1,8 +1,8 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import type { GameId } from '../../../../domain/game/entities/game';
 import type { GamePermissions } from '../../../../domain/game/management/value-objects/game-permissions';
 import type { GameTypeId } from '../../../../domain/game/types/shared/entities/game-type';
 import type { ProjectId } from '../../../../domain/project/entities/project';
-import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
 
 export interface ListProjectGamesQuery {
   readonly projectId: ProjectId;

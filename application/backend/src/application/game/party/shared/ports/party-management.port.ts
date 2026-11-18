@@ -1,3 +1,4 @@
+import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { GameId } from '../../../../../domain/game/entities/game';
 import type { PartyId, PartyPin } from '../../../../../domain/game/party/shared/entities/party';
 import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
@@ -5,8 +6,6 @@ import type { PartySummary } from '../../../../../domain/game/party/shared/entit
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../../domain/organization/entities/organization';
 import type { ProjectId } from '../../../../../domain/project/entities/project';
-import type { PaginatedResult } from '../../../../../domain/shared/value-objects/paginated-result';
-import type { PaginationQuery } from '../../../../../domain/shared/value-objects/pagination-query';
 import type { ThemeDocument } from '../../../../../domain/theme/entities/theme-document';
 import type { ThemeId } from '../../../../../domain/theme/entities/theme-id';
 

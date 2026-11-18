@@ -7,7 +7,7 @@ import {
   CreatePartyDisabledReason,
   LaunchReadinessDisabledReason as LaunchReadinessDisabledReasonEnum,
 } from '../../../../../domain/game/management/value-objects/game-permissions';
-import type { ActionPermission } from '../../../../../domain/shared/value-objects/action-permission';
+import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import { createActionPermissionType } from '../../../../shared/graphql/types/action-permission-type';
 
 registerEnumType(CreatePartyDisabledReason, {

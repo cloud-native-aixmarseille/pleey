@@ -1,8 +1,7 @@
+import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import { createDomainError } from '../../../domains/shared/errors/domain-error';
 import { PaginationErrorCode } from '../../../domains/shared/errors/pagination-error-code';
-import type { PaginatedResult } from '../../../domains/shared/value-objects/paginated-result';
 import { PAGINATION_LIMITS } from '../../../domains/shared/value-objects/pagination-limits';
-import type { PaginationQuery } from '../../../domains/shared/value-objects/pagination-query';
 
 /** Explicit complete-content traversal for editors that need the ordered aggregate. */
 export async function collectPaginatedItems<TItem>(

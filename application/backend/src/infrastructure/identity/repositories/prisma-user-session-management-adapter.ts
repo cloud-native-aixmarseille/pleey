@@ -4,7 +4,7 @@ import { PaginationQueryNormalizer } from '../../../application/shared/services/
 import type { UserId } from '../../../domain/identity/entities/user';
 import type { UserSessionManagementPort } from '../../../domain/identity/ports/user-session-management.port';
 import type { UserSessionDetails } from '../../../domain/identity/types/user-session';
-import type { PaginationQuery } from '../../../domain/shared/value-objects/pagination-query';
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { PrismaService } from '../../database/prisma-service';
 
 const SESSION_SELECT = {

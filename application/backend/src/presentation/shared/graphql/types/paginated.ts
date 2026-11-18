@@ -1,6 +1,6 @@
 import type { Type } from '@nestjs/common';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import type { PaginatedResult } from '../../../../domain/shared/value-objects/paginated-result';
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 
 export function Paginated<TItem>(itemType: Type<TItem>): Type<PaginatedResult<TItem>> {
   @ObjectType({ isAbstract: true })

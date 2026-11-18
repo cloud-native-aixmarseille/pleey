@@ -1,3 +1,4 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import type { Project } from '../../../../domains/project/entities/project';
 import {
@@ -5,7 +6,6 @@ import {
   type ProjectRepository,
   ProjectRepositoryToken,
 } from '../../../../domains/project/ports/project-repository';
-import type { PaginatedResult } from '../../../../domains/shared/value-objects/paginated-result';
 
 @injectable()
 export class ListOrganizationProjectsUseCase {
