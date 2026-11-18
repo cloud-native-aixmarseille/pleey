@@ -1,3 +1,5 @@
+import type { PaginatedResult } from '@pleey/domain/shared/primitives';
+import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
@@ -13,8 +15,6 @@ import type {
   UpdateProjectCommand,
 } from '../../domains/project/ports/project-repository';
 import { ProjectActionDisabledReason } from '../../domains/project/value-objects/project-permissions';
-import { decodeActionPermission } from '@pleey/domain/shared/primitives';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
   CreateProjectDocument,

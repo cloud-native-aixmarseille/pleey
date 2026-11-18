@@ -1,3 +1,4 @@
+import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import type { AuthSession } from '../../domains/identity/entities/auth-session';
 import type { User } from '../../domains/identity/entities/user';
@@ -15,7 +16,6 @@ import type {
   UserGameHistoryPage,
 } from '../../domains/identity/ports/auth-repository';
 import { AuthPayloadInspector } from '../../domains/identity/services/auth-payload-inspector';
-import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
   ForgotPasswordDocument,

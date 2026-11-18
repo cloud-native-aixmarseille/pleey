@@ -1,6 +1,6 @@
+import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import type { OrganizationMember } from '../../organization/entities/organization-member';
 import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
-import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import type { ThemePermissions } from '../value-objects/theme-permissions';
 
 export class ThemePermissionPolicy {

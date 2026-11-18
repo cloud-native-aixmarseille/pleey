@@ -1,5 +1,5 @@
-import { createDomainError } from '../../shared/errors/domain-error';
 import type { ActionPermission } from '@pleey/domain/shared/primitives';
+import { createDomainError } from '../../shared/errors/domain-error';
 import type { OrganizationMember } from '../entities/organization-member';
 import { ORGANIZATION_ERROR_DEFINITIONS, OrganizationErrorCode } from '../enums/organization-error-code.enum';
 import { OrganizationRole } from '../enums/organization-role.enum';
