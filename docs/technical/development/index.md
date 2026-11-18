@@ -70,6 +70,9 @@ application lint/tests, CI routing tests, Helm installation and image promotion 
 that scope. All other PRs, main and release run full CI, including isolated browser validation of user guides. Documentation-only
 commits within a mixed PR still run full CI.
 
+The shared Node CI workflow enables Dependency Review and CodeQL for the CI routing
+action (`javascript`), backend (`typescript`) and frontend (`typescript`) jobs.
+
 The [PR workflow](../../../.github/workflows/pull-request-ci.yml) uses the
 [local classification action](../../../.github/actions/determine-pr-checks/action.yml)
 to check the full paginated PR file list against its triggering head/base

@@ -100,8 +100,8 @@ jobs:
       build: ""
       lint: ""
       test: '{"command":"test:ci","report-file":"junit.xml,coverage/lcov.info","comment":false}'
-      code-ql: "" # FIXME: Set `javascript` when CodeQL will be available (paid feature)
-      dependency-review: false # FIXME: Set `true` when Dependency Review will be available (paid feature)
+      code-ql: javascript
+      dependency-review: true
 
   build-backend-ci-image:
     name: Build backend CI image
@@ -158,8 +158,8 @@ jobs:
             "scripts/": "./application/backend/scripts/"
           }
         }
-      code-ql: "" # FIXME: Set `typescript` when CodeQL will be available (paid feature)
-      dependency-review: false # FIXME: Set `true` when Dependency Review will be available (paid feature)
+      code-ql: typescript
+      dependency-review: true
     secrets:
       container-password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -218,8 +218,8 @@ jobs:
             "scripts/": "./application/frontend/scripts/"
           }
         }
-      code-ql: "" # FIXME: Set `typescript` when CodeQL will be available (paid feature)
-      dependency-review: false # FIXME: Set `true` when Dependency Review will be available (paid feature)
+      code-ql: typescript
+      dependency-review: true
     secrets:
       container-password: ${{ secrets.GITHUB_TOKEN }}
 
