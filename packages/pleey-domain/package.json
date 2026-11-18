@@ -1,0 +1,79 @@
+{
+  "name": "@pleey/domain",
+  "version": "0.0.0",
+  "description": "Pleey shared frontend/backend domain contracts",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.15.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/empty.d.ts",
+      "import": "./dist/empty.js",
+      "require": "./dist/empty.cjs",
+      "default": "./dist/empty.js"
+    },
+    "./shared/primitives": {
+      "types": "./dist/empty.d.ts",
+      "import": "./dist/empty.js",
+      "require": "./dist/empty.cjs",
+      "default": "./dist/empty.js"
+    },
+    "./identity": {
+      "types": "./dist/empty.d.ts",
+      "import": "./dist/empty.js",
+      "require": "./dist/empty.cjs",
+      "default": "./dist/empty.js"
+    },
+    "./organization": {
+      "types": "./dist/empty.d.ts",
+      "import": "./dist/empty.js",
+      "require": "./dist/empty.cjs",
+      "default": "./dist/empty.js"
+    },
+    "./project": {
+      "types": "./dist/empty.d.ts",
+      "import": "./dist/empty.js",
+      "require": "./dist/empty.cjs",
+      "default": "./dist/empty.js"
+    },
+    "./game": {
+      "types": "./dist/empty.d.ts",
+      "import": "./dist/empty.js",
+      "require": "./dist/empty.cjs",
+      "default": "./dist/empty.js"
+    },
+    "./party": {
+      "types": "./dist/empty.d.ts",
+      "import": "./dist/empty.js",
+      "require": "./dist/empty.cjs",
+      "default": "./dist/empty.js"
+    },
+    "./theme": {
+      "types": "./dist/empty.d.ts",
+      "import": "./dist/empty.js",
+      "require": "./dist/empty.cjs",
+      "default": "./dist/empty.js"
+    },
+    "./media": {
+      "types": "./dist/empty.d.ts",
+      "import": "./dist/empty.js",
+      "require": "./dist/empty.cjs",
+      "default": "./dist/empty.js"
+    },
+    "./errors": {
+      "types": "./dist/empty.d.ts",
+      "import": "./dist/empty.js",
+      "require": "./dist/empty.cjs",
+      "default": "./dist/empty.js"
+    },
+    "./package.json": "./package.json"
+  }
+}

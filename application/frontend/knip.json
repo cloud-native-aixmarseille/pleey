@@ -12,6 +12,7 @@
     "src/infrastructure/graphql/generated/graphql.ts"
   ],
   "ignoreDependencies": [
+    "@pleey/domain",
     "markdown-it",
     "github-slugger"
   ]

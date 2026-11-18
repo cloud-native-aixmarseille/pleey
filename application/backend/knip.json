@@ -15,6 +15,7 @@
   ],
   "ignoreDependencies": [
     "@as-integrations/express5",
+    "@pleey/domain",
     "@opentelemetry/instrumentation",
     "graphql-ws",
     "swagger-ui-express",
