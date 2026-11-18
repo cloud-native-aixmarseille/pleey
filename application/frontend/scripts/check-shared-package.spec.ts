@@ -82,7 +82,9 @@ describe("shared domain package checker", () => {
     const sharedPartyEventsPath = [
       path.resolve(import.meta.dirname, '../../../packages/pleey-domain/party/index.js'),
       '/usr/packages/pleey-domain/party/index.js',
-    ].find((candidate) => fs.existsSync(candidate));
+    ].find((candidate) => {
+      return fs.existsSync(candidate);
+    });
 
     // Act + Assert
     try {
