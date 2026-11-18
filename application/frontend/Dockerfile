@@ -16,6 +16,7 @@ WORKDIR /usr/src/app
 FROM base AS build
 
 COPY ./application/frontend/package*.json /usr/src/app/
+COPY ./packages/pleey-domain /usr/packages/pleey-domain
 
 RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
     --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \

@@ -2,6 +2,8 @@
 .git
 **/node_modules
 **/dist
+!packages/pleey-domain/dist
+!packages/pleey-domain/dist/**
 **/coverage
 **/.cache
 **/.npm
