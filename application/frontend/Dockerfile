@@ -77,6 +77,7 @@ CMD ["nginx", "-g", "daemon off;"]
 FROM base AS ci
 
 COPY --chown=node:node --from=build /usr/src/app/ /usr/src/app/
+COPY --chown=node:node --from=build /usr/packages/pleey-domain /usr/packages/pleey-domain
 COPY --chown=node:node ./application/backend/src/schema.gql /usr/src/backend/src/schema.gql
 COPY --chown=node:node ./scripts /usr/src/shared-scripts
 COPY --chown=node:node ./docs /usr/src/repository/docs
