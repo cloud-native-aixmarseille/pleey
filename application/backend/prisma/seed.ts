@@ -42,6 +42,7 @@ const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString }),
 });
 const partySettingsMapper = new PrismaPartySettingsMapper();
+const fixedSeedTime = new Date('2026-11-18T11:39:00.000Z');
 
 async function main() {
   console.log('Seeding database...');
@@ -50,6 +51,7 @@ async function main() {
   const admin = await prisma.user.upsert({
     where: { username: 'admin' },
     update: {
+      createdAt: fixedSeedTime,
       authentication: {
         update: {
           email: 'admin@pleey.com',
@@ -62,6 +64,7 @@ async function main() {
     },
     create: {
       username: 'admin',
+      createdAt: fixedSeedTime,
       authentication: { create: { email: 'admin@pleey.com', password: adminPassword } },
     },
   });
@@ -70,6 +73,7 @@ async function main() {
   const player = await prisma.user.upsert({
     where: { username: 'player1' },
     update: {
+      createdAt: fixedSeedTime,
       authentication: {
         update: {
           email: 'player@pleey.com',
@@ -82,6 +86,7 @@ async function main() {
     },
     create: {
       username: 'player1',
+      createdAt: fixedSeedTime,
       authentication: { create: { email: 'player@pleey.com', password: playerPassword } },
     },
   });
@@ -167,6 +172,7 @@ async function main() {
         title: quizGameTitle,
         description: 'A short sample quiz for local development',
         projectId: project.id,
+        createdAt: fixedSeedTime,
       },
     });
   } else {
@@ -175,6 +181,7 @@ async function main() {
       data: {
         description: 'A short sample quiz for local development',
         projectId: project.id,
+        createdAt: fixedSeedTime,
       },
     });
   }
@@ -215,6 +222,7 @@ async function main() {
         title: predictionTitle,
         description: 'Sample prediction game for local development',
         projectId: project.id,
+        createdAt: fixedSeedTime,
       },
     });
   } else {
@@ -223,6 +231,7 @@ async function main() {
       data: {
         description: 'Sample prediction game for local development',
         projectId: project.id,
+        createdAt: fixedSeedTime,
       },
     });
   }
@@ -353,6 +362,7 @@ async function main() {
       status: 'waiting',
       gameId: quizGame.id,
       hostId: admin.id,
+      createdAt: fixedSeedTime,
       settings: partySettingsMapper.toPersistedPartySettings(DEFAULT_PARTY_SETTINGS),
       themeDocument: CURATED_THEME_DOCUMENTS[DEFAULT_THEME_ID],
       context: Prisma.JsonNull,
@@ -362,6 +372,7 @@ async function main() {
       hostId: admin.id,
       pin: partyPin,
       status: 'waiting',
+      createdAt: fixedSeedTime,
       settings: partySettingsMapper.toPersistedPartySettings(DEFAULT_PARTY_SETTINGS),
       themeDocument: CURATED_THEME_DOCUMENTS[DEFAULT_THEME_ID],
       context: Prisma.JsonNull,
@@ -375,11 +386,12 @@ async function main() {
         {
           partyId: party.id,
           userId: player.id,
+          createdAt: fixedSeedTime,
           context: {
             questionId: firstQuestion.id,
             actionTime: 5,
             isCorrect: true,
-            actedAt: new Date().toISOString(),
+            actedAt: fixedSeedTime.toISOString(),
           },
           points: firstQuestion.points,
         },

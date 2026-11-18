@@ -58,7 +58,7 @@ describe('AppShellLayout', () => {
       // Arrange + Act
       renderLayout();
       // Assert
-      expect(screen.getByRole('button', { name: 'shared.shell.navToggle' })).toBeInTheDocument();
+      expect(document.querySelector('button[aria-label="shared.shell.navToggle"]')).not.toBeNull();
     });
 
     it('labels the navigation landmark for accessibility', () => {

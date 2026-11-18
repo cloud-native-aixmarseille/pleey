@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type BrowserContext, type Page, test } from "@playwright/test";
 import type { UiThemeSeed } from "../../../application/frontend/src/presentation/shared/ui/foundation/ui-theme-contract";
 import { loginViaApi, resolveGraphqlUrl } from "../helpers/auth";
 
@@ -11,6 +11,21 @@ const root = fs.existsSync("/repository/scripts") ? "/repository" : path.resolve
 
 const assets = path.join(root, "docs/usage/assets");
 const capture = process.env.USAGE_CAPTURE === "1";
+const fixedCaptureTime = new Date("2026-11-18T11:39:00.000Z");
+const fixedGuestAvatarSeed = "01974c4e-3e24-7c39-ae9f-5e0b8f7b2c31";
+
+async function stabilizeCaptureContext(context: BrowserContext) {
+  await context.addInitScript(
+    ({ fixedSeed }) => {
+      Object.defineProperty(globalThis.crypto, "randomUUID", {
+        configurable: true,
+        value: () => fixedSeed,
+      });
+      Math.random = () => 0.123456789;
+    },
+    { fixedSeed: fixedGuestAvatarSeed },
+  );
+}
 
 async function graphql(page: Page, token: string, query: string, variables = {}) {
   const response = await page.request.post(resolveGraphqlUrl(), {
@@ -40,7 +55,10 @@ test("all user guides resolve real routes, localized copy and targets, with acce
       locale,
       reducedMotion: "reduce",
     });
+    await stabilizeCaptureContext(context);
     const page = await context.newPage();
+    await page.clock.setFixedTime(fixedCaptureTime);
+    await page.addStyleTag({ content: "textarea, input { caret-color: transparent !important; }" });
     const { accessToken } = await loginViaApi(page, {
       email: process.env.E2E_ADMIN_EMAIL ?? "admin@pleey.com",
       password: process.env.E2E_ADMIN_PASSWORD ?? "admin123",
@@ -90,7 +108,10 @@ test("all user guides resolve real routes, localized copy and targets, with acce
             locale,
             reducedMotion: "reduce",
           });
+          await stabilizeCaptureContext(playerContext);
           playerPage = await playerContext.newPage();
+          await playerPage.clock.setFixedTime(fixedCaptureTime);
+          await playerPage.addStyleTag({ content: "textarea, input { caret-color: transparent !important; }" });
           await playerPage.goto("/");
           await playerPage.evaluate((locale) => localStorage.setItem("pleey_language", locale), locale);
         }
@@ -116,6 +137,10 @@ test("all user guides resolve real routes, localized copy and targets, with acce
         await expect(target).toHaveCount(1);
         await expect(target).toBeVisible();
         await target.scrollIntoViewIfNeeded();
+        await targetPage.mouse.move(0, 0);
+        await targetPage.evaluate(() => {
+          if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+        });
         await targetPage.evaluate(() => document.fonts.ready);
         const file = `${guide.id}-${step.anchor}-${locale}.png`;
         if (capture)

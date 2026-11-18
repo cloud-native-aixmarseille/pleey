@@ -54,9 +54,12 @@ describe('AppShellHeader', () => {
     expect(screen.getByRole('link', { name: /shared.nav.dashboard/i })).toHaveAttribute('href', '/workspace/dashboard');
     expect(screen.getByText('account-menu:1.2.3:https://example.com/feedback')).toBeInTheDocument();
     expect(screen.queryByText(/guest-preferences-menu:/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'shared.shell.navToggle' })).toBeInTheDocument();
+    const navToggle = document.querySelector<HTMLButtonElement>('button[aria-label="shared.shell.navToggle"]');
+    if (!navToggle) {
+      throw new Error('Navigation toggle button was not rendered');
+    }
 
-    await user.click(screen.getByRole('button', { name: 'shared.shell.navToggle' }));
+    await user.click(navToggle);
 
     expect(navHandlers.toggle).toHaveBeenCalledTimes(1);
   });

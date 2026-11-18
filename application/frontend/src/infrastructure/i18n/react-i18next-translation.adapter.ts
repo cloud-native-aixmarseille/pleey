@@ -18,6 +18,6 @@ export function useReactI18nextTranslationAdapter(storage: StoragePort): Transla
   return {
     currentLanguage: i18n.language,
     changeLanguage,
-    t: (key, variables) => t(key, variables),
+    t: (key, variables) => (variables ? t(key, variables) : t(key)),
   };
 }
