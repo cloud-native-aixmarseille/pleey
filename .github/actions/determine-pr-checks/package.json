@@ -11,7 +11,7 @@
     "test:ci": "vitest run --reporter=default --reporter=junit --outputFile.junit=junit.xml --coverage.enabled --coverage.reporter=lcov --coverage.reporter=text"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^5.1.0",
-    "vitest": "^5.1.0"
+    "@vitest/coverage-v8": "^5.1.1",
+    "vitest": "^5.1.1"
   }
 }

@@ -11,7 +11,7 @@ export class TranslationFixtureFactory {
       changeLanguage: (next) => {
         void i18n.changeLanguage(next);
       },
-      t: (key, variables) => i18n.t(key, variables),
+      t: (key, variables) => (variables ? i18n.t(key, variables) : i18n.t(key)),
     };
   }
 }

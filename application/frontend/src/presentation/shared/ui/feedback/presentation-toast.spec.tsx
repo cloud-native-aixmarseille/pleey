@@ -55,10 +55,9 @@ describe('PresentationToastViewport', () => {
       const toast = await screen.findByTestId('toast-shell');
       // jsdom does not resolve CSS variables in the computed background shorthand.
       expect(toast.style.background).toBe('var(--ui-color-surface-canvas)');
-      expect(screen.getByTestId('presentation-toast-viewport')).toHaveStyle({
-        right: 'var(--mantine-spacing-lg)',
-        top: 'var(--mantine-spacing-lg)',
-      });
+      const viewport = screen.getByTestId('presentation-toast-viewport');
+      expect(viewport.style.right).toBe('var(--mantine-spacing-lg)');
+      expect(viewport.style.top).toBe('var(--mantine-spacing-lg)');
       expect(screen.getByRole('status')).toHaveTextContent('Project created successfully.');
     } finally {
       resetGlobals();
@@ -77,13 +76,12 @@ describe('PresentationToastViewport', () => {
 
       await user.click(screen.getByRole('button', { name: 'Trigger toast' }));
 
-      expect(await screen.findByTestId('presentation-toast-viewport')).toHaveStyle({
-        bottom: 'max(var(--mantine-spacing-lg), env(safe-area-inset-bottom))',
-        left: '50%',
-        right: 'auto',
-        top: 'auto',
-        transform: 'translateX(-50%)',
-      });
+      const viewport = await screen.findByTestId('presentation-toast-viewport');
+      expect(viewport.style.bottom).toBe('max(var(--mantine-spacing-lg), env(safe-area-inset-bottom))');
+      expect(viewport.style.left).toBe('50%');
+      expect(viewport.style.right).toBe('auto');
+      expect(viewport.style.top).toBe('auto');
+      expect(viewport.style.transform).toBe('translateX(-50%)');
     } finally {
       resetGlobals();
     }

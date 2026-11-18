@@ -18,6 +18,6 @@ export class I18nextTranslationAdapter implements TranslationPort {
   }
 
   t(key: string, variables?: TranslationVariables): string {
-    return this.i18n.t(key, variables);
+    return variables ? this.i18n.t(key, variables) : this.i18n.t(key);
   }
 }
