@@ -1,3 +1,4 @@
+import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import type { GameCatalogPort } from '../../../application/game/management/ports/game-catalog.port';
 import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
@@ -9,7 +10,6 @@ import {
 } from '../../../domains/game/management/entities/dashboard-game-list-item';
 import type { DashboardGameListPage } from '../../../domains/game/management/entities/dashboard-game-list-page';
 import type { DashboardGameListQuery } from '../../../domains/game/management/entities/dashboard-game-list-query';
-import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { GraphqlClient } from '../../graphql/client/graphql-client';
 import {
   ProjectGamesDocument,

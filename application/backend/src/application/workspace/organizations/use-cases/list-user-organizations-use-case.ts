@@ -1,11 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
 import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
 import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
-import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
 import type { OrganizationWithAccess } from '../dto/organization-access.dto';
 import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';

@@ -1,8 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
-import type { PaginatedResult } from '@pleey/domain/shared/primitives';
-import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { ManagedTheme } from '../../../../domain/theme/entities/managed-theme';
 import { ThemeRepository } from '../../../../domain/theme/ports/theme-repository';
 import type { ThemePermissions } from '../../../../domain/theme/value-objects/theme-permissions';
