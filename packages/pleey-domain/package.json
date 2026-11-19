@@ -14,6 +14,8 @@
     "organization/",
     "project/",
     "game/",
+    "media/",
+    "errors/",
     "party/",
     "theme/",
     "empty.js",
@@ -72,16 +74,16 @@
       "default": "./theme/index.js"
     },
     "./media": {
-      "types": "./empty.d.ts",
-      "import": "./empty.js",
-      "require": "./empty.cjs",
-      "default": "./empty.js"
+      "types": "./media/index.d.ts",
+      "import": "./media/index.js",
+      "require": "./media/index.js",
+      "default": "./media/index.js"
     },
     "./errors": {
-      "types": "./empty.d.ts",
-      "import": "./empty.js",
-      "require": "./empty.cjs",
-      "default": "./empty.js"
+      "types": "./errors/index.d.ts",
+      "import": "./errors/index.js",
+      "require": "./errors/index.js",
+      "default": "./errors/index.js"
     },
     "./package.json": "./package.json"
   }

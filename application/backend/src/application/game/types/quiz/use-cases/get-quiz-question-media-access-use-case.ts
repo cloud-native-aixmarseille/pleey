@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { MediaAccessGrant } from '@pleey/domain/media';
 import { QuizNotFoundError } from '../../../../../domain/game/types/quiz/errors';
 import {
   type QuizManagementRepository,
@@ -9,7 +10,6 @@ import {
   QuizQuestionRepositoryProvider,
 } from '../../../../../domain/game/types/quiz/ports/quiz-question.repository';
 import type { UserId } from '../../../../../domain/identity/entities/user';
-import type { MediaAccessGrant } from '../../../../../domain/media/entities/media-access-grant';
 import { MEDIA_ERROR_DEFINITIONS, MediaErrorCode } from '../../../../../domain/media/enums/media-error-code.enum';
 import { MediaAccessIssuer } from '../../../../../domain/media/ports/media-access-issuer.port';
 import { createDomainError } from '../../../../../domain/shared/errors/domain-error';

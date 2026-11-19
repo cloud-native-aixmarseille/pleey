@@ -1,16 +1,11 @@
+import {
+  QuizErrorCode as SharedQuizErrorCode,
+  type QuizErrorCode as SharedQuizErrorCodeType,
+} from '@pleey/domain/errors';
 import { type DomainErrorDefinition } from '../../../../shared/errors/domain-error';
 
-export enum QuizErrorCode {
-  QUIZ_NOT_FOUND = 'QUIZ_NOT_FOUND',
-  QUESTION_NOT_FOUND = 'QUESTION_NOT_FOUND',
-  QUIZ_HAS_ACTIVE_PARTY = 'QUIZ_HAS_ACTIVE_PARTY',
-  INVALID_CORRECT_ANSWER = 'INVALID_CORRECT_ANSWER',
-  CORRECT_ANSWER_OPTION_EMPTY = 'CORRECT_ANSWER_OPTION_EMPTY',
-  INVALID_QUESTION_MEDIA = 'INVALID_QUESTION_MEDIA',
-  QUIZ_IMPORT_INVALID_FILE = 'QUIZ_IMPORT_INVALID_FILE',
-  QUIZ_IMPORT_UNSUPPORTED_FORMAT = 'QUIZ_IMPORT_UNSUPPORTED_FORMAT',
-  QUIZ_IMPORT_EMPTY_FILE = 'QUIZ_IMPORT_EMPTY_FILE',
-}
+export const QuizErrorCode = SharedQuizErrorCode;
+export type QuizErrorCode = SharedQuizErrorCodeType;
 
 export const QUIZ_ERROR_DEFINITIONS: Readonly<Record<QuizErrorCode, DomainErrorDefinition<QuizErrorCode>>> = {
   [QuizErrorCode.QUIZ_NOT_FOUND]: {

@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import type { SelectableOptionInput as DomainSelectableOptionInput, SelectableOptionId } from '@pleey/domain/game';
 import type { IdentifierParserPort } from '../../../../../application/shared/services/identifier-parser/contracts';
-import type {
-  SelectableOptionInput as DomainSelectableOptionInput,
-  SelectableOptionId,
-} from '../../../../../domain/game/types/shared/entities/selectable-option';
 import { SelectableOptionInput } from './selectable-option-types';
 
 @Injectable()

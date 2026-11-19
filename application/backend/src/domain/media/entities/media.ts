@@ -1,8 +1,7 @@
 import { Buffer } from 'node:buffer';
+import type { MediaId as SharedMediaId } from '@pleey/domain/media';
 
-export type MediaId = string & {
-  readonly __identifierBrand: 'MediaId';
-};
+export type MediaId = SharedMediaId;
 
 export class Media {
   constructor(

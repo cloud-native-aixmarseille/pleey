@@ -1,5 +1,5 @@
+import type { SelectableOption } from '@pleey/domain/game';
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
-import type { SelectableOption } from '../../shared/entities/selectable-option';
 import type { PredictionId } from '../entities/prediction';
 import { PredictionPrompt, type PredictionPromptId } from '../entities/prediction-prompt';
 

@@ -1,16 +1,15 @@
-import type { SelectableOption, SelectableOptionId } from '../../shared/entities/selectable-option';
+import {
+  QuizQuestionKind,
+  type SelectableOption,
+  type QuizQuestionId as SharedQuizQuestionId,
+  type QuizSelectableOptionId as SharedQuizSelectableOptionId,
+} from '@pleey/domain/game';
 import type { QuizId } from './quiz';
 
-export type QuizQuestionId = string & {
-  readonly __identifierBrand: 'QuizQuestionId';
-};
-
-export type QuizSelectableOptionId = SelectableOptionId<'QuizSelectableOptionId'>;
-
-export enum QuizQuestionType {
-  Multiple = 'multiple',
-  TrueFalse = 'truefalse',
-}
+export type QuizQuestionId = SharedQuizQuestionId;
+export type QuizSelectableOptionId = SharedQuizSelectableOptionId;
+export const QuizQuestionType = QuizQuestionKind;
+export type QuizQuestionType = (typeof QuizQuestionKind)[keyof typeof QuizQuestionKind];
 
 export interface QuizQuestionMedia {
   readonly id: string;

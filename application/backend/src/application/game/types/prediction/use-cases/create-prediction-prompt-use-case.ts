@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { SelectableOptionInput } from '@pleey/domain/game';
 import type { PredictionPrompt } from '../../../../../domain/game/types/prediction/entities/prediction-prompt';
 import { PredictionErrorCode } from '../../../../../domain/game/types/prediction/enums/prediction-error-code.enum';
 import { PredictionNotFoundError } from '../../../../../domain/game/types/prediction/errors';
@@ -7,7 +8,6 @@ import { PredictionManagementRepositoryProvider } from '../../../../../domain/ga
 import type { PredictionPromptRepository } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
 import { PredictionPromptRepositoryProvider } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
 import type { GameTypeId } from '../../../../../domain/game/types/shared/entities/game-type';
-import type { SelectableOptionInput } from '../../../../../domain/game/types/shared/entities/selectable-option';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { GameTypeManagementAccessGuard } from '../../shared/services/game-type-management-access-guard';

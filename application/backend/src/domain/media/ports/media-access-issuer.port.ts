@@ -1,4 +1,4 @@
-import type { MediaAccessGrant } from '../entities/media-access-grant';
+import type { MediaAccessGrant } from '@pleey/domain/media';
 
 // Callers must authorize their audience before requesting a delivery grant.
 export abstract class MediaAccessIssuer {

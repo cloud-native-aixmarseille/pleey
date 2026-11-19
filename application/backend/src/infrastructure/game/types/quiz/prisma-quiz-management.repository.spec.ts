@@ -1,9 +1,9 @@
+import { SelectableOption } from '@pleey/domain/game';
 import { describe, expect, it, vi } from 'vitest';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
 import { QuizQuestionType } from '../../../../domain/game/types/quiz/entities/quiz-question';
-import { SelectableOption } from '../../../../domain/game/types/shared/entities/selectable-option';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import type { PrismaService } from '../../../database/prisma-service';
 import { PrismaQuizManagementRepository } from './prisma-quiz-management.repository';

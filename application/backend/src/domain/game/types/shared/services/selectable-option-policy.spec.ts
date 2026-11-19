@@ -1,5 +1,5 @@
+import { SelectableOption, type SelectableOptionId } from '@pleey/domain/game';
 import { describe, expect, it } from 'vitest';
-import { SelectableOption, type SelectableOptionId } from '../entities/selectable-option';
 import { SelectableOptionPolicy } from './selectable-option-policy';
 
 const errorCodes = {

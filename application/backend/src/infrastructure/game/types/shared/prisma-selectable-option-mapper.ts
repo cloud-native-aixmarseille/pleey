@@ -1,8 +1,5 @@
+import { SelectableOption, type SelectableOptionId } from '@pleey/domain/game';
 import type { IdentifierParserPort } from '../../../../application/shared/services/identifier-parser/contracts';
-import {
-  SelectableOption,
-  type SelectableOptionId,
-} from '../../../../domain/game/types/shared/entities/selectable-option';
 
 export interface PrismaSelectableOptionRecord<TId = string> {
   readonly id: TId;

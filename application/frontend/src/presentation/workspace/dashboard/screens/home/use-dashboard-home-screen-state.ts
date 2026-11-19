@@ -1,3 +1,4 @@
+import { PlayableContentImportErrorKind, resolvePlayableContentImportErrorKind } from '@pleey/domain/errors';
 import { useEffect, useMemo, useState } from 'react';
 import type { DashboardHomeActionsFacade } from '../../../../../application/workspace/dashboard/facades/dashboard-home-actions.facade';
 import type { DashboardWorkspaceGateway } from '../../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
@@ -49,16 +50,17 @@ function createEmptyGameForm(gameTypes: readonly GameTypeDescriptor[]): Dashboar
 
 function resolveImportErrorMessage(error: unknown): string {
   const code = resolvePresentationErrorCode(error) ?? '';
+  const importErrorKind = resolvePlayableContentImportErrorKind(code);
 
-  if (code.endsWith('_IMPORT_EMPTY_FILE')) {
+  if (importErrorKind === PlayableContentImportErrorKind.EmptyFile) {
     return 'dashboard.games.import.emptyError';
   }
 
-  if (code.endsWith('_IMPORT_UNSUPPORTED_FORMAT')) {
+  if (importErrorKind === PlayableContentImportErrorKind.UnsupportedFormat) {
     return 'dashboard.games.import.unsupportedFormat';
   }
 
-  if (code.endsWith('_IMPORT_INVALID_FILE')) {
+  if (importErrorKind === PlayableContentImportErrorKind.InvalidFile) {
     return 'dashboard.games.import.invalidFormat';
   }
 

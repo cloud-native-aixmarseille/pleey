@@ -5,6 +5,16 @@ export const GameType = {
   Quiz: 'quiz',
 };
 
+export const QuizQuestionKind = {
+  Multiple: 'multiple',
+  TrueFalse: 'truefalse',
+};
+
+export const PLAYABLE_CONTENT_DEFAULTS = {
+  points: 1000,
+  timeLimit: 20,
+};
+
 export const GameSortField = {
   Title: 'title',
   CreatedAt: 'createdAt',
@@ -26,3 +36,12 @@ export const LaunchReadinessDisabledReason = {
   UNAVAILABLE: 'PERMISSION_UNAVAILABLE',
   NO_STAGES_AVAILABLE: 'NO_STAGES_AVAILABLE',
 };
+
+export class SelectableOption {
+  constructor(id, text, position, isCorrect) {
+    this.id = id;
+    this.text = text;
+    this.position = position;
+    this.isCorrect = isCorrect;
+  }
+}

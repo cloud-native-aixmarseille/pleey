@@ -1,3 +1,4 @@
+import { PLAYABLE_CONTENT_DEFAULTS } from '@pleey/domain/game';
 import type { PlayableContentManagementGateway } from '../../../../../application/game/types/shared/gateways/playable-management.gateway';
 import type { GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type {
@@ -75,8 +76,8 @@ export function createEmptyPlayableItemEditorState(itemKindConfig?: PlayableItem
     id: null,
     text: '',
     kind: resolveDefaultEditorKind(itemKindConfig),
-    timeLimit: '20',
-    points: '1000',
+    timeLimit: String(PLAYABLE_CONTENT_DEFAULTS.timeLimit),
+    points: String(PLAYABLE_CONTENT_DEFAULTS.points),
     media: null,
     mediaFile: null,
     clearMedia: false,

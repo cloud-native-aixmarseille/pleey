@@ -1,16 +1,14 @@
-import type { SelectableOptionInput } from '../../../../../../domain/game/types/shared/entities/selectable-option';
+import { type PlayableContentInput, QuizQuestionKind, type SelectableOptionInput } from '@pleey/domain/game';
 
-export enum PlayableImportItemKind {
-  MULTIPLE = 'multiple',
-  TRUE_FALSE = 'truefalse',
-}
+export const PlayableImportItemKind = {
+  MULTIPLE: QuizQuestionKind.Multiple,
+  TRUE_FALSE: QuizQuestionKind.TrueFalse,
+};
+export type PlayableImportItemKind = (typeof PlayableImportItemKind)[keyof typeof PlayableImportItemKind];
 
-export interface PlayableImportItemDefinition {
+export interface PlayableImportItemDefinition extends PlayableContentInput {
   readonly kind: PlayableImportItemKind;
   readonly options: readonly SelectableOptionInput[];
-  readonly points: number;
-  readonly text: string;
-  readonly timeLimit: number;
 }
 
 export enum PlayableImportFormat {
@@ -56,6 +54,4 @@ export type JsonOptionRecord =
       readonly text?: string | null;
     };
 
-export const DEFAULT_POINTS = 1000;
-export const DEFAULT_TIME_LIMIT = 20;
 export const TRUE_FALSE_OPTION_TEXTS = ['True', 'False'] as const;

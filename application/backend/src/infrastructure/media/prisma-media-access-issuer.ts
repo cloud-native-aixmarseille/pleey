@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { MediaAccessGrant } from '../../domain/media/entities/media-access-grant';
+import type { MediaAccessGrant } from '@pleey/domain/media';
 import { MEDIA_ERROR_DEFINITIONS, MediaErrorCode } from '../../domain/media/enums/media-error-code.enum';
 import { MediaAccessIssuer } from '../../domain/media/ports/media-access-issuer.port';
 import { MediaObjectStorage } from '../../domain/media/ports/media-object-storage.port';
