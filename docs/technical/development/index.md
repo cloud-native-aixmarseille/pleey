@@ -70,7 +70,7 @@ them:
 
 Use one explicit feature entry point such as `@pleey/domain/game` or
 `@pleey/domain/identity`. Do not add a catch-all package barrel or application
-re-export wrapper for a shared declaration. Preserve an application adapter only
+reexport wrapper for a shared declaration. Preserve an application adapter only
 when its runtime representation or enum vocabulary intentionally differs from
 the shared public contract.
 
