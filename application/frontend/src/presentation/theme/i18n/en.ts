@@ -162,8 +162,7 @@ export const themeEn = {
       },
     },
     template: {
-      root:
-        'Theme document template. Every value in overrides is optional. Remove fields to inherit the selected base theme; $comment fields are ignored on import.',
+      root: 'Theme document template. Every value in overrides is optional. Remove fields to inherit the selected base theme; $comment fields are ignored on import.',
       name: 'My theme',
       overrides:
         'Optional sections are colorScales, semantic, radius, spacing, motion, typography, and assets. Each key can be omitted independently.',
@@ -184,8 +183,7 @@ export const themeEn = {
       typography:
         'Approved font-family strings for body text, display headings, monospace content, and overline labels.',
       assets: {
-        root:
-          'logoAssetUri and backgroundAssetUri accept PNG, JPEG, or WebP URIs. Import downloads and replaces them with managed asset IDs.',
+        root: 'logoAssetUri and backgroundAssetUri accept PNG, JPEG, or WebP URIs. Import downloads and replaces them with managed asset IDs.',
       },
     },
     management: {

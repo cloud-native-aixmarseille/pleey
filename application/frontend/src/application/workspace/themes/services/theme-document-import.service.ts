@@ -2,10 +2,7 @@ import { inject, injectable } from 'inversify';
 import type { OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { ThemeDocument } from '../../../../domains/theme/entities/theme-document';
 import { ThemeError, ThemeErrorCode } from '../../../../domains/theme/errors/theme-error';
-import {
-  type ThemeRepository,
-  ThemeRepositoryToken,
-} from '../../../../domains/theme/ports/theme-repository';
+import { type ThemeRepository, ThemeRepositoryToken } from '../../../../domains/theme/ports/theme-repository';
 import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
 import {
   type ThemeAssetUriReaderPort,

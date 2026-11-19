@@ -164,16 +164,14 @@ export const themeFr = {
       },
     },
     template: {
-      root:
-        "Modèle de document de thème. Chaque valeur dans overrides est facultative. Supprimez les champs à ne pas redéfinir ; les champs $comment sont ignorés à l'import.",
+      root: "Modèle de document de thème. Chaque valeur dans overrides est facultative. Supprimez les champs à ne pas redéfinir ; les champs $comment sont ignorés à l'import.",
       name: 'Mon thème',
       overrides:
         'Les sections facultatives sont colorScales, semantic, radius, spacing, motion, typography et assets. Chaque clé peut être omise séparément.',
       colorScales:
-        "Dix couleurs HEX par palette, de la plus claire à la plus foncée. accent pilote les actions, highlight la mise en avant et success les états positifs.",
+        'Dix couleurs HEX par palette, de la plus claire à la plus foncée. accent pilote les actions, highlight la mise en avant et success les états positifs.',
       semantic: {
-        root:
-          'Valeurs propres à chaque mode pour les surfaces, textes et bordures. Utilisez des couleurs HEX et préservez le contraste WCAG.',
+        root: 'Valeurs propres à chaque mode pour les surfaces, textes et bordures. Utilisez des couleurs HEX et préservez le contraste WCAG.',
         light: 'Valeurs sémantiques du mode clair.',
         dark: 'Valeurs sémantiques du mode sombre.',
         surface: 'Couleurs du fond principal, des panneaux, champs, overlays et surfaces d’état.',
@@ -183,13 +181,11 @@ export const themeFr = {
       radius:
         'Rayons en px ou rem : field pour les champs, inset pour les surfaces imbriquées, panel pour les cartes et pill pour les éléments arrondis.',
       spacing: 'Espacements en px ou rem, de xxs pour le plus petit à xxxl pour le plus grand.',
-      motion:
-        'Durées en ms, suivies au besoin de ease, linear ou ease-in-out. La limite est de 500ms.',
+      motion: 'Durées en ms, suivies au besoin de ease, linear ou ease-in-out. La limite est de 500ms.',
       typography:
         'Polices autorisées pour le texte courant, les titres, le code à chasse fixe et les libellés overline.',
       assets: {
-        root:
-          "logoAssetUri et backgroundAssetUri acceptent des URI PNG, JPEG ou WebP. L'import les télécharge et les remplace par des identifiants gérés.",
+        root: "logoAssetUri et backgroundAssetUri acceptent des URI PNG, JPEG ou WebP. L'import les télécharge et les remplace par des identifiants gérés.",
       },
     },
     management: {

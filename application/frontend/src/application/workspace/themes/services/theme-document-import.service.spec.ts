@@ -2,10 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { ThemeRepository } from '../../../../domains/theme/ports/theme-repository';
 import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
-import type {
-  ThemeAssetUriReaderPort,
-  ThemeDocumentFileReaderPort,
-} from '../ports/theme-document-transfer.port';
+import type { ThemeAssetUriReaderPort, ThemeDocumentFileReaderPort } from '../ports/theme-document-transfer.port';
 import { ThemeDocumentImportService } from './theme-document-import.service';
 
 const organizationId = '01900000-0000-7000-8000-000000000001' as OrganizationId;
