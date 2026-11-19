@@ -59,7 +59,7 @@ export class GraphqlGameCatalogAdapter implements GameCatalogPort {
               allowed: item.permissions?.launchReadiness?.allowed,
               reason:
                 item.permissions?.launchReadiness?.reason === 'NO_STAGES_AVAILABLE' ||
-                item.permissions?.launchReadiness?.reason === 'PARTY_STAGES_NOT_AVAILABLE'
+                item.permissions?.launchReadiness?.reason === GameErrorCode.PARTY_STAGES_NOT_AVAILABLE
                   ? LaunchReadinessDisabledReason.NO_STAGES_AVAILABLE
                   : item.permissions?.launchReadiness?.reason,
             },
@@ -75,3 +75,5 @@ export class GraphqlGameCatalogAdapter implements GameCatalogPort {
     };
   }
 }
+
+import { GameErrorCode } from '@pleey/domain/errors';

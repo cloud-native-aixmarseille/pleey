@@ -1,8 +1,8 @@
 import { PartyGuestCredentialMockFactory } from '../../../../../test-utils/mock-factories/party-guest-credential-mock-factory';
 import 'reflect-metadata';
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
-import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import {
   GuestPlayerRejoinNotFoundError,
   GuestUsernameRequiredError,

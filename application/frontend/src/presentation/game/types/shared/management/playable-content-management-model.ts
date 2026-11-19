@@ -1,5 +1,5 @@
 import type { GameTypeId } from '@pleey/domain/game';
-import { PLAYABLE_CONTENT_DEFAULTS } from '@pleey/domain/game';
+import { PLAYABLE_CONTENT_DEFAULTS, PLAYABLE_CONTENT_LIMITS } from '@pleey/domain/game';
 import type { PlayableContentManagementGateway } from '../../../../../application/game/types/shared/gateways/playable-management.gateway';
 import type {
   PlayableChoiceOption,
@@ -54,7 +54,7 @@ export interface PlayableItemEditorState {
   readonly optionTexts: readonly string[];
 }
 
-const defaultOptionTexts = ['', '', '', '', '', '', '', ''];
+const defaultOptionTexts = Array.from({ length: PLAYABLE_CONTENT_LIMITS.maxOptions }, () => '');
 
 function resolveDefaultEditorKind(itemKindConfig: PlayableItemKindConfig | undefined): PlayableItemEditorKind {
   return itemKindConfig?.defaultKind ?? null;

@@ -1,0 +1,84 @@
+{
+  "name": "@pleey/domain",
+  "version": "0.0.0",
+  "description": "Pleey shared frontend/backend domain contracts",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.15.0"
+  },
+  "files": [
+    "shared/",
+    "identity/",
+    "organization/",
+    "project/",
+    "game/",
+    "i18n/",
+    "media/",
+    "errors/",
+    "party/",
+    "theme/",
+    "empty.ts",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./empty.ts",
+      "import": "./empty.ts",
+      "default": "./empty.ts"
+    },
+    "./shared/primitives": {
+      "types": "./shared/primitives/index.ts",
+      "import": "./shared/primitives/index.ts",
+      "default": "./shared/primitives/index.ts"
+    },
+    "./identity": {
+      "types": "./identity/index.ts",
+      "import": "./identity/index.ts",
+      "default": "./identity/index.ts"
+    },
+    "./organization": {
+      "types": "./organization/index.ts",
+      "import": "./organization/index.ts",
+      "default": "./organization/index.ts"
+    },
+    "./project": {
+      "types": "./project/index.ts",
+      "import": "./project/index.ts",
+      "default": "./project/index.ts"
+    },
+    "./game": {
+      "types": "./game/index.ts",
+      "import": "./game/index.ts",
+      "default": "./game/index.ts"
+    },
+    "./i18n": {
+      "types": "./i18n/index.ts",
+      "import": "./i18n/index.ts",
+      "default": "./i18n/index.ts"
+    },
+    "./party": {
+      "types": "./party/index.ts",
+      "import": "./party/index.ts",
+      "default": "./party/index.ts"
+    },
+    "./theme": {
+      "types": "./theme/index.ts",
+      "import": "./theme/index.ts",
+      "default": "./theme/index.ts"
+    },
+    "./media": {
+      "types": "./media/index.ts",
+      "import": "./media/index.ts",
+      "default": "./media/index.ts"
+    },
+    "./errors": {
+      "types": "./errors/index.ts",
+      "import": "./errors/index.ts",
+      "default": "./errors/index.ts"
+    },
+    "./package.json": "./package.json"
+  }
+}

@@ -2,7 +2,7 @@
 
 # Party settings
 
-[index.js](../../../packages/pleey-domain/party/index.js)
+[index.ts](../../../application/shared/party/index.ts)
 
 | Setting                        | Default | Allowed values   |
 | ------------------------------ | ------- | ---------------- |
@@ -14,7 +14,7 @@
 
 ## Quiz and prediction editor defaults
 
-[index.js](../../../packages/pleey-domain/game/index.js)
+[index.ts](../../../application/shared/game/index.ts)
 
 | Domain     | Setting   | Default | Minimum (integer) | Source                                                                                                                         |
 | ---------- | --------- | ------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------ |

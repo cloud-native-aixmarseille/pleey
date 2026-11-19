@@ -1,11 +1,10 @@
 import type { GuestId } from '@pleey/domain/identity';
 import type { PartyId, PartyPin } from '@pleey/domain/party';
+import { PartyJoinReceiptStatus, PartyPlayerKind } from '@pleey/domain/party';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
-import { PartyJoinReceiptStatus } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyJoiningPlayerIdentity } from '../../../../../domains/game/party/shared/entities/party-player-identity';
-import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import type { PartyObservationConnectionState } from '../../../../../domains/game/party/shared/ports/party-observation.port';
 import type { UserId } from '../../../../../domains/identity/entities/user';
 
@@ -68,9 +67,9 @@ export function usePartySessionRecovery({
 
     const playerIdentity: PartyJoiningPlayerIdentity | null =
       userId !== null
-        ? { kind: PartyPlayerIdentityKind.User, userId }
+        ? { kind: PartyPlayerKind.USER, userId }
         : currentGuestId !== null
-          ? { kind: PartyPlayerIdentityKind.Guest, guestId: currentGuestId }
+          ? { kind: PartyPlayerKind.GUEST, guestId: currentGuestId }
           : null;
 
     if (playerIdentity === null) {
@@ -96,11 +95,11 @@ export function usePartySessionRecovery({
         return;
       }
 
-      if (receipt.player.identity.kind === PartyPlayerIdentityKind.Guest) {
+      if (receipt.player.identity.kind === PartyPlayerKind.GUEST) {
         partyLobbyFacade.setGuestId(currentPartyPin, receipt.player.identity.guestId);
       }
 
-      if (receipt.player.identity.kind === PartyPlayerIdentityKind.User && currentGuestId !== null) {
+      if (receipt.player.identity.kind === PartyPlayerKind.USER && currentGuestId !== null) {
         partyLobbyFacade.clearGuestId(currentPartyPin);
       }
 
@@ -212,7 +211,7 @@ function hasPartyIdentityMatch({
   }
 
   return party.players.some((player) => {
-    if (player.identity.kind === PartyPlayerIdentityKind.User) {
+    if (player.identity.kind === PartyPlayerKind.USER) {
       return userId !== null && player.identity.userId === userId;
     }
 

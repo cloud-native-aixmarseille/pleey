@@ -1,19 +1,11 @@
+import {
+  GameErrorCode as SharedGameErrorCode,
+  type GameErrorCode as SharedGameErrorCodeType,
+} from '@pleey/domain/errors';
 import { type DomainErrorDefinition } from '../../shared/errors/domain-error';
 
-export enum GameErrorCode {
-  GAME_NOT_FOUND = 'GAME_NOT_FOUND',
-  PARTY_NOT_FOUND = 'PARTY_NOT_FOUND',
-  PIN_ALREADY_IN_USE = 'PIN_ALREADY_IN_USE',
-  VALIDATION_FAILED = 'VALIDATION_FAILED',
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
-  PLAYER_ALREADY_IN_ACTIVE_PARTY = 'PLAYER_ALREADY_IN_ACTIVE_PARTY',
-  ACTIVE_PARTY_EXISTS = 'ACTIVE_PARTY_EXISTS',
-  HOST_ALREADY_HAS_ACTIVE_PARTY_FOR_GAME = 'HOST_ALREADY_HAS_ACTIVE_PARTY_FOR_GAME',
-  GAME_ALREADY_HAS_ACTIVE_PARTY = 'GAME_ALREADY_HAS_ACTIVE_PARTY',
-  HOST_PARTY_CONTROL_FORBIDDEN = 'HOST_PARTY_CONTROL_FORBIDDEN',
-  PARTY_COMMAND_NOT_AVAILABLE = 'PARTY_COMMAND_NOT_AVAILABLE',
-  PARTY_STAGES_NOT_AVAILABLE = 'PARTY_STAGES_NOT_AVAILABLE',
-}
+export const GameErrorCode = SharedGameErrorCode;
+export type GameErrorCode = SharedGameErrorCodeType;
 
 export const GAME_ERROR_DEFINITIONS: Readonly<Record<GameErrorCode, DomainErrorDefinition<GameErrorCode>>> = {
   [GameErrorCode.GAME_NOT_FOUND]: {

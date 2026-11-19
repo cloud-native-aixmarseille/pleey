@@ -1,4 +1,4 @@
-import type { ThemeOverrides } from '../../../domains/theme/entities/theme-document';
+import type { ThemeOverrides } from '@pleey/domain/theme';
 
 export const THEME_STYLE_PRESETS = {
   radius: {

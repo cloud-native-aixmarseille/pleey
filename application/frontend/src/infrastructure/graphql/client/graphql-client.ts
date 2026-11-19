@@ -352,7 +352,15 @@ export class GraphqlClient implements AuthSessionTransport {
     const normalizedMessage = message.toLowerCase();
 
     if (typeof code === 'string') {
-      if (['401', 'UNAUTHORIZED', 'UNAUTHENTICATED', 'INVALID_REFRESH_TOKEN', 'REFRESH_TOKEN_EXPIRED'].includes(code)) {
+      if (
+        [
+          '401',
+          IdentityErrorCode.UNAUTHORIZED,
+          'UNAUTHENTICATED',
+          IdentityErrorCode.INVALID_REFRESH_TOKEN,
+          IdentityErrorCode.REFRESH_TOKEN_EXPIRED,
+        ].includes(code)
+      ) {
         return true;
       }
     }
@@ -443,3 +451,5 @@ export class GraphqlClient implements AuthSessionTransport {
     return { message: AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC].message };
   }
 }
+
+import { IdentityErrorCode } from '@pleey/domain/errors';

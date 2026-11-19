@@ -1,6 +1,6 @@
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { PartyPlayerIdentityKind } from '../../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyFixtureFactory } from '../../../../../../test-utils/fixtures/party-fixture-factory';
 import { renderWithUiProvider } from '../../../../../../test-utils/render-with-ui-provider';
 import { PartyFinalSummaryPanel } from './party-final-summary-panel';
@@ -47,21 +47,21 @@ describe('PartyFinalSummaryPanel', () => {
           players={[
             partyFixtureFactory.createObservationPlayer({
               avatarUri: null,
-              identity: { kind: PartyPlayerIdentityKind.User, userId: 7 },
+              identity: { kind: PartyPlayerKind.USER, userId: 7 },
               correctStages: 3,
               totalScore: 800,
               username: 'Player Two',
             }),
             partyFixtureFactory.createObservationPlayer({
               avatarUri: null,
-              identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'guest-1' },
+              identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-1' },
               correctStages: 6,
               totalScore: 1200,
               username: 'Winner',
             }),
             partyFixtureFactory.createObservationPlayer({
               avatarUri: null,
-              identity: { kind: PartyPlayerIdentityKind.User, userId: 9 },
+              identity: { kind: PartyPlayerKind.USER, userId: 9 },
               isCurrentPlayer: true,
               correctStages: 1,
               totalScore: 400,
@@ -119,21 +119,21 @@ describe('PartyFinalSummaryPanel', () => {
           players={[
             partyFixtureFactory.createObservationPlayer({
               avatarUri: null,
-              identity: { kind: PartyPlayerIdentityKind.User, userId: 7 },
+              identity: { kind: PartyPlayerKind.USER, userId: 7 },
               correctStages: 3,
               totalScore: 800,
               username: 'Player Two',
             }),
             partyFixtureFactory.createObservationPlayer({
               avatarUri: null,
-              identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'guest-1' },
+              identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-1' },
               correctStages: 6,
               totalScore: 1200,
               username: 'Winner',
             }),
             partyFixtureFactory.createObservationPlayer({
               avatarUri: null,
-              identity: { kind: PartyPlayerIdentityKind.User, userId: 9 },
+              identity: { kind: PartyPlayerKind.USER, userId: 9 },
               isCurrentPlayer: true,
               correctStages: 1,
               totalScore: 400,

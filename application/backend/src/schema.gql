@@ -192,20 +192,9 @@ type Mutation {
   uploadThemeAsset(file: Upload!, organizationId: ID!): ThemeAssetType!
 }
 
-enum OrganizationActionDisabledReason {
-  CANNOT_REMOVE_LAST_OWNER
-  INSUFFICIENT_PERMISSIONS
-  MEMBER_ALREADY_EXISTS
-  MEMBER_NOT_FOUND
-  MEMBER_USER_NOT_FOUND
-  NOT_A_MEMBER
-  ORGANIZATION_NAME_ALREADY_EXISTS
-  ORGANIZATION_NOT_FOUND
-}
-
 type OrganizationActionPermission {
   allowed: Boolean!
-  reason: OrganizationActionDisabledReason
+  reason: OrganizationPermissionReason
 }
 
 type OrganizationDashboardStatsType {
@@ -260,6 +249,17 @@ input OrganizationMembersInput {
   page: Int! = 1
   pageSize: Int! = 9
   search: String
+}
+
+enum OrganizationPermissionReason {
+  CANNOT_REMOVE_LAST_OWNER
+  INSUFFICIENT_PERMISSIONS
+  MEMBER_ALREADY_EXISTS
+  MEMBER_NOT_FOUND
+  MEMBER_USER_NOT_FOUND
+  NOT_A_MEMBER
+  ORGANIZATION_NAME_ALREADY_EXISTS
+  ORGANIZATION_NOT_FOUND
 }
 
 type OrganizationPermissionsType {
@@ -368,25 +368,9 @@ type PredictionType {
   type: String!
 }
 
-enum ProjectActionDisabledReason {
-  CANNOT_DELETE_LAST_PROJECT
-  CANNOT_REMOVE_LAST_OWNER
-  INSUFFICIENT_PERMISSIONS
-  MEMBER_ALREADY_EXISTS
-  MEMBER_NOT_FOUND
-  MEMBER_USER_NOT_FOUND
-  NOT_A_MEMBER
-  ORGANIZATION_NAME_ALREADY_EXISTS
-  ORGANIZATION_NOT_FOUND
-  PROJECT_MIGRATION_TARGET_INVALID
-  PROJECT_MIGRATION_TARGET_NOT_FOUND
-  PROJECT_MIGRATION_TARGET_REQUIRED
-  PROJECT_NOT_FOUND
-}
-
 type ProjectActionPermission {
   allowed: Boolean!
-  reason: ProjectActionDisabledReason
+  reason: ProjectPermissionReason
 }
 
 type ProjectGameListItemType {
@@ -426,6 +410,22 @@ type ProjectListType {
   pageSize: Int!
   totalCount: Int!
   totalPages: Int!
+}
+
+enum ProjectPermissionReason {
+  CANNOT_DELETE_LAST_PROJECT
+  CANNOT_REMOVE_LAST_OWNER
+  INSUFFICIENT_PERMISSIONS
+  MEMBER_ALREADY_EXISTS
+  MEMBER_NOT_FOUND
+  MEMBER_USER_NOT_FOUND
+  NOT_A_MEMBER
+  ORGANIZATION_NAME_ALREADY_EXISTS
+  ORGANIZATION_NOT_FOUND
+  PROJECT_MIGRATION_TARGET_INVALID
+  PROJECT_MIGRATION_TARGET_NOT_FOUND
+  PROJECT_MIGRATION_TARGET_REQUIRED
+  PROJECT_NOT_FOUND
 }
 
 type ProjectPermissionsType {
@@ -550,7 +550,7 @@ type SelectableOptionType {
 
 type ThemeActionPermission {
   allowed: Boolean!
-  reason: OrganizationActionDisabledReason
+  reason: OrganizationPermissionReason
 }
 
 type ThemeAssetType {

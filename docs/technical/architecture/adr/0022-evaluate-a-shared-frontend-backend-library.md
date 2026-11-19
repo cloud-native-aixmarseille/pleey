@@ -164,13 +164,13 @@ before implementation.
 
 ### Package shape
 
-The package is initially a private npm workspace member under a repository
-directory such as `packages/pleey-domain`. The final directory name and package
-name are implementation details to confirm during implementation, but they must:
+The package is the private repository package `@pleey/domain` under
+`application/shared`. It must:
 
-- remain outside application source so both consumers use an explicit dependency;
 - expose feature subpaths or narrow entry points instead of requiring one catch-all
   barrel import;
+- keep source TypeScript-only, with erasable syntax supported directly by the
+  repository's Node runtime and no package-specific build output;
 - compile or type-check without NestJS, React, Prisma, Socket.IO, Apollo, browser,
   or Node-only APIs;
 - use the repository's supported Node/TypeScript baseline;

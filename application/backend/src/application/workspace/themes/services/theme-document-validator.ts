@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { ThemeDocument } from '@pleey/domain/theme';
 import { z } from 'zod';
-import type { ThemeDocument } from '../../../../domain/theme/entities/theme-document';
 import { ThemeError, ThemeErrorCode } from '../../../../domain/theme/errors/theme-error';
 import { ThemeDocumentNormalizer } from '../../../../domain/theme/services/theme-document-normalizer';
 

@@ -1,10 +1,9 @@
 import type { GuestId } from '@pleey/domain/identity';
 import type { PartyPin } from '@pleey/domain/party';
+import { PartyJoinReceiptStatus, PartyPlayerKind } from '@pleey/domain/party';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
-import { PartyJoinReceiptStatus } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
-import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import type { User } from '../../../../../domains/identity/entities/user';
 import { usePartyDependencies } from '../../shared/contexts/party-dependencies-context';
@@ -76,10 +75,10 @@ export function usePartyLobbyJoinSession({
         partyPassword: normalizedPassword || undefined,
         pin: normalizedPin,
         playerIdentity: user
-          ? { kind: PartyPlayerIdentityKind.User, userId: user.id }
+          ? { kind: PartyPlayerKind.USER, userId: user.id }
           : currentGuestId === null
-            ? { kind: PartyPlayerIdentityKind.Guest }
-            : { kind: PartyPlayerIdentityKind.Guest, guestId: currentGuestId },
+            ? { kind: PartyPlayerKind.GUEST }
+            : { kind: PartyPlayerKind.GUEST, guestId: currentGuestId },
         username: user ? undefined : guestName.trim(),
       });
 
@@ -91,11 +90,11 @@ export function usePartyLobbyJoinSession({
         return;
       }
 
-      if (receipt.player.identity.kind === PartyPlayerIdentityKind.Guest) {
+      if (receipt.player.identity.kind === PartyPlayerKind.GUEST) {
         partyLobbyFacade.setGuestId(normalizedPin, receipt.player.identity.guestId);
       }
 
-      if (receipt.player.identity.kind === PartyPlayerIdentityKind.User && currentGuestId) {
+      if (receipt.player.identity.kind === PartyPlayerKind.USER && currentGuestId) {
         partyLobbyFacade.clearGuestId(normalizedPin);
       }
 
@@ -130,7 +129,7 @@ export function usePartyLobbyJoinSession({
       .rejoinParty({
         pin: normalizedPin,
         playerIdentity: {
-          kind: PartyPlayerIdentityKind.Guest,
+          kind: PartyPlayerKind.GUEST,
           guestId: persistedGuestJoinGuestId,
         },
         username: undefined,
@@ -141,7 +140,7 @@ export function usePartyLobbyJoinSession({
         }
 
         if (receipt.status === PartyJoinReceiptStatus.ACCEPTED) {
-          if (receipt.player.identity.kind === PartyPlayerIdentityKind.Guest) {
+          if (receipt.player.identity.kind === PartyPlayerKind.GUEST) {
             partyLobbyFacade.setGuestId(normalizedPin, receipt.player.identity.guestId);
           }
 
@@ -176,7 +175,7 @@ export function usePartyLobbyJoinSession({
       .rejoinParty({
         pin: partyObservation.pin,
         playerIdentity: {
-          kind: PartyPlayerIdentityKind.Guest,
+          kind: PartyPlayerKind.GUEST,
           guestId: persistedGuestJoinGuestId,
         },
         username: undefined,
@@ -187,7 +186,7 @@ export function usePartyLobbyJoinSession({
         }
 
         if (receipt.status === PartyJoinReceiptStatus.ACCEPTED) {
-          if (receipt.player.identity.kind === PartyPlayerIdentityKind.Guest) {
+          if (receipt.player.identity.kind === PartyPlayerKind.GUEST) {
             partyLobbyFacade.setGuestId(partyObservation.pin, receipt.player.identity.guestId);
           }
 

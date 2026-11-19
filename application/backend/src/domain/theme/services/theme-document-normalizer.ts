@@ -1,5 +1,6 @@
-import { CURATED_THEME_IDS, CURATED_THEME_PALETTES, ThemeDocumentNormalizerCore } from '@pleey/domain/theme';
 import {
+  CURATED_THEME_IDS,
+  CURATED_THEME_PALETTES,
   THEME_BORDER_KEYS,
   THEME_FONT_FAMILIES,
   THEME_MOTION_KEYS,
@@ -9,8 +10,9 @@ import {
   THEME_TEXT_KEYS,
   THEME_TYPOGRAPHY_KEYS,
   type ThemeDocument,
+  ThemeDocumentNormalizerCore,
   type ThemeOverrides,
-} from '../entities/theme-document';
+} from '@pleey/domain/theme';
 import { ThemeError, ThemeErrorCode } from '../errors/theme-error';
 
 export class ThemeDocumentNormalizer {

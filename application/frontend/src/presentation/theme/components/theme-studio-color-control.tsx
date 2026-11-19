@@ -1,5 +1,5 @@
+import type { ThemeColorScale, ThemeDocument } from '@pleey/domain/theme';
 import { CURATED_THEME_PALETTES } from '@pleey/domain/theme';
-import type { ThemeColorScale, ThemeDocument } from '../../../domains/theme/entities/theme-document';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { Button } from '../../shared/ui/actions/button';
 import { FormSectionFrame } from '../../shared/ui/forms/frames';

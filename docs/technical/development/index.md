@@ -53,8 +53,8 @@ Review dependency changes and run the affected project's checks after either com
 
 ## Shared domain package
 
-[`packages/pleey-domain/`](../../../packages/pleey-domain) is the private
-repository package `@pleey/domain` for contracts and deterministic policies
+[`application/shared/`](../../../application/shared) is the private repository
+package `@pleey/domain` for contracts and deterministic policies
 consumed by backend and frontend. [ADR 0022](../architecture/adr/0022-evaluate-a-shared-frontend-backend-library.md)
 owns the decision and eligibility scope.
 
@@ -74,13 +74,14 @@ reexport wrapper for a shared declaration. Preserve an application adapter only
 when its runtime representation or enum vocabulary intentionally differs from
 the shared public contract.
 
-Shared JavaScript and declaration files must remain aligned. Update both
-applications to consume a moved contract before deleting the superseded local
-file. A runtime projection must be mapped at its infrastructure or presentation
-boundary; importing a shared type does not grant the frontend access and does
-not authorize the backend to expose a private field.
+Shared source is TypeScript-only and must remain erasable by the supported Node
+runtime without a package-specific build step. Update both applications to
+consume a moved contract before deleting the superseded local file. A runtime
+projection must be mapped at its infrastructure or presentation boundary;
+importing a shared type does not grant the frontend access and does not
+authorize the backend to expose a private field.
 
-[`@pleey/domain/i18n`](../../../packages/pleey-domain/i18n) owns localized
+[`@pleey/domain/i18n`](../../../application/shared/i18n) owns localized
 meaning only for exported public business error codes. Screen labels,
 accessibility copy, email content and application-local errors remain in their
 application catalogs. Add a shared message only when the same error code is
@@ -102,14 +103,14 @@ npm --prefix application/backend run test
 npm --prefix application/frontend run test
 ```
 
-After changing `packages/pleey-domain/i18n/index.js`, regenerate generated
+After changing `application/shared/i18n/index.ts`, regenerate generated
 backend namespaces with:
 
 ```bash
 node scripts/check-shared-translations.mjs --write
 ```
 
-Changes under `packages/pleey-domain/` and to the shared guard take the full PR CI
+Changes under `application/shared/` and to the shared guard take the full PR CI
 route. [P7 contract tests](../../../.github/actions/determine-pr-checks/shared-package-docker.spec.js)
 also verify Docker build, production, CI, Compose and lockfile wiring. Use a cold
 Docker build when changing package layout or Docker inputs, then verify a warm

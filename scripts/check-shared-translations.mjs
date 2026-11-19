@@ -3,8 +3,8 @@ import path from "node:path";
 
 const workspaceRoot = path.resolve(import.meta.dirname, "..");
 const packageRootCandidates = [
-  path.join(workspaceRoot, "packages/pleey-domain"),
-  "/usr/packages/pleey-domain",
+  path.join(workspaceRoot, "application/shared"),
+  "/usr/src/shared",
 ];
 const packageRoot = packageRootCandidates.find((candidate) => fs.existsSync(candidate));
 
@@ -13,10 +13,10 @@ if (!packageRoot) {
 }
 
 const { SHARED_ERROR_TRANSLATION_KEYS, SHARED_TRANSLATIONS } = await import(
-  new URL(`file://${path.join(packageRoot, "i18n/index.js")}`)
+  new URL(`file://${path.join(packageRoot, "i18n/index.ts")}`)
 );
 const { PredictionErrorCode, QuizErrorCode } = await import(
-  new URL(`file://${path.join(packageRoot, "errors/index.js")}`)
+  new URL(`file://${path.join(packageRoot, "errors/index.ts")}`)
 );
 const write = process.argv.includes("--write");
 
@@ -70,6 +70,6 @@ for (const locale of localeNames) {
 
 if (mismatches.length > 0) {
   throw new Error(
-    `Generated backend translations are stale: ${mismatches.join(", ")}. Regenerate from packages/pleey-domain/i18n/index.js.`,
+    `Generated backend translations are stale: ${mismatches.join(", ")}. Regenerate from application/shared/i18n/index.ts.`,
   );
 }

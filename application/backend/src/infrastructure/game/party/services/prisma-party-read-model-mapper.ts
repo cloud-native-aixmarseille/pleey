@@ -1,17 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import type { GuestId } from '@pleey/domain/identity';
-import { PartyStatus } from '@pleey/domain/party';
+import { PARTY_PLAYER_ACTION_STATE_STATUS, PartyPlayerKind, PartyStatus } from '@pleey/domain/party';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyStageIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameValidationFailedError } from '../../../../domain/game/errors';
-import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
 import type { PartyPlayer } from '../../../../domain/game/party/player/entities/party-player';
-import {
-  PARTY_PLAYER_ACTION_STATE_STATUS,
-  type PartyPlayerActionState,
-} from '../../../../domain/game/party/player/entities/party-player-action-state';
+import type { PartyPlayerActionState } from '../../../../domain/game/party/player/entities/party-player-action-state';
 import type { PartyPlayerIdentity } from '../../../../domain/game/party/player/entities/party-player-identity';
 import type { PlayerPartyObservationPlayer } from '../../../../domain/game/party/player/entities/player-party-observation';
 import {

@@ -1,10 +1,10 @@
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { inject, injectable } from 'inversify';
 import type {
   HostPartyControlCommand,
   HostPartyPlayerControlCommand,
   PartyHostControlPort,
 } from '../../../../domains/game/party/host/ports/party-host-control.port';
-import { PartyPlayerIdentityKind } from '../../../../domains/game/party/shared/entities/party-player-identity';
 import { SocketIoPartyHostCommandEventName } from '../shared/socket-io-party-realtime.types';
 import { SocketIoPartyRealtimeTransport } from '../shared/socket-io-party-realtime-transport';
 
@@ -30,7 +30,7 @@ export class SocketIoPartyHostControlAdapter implements PartyHostControlPort {
   kickPlayer(command: HostPartyPlayerControlCommand): Promise<void> {
     return this.realtimeTransport.dispatchHostCommand(
       SocketIoPartyHostCommandEventName.KickPlayer,
-      command.playerIdentity.kind === PartyPlayerIdentityKind.User
+      command.playerIdentity.kind === PartyPlayerKind.USER
         ? {
             partyId: command.partyId,
             userId: command.playerIdentity.userId,

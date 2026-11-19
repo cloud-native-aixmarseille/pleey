@@ -1,4 +1,5 @@
 import { GameType } from '@pleey/domain/game';
+import { PartyJoinReceiptStatus, PartyPlayerKind } from '@pleey/domain/party';
 import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
@@ -9,16 +10,10 @@ import { GameTypeParser } from '../../../../application/game/types/shared/servic
 import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { HostPartyDisabledReason } from '../../../../domains/game/party/host/value-objects/host-party-permissions';
-import {
-  type PartyJoinReceipt,
-  PartyJoinReceiptStatus,
-} from '../../../../domains/game/party/player/ports/party-player.port';
+import { type PartyJoinReceipt } from '../../../../domains/game/party/player/ports/party-player.port';
 import type { PartyObservation } from '../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../domains/game/party/shared/entities/party-observation-player';
-import {
-  type PartyPlayerIdentity,
-  PartyPlayerIdentityKind,
-} from '../../../../domains/game/party/shared/entities/party-player-identity';
+import type { PartyPlayerIdentity } from '../../../../domains/game/party/shared/entities/party-player-identity';
 import {
   isEndedPartyRuntimeContext,
   isResultPartyRuntimeContext,
@@ -346,10 +341,10 @@ export class SocketIoPartyPayloadMapper {
   }
 
   private toPlayerIdentity(identity: PartyPlayerIdentity): PartyPlayerIdentity {
-    return identity.kind === PartyPlayerIdentityKind.User
-      ? { kind: PartyPlayerIdentityKind.User, userId: this.userIdentifier.parse(identity.userId) }
+    return identity.kind === PartyPlayerKind.USER
+      ? { kind: PartyPlayerKind.USER, userId: this.userIdentifier.parse(identity.userId) }
       : {
-          kind: PartyPlayerIdentityKind.Guest,
+          kind: PartyPlayerKind.GUEST,
           guestId: this.guestIdentifier.parse(identity.guestId),
         };
   }
@@ -358,12 +353,14 @@ export class SocketIoPartyPayloadMapper {
     switch (errorCode) {
       case 'PLAYER_ALREADY_IN_ACTIVE_PARTY':
         return PartyManagementErrorCode.PLAYER_ALREADY_IN_ACTIVE_PARTY;
-      case 'PARTY_NOT_FOUND':
+      case GameErrorCode.PARTY_NOT_FOUND:
         return PartyManagementErrorCode.PARTY_NOT_FOUND;
-      case 'VALIDATION_FAILED':
+      case GameErrorCode.VALIDATION_FAILED:
         return PartyManagementErrorCode.VALIDATION_FAILED;
       default:
         return PartyManagementErrorCode.JOIN_FAILED;
     }
   }
 }
+
+import { GameErrorCode } from '@pleey/domain/errors';

@@ -2,7 +2,7 @@ import type { GameId } from '@pleey/domain/game';
 import { GameType } from '@pleey/domain/game';
 import type { GuestId } from '@pleey/domain/identity';
 import type { PartyId, PartyPin } from '@pleey/domain/party';
-import { DEFAULT_PARTY_SETTINGS, PartyRole, PartyStatus } from '@pleey/domain/party';
+import { DEFAULT_PARTY_SETTINGS, PartyPlayerKind, PartyRole, PartyStatus } from '@pleey/domain/party';
 import { PartyIdentifier } from '../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { GameIdentifier } from '../../application/game/shared/services/identifiers/game-identifier';
@@ -14,10 +14,7 @@ import type { Party } from '../../domains/game/party/shared/entities/party';
 import type { PartyHost } from '../../domains/game/party/shared/entities/party-host';
 import type { PartyObservation } from '../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../domains/game/party/shared/entities/party-observation-player';
-import {
-  type PartyPlayerIdentity,
-  PartyPlayerIdentityKind,
-} from '../../domains/game/party/shared/entities/party-player-identity';
+import type { PartyPlayerIdentity } from '../../domains/game/party/shared/entities/party-player-identity';
 import type { UserId } from '../../domains/identity/entities/user';
 import { ThemeFixtureFactory } from './theme-fixture-factory';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
@@ -36,11 +33,11 @@ interface PartyOverrides extends Omit<Partial<Party>, 'partyId' | 'gameId' | 'pi
 
 type IdentityOverride =
   | {
-      readonly kind: PartyPlayerIdentityKind.User;
+      readonly kind: PartyPlayerKind.USER;
       readonly userId: number | UserId;
     }
   | {
-      readonly kind: PartyPlayerIdentityKind.Guest;
+      readonly kind: PartyPlayerKind.GUEST;
       readonly guestId: string | GuestId;
     };
 
@@ -101,7 +98,7 @@ export class PartyFixtureFactory {
   createObservationPlayer(overrides: PartyObservationPlayerOverrides = {}): PartyObservationPlayer {
     const normalizedIdentity = this.normalizeIdentity(
       overrides.identity ?? {
-        kind: PartyPlayerIdentityKind.User,
+        kind: PartyPlayerKind.USER,
         userId: userIdentifier.parse(coerceUuidV7TestValue(11)),
       },
     );
@@ -168,7 +165,7 @@ export class PartyFixtureFactory {
       players: players ?? [
         this.createObservationPlayer({
           identity: {
-            kind: PartyPlayerIdentityKind.User,
+            kind: PartyPlayerKind.USER,
             userId: userIdentifier.parse(coerceUuidV7TestValue(11)),
           },
           isCurrentPlayer: true,
@@ -181,16 +178,16 @@ export class PartyFixtureFactory {
   }
 
   private normalizeIdentity(identity: IdentityOverride): PartyPlayerIdentity {
-    return identity.kind === PartyPlayerIdentityKind.User
+    return identity.kind === PartyPlayerKind.USER
       ? {
-          kind: PartyPlayerIdentityKind.User,
+          kind: PartyPlayerKind.USER,
           userId:
             typeof identity.userId === 'number'
               ? userIdentifier.parse(coerceUuidV7TestValue(identity.userId))
               : identity.userId,
         }
       : {
-          kind: PartyPlayerIdentityKind.Guest,
+          kind: PartyPlayerKind.GUEST,
           guestId: guestIdentifier.parse(coerceUuidV7TestValue(identity.guestId)),
         };
   }

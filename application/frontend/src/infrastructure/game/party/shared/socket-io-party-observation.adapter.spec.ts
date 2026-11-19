@@ -1,12 +1,10 @@
 import { GameType } from '@pleey/domain/game';
-import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
+import { DEFAULT_PARTY_SETTINGS, PartyJoinReceiptStatus, PartyPlayerKind } from '@pleey/domain/party';
+import type { ThemeDocument } from '@pleey/domain/theme';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { GameTypeParser } from '../../../../application/game/types/shared/services/game-type-parser';
-import { PartyJoinReceiptStatus } from '../../../../domains/game/party/player/ports/party-player.port';
-import { PartyPlayerIdentityKind } from '../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyRuntimePhase } from '../../../../domains/game/party/shared/entities/party-runtime-context';
-import type { ThemeDocument } from '../../../../domains/theme/entities/theme-document';
 import { ThemeErrorCode } from '../../../../domains/theme/errors/theme-error';
 import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
 import { PartyFixtureFactory } from '../../../../test-utils/fixtures/party-fixture-factory';
@@ -76,7 +74,7 @@ function createAcceptedGuestJoinReceipt() {
     gameId: GAME_ID,
     player: {
       avatarUri: '/avatars/guest-9.png',
-      identity: { kind: PartyPlayerIdentityKind.Guest, guestId: GUEST_ID },
+      identity: { kind: PartyPlayerKind.GUEST, guestId: GUEST_ID },
       username: 'Neo',
     },
     partyId: PARTY_ID,
@@ -310,7 +308,7 @@ describe('SocketIoPartyObservationAdapter', () => {
       players: [
         {
           avatarUri: '/avatars/guest-9.png',
-          identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'guest-9' },
+          identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-9' },
           isCurrentPlayer: false,
           isLive: true,
           totalScore: 650,
@@ -330,7 +328,7 @@ describe('SocketIoPartyObservationAdapter', () => {
       players: [
         {
           avatarUri: '/avatars/guest-9.png',
-          identity: { kind: PartyPlayerIdentityKind.Guest, guestId: GUEST_ID },
+          identity: { kind: PartyPlayerKind.GUEST, guestId: GUEST_ID },
           isCurrentPlayer: false,
           isLive: true,
           totalScore: 650,
@@ -495,7 +493,7 @@ describe('SocketIoPartyObservationAdapter', () => {
       adapter.joinParty({
         pin: partyPinIdentifier.parse('AB12CD'),
         playerIdentity: {
-          kind: PartyPlayerIdentityKind.Guest,
+          kind: PartyPlayerKind.GUEST,
           guestId: GUEST_ID,
         },
         username: 'Neo',
@@ -526,7 +524,7 @@ describe('SocketIoPartyObservationAdapter', () => {
     await expect(
       adapter.joinParty({
         pin: partyPinIdentifier.parse('AB12CD'),
-        playerIdentity: { kind: PartyPlayerIdentityKind.Guest },
+        playerIdentity: { kind: PartyPlayerKind.GUEST },
       }),
     ).resolves.toEqual({
       errorMessage: 'game.party.errors.playerAlreadyInActiveParty',

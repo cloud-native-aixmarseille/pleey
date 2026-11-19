@@ -1,4 +1,4 @@
-import type { ThemeColorScale, ThemeDocument } from '../entities/theme-document';
+import type { ThemeColorScale, ThemeDocument } from '@pleey/domain/theme';
 import { ThemeError, ThemeErrorCode } from '../errors/theme-error';
 
 // The shared middle shade must remain distinguishable against both curated schemes.

@@ -20,9 +20,7 @@ const EXPECTED_EXPORT_ENTRIES = [
 
 const EXPECTED_PACKAGE_FILES = [
   "README.md",
-  "empty.cjs",
-  "empty.d.ts",
-  "empty.js",
+  "empty.ts",
   "errors/",
   "game/",
   "identity/",
@@ -40,16 +38,19 @@ const SUPERSEDED_APPLICATION_CONTRACTS = [
   "application/backend/src/domain/game/entities/game.ts",
   "application/backend/src/domain/game/party/enums/party-role.enum.ts",
   "application/backend/src/domain/game/party/enums/party-status.enum.ts",
+  "application/backend/src/domain/game/party/enums/party-player-kind.enum.ts",
   "application/backend/src/domain/game/party/shared/entities/party-action.ts",
   "application/backend/src/domain/game/party/shared/entities/party-settings.ts",
   "application/backend/src/domain/game/party/shared/entities/party-stage.ts",
   "application/backend/src/domain/game/party/shared/entities/party.ts",
+  "application/backend/src/domain/game/party/host/value-objects/host-party-permissions.ts",
   "application/backend/src/domain/game/types/shared/entities/game-type.ts",
   "application/backend/src/domain/identity/enums/captcha-action.enum.ts",
   "application/backend/src/domain/identity/types/auth-token.ts",
   "application/backend/src/domain/organization/enums/organization-role.enum.ts",
   "application/backend/src/domain/shared/value-objects/pagination-limits.ts",
   "application/backend/src/domain/theme/entities/theme-id.ts",
+  "application/backend/src/domain/theme/entities/theme-document.ts",
   "application/backend/src/domain/theme/services/curated-theme-palettes.ts",
   "application/backend/src/domain/theme/services/cyber-arcade-theme-palette.ts",
   "application/backend/src/domain/theme/services/solar-grid-theme-palette.ts",
@@ -66,6 +67,7 @@ const SUPERSEDED_APPLICATION_CONTRACTS = [
   "application/frontend/src/domains/project/value-objects/project-permissions.ts",
   "application/frontend/src/domains/shared/value-objects/pagination-limits.ts",
   "application/frontend/src/domains/theme/entities/theme-id.ts",
+  "application/frontend/src/domains/theme/entities/theme-document.ts",
   "application/frontend/src/domains/theme/services/curated-theme-palettes.ts",
   "application/frontend/src/domains/theme/services/cyber-arcade-theme-palette.ts",
   "application/frontend/src/domains/theme/services/solar-grid-theme-palette.ts",
@@ -119,7 +121,7 @@ function isSameSortedValues(left, right) {
 
 function resolveSharedPackageRoot() {
   return resolveExistingPath(
-    [path.join(workspaceRoot, "packages/pleey-domain"), "/usr/packages/pleey-domain"],
+    [path.join(workspaceRoot, "application/shared"), "/usr/src/shared"],
     "shared domain package root",
   );
 }
@@ -149,7 +151,7 @@ function checkPackageApiSurface(packageRoot) {
   for (const exportName of EXPECTED_EXPORT_ENTRIES) {
     if (exportName === "./package.json") continue;
     const exportEntry = packageJson.exports[exportName];
-    for (const condition of ["types", "import", "require", "default"]) {
+    for (const condition of ["types", "import", "default"]) {
       const target = exportEntry?.[condition] ?? (condition === "default" ? exportEntry : null);
       if (typeof target !== "string" || !fs.existsSync(path.join(packageRoot, target))) {
         fail(`Shared package export "${exportName}" has no valid ${condition} target.`);
@@ -245,6 +247,15 @@ function matchesForbiddenImport(specifier, matcher) {
 
 function checkSharedSourceImports(packageRoot) {
   const sourceFiles = collectPackageSourceFiles(packageRoot);
+  const nonTypeScriptFiles = sourceFiles.filter((filePath) => !filePath.endsWith(".ts") || filePath.endsWith(".d.ts"));
+  if (nonTypeScriptFiles.length > 0) {
+    fail(
+      `Shared domain package source must be TypeScript-only:\n${nonTypeScriptFiles
+        .map((filePath) => `- ${path.relative(workspaceRoot, filePath).split(path.sep).join("/")}`)
+        .join("\n")}`,
+    );
+  }
+
   const violations = [];
 
   for (const filePath of sourceFiles) {
@@ -285,16 +296,6 @@ function parseConstObjectValues(sourceText, constName) {
   return asSortedUnique([...match[1].matchAll(/:\s*'([^']+)'/g)].map((entry) => entry[1]));
 }
 
-function parseJsConstObjectValues(sourceText, constName) {
-  const expression = new RegExp(`export const ${constName}\\s*=\\s*\\{([\\s\\S]*?)\\}\\s*;`);
-  const match = sourceText.match(expression);
-  if (!match) {
-    fail(`Unable to parse ${constName} from JS source.`);
-  }
-
-  return asSortedUnique([...match[1].matchAll(/:\s*['"]([^'"]+)['"]/g)].map((entry) => entry[1]));
-}
-
 function parseEnumValues(sourceText, enumName) {
   const expression = new RegExp(`export enum ${enumName}\\s*\\{([\\s\\S]*?)\\}`);
   const match = sourceText.match(expression);
@@ -307,11 +308,17 @@ function parseEnumValues(sourceText, enumName) {
 
 function resolveCrossApplicationContractPaths(packageRoot) {
   const fixturePath = resolveExistingPath(
-    [path.join(packageRoot, "fixtures/party-realtime-events.json")],
+    [
+      path.join(workspaceRoot, "scripts/fixtures/shared-domain/party-realtime-events.json"),
+      "/usr/src/shared-scripts/fixtures/shared-domain/party-realtime-events.json",
+    ],
     "party realtime fixture file",
   );
   const graphqlFixturePath = resolveExistingPath(
-    [path.join(packageRoot, "fixtures/graphql-theme-document-scalar.json")],
+    [
+      path.join(workspaceRoot, "scripts/fixtures/shared-domain/graphql-theme-document-scalar.json"),
+      "/usr/src/shared-scripts/fixtures/shared-domain/graphql-theme-document-scalar.json",
+    ],
     "GraphQL scalar fixture file",
   );
 
@@ -353,7 +360,7 @@ function resolveCrossApplicationContractPaths(packageRoot) {
     ),
     fixturePath,
     graphqlFixturePath,
-    sharedPartyEventsPath: path.join(packageRoot, "party/index.js"),
+    sharedPartyEventsPath: path.join(packageRoot, "party/index.ts"),
   };
 }
 
@@ -370,7 +377,7 @@ function checkPartyRealtimeFixtures(paths) {
       }
 
       const sharedEventsText = fs.readFileSync(paths.sharedPartyEventsPath, "utf8");
-      return parseJsConstObjectValues(sharedEventsText, constName);
+      return parseConstObjectValues(sharedEventsText, constName);
     }
   };
   const backendInboundEvents = readBackendOrSharedEvents("PARTY_SOCKET_INBOUND_EVENTS");

@@ -1,5 +1,6 @@
 import { MantineProvider } from '@mantine/core';
 import { useReducedMotion } from '@mantine/hooks';
+import type { ThemeDocument } from '@pleey/domain/theme';
 import {
   type CSSProperties,
   createContext,
@@ -12,7 +13,6 @@ import {
 } from 'react';
 import type { PresentationUiThemeState, ThemePreviewProps, UiPort } from '../../application/shared/ports/ui.port';
 import { createDomainError } from '../../domains/shared/errors/domain-error';
-import type { ThemeDocument } from '../../domains/theme/entities/theme-document';
 import { createUiThemeFromDocument } from '../../presentation/shared/ui/foundation/document-ui-theme';
 import {
   createUiThemeCssVariables,

@@ -1,8 +1,7 @@
-import { PartyStatus } from '@pleey/domain/party';
+import { PartyPlayerKind, PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyActionIdentifier } from '../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyStageIdentifier } from '../../../application/game/party/shared/services/identifiers/party-stage-identifier';
-import { PartyPlayerKind } from '../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyRuntimePhase } from '../../../domain/game/party/shared/entities/party-runtime-context';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { PrismaPlayerPartyActionRuntimeAdapter } from './prisma-player-party-action-runtime.adapter';

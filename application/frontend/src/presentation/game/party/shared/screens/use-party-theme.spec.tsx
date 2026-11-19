@@ -1,7 +1,7 @@
+import type { ThemeDocument } from '@pleey/domain/theme';
 import { fireEvent, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { describe, expect, it } from 'vitest';
-import type { ThemeDocument } from '../../../../../domains/theme/entities/theme-document';
 import { ThemeFixtureFactory } from '../../../../../test-utils/fixtures/theme-fixture-factory';
 import { renderWithUiProvider } from '../../../../../test-utils/render-with-ui-provider';
 import { usePresentationThemeState } from '../../../../shared/ui/provider';

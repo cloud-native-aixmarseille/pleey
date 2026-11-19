@@ -1,4 +1,4 @@
-import { THEME_FONT_FAMILIES, type ThemeDocument } from '../../../domains/theme/entities/theme-document';
+import { THEME_FONT_FAMILIES, type ThemeDocument } from '@pleey/domain/theme';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { Button } from '../../shared/ui/actions/button';
 import { FormSectionFrame } from '../../shared/ui/forms/frames';

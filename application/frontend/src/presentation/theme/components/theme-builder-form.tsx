@@ -1,9 +1,8 @@
-import type { CuratedThemeId } from '@pleey/domain/theme';
+import type { CuratedThemeId, ThemeDocument } from '@pleey/domain/theme';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { OrganizationId } from '../../../domains/organization/entities/organization';
 import { isDomainError } from '../../../domains/shared/errors/domain-error';
 import type { ManagedTheme } from '../../../domains/theme/entities/managed-theme';
-import type { ThemeDocument } from '../../../domains/theme/entities/theme-document';
 import { ThemeErrorCode } from '../../../domains/theme/errors/theme-error';
 import { useAuth } from '../../identity/contexts/auth-context';
 import { usePresentationForm } from '../../shared/forms/use-presentation-form';

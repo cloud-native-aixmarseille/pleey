@@ -1,6 +1,6 @@
 import 'reflect-metadata';
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
-import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createPlayerPartyRuntimeMock } from '../../../../../test-utils/mock-factories/player-party-runtime.mock-factory';
 import { LeavePartyUseCase } from './leave-party-use-case';

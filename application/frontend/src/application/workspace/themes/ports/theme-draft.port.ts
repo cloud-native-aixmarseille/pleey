@@ -1,4 +1,4 @@
-import type { ThemeDocument } from '../../../../domains/theme/entities/theme-document';
+import type { ThemeDocument } from '@pleey/domain/theme';
 
 export interface ThemeDraftScope {
   readonly userId: string;

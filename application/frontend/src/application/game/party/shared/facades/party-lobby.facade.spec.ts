@@ -1,6 +1,5 @@
+import { PartyJoinReceiptStatus, PartyPlayerKind } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
-import { PartyJoinReceiptStatus } from '../../../../../domains/game/party/player/ports/party-player.port';
-import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyFixtureFactory } from '../../../../../test-utils/fixtures/party-fixture-factory';
 import { GuestIdentifierMockFactory } from '../../../../../test-utils/mocks/guest-identifier-mock-factory';
 import { PartyLobbyFacade } from './party-lobby.facade';
@@ -24,7 +23,7 @@ describe('PartyLobbyFacade', () => {
         pin: party.pin,
         gameId: party.gameId,
         guestCredential: 'renewed-proof',
-        player: { identity: { kind: PartyPlayerIdentityKind.Guest, guestId } },
+        player: { identity: { kind: PartyPlayerKind.GUEST, guestId } },
       })),
     };
     const facade = new PartyLobbyFacade(sessions as never, {} as never, {} as never, players as never);
@@ -33,7 +32,7 @@ describe('PartyLobbyFacade', () => {
     // Assert
     expect(players.rejoinParty).toHaveBeenCalledWith({
       pin: party.pin,
-      playerIdentity: { kind: PartyPlayerIdentityKind.Guest, guestId },
+      playerIdentity: { kind: PartyPlayerKind.GUEST, guestId },
       guestCredential: 'stored-proof',
     });
     expect(sessions.setGuestId).toHaveBeenCalledWith(party.pin, guestId, 'renewed-proof', party.partyId);

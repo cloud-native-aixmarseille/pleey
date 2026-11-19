@@ -2,7 +2,7 @@
 
 # Paramètres de partie
 
-[index.js](../../../../packages/pleey-domain/party/index.js)
+[index.ts](../../../../application/shared/party/index.ts)
 
 | Paramètre                      | Valeur par défaut | Valeurs autorisées |
 | ------------------------------ | ----------------- | ------------------ |
@@ -14,7 +14,7 @@
 
 ## Valeurs initiales de l'éditeur de quiz et de pronostics
 
-[index.js](../../../../packages/pleey-domain/game/index.js)
+[index.ts](../../../../application/shared/game/index.ts)
 
 | Domaine    | Paramètre | Valeur par défaut | Minimum (entier) | Source                                                                                                                            |
 | ---------- | --------- | ----------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |

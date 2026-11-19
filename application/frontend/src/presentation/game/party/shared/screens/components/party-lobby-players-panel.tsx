@@ -1,6 +1,6 @@
+import { PartyPlayerKind } from '@pleey/domain/party';
 import type { ReactNode } from 'react';
 import type { PartyObservationPlayer } from '../../../../../../domains/game/party/shared/entities/party-observation-player';
-import { PartyPlayerIdentityKind } from '../../../../../../domains/game/party/shared/entities/party-player-identity';
 import { ProfileTile } from '../../../../../shared/ui/data/profile-tile';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
@@ -60,7 +60,7 @@ function sortPlayers(players: readonly PartyObservationPlayer[]): PartyObservati
 }
 
 function toPlayerKey(player: PartyObservationPlayer): string {
-  return player.identity.kind === PartyPlayerIdentityKind.User
+  return player.identity.kind === PartyPlayerKind.USER
     ? `user:${player.identity.userId}`
     : `guest:${player.identity.guestId}`;
 }

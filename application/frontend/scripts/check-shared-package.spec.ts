@@ -10,6 +10,7 @@ import {
   resolvePlayableContentImportErrorKind,
 } from "@pleey/domain/errors";
 import { SHARED_ERROR_TRANSLATION_KEYS, SHARED_TRANSLATIONS } from "@pleey/domain/i18n";
+import { THEME_ASSET_POLICY } from "@pleey/domain/theme";
 import { describe, expect, it } from "vitest";
 
 const scriptPath = [
@@ -29,6 +30,13 @@ const {
 } = await import(pathToFileURL(scriptPath).href);
 
 describe("shared domain package checker", () => {
+  it("exposes one bounded theme asset policy", () => {
+    // Act + Assert
+    expect(THEME_ASSET_POLICY.acceptedMimeTypes).toEqual(["image/png", "image/jpeg", "image/webp"]);
+    expect(THEME_ASSET_POLICY.maxFileSizeBytes).toBe(5 * 1024 * 1024);
+    expect(THEME_ASSET_POLICY.maxInputPixels).toBe(16_000_000);
+  });
+
   it("defines each shared error translation key in every supported locale", () => {
     // Arrange
     const entries = Object.values(SHARED_ERROR_TRANSLATION_KEYS);
@@ -84,7 +92,7 @@ describe("shared domain package checker", () => {
   it("rejects export surface drift", () => {
     // Arrange
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-shared-package-"));
-    const packageRoot = path.join(tempDirectory, "packages/pleey-domain");
+    const packageRoot = path.join(tempDirectory, "application/shared");
     fs.mkdirSync(packageRoot, { recursive: true });
     fs.writeFileSync(
       path.join(packageRoot, "package.json"),
@@ -109,8 +117,8 @@ describe("shared domain package checker", () => {
     // Arrange
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-shared-files-"));
     const sourcePackageRoot = [
-      path.resolve(import.meta.dirname, "../../../packages/pleey-domain"),
-      "/usr/packages/pleey-domain",
+      path.resolve(import.meta.dirname, "../../shared"),
+        "/usr/src/shared",
     ].find((candidate) => fs.existsSync(candidate));
     if (!sourcePackageRoot) throw new Error("Unable to locate the shared domain package for tests.");
     const packageRoot = path.join(tempDirectory, "pleey-domain");
@@ -131,7 +139,7 @@ describe("shared domain package checker", () => {
   it("rejects forbidden framework imports in shared sources", () => {
     // Arrange
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-shared-imports-"));
-    const packageRoot = path.join(tempDirectory, "packages/pleey-domain");
+    const packageRoot = path.join(tempDirectory, "application/shared");
     fs.mkdirSync(path.join(packageRoot, "src"), { recursive: true });
     fs.writeFileSync(path.join(packageRoot, "src", "policy.ts"), "import { useMemo } from 'react';");
 
@@ -165,8 +173,8 @@ describe("shared domain package checker", () => {
       "../src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts",
     );
     const sharedPartyEventsPath = [
-      path.resolve(import.meta.dirname, '../../../packages/pleey-domain/party/index.js'),
-      '/usr/packages/pleey-domain/party/index.js',
+      path.resolve(import.meta.dirname, '../../shared/party/index.ts'),
+      '/usr/src/shared/party/index.ts',
     ].find((candidate) => {
       return fs.existsSync(candidate);
     });

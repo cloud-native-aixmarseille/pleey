@@ -1,5 +1,5 @@
+import type { ThemeDocument } from '@pleey/domain/theme';
 import { useLayoutEffect } from 'react';
-import type { ThemeDocument } from '../../../../../domains/theme/entities/theme-document';
 import { usePresentationThemeState } from '../../../../shared/ui/provider';
 
 export function usePartyTheme(document: ThemeDocument | undefined): void {

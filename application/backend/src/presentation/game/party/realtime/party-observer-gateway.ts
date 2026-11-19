@@ -10,7 +10,7 @@ import {
 } from '@nestjs/websockets';
 import type { GameId } from '@pleey/domain/game';
 import type { PartyId, PartyPin } from '@pleey/domain/party';
-import { PartyStatus } from '@pleey/domain/party';
+import { PartyJoinReceiptStatus, PartyPlayerKind, PartyStatus } from '@pleey/domain/party';
 import type { Server, Socket } from 'socket.io';
 import { AdvanceStageUseCase } from '../../../../application/game/party/host/use-cases/advance-stage-use-case';
 import { EndPartyUseCase } from '../../../../application/game/party/host/use-cases/end-party-use-case';
@@ -40,7 +40,6 @@ import {
   HostPartyControlForbiddenError,
   PartyCommandNotAvailableError,
 } from '../../../../domain/game/errors';
-import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
 import type {
   AuthenticatedPartyPlayerIdentity,
   PartyPlayerIdentity,
@@ -73,14 +72,9 @@ interface PendingLobbyPlayerAbsencePrune {
   readonly pin: PartyPin;
 }
 
-enum PartyJoinAcknowledgementStatus {
-  ACCEPTED = 'accepted',
-  REJECTED = 'rejected',
-}
-
 type PartyJoinAcknowledgement =
   | {
-      readonly status: PartyJoinAcknowledgementStatus.ACCEPTED;
+      readonly status: PartyJoinReceiptStatus.ACCEPTED;
       readonly guestCredential?: string;
       readonly gameId: GameId;
       readonly player: {
@@ -93,7 +87,7 @@ type PartyJoinAcknowledgement =
     }
   | {
       readonly errorCode: string;
-      readonly status: PartyJoinAcknowledgementStatus.REJECTED;
+      readonly status: PartyJoinReceiptStatus.REJECTED;
     };
 
 type PartyHostControlUseCase = Pick<StartPartyUseCase, 'execute'>;
@@ -418,7 +412,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       await this.publishPartyObservationRoom(result.partyId);
 
       return {
-        status: PartyJoinAcknowledgementStatus.ACCEPTED,
+        status: PartyJoinReceiptStatus.ACCEPTED,
         guestCredential: result.guestCredential,
         gameId: result.gameId,
         player: {
@@ -432,7 +426,7 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     } catch (error) {
       return {
         errorCode: error instanceof Error ? error.message : GameErrorCode.UNKNOWN_ERROR,
-        status: PartyJoinAcknowledgementStatus.REJECTED,
+        status: PartyJoinReceiptStatus.REJECTED,
       };
     }
   }

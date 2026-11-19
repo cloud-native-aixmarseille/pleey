@@ -1,5 +1,5 @@
 import type { GameType } from '@pleey/domain/game';
-import type { HostPartyPermissions } from '../../../../../domain/game/party/host/value-objects/host-party-permissions';
+import type { HostPartyPermissions } from '@pleey/domain/party';
 import type {
   PlayerPartyObservation,
   PlayerPartyObservationPlayer,

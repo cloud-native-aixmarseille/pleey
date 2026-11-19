@@ -1,5 +1,6 @@
 import type { GuestId } from '@pleey/domain/identity';
 import type { PartyId, PartyPin } from '@pleey/domain/party';
+import { PartyJoinReceiptStatus, PartyPlayerKind } from '@pleey/domain/party';
 import { inject, injectable } from 'inversify';
 import {
   type HostPartyPlayerControlCommand,
@@ -18,13 +19,11 @@ import {
 import {
   type PartyJoinCommand,
   type PartyJoinReceipt,
-  PartyJoinReceiptStatus,
   type PartyPlayerPort,
   PartyPlayerPortToken,
   type PartySubmitActionCommand,
 } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { Party } from '../../../../../domains/game/party/shared/entities/party';
-import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 
 export interface PartyLobbyGateway {
   clearGuestId(pin: PartyPin): void;
@@ -119,7 +118,7 @@ export class PartyLobbyFacade implements PartyLobbyGateway {
     const pin = this.partyGuestSessionPort.getGuestPin(partyId);
     const guestId = pin ? this.partyGuestSessionPort.getGuestId(pin) : null;
     if (!pin || !guestId) return;
-    const receipt = await this.rejoinParty({ pin, playerIdentity: { kind: PartyPlayerIdentityKind.Guest, guestId } });
+    const receipt = await this.rejoinParty({ pin, playerIdentity: { kind: PartyPlayerKind.GUEST, guestId } });
     if (receipt.status !== PartyJoinReceiptStatus.ACCEPTED) this.clearGuestId(pin);
   }
 
@@ -129,7 +128,7 @@ export class PartyLobbyFacade implements PartyLobbyGateway {
 
   private async enterParty(command: PartyJoinCommand, rejoin: boolean): Promise<PartyJoinReceipt> {
     const guestCredential =
-      command.playerIdentity.kind === PartyPlayerIdentityKind.Guest && command.playerIdentity.guestId
+      command.playerIdentity.kind === PartyPlayerKind.GUEST && command.playerIdentity.guestId
         ? (this.partyGuestSessionPort.getGuestCredential(command.pin) ?? undefined)
         : undefined;
     const request = { ...command, guestCredential };
@@ -138,7 +137,7 @@ export class PartyLobbyFacade implements PartyLobbyGateway {
       : this.partyPlayerPort.joinParty(request));
     if (
       receipt.status === PartyJoinReceiptStatus.ACCEPTED &&
-      receipt.player.identity.kind === PartyPlayerIdentityKind.Guest &&
+      receipt.player.identity.kind === PartyPlayerKind.GUEST &&
       receipt.guestCredential
     ) {
       this.partyGuestSessionPort.setGuestId(

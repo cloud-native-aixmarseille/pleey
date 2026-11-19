@@ -1,5 +1,6 @@
 import type { GameId } from '@pleey/domain/game';
 import type { PartyActionId, PartyId, PartyPin } from '@pleey/domain/party';
+import { PartyJoinReceiptStatus } from '@pleey/domain/party';
 import type { PartyJoiningPlayerIdentity, PartyPlayerIdentity } from '../../shared/entities/party-player-identity';
 
 export interface PartyJoinCommand {
@@ -20,11 +21,6 @@ interface PartyJoinPlayerReceipt {
   readonly avatarUri: string | null;
   readonly identity: PartyPlayerIdentity;
   readonly username: string;
-}
-
-export enum PartyJoinReceiptStatus {
-  ACCEPTED = 'accepted',
-  REJECTED = 'rejected',
 }
 
 export type PartyJoinReceipt =

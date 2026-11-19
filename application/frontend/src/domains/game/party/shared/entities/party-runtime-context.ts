@@ -1,14 +1,10 @@
 import type { PartyActionId, PartyStageId } from '@pleey/domain/party';
-import { PartyRuntimePhase } from '@pleey/domain/party';
+import { PARTY_PLAYER_ACTION_STATE_STATUS, PartyRuntimePhase } from '@pleey/domain/party';
 
 export { PartyRuntimePhase } from '@pleey/domain/party';
 
-const PARTY_RUNTIME_ACTION_SUBMISSION_STATUS = {
-  ACKNOWLEDGED: 'acknowledged',
-} as const;
-
 type PartyRuntimeActionSubmissionStatus =
-  (typeof PARTY_RUNTIME_ACTION_SUBMISSION_STATUS)[keyof typeof PARTY_RUNTIME_ACTION_SUBMISSION_STATUS];
+  (typeof PARTY_PLAYER_ACTION_STATE_STATUS)[keyof typeof PARTY_PLAYER_ACTION_STATE_STATUS];
 
 interface PartyRuntimeBaseLifecycleContext {
   readonly reading?: {

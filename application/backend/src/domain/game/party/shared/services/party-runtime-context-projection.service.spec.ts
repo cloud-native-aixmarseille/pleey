@@ -1,6 +1,6 @@
+import { PARTY_PLAYER_ACTION_STATE_STATUS } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
-import { PARTY_PLAYER_ACTION_STATE_STATUS } from '../../player/entities/party-player-action-state';
 import { type PartyRuntimeContext, PartyRuntimePhase } from '../entities/party-runtime-context';
 import { PartyRuntimeContextProjectionService } from './party-runtime-context-projection.service';
 

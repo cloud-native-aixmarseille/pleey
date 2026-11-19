@@ -1,9 +1,8 @@
-import { PartyStatus } from '@pleey/domain/party';
+import { HostPartyDisabledReason, PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { GameErrorCode } from '../../../enums/game-error-code.enum';
 import { type PartyRuntimeContext, PartyRuntimePhase } from '../../shared/entities/party-runtime-context';
-import { HostPartyDisabledReason } from '../value-objects/host-party-permissions';
 import { HostPartyLifecyclePolicy } from './host-party-lifecycle-policy';
 
 function createRuntimeContext(
