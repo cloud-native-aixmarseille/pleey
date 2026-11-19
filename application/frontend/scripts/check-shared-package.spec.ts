@@ -9,6 +9,7 @@ import {
   QuizErrorCode,
   resolvePlayableContentImportErrorKind,
 } from "@pleey/domain/errors";
+import { SHARED_ERROR_TRANSLATION_KEYS, SHARED_TRANSLATIONS } from "@pleey/domain/i18n";
 import { describe, expect, it } from "vitest";
 
 const scriptPath = [
@@ -28,6 +29,21 @@ const {
 } = await import(pathToFileURL(scriptPath).href);
 
 describe("shared domain package checker", () => {
+  it("defines each shared error translation key in every supported locale", () => {
+    // Arrange
+    const entries = Object.values(SHARED_ERROR_TRANSLATION_KEYS);
+
+    // Act
+    const missing = Object.entries(SHARED_TRANSLATIONS).flatMap(([locale, resources]) =>
+      entries
+        .filter((key) => key.split(".").reduce<unknown>((value, part) => (value as Record<string, unknown>)?.[part], resources) === undefined)
+        .map((key) => `${locale}:${key}`),
+    );
+
+    // Assert
+    expect(missing).toEqual([]);
+  });
+
   it.each([
     [QuizErrorCode.QUIZ_IMPORT_EMPTY_FILE, PlayableContentImportErrorKind.EmptyFile],
     [QuizErrorCode.QUIZ_IMPORT_UNSUPPORTED_FORMAT, PlayableContentImportErrorKind.UnsupportedFormat],

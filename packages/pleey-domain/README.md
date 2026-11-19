@@ -11,3 +11,7 @@ scope and consequences are defined by
 Consumers import explicit feature entry points. This package has no catch-all
 runtime export and must not depend on either application or on framework,
 transport, persistence, browser-only or Node-only APIs.
+
+The `i18n` entry point contains only localized messages for exported public
+business error codes. Screen, accessibility, email and application-local error
+copy stay in their application catalogs.
