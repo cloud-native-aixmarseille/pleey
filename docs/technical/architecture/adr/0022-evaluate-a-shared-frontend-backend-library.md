@@ -426,7 +426,7 @@ The acceptance test must demonstrate:
 | Build or Docker paths omit the package.                      | Require package installation and build smoke checks in both application CI jobs.                                 |
 | Extraction changes wire compatibility.                       | Add fixture and version-skew tests for timestamps, enums, optional/null fields and errors.                       |
 | Migration removes duplication without a maintenance benefit. | Extract only when both consumers use the contract or an intentionally staged pair of consumers is complete.      |
-| Package code and translation copy drift.                     | Share display text only for public business errors under ADR 0025; keep screen and transport copy local.        |
+| Package code and translation copy drift.                     | Share display text only for public business errors under ADR 0025; keep screen and transport copy local.         |
 
 ### Implementation
 
