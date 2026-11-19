@@ -1,6 +1,6 @@
+import type { ThemePermissions } from '@pleey/domain/theme';
 import { CURATED_THEME_PALETTES } from '@pleey/domain/theme';
 import type { ManagedTheme } from '../../../domains/theme/entities/managed-theme';
-import type { ThemePermissions } from '../../../domains/theme/value-objects/theme-permissions';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { Button } from '../../shared/ui/actions/button';
 import { CatalogItemCard } from '../../shared/ui/data/catalog-item-card';

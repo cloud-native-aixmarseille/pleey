@@ -182,6 +182,7 @@ The package is the private repository package `@pleey/domain` under
 Suggested feature entry points are:
 
 - `shared/primitives`;
+- `identifier`;
 - `identity`;
 - `organization`;
 - `project`;

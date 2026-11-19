@@ -1,4 +1,4 @@
-import type { ThemePermissions } from '../../../domains/theme/value-objects/theme-permissions';
+import type { ThemePermissions } from '@pleey/domain/theme';
 import { GuideLaunch } from '../../shared/guide/guide-launch';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { Button } from '../../shared/ui/actions/button';

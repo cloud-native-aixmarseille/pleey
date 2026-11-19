@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
+import type { ThemePermissions } from '@pleey/domain/theme';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
 import type { ManagedTheme } from '../../../../domain/theme/entities/managed-theme';
 import { ThemeRepository } from '../../../../domain/theme/ports/theme-repository';
-import type { ThemePermissions } from '../../../../domain/theme/value-objects/theme-permissions';
 import { ThemePermissionService } from '../services/theme-permission-service';
 
 @Injectable()

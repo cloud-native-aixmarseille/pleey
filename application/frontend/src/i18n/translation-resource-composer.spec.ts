@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SHARED_ERROR_TRANSLATION_KEYS } from '@pleey/domain/i18n';
+import { THEME_ERROR_TRANSLATION_KEYS } from '@pleey/domain/theme';
 import { describe, expect, it } from 'vitest';
 import { TranslationResourceComposer } from './translation-resource-composer';
 
@@ -219,7 +220,10 @@ describe('TranslationResourceComposer', () => {
         frenchTranslationKeys.flatMap((key) => [key, key.replace(/_(zero|one|two|few|many|other)$/, '')]),
       );
       const { exactKeys, rootedKeys } = collectFrontendTranslationReferences(sourceDirectory);
-      const sharedErrorKeys = Object.values(SHARED_ERROR_TRANSLATION_KEYS);
+      const sharedErrorKeys = [
+        ...Object.values(SHARED_ERROR_TRANSLATION_KEYS),
+        ...Object.values(THEME_ERROR_TRANSLATION_KEYS),
+      ];
       const allExactKeys = [...exactKeys, ...sharedErrorKeys];
       const effectiveEnglishRoots = [
         ...rootedKeys,
@@ -247,7 +251,11 @@ describe('TranslationResourceComposer', () => {
       const resources = translationResourceComposer.compose();
       const englishKeys = flattenTranslationKeys(resources.en.translation).sort();
       const { exactKeys, rootedKeys } = collectFrontendTranslationReferences(sourceDirectory);
-      const allExactKeys = [...exactKeys, ...Object.values(SHARED_ERROR_TRANSLATION_KEYS)];
+      const allExactKeys = [
+        ...exactKeys,
+        ...Object.values(SHARED_ERROR_TRANSLATION_KEYS),
+        ...Object.values(THEME_ERROR_TRANSLATION_KEYS),
+      ];
       const effectiveRoots = [...rootedKeys, ...collectDefinedReferenceRoots(allExactKeys, englishKeys)];
 
       // Assert

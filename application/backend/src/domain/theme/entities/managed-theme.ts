@@ -9,11 +9,5 @@ export interface ManagedTheme {
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
-export type ThemeAssetId = string & { readonly __identifierBrand: 'ThemeAssetId' };
 export const THEME_ASSET_MAX_FILE_SIZE_BYTES = THEME_ASSET_POLICY.maxFileSizeBytes;
-export interface ThemeAsset {
-  readonly id: ThemeAssetId;
-  readonly url: string;
-  readonly width: number;
-  readonly height: number;
-}
+export type { ThemeAsset, ThemeAssetId } from '@pleey/domain/theme';

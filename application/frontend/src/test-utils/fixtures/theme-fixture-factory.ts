@@ -1,7 +1,6 @@
 import { OrganizationPermissionReason } from '@pleey/domain/organization';
-import type { ThemeDocument } from '@pleey/domain/theme';
+import type { ThemeDocument, ThemePermissions } from '@pleey/domain/theme';
 import type { ManagedTheme } from '../../domains/theme/entities/managed-theme';
-import type { ThemePermissions } from '../../domains/theme/value-objects/theme-permissions';
 import { OrganizationFixtureFactory } from './organization-fixture-factory';
 export class ThemeFixtureFactory {
   createPermissions(allowed = true): ThemePermissions {

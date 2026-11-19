@@ -1,14 +1,25 @@
 import { Injectable } from '@nestjs/common';
+import { OrganizationPermissionReason } from '@pleey/domain/organization';
+import type { ThemePermissions } from '@pleey/domain/theme';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
-import { ORGANIZATION_ERROR_DEFINITIONS } from '../../../../domain/organization/enums/organization-error-code.enum';
+import {
+  ORGANIZATION_ERROR_DEFINITIONS,
+  OrganizationErrorCode,
+} from '../../../../domain/organization/enums/organization-error-code.enum';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
 import { ThemePermissionPolicy } from '../../../../domain/theme/services/theme-permission-policy';
-import type { ThemePermissions } from '../../../../domain/theme/value-objects/theme-permissions';
 import { OrganizationMembershipAccessService } from '../../organizations/services/organization-membership-access.service';
 
 @Injectable()
 export class ThemePermissionService {
+  private readonly permissionErrorCodes: Record<OrganizationPermissionReason, OrganizationErrorCode> = {
+    [OrganizationPermissionReason.UNAVAILABLE]: OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
+    [OrganizationPermissionReason.NOT_A_MEMBER]: OrganizationErrorCode.NOT_A_MEMBER,
+    [OrganizationPermissionReason.INSUFFICIENT_PERMISSIONS]: OrganizationErrorCode.INSUFFICIENT_PERMISSIONS,
+    [OrganizationPermissionReason.CANNOT_REMOVE_LAST_OWNER]: OrganizationErrorCode.CANNOT_REMOVE_LAST_OWNER,
+  };
+
   constructor(
     private readonly membershipAccess: OrganizationMembershipAccessService,
     private readonly policy: ThemePermissionPolicy,
@@ -27,7 +38,11 @@ export class ThemePermissionService {
     const permissions = await this.resolve(organizationId, userId);
     const permission = permissions[action];
     if (!permission.allowed)
-      throw createDomainError(ORGANIZATION_ERROR_DEFINITIONS[permission.reason], { organizationId, userId, action });
+      throw createDomainError(ORGANIZATION_ERROR_DEFINITIONS[this.permissionErrorCodes[permission.reason]], {
+        organizationId,
+        userId,
+        action,
+      });
     return permissions;
   }
 }

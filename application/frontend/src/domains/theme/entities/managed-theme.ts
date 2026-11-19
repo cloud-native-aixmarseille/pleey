@@ -1,4 +1,4 @@
-import type { ThemeDocument, ThemeId } from '@pleey/domain/theme';
+import type { ThemeAsset as SharedThemeAsset, ThemeDocument, ThemeId } from '@pleey/domain/theme';
 import type { OrganizationId } from '../../organization/entities/organization';
 export interface ManagedTheme {
   readonly id: ThemeId;
@@ -8,9 +8,5 @@ export interface ManagedTheme {
   readonly createdAt: string;
   readonly updatedAt: string;
 }
-export interface ThemeAsset {
-  readonly id: string;
-  readonly url: string;
-  readonly width: number;
-  readonly height: number;
-}
+
+export type ThemeAsset = SharedThemeAsset<string>;

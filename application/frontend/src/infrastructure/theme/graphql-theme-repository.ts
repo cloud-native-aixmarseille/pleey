@@ -1,7 +1,7 @@
 import { OrganizationPermissionReason } from '@pleey/domain/organization';
 import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { decodeActionPermission } from '@pleey/domain/shared/primitives';
-import type { ThemeId } from '@pleey/domain/theme';
+import type { ThemeId, ThemePermissions } from '@pleey/domain/theme';
 import { inject, injectable } from 'inversify';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
@@ -9,7 +9,6 @@ import type { OrganizationId } from '../../domains/organization/entities/organiz
 import type { ManagedTheme } from '../../domains/theme/entities/managed-theme';
 import type { SaveThemeCommand, ThemeRepository } from '../../domains/theme/ports/theme-repository';
 import { ThemeDocumentNormalizer } from '../../domains/theme/services/theme-document-normalizer';
-import type { ThemePermissions } from '../../domains/theme/value-objects/theme-permissions';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
   GetThemeDocument,

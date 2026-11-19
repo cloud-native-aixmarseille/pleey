@@ -1,6 +1,6 @@
 import { OrganizationPermissionReason } from '@pleey/domain/organization';
+import type { ThemePermissions } from '@pleey/domain/theme';
 import { createContext, useContext } from 'react';
-import type { ThemePermissions } from '../../../domains/theme/value-objects/theme-permissions';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import type { useThemePermissions } from '../hooks/use-theme-permissions';
 
