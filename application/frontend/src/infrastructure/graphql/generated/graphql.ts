@@ -120,7 +120,14 @@ export type LoginInput = {
   password: string;
 };
 
-export enum OrganizationActionDisabledReason {
+export type OrganizationMembersInput = {
+  organizationId: string | number;
+  page?: number;
+  pageSize?: number;
+  search?: string | null | undefined;
+};
+
+export enum OrganizationPermissionReason {
   CannotRemoveLastOwner = 'CANNOT_REMOVE_LAST_OWNER',
   InsufficientPermissions = 'INSUFFICIENT_PERMISSIONS',
   MemberAlreadyExists = 'MEMBER_ALREADY_EXISTS',
@@ -130,13 +137,6 @@ export enum OrganizationActionDisabledReason {
   OrganizationNameAlreadyExists = 'ORGANIZATION_NAME_ALREADY_EXISTS',
   OrganizationNotFound = 'ORGANIZATION_NOT_FOUND'
 }
-
-export type OrganizationMembersInput = {
-  organizationId: string | number;
-  page?: number;
-  pageSize?: number;
-  search?: string | null | undefined;
-};
 
 export enum OrganizationRole {
   Manager = 'MANAGER',
@@ -169,7 +169,17 @@ export enum PartyStatus {
   Waiting = 'WAITING'
 }
 
-export enum ProjectActionDisabledReason {
+export type ProjectGamesInput = {
+  page?: number;
+  pageSize?: number;
+  projectId: string | number;
+  search?: string | null | undefined;
+  sortDirection?: string;
+  sortField?: string;
+  types?: Array<string> | null | undefined;
+};
+
+export enum ProjectPermissionReason {
   CannotDeleteLastProject = 'CANNOT_DELETE_LAST_PROJECT',
   CannotRemoveLastOwner = 'CANNOT_REMOVE_LAST_OWNER',
   InsufficientPermissions = 'INSUFFICIENT_PERMISSIONS',
@@ -184,16 +194,6 @@ export enum ProjectActionDisabledReason {
   ProjectMigrationTargetRequired = 'PROJECT_MIGRATION_TARGET_REQUIRED',
   ProjectNotFound = 'PROJECT_NOT_FOUND'
 }
-
-export type ProjectGamesInput = {
-  page?: number;
-  pageSize?: number;
-  projectId: string | number;
-  search?: string | null | undefined;
-  sortDirection?: string;
-  sortField?: string;
-  types?: Array<string> | null | undefined;
-};
 
 export enum QuizQuestionType {
   Multiple = 'Multiple',
@@ -554,35 +554,35 @@ export type AddOrganizationMemberMutationVariables = Exact<{
 }>;
 
 
-export type AddOrganizationMemberMutation = { addOrganizationMember: { id: string, organizationId: string, userId: string, username: string, role: OrganizationRole, assignableRoles: Array<OrganizationRole>, joinedAt: string, permissions: { updateRole: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, remove: { allowed: boolean, reason: OrganizationActionDisabledReason | null } } } };
+export type AddOrganizationMemberMutation = { addOrganizationMember: { id: string, organizationId: string, userId: string, username: string, role: OrganizationRole, assignableRoles: Array<OrganizationRole>, joinedAt: string, permissions: { updateRole: { allowed: boolean, reason: OrganizationPermissionReason | null }, remove: { allowed: boolean, reason: OrganizationPermissionReason | null } } } };
 
 export type CreateOrganizationMutationVariables = Exact<{
   input: CreateOrganizationInput;
 }>;
 
 
-export type CreateOrganizationMutation = { createOrganization: { id: string, name: string, description: string | null, createdAt: string, updatedAt: string, defaultThemeId: string | null, role: OrganizationRole | null, assignableRoles: Array<OrganizationRole>, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { read: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, update: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, createProject: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, manageMembers: { allowed: boolean, reason: OrganizationActionDisabledReason | null } } } };
+export type CreateOrganizationMutation = { createOrganization: { id: string, name: string, description: string | null, createdAt: string, updatedAt: string, defaultThemeId: string | null, role: OrganizationRole | null, assignableRoles: Array<OrganizationRole>, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { read: { allowed: boolean, reason: OrganizationPermissionReason | null }, update: { allowed: boolean, reason: OrganizationPermissionReason | null }, createProject: { allowed: boolean, reason: OrganizationPermissionReason | null }, manageMembers: { allowed: boolean, reason: OrganizationPermissionReason | null } } } };
 
 export type WorkspaceOrganizationDashboardQueryVariables = Exact<{
   organizationId: string | number;
 }>;
 
 
-export type WorkspaceOrganizationDashboardQuery = { organizationDashboard: { organization: { id: string, name: string, description: string | null, role: OrganizationRole | null, assignableRoles: Array<OrganizationRole>, permissions: { read: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, update: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, createProject: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, manageMembers: { allowed: boolean, reason: OrganizationActionDisabledReason | null } } }, stats: { totalGames: number, totalMembers: number, totalProjects: number } } };
+export type WorkspaceOrganizationDashboardQuery = { organizationDashboard: { organization: { id: string, name: string, description: string | null, role: OrganizationRole | null, assignableRoles: Array<OrganizationRole>, permissions: { read: { allowed: boolean, reason: OrganizationPermissionReason | null }, update: { allowed: boolean, reason: OrganizationPermissionReason | null }, createProject: { allowed: boolean, reason: OrganizationPermissionReason | null }, manageMembers: { allowed: boolean, reason: OrganizationPermissionReason | null } } }, stats: { totalGames: number, totalMembers: number, totalProjects: number } } };
 
 export type OrganizationMembersQueryVariables = Exact<{
   input: OrganizationMembersInput;
 }>;
 
 
-export type OrganizationMembersQuery = { organizationMembers: { totalCount: number, overallCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ id: string, organizationId: string, userId: string, username: string, role: OrganizationRole, assignableRoles: Array<OrganizationRole>, joinedAt: string, permissions: { updateRole: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, remove: { allowed: boolean, reason: OrganizationActionDisabledReason | null } } }> } };
+export type OrganizationMembersQuery = { organizationMembers: { totalCount: number, overallCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ id: string, organizationId: string, userId: string, username: string, role: OrganizationRole, assignableRoles: Array<OrganizationRole>, joinedAt: string, permissions: { updateRole: { allowed: boolean, reason: OrganizationPermissionReason | null }, remove: { allowed: boolean, reason: OrganizationPermissionReason | null } } }> } };
 
 export type WorkspaceOrganizationsQueryVariables = Exact<{
   input?: ListOrganizationsInput | null | undefined;
 }>;
 
 
-export type WorkspaceOrganizationsQuery = { myOrganizations: { totalCount: number, overallCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ id: string, name: string, description: string | null, createdAt: string, updatedAt: string, defaultThemeId: string | null, role: OrganizationRole | null, assignableRoles: Array<OrganizationRole>, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { read: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, update: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, createProject: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, manageMembers: { allowed: boolean, reason: OrganizationActionDisabledReason | null } } }> } };
+export type WorkspaceOrganizationsQuery = { myOrganizations: { totalCount: number, overallCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ id: string, name: string, description: string | null, createdAt: string, updatedAt: string, defaultThemeId: string | null, role: OrganizationRole | null, assignableRoles: Array<OrganizationRole>, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { read: { allowed: boolean, reason: OrganizationPermissionReason | null }, update: { allowed: boolean, reason: OrganizationPermissionReason | null }, createProject: { allowed: boolean, reason: OrganizationPermissionReason | null }, manageMembers: { allowed: boolean, reason: OrganizationPermissionReason | null } } }> } };
 
 export type UpdateOrganizationMutationVariables = Exact<{
   organizationId: string | number;
@@ -590,7 +590,7 @@ export type UpdateOrganizationMutationVariables = Exact<{
 }>;
 
 
-export type UpdateOrganizationMutation = { updateOrganization: { id: string, name: string, description: string | null, createdAt: string, updatedAt: string, defaultThemeId: string | null, role: OrganizationRole | null, assignableRoles: Array<OrganizationRole>, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { read: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, update: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, createProject: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, manageMembers: { allowed: boolean, reason: OrganizationActionDisabledReason | null } } } };
+export type UpdateOrganizationMutation = { updateOrganization: { id: string, name: string, description: string | null, createdAt: string, updatedAt: string, defaultThemeId: string | null, role: OrganizationRole | null, assignableRoles: Array<OrganizationRole>, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { read: { allowed: boolean, reason: OrganizationPermissionReason | null }, update: { allowed: boolean, reason: OrganizationPermissionReason | null }, createProject: { allowed: boolean, reason: OrganizationPermissionReason | null }, manageMembers: { allowed: boolean, reason: OrganizationPermissionReason | null } } } };
 
 export type RemoveOrganizationMemberMutationVariables = Exact<{
   memberId: string | number;
@@ -605,14 +605,14 @@ export type UpdateOrganizationMemberRoleMutationVariables = Exact<{
 }>;
 
 
-export type UpdateOrganizationMemberRoleMutation = { updateOrganizationMemberRole: { id: string, organizationId: string, userId: string, username: string, role: OrganizationRole, assignableRoles: Array<OrganizationRole>, joinedAt: string, permissions: { updateRole: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, remove: { allowed: boolean, reason: OrganizationActionDisabledReason | null } } } };
+export type UpdateOrganizationMemberRoleMutation = { updateOrganizationMemberRole: { id: string, organizationId: string, userId: string, username: string, role: OrganizationRole, assignableRoles: Array<OrganizationRole>, joinedAt: string, permissions: { updateRole: { allowed: boolean, reason: OrganizationPermissionReason | null }, remove: { allowed: boolean, reason: OrganizationPermissionReason | null } } } };
 
 export type WorkspaceProjectsByOrganizationQueryVariables = Exact<{
   input: ListOrganizationProjectsInput;
 }>;
 
 
-export type WorkspaceProjectsByOrganizationQuery = { organizationProjects: { totalCount: number, overallCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ id: string, name: string, description: string | null, organizationId: string, createdAt: string, defaultThemeId: string | null, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { update: { allowed: boolean, reason: ProjectActionDisabledReason | null }, delete: { allowed: boolean, reason: ProjectActionDisabledReason | null } } }> } };
+export type WorkspaceProjectsByOrganizationQuery = { organizationProjects: { totalCount: number, overallCount: number, page: number, pageSize: number, totalPages: number, items: Array<{ id: string, name: string, description: string | null, organizationId: string, createdAt: string, defaultThemeId: string | null, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { update: { allowed: boolean, reason: ProjectPermissionReason | null }, delete: { allowed: boolean, reason: ProjectPermissionReason | null } } }> } };
 
 export type CreateProjectMutationVariables = Exact<{
   organizationId: string | number;
@@ -620,7 +620,7 @@ export type CreateProjectMutationVariables = Exact<{
 }>;
 
 
-export type CreateProjectMutation = { createProject: { id: string, name: string, description: string | null, organizationId: string, createdAt: string, defaultThemeId: string | null, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { update: { allowed: boolean, reason: ProjectActionDisabledReason | null }, delete: { allowed: boolean, reason: ProjectActionDisabledReason | null } } } };
+export type CreateProjectMutation = { createProject: { id: string, name: string, description: string | null, organizationId: string, createdAt: string, defaultThemeId: string | null, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { update: { allowed: boolean, reason: ProjectPermissionReason | null }, delete: { allowed: boolean, reason: ProjectPermissionReason | null } } } };
 
 export type UpdateProjectMutationVariables = Exact<{
   projectId: string | number;
@@ -628,7 +628,7 @@ export type UpdateProjectMutationVariables = Exact<{
 }>;
 
 
-export type UpdateProjectMutation = { updateProject: { id: string, name: string, description: string | null, organizationId: string, createdAt: string, defaultThemeId: string | null, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { update: { allowed: boolean, reason: ProjectActionDisabledReason | null }, delete: { allowed: boolean, reason: ProjectActionDisabledReason | null } } } };
+export type UpdateProjectMutation = { updateProject: { id: string, name: string, description: string | null, organizationId: string, createdAt: string, defaultThemeId: string | null, defaultPartySettings: { allowJoiningAfterStart: boolean, allowOptionChangeAfterVoting: boolean, randomizeOptionOrder: boolean, questionReadingTimeSeconds: number, randomizeStageOrder: boolean } | null, permissions: { update: { allowed: boolean, reason: ProjectPermissionReason | null }, delete: { allowed: boolean, reason: ProjectPermissionReason | null } } } };
 
 export type DeleteProjectMutationVariables = Exact<{
   projectId: string | number;
@@ -652,7 +652,7 @@ export type ListThemesQueryVariables = Exact<{
 }>;
 
 
-export type ListThemesQuery = { listThemes: { totalCount: number, overallCount: number, page: number, pageSize: number, totalPages: number, permissions: { read: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, create: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, update: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, uploadAsset: { allowed: boolean, reason: OrganizationActionDisabledReason | null } }, items: Array<{ id: string, organizationId: string, revision: number, document: unknown, createdAt: string, updatedAt: string }> } };
+export type ListThemesQuery = { listThemes: { totalCount: number, overallCount: number, page: number, pageSize: number, totalPages: number, permissions: { read: { allowed: boolean, reason: OrganizationPermissionReason | null }, create: { allowed: boolean, reason: OrganizationPermissionReason | null }, update: { allowed: boolean, reason: OrganizationPermissionReason | null }, uploadAsset: { allowed: boolean, reason: OrganizationPermissionReason | null } }, items: Array<{ id: string, organizationId: string, revision: number, document: unknown, createdAt: string, updatedAt: string }> } };
 
 export type SaveThemeMutationVariables = Exact<{
   organizationId: string | number;
@@ -667,7 +667,7 @@ export type ThemePermissionsQueryVariables = Exact<{
 }>;
 
 
-export type ThemePermissionsQuery = { themePermissions: { read: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, create: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, update: { allowed: boolean, reason: OrganizationActionDisabledReason | null }, uploadAsset: { allowed: boolean, reason: OrganizationActionDisabledReason | null } } };
+export type ThemePermissionsQuery = { themePermissions: { read: { allowed: boolean, reason: OrganizationPermissionReason | null }, create: { allowed: boolean, reason: OrganizationPermissionReason | null }, update: { allowed: boolean, reason: OrganizationPermissionReason | null }, uploadAsset: { allowed: boolean, reason: OrganizationPermissionReason | null } } };
 
 export type UploadThemeAssetMutationVariables = Exact<{
   organizationId: string | number;

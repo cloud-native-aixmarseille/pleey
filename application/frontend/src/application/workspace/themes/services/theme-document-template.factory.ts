@@ -88,16 +88,8 @@ export class ThemeDocumentTemplateFactory {
           {
             $comment: this.translation.t(`theme.template.semantic.${scheme}`),
             surface: this.comment(source.surface, 'surface', this.toHexPalette(source.surface, source.surface.canvas)),
-            text: this.comment(
-              source.text,
-              'text',
-              scheme === 'light' ? SAFE_LIGHT_TEXT : SAFE_DARK_TEXT,
-            ),
-            border: this.comment(
-              source.border,
-              'border',
-              scheme === 'light' ? SAFE_LIGHT_BORDER : SAFE_DARK_BORDER,
-            ),
+            text: this.comment(source.text, 'text', scheme === 'light' ? SAFE_LIGHT_TEXT : SAFE_DARK_TEXT),
+            border: this.comment(source.border, 'border', scheme === 'light' ? SAFE_LIGHT_BORDER : SAFE_DARK_BORDER),
           },
         ];
       }),

@@ -60,7 +60,7 @@ export class BrowserThemeDocumentTransferAdapter
   private fileName(url: URL, mimeType: string): string {
     const name = url.pathname.split('/').pop();
     if (name?.includes('.')) return name;
-    const extension = mimeType === 'image/jpeg' ? 'jpg' : mimeType.split('/')[1] ?? 'png';
+    const extension = mimeType === 'image/jpeg' ? 'jpg' : (mimeType.split('/')[1] ?? 'png');
     return `theme-asset.${extension}`;
   }
 }
