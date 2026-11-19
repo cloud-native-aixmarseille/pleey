@@ -1,6 +1,5 @@
-import type { PredictionPromptId } from '@pleey/domain/game';
+import type { GameTypeId, PredictionPromptId } from '@pleey/domain/game';
 import type { ProjectId } from '../../../../project/entities/project';
-import type { GameTypeId } from '../../shared/game-type';
 import type {
   PlayableContentImportCreationInput,
   PlayableContentImportCreationResult,

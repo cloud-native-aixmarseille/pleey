@@ -1,4 +1,4 @@
-import type { GameId } from '../../../../../domain/game/entities/game';
+import type { GameId } from '@pleey/domain/game';
 import { type PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';

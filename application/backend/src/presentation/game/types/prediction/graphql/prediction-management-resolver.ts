@@ -1,5 +1,6 @@
 import { UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Args, Context, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { GameType } from '@pleey/domain/game';
 import { PredictionPromptIdentifier } from '../../../../../application/game/types/prediction/services/prediction-prompt-identifier';
 import { PredictionSelectableOptionIdentifier } from '../../../../../application/game/types/prediction/services/prediction-selectable-option-identifier';
 import { CreatePredictionFromImportUseCase } from '../../../../../application/game/types/prediction/use-cases/create-prediction-from-import-use-case';
@@ -15,7 +16,6 @@ import { GameTypeIdentifier } from '../../../../../application/game/types/shared
 import { ProjectIdentifier } from '../../../../../application/workspace/shared/services/identifiers/project-identifier';
 import type { Prediction } from '../../../../../domain/game/types/prediction/entities/prediction';
 import type { PredictionPrompt } from '../../../../../domain/game/types/prediction/entities/prediction-prompt';
-import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../../../identity/shared/guards/gql-jwt-auth-guard';

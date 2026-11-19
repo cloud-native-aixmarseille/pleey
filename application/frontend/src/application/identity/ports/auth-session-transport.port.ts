@@ -1,4 +1,4 @@
-import type { AuthSession } from '../../../domains/identity/entities/auth-session';
+import type { AuthSession } from '@pleey/domain/identity';
 
 export interface AuthSessionTransportHandlers {
   readonly readSessionTokens?: () => { accessToken: string | null; refreshToken: string | null };

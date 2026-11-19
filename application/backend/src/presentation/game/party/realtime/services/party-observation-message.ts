@@ -1,9 +1,9 @@
+import type { GameType } from '@pleey/domain/game';
 import type { HostPartyPermissions } from '../../../../../domain/game/party/host/value-objects/host-party-permissions';
 import type {
   PlayerPartyObservation,
   PlayerPartyObservationPlayer,
 } from '../../../../../domain/game/party/player/entities/player-party-observation';
-import type { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 
 export interface PartyObservationPlayerMessage extends PlayerPartyObservationPlayer {
   readonly isCurrentPlayer: boolean;

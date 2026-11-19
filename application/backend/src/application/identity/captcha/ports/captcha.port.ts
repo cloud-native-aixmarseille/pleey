@@ -1,4 +1,4 @@
-import type { CaptchaAction } from '../../../../domain/identity/enums/captcha-action.enum';
+import type { CaptchaAction } from '@pleey/domain/identity';
 
 export type CaptchaChallenge = {
   challenge: { c: number; s: number; d: number };

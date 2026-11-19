@@ -1,6 +1,6 @@
+import { GameType, type GameTypeId } from '@pleey/domain/game';
 import { inject, injectable } from 'inversify';
 import type { DashboardGameListItem } from '../../../../domains/game/management/entities/dashboard-game-list-item';
-import { GameType, type GameTypeId } from '../../../../domains/game/types/shared/game-type';
 import type { ProjectId } from '../../../../domains/project/entities/project';
 import {
   DEFAULT_PLAYABLE_CONTENT_IMPORT_EXAMPLE_FORMATS,

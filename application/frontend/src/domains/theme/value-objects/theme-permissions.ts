@@ -1,9 +1,9 @@
+import type { OrganizationPermissionReason } from '@pleey/domain/organization';
 import type { ActionPermission } from '@pleey/domain/shared/primitives';
-import type { OrganizationActionDisabledReason } from '../../organization/value-objects/organization-permissions';
 
 export interface ThemePermissions {
-  readonly read: ActionPermission<OrganizationActionDisabledReason>;
-  readonly create: ActionPermission<OrganizationActionDisabledReason>;
-  readonly update: ActionPermission<OrganizationActionDisabledReason>;
-  readonly uploadAsset: ActionPermission<OrganizationActionDisabledReason>;
+  readonly read: ActionPermission<OrganizationPermissionReason>;
+  readonly create: ActionPermission<OrganizationPermissionReason>;
+  readonly update: ActionPermission<OrganizationPermissionReason>;
+  readonly uploadAsset: ActionPermission<OrganizationPermissionReason>;
 }

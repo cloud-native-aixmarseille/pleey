@@ -1,10 +1,10 @@
 import 'reflect-metadata';
+import { OrganizationRole } from '@pleey/domain/organization';
 import { describe, expect, it } from 'vitest';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
-import { OrganizationRole } from '../../domains/organization/entities/organization';
 import { OrganizationErrorCode } from '../../domains/organization/errors/organization-error-code';
 import { OrganizationFixtureFactory } from '../../test-utils/fixtures/organization-fixture-factory';
 import { coerceUuidV7TestValue } from '../../test-utils/fixtures/uuid-v7-test-value';

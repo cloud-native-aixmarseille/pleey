@@ -1,4 +1,4 @@
-import type { GameId } from '../../../../../domain/game/entities/game';
+import type { GameId } from '@pleey/domain/game';
 import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { ThemeId } from '../../../../../domain/theme/entities/theme-id';

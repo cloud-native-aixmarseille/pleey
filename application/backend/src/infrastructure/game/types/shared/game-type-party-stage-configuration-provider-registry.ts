@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { GameId } from '../../../../domain/game/entities/game';
+import type { GameId } from '@pleey/domain/game';
 import { AbstractGameTypeRegistry, type GameTypeBinding } from './abstract-game-type-registry';
 
 export interface GameTypePartyStageConfigurationProvider {

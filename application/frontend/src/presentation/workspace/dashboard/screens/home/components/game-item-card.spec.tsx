@@ -1,10 +1,6 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import {
-  CreatePartyDisabledReason,
-  LaunchReadinessDisabledReason,
-} from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
 import { GameFixtureFactory } from '../../../../../../test-utils/fixtures/game-fixture-factory';
 import { createGameTypeDescriptorFixture } from '../../../../../../test-utils/fixtures/game-type-descriptor-fixture-factory';
 import { renderWithUiProvider } from '../../../../../../test-utils/render-with-ui-provider';
@@ -142,3 +138,5 @@ describe('GameItemCard', () => {
     expect(screen.getByText('dashboard.games.readiness.needsStages')).toBeInTheDocument();
   });
 });
+
+import { CreatePartyDisabledReason, LaunchReadinessDisabledReason } from '@pleey/domain/game';

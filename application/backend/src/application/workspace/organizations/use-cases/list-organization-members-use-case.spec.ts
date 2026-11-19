@@ -1,5 +1,5 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
-import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { OrganizationMembershipPolicy } from '../../../../domain/organization/services/organization-membership-policy';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberFixture } from '../../../../test-utils/fixtures/unit/organization-member.fixture';

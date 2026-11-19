@@ -1,22 +1,15 @@
+import type {
+  CreatePartyDisabledReason,
+  GameId,
+  GameType,
+  GameTypeId,
+  LaunchReadinessDisabledReason,
+} from '@pleey/domain/game';
 import type { Permissions } from '@pleey/domain/shared/primitives';
-import type { GameId } from '../../entities/game';
-import type { GameType, GameTypeId } from '../../types/shared/game-type';
 
 export interface DashboardGameSummary {
   readonly translationKey: string;
   readonly values?: Readonly<Record<string, string>>;
-}
-
-export enum LaunchReadinessDisabledReason {
-  UNAVAILABLE = 'PERMISSION_UNAVAILABLE',
-  NO_STAGES_AVAILABLE = 'PARTY_STAGES_NOT_AVAILABLE',
-}
-
-export enum CreatePartyDisabledReason {
-  UNAVAILABLE = 'PERMISSION_UNAVAILABLE',
-  ACTIVE_PARTY_EXISTS = 'ACTIVE_PARTY_EXISTS',
-  HOST_HAS_ACTIVE_PARTY = 'HOST_HAS_ACTIVE_PARTY',
-  NO_STAGES_AVAILABLE = 'NO_STAGES_AVAILABLE',
 }
 
 type DashboardGamePermissions = Permissions<{

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { GuestId } from '../../../../domain/identity/entities/guest';
+import type { GuestId } from '@pleey/domain/identity';
 import { AvatarNotFoundError } from '../../../../domain/identity/errors';
 import { type GuestRepository, GuestRepositoryProvider } from '../../../../domain/identity/ports/guest.repository';
 import { UserAvatarService } from '../../../../domain/identity/services/user-avatar-service';

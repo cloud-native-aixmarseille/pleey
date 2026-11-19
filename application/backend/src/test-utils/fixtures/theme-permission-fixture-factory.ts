@@ -1,5 +1,5 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { ThemePermissionService } from '../../application/workspace/themes/services/theme-permission-service';
-import { OrganizationRole } from '../../domain/organization/enums/organization-role.enum';
 import { ThemePermissionPolicy } from '../../domain/theme/services/theme-permission-policy';
 import { createOrganizationMemberRepositoryMock } from '../mock-factories/organization.mock-factory';
 import { createOrganizationMemberFixture } from './unit/organization-member.fixture';

@@ -1,5 +1,5 @@
+import type { GameType } from '@pleey/domain/game';
 import { GameValidationFailedError } from '../../../../domain/game/errors';
-import type { GameType } from '../../../../domain/game/types/shared/entities/game-type';
 
 export interface GameTypeBinding<T> {
   readonly gameType: GameType;

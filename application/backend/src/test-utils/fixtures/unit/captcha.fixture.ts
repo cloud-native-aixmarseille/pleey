@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
+import { CaptchaAction } from '@pleey/domain/identity';
 import type { CaptchaProof } from '../../../application/identity/captcha/ports/captcha.port';
-import { CaptchaAction } from '../../../domain/identity/enums/captcha-action.enum';
 import { CapCaptchaAdapter } from '../../../infrastructure/identity/captcha/cap-captcha-adapter';
 import type { CaptchaConfig } from '../../../infrastructure/identity/captcha/captcha-config.token';
 
@@ -45,7 +45,11 @@ export class CaptchaFixture {
   readonly adapter = new CapCaptchaAdapter(this.config, this.store as never);
   readonly peer = '127.0.0.1';
 
-  async proof(action = CaptchaAction.SIGNUP, expiresMs = 120_000, secret = this.config.secret): Promise<CaptchaProof> {
+  async proof(
+    action: CaptchaAction = CaptchaAction.SIGNUP,
+    expiresMs = 120_000,
+    secret = this.config.secret,
+  ): Promise<CaptchaProof> {
     const { generateChallenge } = await import('capjs-core');
     // Genuine signed SHA-256 proofs with small puzzle parameters keep unit tests fast.
     const challenge = await generateChallenge(secret, {

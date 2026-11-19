@@ -1,4 +1,4 @@
-import { GameType } from '../../../../../../domains/game/types/shared/game-type';
+import { GameType } from '@pleey/domain/game';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';

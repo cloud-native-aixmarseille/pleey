@@ -1,5 +1,5 @@
+import { CaptchaAction } from '@pleey/domain/identity';
 import { describe, expect, it, vi } from 'vitest';
-import { CaptchaAction } from '../../../domain/identity/enums/captcha-action.enum';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
 import { CaptchaFixture } from '../../../test-utils/fixtures/unit/captcha.fixture';
 

@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { GameTypeId } from '@pleey/domain/game';
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { PredictionPrompt } from '../../../../../domain/game/types/prediction/entities/prediction-prompt';
 import { PredictionNotFoundError } from '../../../../../domain/game/types/prediction/errors';
@@ -6,7 +7,6 @@ import type { PredictionManagementRepository } from '../../../../../domain/game/
 import { PredictionManagementRepositoryProvider } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import type { PredictionPromptRepository } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
 import { PredictionPromptRepositoryProvider } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
-import type { GameTypeId } from '../../../../../domain/game/types/shared/entities/game-type';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { GameTypeManagementAccessGuard } from '../../shared/services/game-type-management-access-guard';
 

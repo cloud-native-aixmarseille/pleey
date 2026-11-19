@@ -1,7 +1,7 @@
+import type { GameType, GameTypeId } from '@pleey/domain/game';
 import { inject, injectable, multiInject } from 'inversify';
 import type { DashboardGameListItem } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
 import { MissingGameTypeContributorError } from '../../../../../domains/game/types/shared/errors/game-type-registry.error';
-import type { GameType, GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type { GameTypeCatalog } from '../../../../../domains/game/types/shared/game-type-catalog';
 import type {
   PlayableContentImportCreationInput,

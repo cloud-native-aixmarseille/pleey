@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { GameTypeId } from '@pleey/domain/game';
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import type { QuizQuestion } from '../../../../../domain/game/types/quiz/entities/quiz-question';
 import { QuizNotFoundError } from '../../../../../domain/game/types/quiz/errors';
@@ -6,7 +7,6 @@ import type { QuizManagementRepository } from '../../../../../domain/game/types/
 import { QuizManagementRepositoryProvider } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import type { QuizQuestionRepository } from '../../../../../domain/game/types/quiz/ports/quiz-question.repository';
 import { QuizQuestionRepositoryProvider } from '../../../../../domain/game/types/quiz/ports/quiz-question.repository';
-import type { GameTypeId } from '../../../../../domain/game/types/shared/entities/game-type';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { GameTypeManagementAccessGuard } from '../../shared/services/game-type-management-access-guard';
 

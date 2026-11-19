@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { GameId } from '@pleey/domain/game';
 import type { PartyStageCatalogEntry } from '../../../../application/game/types/shared/ports/party-stage-catalog.port';
-import type { GameId } from '../../../../domain/game/entities/game';
 import type { PartyStageId } from '../../../../domain/game/party/shared/entities/party-stage';
 import { AbstractGameTypeRegistry, type GameTypeBinding } from './abstract-game-type-registry';
 

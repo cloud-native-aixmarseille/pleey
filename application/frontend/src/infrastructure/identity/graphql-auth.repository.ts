@@ -1,6 +1,6 @@
+import type { AuthSession } from '@pleey/domain/identity';
 import type { PaginationQuery } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
-import type { AuthSession } from '../../domains/identity/entities/auth-session';
 import type { User } from '../../domains/identity/entities/user';
 import type { UserSessionOverview } from '../../domains/identity/entities/user-session-details';
 import { AUTH_ERROR_DEFINITIONS, AuthErrorCode } from '../../domains/identity/errors/auth-error-code';

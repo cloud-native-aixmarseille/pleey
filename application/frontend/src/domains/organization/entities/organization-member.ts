@@ -1,7 +1,10 @@
-import type { OrganizationMemberId as SharedOrganizationMemberId } from '@pleey/domain/organization';
+import type {
+  OrganizationMemberPermissions,
+  OrganizationRole,
+  OrganizationMemberId as SharedOrganizationMemberId,
+} from '@pleey/domain/organization';
 import type { UserId } from '../../identity/entities/user';
-import type { OrganizationMemberPermissions } from '../value-objects/organization-permissions';
-import type { OrganizationId, OrganizationRole } from './organization';
+import type { OrganizationId } from './organization';
 
 export type OrganizationMemberId = SharedOrganizationMemberId;
 

@@ -1,6 +1,6 @@
+import { GameType } from '@pleey/domain/game';
 import { describe, expect, it } from 'vitest';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
-import { GameType } from '../../../../domain/game/types/shared/entities/game-type';
 import type { GameTypePartyStageConfigurationProvider } from './game-type-party-stage-configuration-provider-registry';
 import { GameTypePartyStageConfigurationProviderRegistry } from './game-type-party-stage-configuration-provider-registry';
 

@@ -1,5 +1,5 @@
+import type { AuthToken } from '@pleey/domain/identity';
 import type { UserId } from '../entities/user';
-import type { AuthToken } from '../types/auth-token';
 import type { UserProfileSnapshot } from '../types/user-profile-snapshot';
 
 export interface TokenConfig {

@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import type { AuthToken } from '@pleey/domain/identity';
 import type { UserId } from '../../../domain/identity/entities/user';
 import { InvalidRefreshTokenError } from '../../../domain/identity/errors/invalid-refresh-token.error';
 import {
@@ -13,7 +14,6 @@ import {
   type TokenConfig,
   type TokenPair,
 } from '../../../domain/identity/ports/auth-token.service';
-import type { AuthToken } from '../../../domain/identity/types/auth-token';
 
 type RefreshTokenPayload = {
   sub: UserId;

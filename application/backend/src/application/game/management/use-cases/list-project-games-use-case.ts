@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { GameId } from '../../../../domain/game/entities/game';
+import type { GameId } from '@pleey/domain/game';
 import { GameValidationFailedError } from '../../../../domain/game/errors';
 import { type GamePermissions } from '../../../../domain/game/management/value-objects/game-permissions';
 import type { UserId } from '../../../../domain/identity/entities/user';

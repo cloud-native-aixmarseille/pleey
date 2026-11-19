@@ -1,5 +1,5 @@
 {
-  "sourceHash": "c5a2d70c7fda5b4fab93e6a55096b7ee304deaaf9e30a73ad83f8d7532cfa8ca",
+  "sourceHash": "08547e53a1f56d7193522f6bc54483cdc5e3f6ad1b3ee1a04cbfd37798c36e63",
   "screenshots": {
     "host-party-host-controls-en.png": "a9435045f795af129ae160a7eef2cb77df607172ca3c5409cb682c7d3a9870e0",
     "host-party-host-share-en.png": "175f4be23b1937b5c99c1e2a32809a11949104ff2648719b85b480ec08f33e3a",
@@ -10,7 +10,7 @@
     "player-play-player-scoring-en.png": "fce535c75682d49a09089c4d7b81f49571194158446a02de1a941e8f96c487de",
     "prediction-authoring-authoring-tabs-en.png": "4c09c1bdcda88d885e53f80b188cbc6a2dd837a78c2ba459af5235942ec19f52",
     "prediction-authoring-authoring-list-en.png": "8ab946aa194a230542a11f622e27ef4944d30215fbb45168bb8a62f73409db5e",
-    "prediction-authoring-authoring-editor-en.png": "882477ff0658c7673cf25d856a202c3dde1acd4e419e37a4ca638f5608232dc0",
+    "prediction-authoring-authoring-editor-en.png": "479d4941d5b586f4b4202a665bebd11c64b6af7895e6f784343f6478db6edcfb",
     "quiz-authoring-authoring-tabs-en.png": "ae6c19e10a46c86ff560e4c0d644dd68890bd5cc2924fca39f12e91a56d56374",
     "quiz-authoring-authoring-list-en.png": "485635243efcce9d92ff8df619802079706815b695ae341c6ae5897368d4ac53",
     "quiz-authoring-authoring-editor-en.png": "3cfc9f14d25fdbb252da1a563700d8b86e0a830247b5b54fa87db0f1a18b02c8",
@@ -29,7 +29,7 @@
     "player-play-player-scoring-fr.png": "2f04368f26b41c0b34537dca037cbcf2459371fadb4d66ab353bf0728879af07",
     "prediction-authoring-authoring-tabs-fr.png": "6068e65937f4fb16a2a5de0c6cd6e19478ac8641abf719ef00f6889c28ee5731",
     "prediction-authoring-authoring-list-fr.png": "ec2348bb2136e62bdb4d3904f70b1a6bbc59d9dd6a67f846f5f53a28b019b08e",
-    "prediction-authoring-authoring-editor-fr.png": "f3a31180762684309dedb6693d30344d9e2583fb94b4db014b3281533608887b",
+    "prediction-authoring-authoring-editor-fr.png": "98bb8cd699b2c3f8469b17d8fdf32a50dc3880a1a9d68a89f24cfe1d0fff8cf4",
     "quiz-authoring-authoring-tabs-fr.png": "962b597643d3e67a2f193494ca4cff1a33acd96d2402c3a246f6a11ed0ff1269",
     "quiz-authoring-authoring-list-fr.png": "57b39888c4dac4629f0125a50e5ae7ed5ca1c5384b4e99891fa828d2a5999fec",
     "quiz-authoring-authoring-editor-fr.png": "b6fe372c5c742675194019b80955401bb9e175708bfd634cc5a42e51ad1caece",

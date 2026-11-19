@@ -1,14 +1,13 @@
+import { OrganizationPermissionReason, OrganizationRole } from '@pleey/domain/organization';
+import { ProjectPermissionReason } from '@pleey/domain/project';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { Organization, OrganizationId } from '../../../../../domains/organization/entities/organization';
-import { OrganizationRole } from '../../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../../domains/organization/entities/organization-dashboard';
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
-import { OrganizationActionDisabledReason } from '../../../../../domains/organization/value-objects/organization-permissions';
 import type { Project, ProjectId } from '../../../../../domains/project/entities/project';
-import { ProjectActionDisabledReason } from '../../../../../domains/project/value-objects/project-permissions';
 import { OrganizationFixtureFactory } from '../../../../../test-utils/fixtures/organization-fixture-factory';
 import { OrganizationScreenFixtureFactory } from '../../../../../test-utils/fixtures/organization-screen-fixture-factory';
 import { coerceUuidV7TestValue } from '../../../../../test-utils/fixtures/uuid-v7-test-value';
@@ -267,7 +266,7 @@ describe('OrganizationScreen', () => {
             organizationScreenFixtureFactory.createProject({
               permissions: {
                 update: { allowed: true, reason: null },
-                delete: { allowed: false, reason: ProjectActionDisabledReason.CANNOT_DELETE_LAST_PROJECT },
+                delete: { allowed: false, reason: ProjectPermissionReason.CANNOT_DELETE_LAST_PROJECT },
               },
             }),
           ]),
@@ -285,7 +284,7 @@ describe('OrganizationScreen', () => {
               organizationScreenFixtureFactory.createProject({
                 permissions: {
                   update: { allowed: true, reason: null },
-                  delete: { allowed: false, reason: ProjectActionDisabledReason.CANNOT_DELETE_LAST_PROJECT },
+                  delete: { allowed: false, reason: ProjectPermissionReason.CANNOT_DELETE_LAST_PROJECT },
                 },
               }),
             ],
@@ -896,8 +895,8 @@ describe('OrganizationScreen', () => {
         role: OrganizationRole.OWNER,
         assignableRoles: [],
         permissions: {
-          updateRole: { allowed: false, reason: OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS },
-          remove: { allowed: false, reason: OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS },
+          updateRole: { allowed: false, reason: OrganizationPermissionReason.INSUFFICIENT_PERMISSIONS },
+          remove: { allowed: false, reason: OrganizationPermissionReason.INSUFFICIENT_PERMISSIONS },
         },
       });
 

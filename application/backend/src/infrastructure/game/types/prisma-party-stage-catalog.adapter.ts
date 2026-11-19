@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import type { GameId } from '@pleey/domain/game';
 import {
   type PartyStageCatalogEntry,
   PartyStageCatalogPort,
   type PartyStageCatalogQueryOptions,
 } from '../../../application/game/types/shared/ports/party-stage-catalog.port';
 import { GameTypeParser } from '../../../application/game/types/shared/services/game-type-parser';
-import type { GameId } from '../../../domain/game/entities/game';
 import { PrismaService } from '../../database/prisma-service';
 import {
   type GameTypePartyStageCatalogProvider,

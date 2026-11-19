@@ -1,6 +1,6 @@
+import type { GameType } from '@pleey/domain/game';
 import type { DashboardHomeActionsFacade } from '../../../../../application/workspace/dashboard/facades/dashboard-home-actions.facade';
 import type { DashboardGameListItem } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
-import type { GameType } from '../../../../../domains/game/types/shared/game-type';
 import type { ProjectId } from '../../../../../domains/project/entities/project';
 import { usePresentationNavigate } from '../../../../shared/routing/router';
 

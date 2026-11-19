@@ -1,5 +1,5 @@
+import type { GameId } from '@pleey/domain/game';
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
-import type { GameId } from '../../../../../domain/game/entities/game';
 import type { PartyId, PartyPin } from '../../../../../domain/game/party/shared/entities/party';
 import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
 import type { PartySummary } from '../../../../../domain/game/party/shared/entities/party-summary';

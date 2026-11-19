@@ -1,6 +1,6 @@
 import 'reflect-metadata';
+import { GameType } from '@pleey/domain/game';
 import { describe, expect, it, vi } from 'vitest';
-import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { BroadcastPartyObservationUseCase } from './broadcast-party-observation-use-case';
 

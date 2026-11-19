@@ -1,5 +1,5 @@
+import type { AuthSession } from '@pleey/domain/identity';
 import { injectable } from 'inversify';
-import type { AuthSession } from '../entities/auth-session';
 import type { User } from '../entities/user';
 
 interface AuthSessionCandidate {

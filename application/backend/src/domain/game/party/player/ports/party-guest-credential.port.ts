@@ -1,4 +1,4 @@
-import type { GuestId } from '../../../../identity/entities/guest';
+import type { GuestId } from '@pleey/domain/identity';
 import type { PartyId } from '../../shared/entities/party';
 
 export interface PartyGuestCredentialSubject {

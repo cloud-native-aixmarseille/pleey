@@ -1,3 +1,4 @@
+import { ProjectPermissionReason } from '@pleey/domain/project';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
@@ -14,7 +15,6 @@ import type {
   ProjectRepository,
   UpdateProjectCommand,
 } from '../../domains/project/ports/project-repository';
-import { ProjectActionDisabledReason } from '../../domains/project/value-objects/project-permissions';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
   CreateProjectDocument,
@@ -69,8 +69,8 @@ export class GraphqlProjectRepository implements ProjectRepository {
           organizationId: this.organizationIdentifier.parse(project.organizationId),
           createdAt: project.createdAt,
           permissions: {
-            update: decodeActionPermission(project.permissions?.update, ProjectActionDisabledReason),
-            delete: decodeActionPermission(project.permissions?.delete, ProjectActionDisabledReason),
+            update: decodeActionPermission(project.permissions?.update, ProjectPermissionReason),
+            delete: decodeActionPermission(project.permissions?.delete, ProjectPermissionReason),
           },
           defaultThemeId: this.themeIdentifier.parse(project.defaultThemeId),
           defaultPartySettings: this.toPartySettings(project.defaultPartySettings),
@@ -163,8 +163,8 @@ export class GraphqlProjectRepository implements ProjectRepository {
       createdAt: project.createdAt,
       defaultPartySettings: this.toPartySettings(project.defaultPartySettings),
       permissions: {
-        update: decodeActionPermission(project.permissions?.update, ProjectActionDisabledReason),
-        delete: decodeActionPermission(project.permissions?.delete, ProjectActionDisabledReason),
+        update: decodeActionPermission(project.permissions?.update, ProjectPermissionReason),
+        delete: decodeActionPermission(project.permissions?.delete, ProjectPermissionReason),
       },
       defaultThemeId: this.themeIdentifier.parse(project.defaultThemeId),
     };

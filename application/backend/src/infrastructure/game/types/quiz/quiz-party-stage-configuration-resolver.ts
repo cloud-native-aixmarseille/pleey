@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { GameId } from '../../../../domain/game/entities/game';
+import type { GameId } from '@pleey/domain/game';
 import { PrismaService } from '../../../database/prisma-service';
 import type { GameTypePartyStageConfigurationProvider } from '../shared/game-type-party-stage-configuration-provider-registry';
 

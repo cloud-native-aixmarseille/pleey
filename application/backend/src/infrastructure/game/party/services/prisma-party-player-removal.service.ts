@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import type { GuestId } from '@pleey/domain/identity';
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
 import type { PartyId } from '../../../../domain/game/party/shared/entities/party';
-import type { GuestId } from '../../../../domain/identity/entities/guest';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import { PrismaService } from '../../../database/prisma-service';
 

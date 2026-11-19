@@ -1,5 +1,5 @@
+import type { GameId } from '@pleey/domain/game';
 import { useState } from 'react';
-import type { GameId } from '../../../../../domains/game/entities/game';
 import type { DashboardGameListItem } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { Party } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartySettings } from '../../../../../domains/game/party/shared/entities/party-settings';

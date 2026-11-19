@@ -1,10 +1,7 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { DEFAULT_PARTY_SETTINGS } from '../../domains/game/party/shared/entities/party-settings';
-import {
-  type Organization,
-  type OrganizationId,
-  OrganizationRole,
-} from '../../domains/organization/entities/organization';
+import { type Organization, type OrganizationId } from '../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../domains/organization/entities/organization-dashboard';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 

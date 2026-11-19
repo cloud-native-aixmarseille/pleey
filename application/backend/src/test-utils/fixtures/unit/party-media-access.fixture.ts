@@ -1,3 +1,4 @@
+import { GameType } from '@pleey/domain/game';
 import { vi } from 'vitest';
 import type { PartyObservationSnapshot } from '../../../application/game/party/shared/entities/party-observation-snapshot';
 import { PartyIdentifier } from '../../../application/game/party/shared/services/identifiers/party-identifier';
@@ -8,7 +9,6 @@ import { PartyPlayerSessionRegistry } from '../../../domain/game/party/player/se
 import { PartyRuntimePhase } from '../../../domain/game/party/shared/entities/party-runtime-context';
 import { DEFAULT_PARTY_SETTINGS } from '../../../domain/game/party/shared/entities/party-settings';
 import { PartyObservationPolicy } from '../../../domain/game/party/shared/services/party-observation-policy';
-import { GameType } from '../../../domain/game/types/shared/entities/game-type';
 import type { PartyObserverSocketData } from '../../../presentation/game/party/realtime/party-observer-socket-data';
 import { HostPartyObservationMessageMapper } from '../../../presentation/game/party/realtime/services/host-party-observation-message-mapper';
 import { PartyObservationAudienceResolver } from '../../../presentation/game/party/realtime/services/party-observation-audience-resolver';

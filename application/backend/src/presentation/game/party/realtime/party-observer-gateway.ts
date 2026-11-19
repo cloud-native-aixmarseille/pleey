@@ -8,6 +8,7 @@ import {
   WebSocketGateway,
   WsException,
 } from '@nestjs/websockets';
+import type { GameId } from '@pleey/domain/game';
 import type { Server, Socket } from 'socket.io';
 import { AdvanceStageUseCase } from '../../../../application/game/party/host/use-cases/advance-stage-use-case';
 import { EndPartyUseCase } from '../../../../application/game/party/host/use-cases/end-party-use-case';
@@ -31,7 +32,6 @@ import { BroadcastPartyObservationUseCase } from '../../../../application/game/p
 import { LoadPartyObservationSnapshotUseCase } from '../../../../application/game/party/shared/use-cases/load-party-observation-snapshot-use-case';
 import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
-import type { GameId } from '../../../../domain/game/entities/game';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import {
   GameValidationFailedError,

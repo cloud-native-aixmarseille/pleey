@@ -2,7 +2,7 @@
 
 # Game types
 
-[game-type.ts](../../../application/backend/src/domain/game/types/shared/entities/game-type.ts)
+[index.js](../../../packages/pleey-domain/game/index.js)
 
 | Name       | Value      |
 | ---------- | ---------- |

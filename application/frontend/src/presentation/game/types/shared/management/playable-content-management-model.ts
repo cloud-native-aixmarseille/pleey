@@ -1,6 +1,6 @@
+import type { GameTypeId } from '@pleey/domain/game';
 import { PLAYABLE_CONTENT_DEFAULTS } from '@pleey/domain/game';
 import type { PlayableContentManagementGateway } from '../../../../../application/game/types/shared/gateways/playable-management.gateway';
-import type { GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type {
   PlayableChoiceOption,
   PlayableManagementItem,

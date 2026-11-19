@@ -1,8 +1,8 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { describe, expect, it, vi } from 'vitest';
 import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
-import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import type { PrismaService } from '../../database/prisma-service';
 import { PrismaOrganizationMemberRepository } from './prisma-organization-member-repository';

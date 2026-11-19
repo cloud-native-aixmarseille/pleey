@@ -20,9 +20,12 @@ if (!scriptPath) {
   throw new Error("Unable to locate the shared domain package checker script for tests.");
 }
 
-const { checkPackageApiSurface, checkPartyRealtimeFixtures, checkSharedSourceImports } = await import(
-  pathToFileURL(scriptPath).href
-);
+const {
+  checkPackageApiSurface,
+  checkPartyRealtimeFixtures,
+  checkSharedSourceImports,
+  checkSupersededApplicationContracts,
+} = await import(pathToFileURL(scriptPath).href);
 
 describe("shared domain package checker", () => {
   it.each([
@@ -45,6 +48,23 @@ describe("shared domain package checker", () => {
     expect(kind).toBeNull();
   });
 
+  it("rejects restored shared-contract wrappers", () => {
+    // Arrange
+    const repositoryRoot = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-restored-contract-"));
+    const wrapperPath = path.join(repositoryRoot, "application/backend/src/domain/game/entities/game.ts");
+    fs.mkdirSync(path.dirname(wrapperPath), { recursive: true });
+    fs.writeFileSync(wrapperPath, "export type GameId = string;");
+
+    // Act + Assert
+    try {
+      expect(() => checkSupersededApplicationContracts(repositoryRoot)).toThrow(
+        "Superseded application contracts must remain removed",
+      );
+    } finally {
+      fs.rmSync(repositoryRoot, { recursive: true, force: true });
+    }
+  });
+
   it("rejects export surface drift", () => {
     // Arrange
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-shared-package-"));
@@ -64,6 +84,29 @@ describe("shared domain package checker", () => {
     // Act + Assert
     try {
       expect(() => checkPackageApiSurface(packageRoot)).toThrow("Unexpected shared package exports");
+    } finally {
+      fs.rmSync(tempDirectory, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects package file-surface drift", () => {
+    // Arrange
+    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-shared-files-"));
+    const sourcePackageRoot = [
+      path.resolve(import.meta.dirname, "../../../packages/pleey-domain"),
+      "/usr/packages/pleey-domain",
+    ].find((candidate) => fs.existsSync(candidate));
+    if (!sourcePackageRoot) throw new Error("Unable to locate the shared domain package for tests.");
+    const packageRoot = path.join(tempDirectory, "pleey-domain");
+    fs.cpSync(sourcePackageRoot, packageRoot, { recursive: true });
+    const packageJsonPath = path.join(packageRoot, "package.json");
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+    packageJson.files.push("unexpected/");
+    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson));
+
+    // Act + Assert
+    try {
+      expect(() => checkPackageApiSurface(packageRoot)).toThrow("Unexpected shared package files");
     } finally {
       fs.rmSync(tempDirectory, { recursive: true, force: true });
     }

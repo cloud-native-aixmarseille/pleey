@@ -1,4 +1,5 @@
-import type { Guest, GuestId } from '../entities/guest';
+import type { GuestId } from '@pleey/domain/identity';
+import type { Guest } from '../entities/guest';
 
 export const GuestRepositoryProvider = Symbol('GuestRepository');
 

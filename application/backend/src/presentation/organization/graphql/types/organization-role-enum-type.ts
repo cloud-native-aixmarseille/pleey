@@ -1,5 +1,5 @@
 import { registerEnumType } from '@nestjs/graphql';
-import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
+import { OrganizationRole } from '@pleey/domain/organization';
 
 registerEnumType(OrganizationRole, {
   name: 'OrganizationRole',

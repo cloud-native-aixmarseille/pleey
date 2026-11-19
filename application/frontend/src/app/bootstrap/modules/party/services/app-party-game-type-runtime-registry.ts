@@ -1,5 +1,5 @@
+import type { GameType } from '@pleey/domain/game';
 import { injectable, multiInject } from 'inversify';
-import type { GameType } from '../../../../../domains/game/types/shared/game-type';
 import { createDomainError } from '../../../../../domains/shared/errors/domain-error';
 import type {
   PartyGameTypeRuntimeRegistry,

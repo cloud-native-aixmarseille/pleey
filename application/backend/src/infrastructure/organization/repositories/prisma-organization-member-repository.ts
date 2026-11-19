@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { OrganizationRole } from '@pleey/domain/organization';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import type { Prisma, OrganizationMember as PrismaOrganizationMember } from '@prisma/client';
 import { PaginationQueryNormalizer } from '../../../application/shared/services/pagination-query-normalizer';
@@ -10,7 +11,6 @@ import {
   OrganizationMember,
   type OrganizationMemberId,
 } from '../../../domain/organization/entities/organization-member';
-import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import type {
   OrganizationMemberRepository,
   OrganizationMemberWriteContext,

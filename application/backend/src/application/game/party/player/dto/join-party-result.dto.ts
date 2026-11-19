@@ -1,4 +1,4 @@
-import type { GameId } from '../../../../../domain/game/entities/game';
+import type { GameId } from '@pleey/domain/game';
 import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
 import type { PartyId, PartyPin } from '../../../../../domain/game/party/shared/entities/party';
 

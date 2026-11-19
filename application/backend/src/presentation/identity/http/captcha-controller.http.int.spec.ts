@@ -1,5 +1,5 @@
+import { CaptchaAction } from '@pleey/domain/identity';
 import { describe, expect, it, vi } from 'vitest';
-import { CaptchaAction } from '../../../domain/identity/enums/captcha-action.enum';
 import { CaptchaHttpFixture } from '../../../test-utils/fixtures/integration/captcha-http.fixture';
 
 describe('CaptchaController', () => {

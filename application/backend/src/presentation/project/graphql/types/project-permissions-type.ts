@@ -4,11 +4,11 @@ import { OrganizationErrorCode } from '../../../../domain/organization/enums/org
 import { ProjectErrorCode } from '../../../../domain/project/enums/project-error-code.enum';
 import { createActionPermissionType } from '../../../shared/graphql/types/action-permission-type';
 
-const ProjectActionDisabledReason = { ...OrganizationErrorCode, ...ProjectErrorCode };
-registerEnumType(ProjectActionDisabledReason, { name: 'ProjectActionDisabledReason' });
+const ProjectPermissionReason = { ...OrganizationErrorCode, ...ProjectErrorCode };
+registerEnumType(ProjectPermissionReason, { name: 'ProjectPermissionReason' });
 const ProjectActionPermissionType = createActionPermissionType<OrganizationErrorCode | ProjectErrorCode>(
   'ProjectActionPermission',
-  ProjectActionDisabledReason,
+  ProjectPermissionReason,
 );
 
 @ObjectType()

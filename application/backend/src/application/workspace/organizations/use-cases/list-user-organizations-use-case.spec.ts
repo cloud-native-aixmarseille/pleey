@@ -1,5 +1,5 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { describe, expect, it } from 'vitest';
-import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberFixture } from '../../../../test-utils/fixtures/unit/organization-member.fixture';
 import { createWorkspacePermissionServices } from '../../../../test-utils/fixtures/workspace-permission-fixture-factory';

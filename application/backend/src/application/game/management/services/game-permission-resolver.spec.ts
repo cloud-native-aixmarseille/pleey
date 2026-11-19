@@ -1,5 +1,5 @@
+import type { GameId } from '@pleey/domain/game';
 import { describe, expect, it } from 'vitest';
-import type { GameId } from '../../../../domain/game/entities/game';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { GamePermissionPolicy } from '../../../../domain/game/management/services/game-permission-policy';
 import {

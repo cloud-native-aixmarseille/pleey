@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { GameTypeId } from '@pleey/domain/game';
 import type { Quiz } from '../../../../../domain/game/types/quiz/entities/quiz';
 import { QuizNotFoundError } from '../../../../../domain/game/types/quiz/errors';
 import type { QuizManagementRepository } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
 import { QuizManagementRepositoryProvider } from '../../../../../domain/game/types/quiz/ports/quiz-management.repository';
-import type { GameTypeId } from '../../../../../domain/game/types/shared/entities/game-type';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { GameTypeManagementAccessGuard } from '../../shared/services/game-type-management-access-guard';
 

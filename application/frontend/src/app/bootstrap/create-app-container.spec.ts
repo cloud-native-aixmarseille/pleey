@@ -1,11 +1,11 @@
 import 'reflect-metadata';
+import { GameType } from '@pleey/domain/game';
 import { Container } from 'inversify';
 import { describe, expect, it } from 'vitest';
 import {
   GAME_TYPE_CATALOG_GATEWAY,
   type GameTypeCatalogGateway,
 } from '../../application/game/types/shared/gateways/game-type-catalog.gateway';
-import { GameType } from '../../domains/game/types/shared/game-type';
 import { ROUTE_REGISTRY, RouteRegistry } from '../routing/route-registry';
 import { AppProviderFactoryToken, createAppProviderFactories } from './app-provider-factory';
 import { createAppContainer } from './create-app-container';

@@ -1,5 +1,5 @@
+import type { AuthSession } from '@pleey/domain/identity';
 import { inject, injectable } from 'inversify';
-import type { AuthSession } from '../../../domains/identity/entities/auth-session';
 import { type AuthRepository, AuthRepositoryToken } from '../../../domains/identity/ports/auth-repository';
 
 export interface LoginUserCommand {

@@ -1,8 +1,8 @@
+import type { GameTypeId } from '@pleey/domain/game';
 import type {
   DashboardGameListItem,
   DashboardGameSummary,
 } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
-import type { GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type { GameTypeDescriptor } from '../../../../../domains/game/types/shared/game-type-catalog';
 import type {
   PlayableContentImportCreationInput,

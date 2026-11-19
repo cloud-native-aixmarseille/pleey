@@ -1,4 +1,4 @@
-import { OrganizationActionDisabledReason } from '../../domains/organization/value-objects/organization-permissions';
+import { OrganizationPermissionReason } from '@pleey/domain/organization';
 import type { ManagedTheme } from '../../domains/theme/entities/managed-theme';
 import type { ThemeDocument } from '../../domains/theme/entities/theme-document';
 import type { ThemePermissions } from '../../domains/theme/value-objects/theme-permissions';
@@ -7,7 +7,7 @@ export class ThemeFixtureFactory {
   createPermissions(allowed = true): ThemePermissions {
     const decision = allowed
       ? { allowed: true as const, reason: null }
-      : { allowed: false as const, reason: OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS };
+      : { allowed: false as const, reason: OrganizationPermissionReason.INSUFFICIENT_PERMISSIONS };
     return { read: { allowed: true, reason: null }, create: decision, update: decision, uploadAsset: decision };
   }
 

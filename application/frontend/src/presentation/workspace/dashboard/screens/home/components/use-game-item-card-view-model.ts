@@ -1,8 +1,5 @@
-import {
-  CreatePartyDisabledReason,
-  type DashboardGameListItem,
-  LaunchReadinessDisabledReason,
-} from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
+import { CreatePartyDisabledReason, LaunchReadinessDisabledReason } from '@pleey/domain/game';
+import { type DashboardGameListItem } from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { formatDate } from '../../../helpers/format-date';

@@ -1,5 +1,5 @@
+import { GameType } from '@pleey/domain/game';
 import { injectable } from 'inversify';
-import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import { createDomainError } from '../../../../../domains/shared/errors/domain-error';
 
 const INVALID_GAME_TYPE_ERROR = {

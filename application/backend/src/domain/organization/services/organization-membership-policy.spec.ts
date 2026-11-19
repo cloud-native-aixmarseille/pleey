@@ -1,8 +1,8 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { describe, expect, it } from 'vitest';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { createOrganizationMemberFixture } from '../../../test-utils/fixtures/unit/organization-member.fixture';
 import { OrganizationErrorCode } from '../enums/organization-error-code.enum';
-import { OrganizationRole } from '../enums/organization-role.enum';
 import { OrganizationMembershipPolicy } from './organization-membership-policy';
 
 describe('OrganizationMembershipPolicy', () => {

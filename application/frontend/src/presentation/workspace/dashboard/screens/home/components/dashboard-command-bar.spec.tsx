@@ -1,7 +1,7 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
 import { OrganizationFixtureFactory } from '../../../../../../test-utils/fixtures/organization-fixture-factory';
 import { ProjectFixtureFactory } from '../../../../../../test-utils/fixtures/project-fixture-factory';
 import { renderWithUiProvider } from '../../../../../../test-utils/render-with-ui-provider';

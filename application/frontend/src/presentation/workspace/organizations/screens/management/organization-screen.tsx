@@ -1,6 +1,6 @@
+import { OrganizationPermissionReason, OrganizationRole } from '@pleey/domain/organization';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import type { Organization } from '../../../../../domains/organization/entities/organization';
-import { OrganizationRole } from '../../../../../domains/organization/entities/organization';
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
 import type {
   AddOrganizationMemberCommand,
@@ -9,7 +9,6 @@ import type {
   UpdateOrganizationCommand,
   UpdateOrganizationMemberRoleCommand,
 } from '../../../../../domains/organization/ports/organization-repository';
-import { OrganizationActionDisabledReason } from '../../../../../domains/organization/value-objects/organization-permissions';
 import type { Project } from '../../../../../domains/project/entities/project';
 import type {
   CreateProjectCommand,
@@ -216,7 +215,7 @@ export function OrganizationScreen({
         createPermission={
           selectedOrganization?.permissions.createProject ?? {
             allowed: false,
-            reason: OrganizationActionDisabledReason.UNAVAILABLE,
+            reason: OrganizationPermissionReason.UNAVAILABLE,
           }
         }
         createButtonLabel={t('project.management.section.createButton')}

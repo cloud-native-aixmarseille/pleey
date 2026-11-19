@@ -1,4 +1,4 @@
-import type { GameType } from './game-type';
+import type { GameType } from '@pleey/domain/game';
 
 export interface GameTypeDescriptor {
   readonly key: GameType;

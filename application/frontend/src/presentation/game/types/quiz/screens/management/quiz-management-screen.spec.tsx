@@ -1,6 +1,6 @@
+import type { GameTypeId } from '@pleey/domain/game';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type { GameTypeId } from '../../../../../../domains/game/types/shared/game-type';
 import { GameTypeIdentifierMockFactory } from '../../../../../../test-utils/mocks/game-type-identifier-mock-factory';
 import { QuizManagementScreen } from './quiz-management-screen';
 

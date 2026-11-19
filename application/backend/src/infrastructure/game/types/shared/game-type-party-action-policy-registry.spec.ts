@@ -1,7 +1,7 @@
+import { GameType } from '@pleey/domain/game';
 import { describe, expect, it } from 'vitest';
 import type { GameTypePartyActionPolicy } from '../../../../application/game/types/shared/ports/game-type-party-action-policy-registry.port';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
-import { GameType } from '../../../../domain/game/types/shared/entities/game-type';
 import { GameTypePartyActionPolicyRegistry } from './game-type-party-action-policy-registry';
 
 describe('GameTypePartyActionPolicyRegistry', () => {

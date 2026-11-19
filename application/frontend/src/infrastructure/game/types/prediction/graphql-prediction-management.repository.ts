@@ -1,11 +1,10 @@
-import type { PredictionPromptId } from '@pleey/domain/game';
+import type { GameTypeId, PredictionPromptId } from '@pleey/domain/game';
 import { inject, injectable } from 'inversify';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { PredictionPromptIdentifier } from '../../../../application/game/types/prediction/services/prediction-prompt-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { collectPaginatedItems } from '../../../../application/shared/services/collect-paginated-items';
 import type { PredictionManagementRepository } from '../../../../domains/game/types/prediction/ports/prediction-management.repository';
-import type { GameTypeId } from '../../../../domains/game/types/shared/game-type';
 import type {
   PlayableContentImportCreationInput,
   PlayableContentImportCreationResult,

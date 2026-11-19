@@ -1,6 +1,4 @@
-import type { PlayableContentInput, SelectableOptionValue } from '@pleey/domain/game';
-import type { GameId } from '../../../../game/entities/game';
-import type { GameTypeId } from '../game-type';
+import type { GameId, GameTypeId, PlayableContentInput, SelectableOptionValue } from '@pleey/domain/game';
 
 export interface PlayableChoiceOption extends SelectableOptionValue {}
 

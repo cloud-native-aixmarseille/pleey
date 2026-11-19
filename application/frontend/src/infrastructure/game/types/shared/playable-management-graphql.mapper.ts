@@ -1,5 +1,4 @@
-import type { GameId } from '../../../../domains/game/entities/game';
-import type { GameTypeId } from '../../../../domains/game/types/shared/game-type';
+import type { GameId, GameTypeId } from '@pleey/domain/game';
 import type {
   PlayableChoiceOption,
   PlayableManagementGame,

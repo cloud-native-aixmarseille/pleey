@@ -4,6 +4,7 @@ import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo';
 import { type INestApplication, Module, ValidationPipe } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { Test } from '@nestjs/testing';
+import { OrganizationRole } from '@pleey/domain/organization';
 import { I18nJsonLoader, I18nModule } from 'nestjs-i18n';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -18,7 +19,6 @@ import { UpdateOrganizationUseCase } from '../../../application/workspace/organi
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
-import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';
 import { ErrorCodeHttpStatusService } from '../../shared/error-handling/error-code-http-status.service';

@@ -1,6 +1,5 @@
-import type { GameSortDirection, GameSortField } from '@pleey/domain/game';
+import type { GameSortDirection, GameSortField, GameType } from '@pleey/domain/game';
 import type { ProjectId } from '../../../project/entities/project';
-import type { GameType } from '../../types/shared/game-type';
 
 export type DashboardGameSortField = GameSortField;
 export type DashboardGameSortDirection = GameSortDirection;
