@@ -1,8 +1,5 @@
 import type { GameId } from '@pleey/domain/game';
-import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
-import type { PartyActionId } from '../../../../../domain/game/party/shared/entities/party-action';
-import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
-import type { PartyStageId } from '../../../../../domain/game/party/shared/entities/party-stage';
+import type { PartyActionId, PartyId, PartySettings, PartyStageId } from '@pleey/domain/party';
 
 interface PartyStageActionCatalogEntry {
   readonly booleanValue?: boolean;

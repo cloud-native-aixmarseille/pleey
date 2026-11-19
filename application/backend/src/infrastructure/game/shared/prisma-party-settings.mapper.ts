@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '@pleey/domain/party';
 import { Prisma } from '@prisma/client';
-import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '../../../domain/game/party/shared/entities/party-settings';
 
 interface PersistedPartySettings {
   readonly questionReadingTimeSeconds?: unknown;

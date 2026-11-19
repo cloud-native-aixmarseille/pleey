@@ -1,7 +1,7 @@
 import type { OrganizationId as SharedOrganizationId } from '@pleey/domain/organization';
 import { hasNonBlankOrganizationName } from '@pleey/domain/organization';
-import type { PartySettings } from '../../game/party/shared/entities/party-settings';
-import type { ThemeId } from '../../theme/entities/theme-id';
+import type { PartySettings } from '@pleey/domain/party';
+import type { ThemeId } from '@pleey/domain/theme';
 
 export type OrganizationId = SharedOrganizationId;
 

@@ -1,7 +1,7 @@
+import { PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
-import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import { PartyFixtureFactory } from '../../../../../test-utils/fixtures/party-fixture-factory';
 import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stage-identifier-mock-factory';
 import { PartyLobbyRuntimeRedirectResolver } from './party-lobby-runtime-redirect-resolver';
@@ -10,7 +10,7 @@ import { PartyScreenSection } from './use-party-lobby-screen-state';
 const partyFixtureFactory = new PartyFixtureFactory();
 const resolver = new PartyLobbyRuntimeRedirectResolver();
 const stageIdentifier = new StageIdentifierMockFactory().create();
-const toStageId = (value: number) => stageIdentifier.parse(value);
+const toPartyStageId = (value: number) => stageIdentifier.parse(value);
 
 function createStaleResultBranch() {
   return {
@@ -39,7 +39,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
         lifecycle: {
           phase: PartyRuntimePhase.STAGE,
           stageEndsAtEpochMs: null,
-          stageId: toStageId(2),
+          stageId: toPartyStageId(2),
           stagePosition: 1,
           stageRemainingDurationMs: null,
           stageTimeLimitSeconds: null,
@@ -63,7 +63,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
     // Act
     const redirectTo = resolver.resolve({
       party,
-      requestedStageId: toStageId(2),
+      requestedPartyStageId: toPartyStageId(2),
       resolvePartyLeaderboardRoute: (partyId) => `/party/${partyId}/final`,
       resolvePartyLobbyRoute: (partyId) => `/party/${partyId}/lobby`,
       resolvePartyResultRoute: (partyId, stageId) => `/party/${partyId}/stage/${stageId}/result`,
@@ -72,7 +72,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
     });
 
     // Assert
-    expect(redirectTo).toBe(`/party/${party.partyId}/stage/${toStageId(2)}`);
+    expect(redirectTo).toBe(`/party/${party.partyId}/stage/${toPartyStageId(2)}`);
   });
 
   it('redirects waiting hosts back to the lobby when stale result data survives a party rewind', () => {
@@ -95,7 +95,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
     // Act
     const redirectTo = resolver.resolve({
       party,
-      requestedStageId: toStageId(2),
+      requestedPartyStageId: toPartyStageId(2),
       resolvePartyLeaderboardRoute: (partyId) => `/party/${partyId}/final`,
       resolvePartyLobbyRoute: (partyId) => `/party/${partyId}/lobby`,
       resolvePartyResultRoute: (partyId, stageId) => `/party/${partyId}/stage/${stageId}/result`,
@@ -114,7 +114,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
         lifecycle: {
           phase: PartyRuntimePhase.RESULT,
           stageEndsAtEpochMs: null,
-          stageId: toStageId(2),
+          stageId: toPartyStageId(2),
           stagePosition: 1,
           stageRemainingDurationMs: null,
           stageTimeLimitSeconds: null,
@@ -134,7 +134,7 @@ describe('PartyLobbyRuntimeRedirectResolver', () => {
     // Act
     const redirectTo = resolver.resolve({
       party,
-      requestedStageId: toStageId(2),
+      requestedPartyStageId: toPartyStageId(2),
       resolvePartyLeaderboardRoute: (partyId) => `/party/${partyId}/final`,
       resolvePartyLobbyRoute: (partyId) => `/party/${partyId}/lobby`,
       resolvePartyResultRoute: (partyId, stageId) => `/party/${partyId}/stage/${stageId}/result`,

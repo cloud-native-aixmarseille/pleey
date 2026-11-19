@@ -1,5 +1,5 @@
 import type { GuestId } from '@pleey/domain/identity';
-import type { PartyId } from '../../shared/entities/party';
+import type { PartyId } from '@pleey/domain/party';
 
 export interface PartyGuestCredentialSubject {
   readonly partyId: PartyId;

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { PartyId } from '@pleey/domain/party';
 import { PartyNotFoundError } from '../../../../../domain/game/errors';
 import { HostPartyLifecyclePolicy } from '../../../../../domain/game/party/host/services/host-party-lifecycle-policy';
-import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
 import { PartyStageConfigurationPort } from '../../../types/shared/ports/party-stage-configuration.port';
 import { HostPartyObservationReaderPort } from '../../host/ports/host-party-observation-reader.port';
 import { PlayerPartyObservationReaderPort } from '../../player/ports/player-party-observation-reader.port';

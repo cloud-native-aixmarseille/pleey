@@ -1,4 +1,4 @@
-import { ThemeDocumentNormalizerCore } from '@pleey/domain/theme';
+import { CURATED_THEME_IDS, CURATED_THEME_PALETTES, ThemeDocumentNormalizerCore } from '@pleey/domain/theme';
 import {
   THEME_BORDER_KEYS,
   THEME_FONT_FAMILIES,
@@ -11,9 +11,7 @@ import {
   type ThemeDocument,
   type ThemeOverrides,
 } from '../entities/theme-document';
-import { CURATED_THEME_IDS } from '../entities/theme-id';
 import { ThemeError, ThemeErrorCode } from '../errors/theme-error';
-import { CURATED_THEME_PALETTES } from './curated-theme-palettes';
 
 export class ThemeDocumentNormalizer {
   private readonly core = new ThemeDocumentNormalizerCore({

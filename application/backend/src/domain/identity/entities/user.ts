@@ -1,9 +1,8 @@
+import type { UserId } from '@pleey/domain/identity';
 import type { Media } from '../../media/entities/media';
 import type { UserProfileSnapshot } from '../types/user-profile-snapshot';
 
-export type UserId = string & {
-  readonly __identifierBrand: 'UserId';
-};
+export type { UserId } from '@pleey/domain/identity';
 
 /**
  * User Domain Entity

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { GameId } from '@pleey/domain/game';
+import { PartyRole } from '@pleey/domain/party';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { Prisma } from '@prisma/client';
 import {
@@ -18,7 +19,6 @@ import { PaginationQueryNormalizer } from '../../../application/shared/services/
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import { ThemeIdentifier } from '../../../application/workspace/themes/services/theme-identifier';
-import { PartyRole } from '../../../domain/game/party/enums/party-role.enum';
 import { PinAlreadyInUseError } from '../../../domain/game/party/errors/pin-already-in-use.error';
 import type { PartySummary } from '../../../domain/game/party/shared/entities/party-summary';
 import type { UserId } from '../../../domain/identity/entities/user';

@@ -1,9 +1,9 @@
+import { PartyStatus } from '@pleey/domain/party';
 import type { PartyObservation } from '../../domains/game/party/shared/entities/party-observation';
 import {
   type PartyRuntimeContext,
   PartyRuntimePhase,
 } from '../../domains/game/party/shared/entities/party-runtime-context';
-import { PartyStatus } from '../../domains/game/party/shared/entities/party-status';
 import { PartyActionIdentifierMockFactory } from '../mocks/party-action-identifier-mock-factory';
 import { StageIdentifierMockFactory } from '../mocks/stage-identifier-mock-factory';
 import { PartyFixtureFactory } from './party-fixture-factory';

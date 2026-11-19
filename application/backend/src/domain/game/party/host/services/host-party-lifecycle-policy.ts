@@ -1,12 +1,11 @@
+import { DEFAULT_PARTY_SETTINGS, PartyStatus } from '@pleey/domain/party';
 import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import { PartyCommandNotAvailableError, PartyStagesNotAvailableError } from '../../../errors';
-import { PartyStatus } from '../../enums/party-status.enum';
 import {
   type PartyRuntimeContext,
   type PartyRuntimeLifecycleContext,
   PartyRuntimePhase,
 } from '../../shared/entities/party-runtime-context';
-import { DEFAULT_PARTY_SETTINGS } from '../../shared/entities/party-settings';
 import { HostPartyDisabledReason, type HostPartyPermissions } from '../value-objects/host-party-permissions';
 
 interface HostPartyLifecycleState {

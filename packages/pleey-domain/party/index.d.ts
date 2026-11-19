@@ -1,3 +1,52 @@
+export type PartyId = string & {
+  readonly __identifierBrand: 'PartyId';
+};
+
+export type PartyPin = string & {
+  readonly __identifierBrand: 'PartyPin';
+};
+
+export type PartyActionId = string & {
+  readonly __identifierBrand: 'PartyActionId';
+};
+
+export type PartyStageId = string & {
+  readonly __identifierBrand: 'PartyStageId';
+};
+
+export enum PartyRole {
+  HOST = 'HOST',
+  PLAYER = 'PLAYER',
+}
+
+export enum PartyStatus {
+  WAITING = 'WAITING',
+  ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
+  ENDED = 'ENDED',
+}
+
+export enum PartyRuntimePhase {
+  LOBBY = 'lobby',
+  STAGE = 'stage',
+  RESULT = 'result',
+  ENDED = 'ended',
+}
+
+export interface PartySettings {
+  readonly questionReadingTimeSeconds: number;
+  readonly allowJoiningAfterStart: boolean;
+  readonly allowOptionChangeAfterVoting: boolean;
+  readonly randomizeOptionOrder: boolean;
+  readonly randomizeStageOrder: boolean;
+}
+
+export const DEFAULT_PARTY_SETTINGS: PartySettings;
+export const PARTY_READING_TIME_LIMITS: {
+  readonly min: 0;
+  readonly max: 30;
+};
+
 export const PARTY_SOCKET_INBOUND_EVENTS: {
   readonly JOIN_PARTY: 'join-party';
   readonly LEAVE_PARTY: 'leave-party';

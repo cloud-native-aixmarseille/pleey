@@ -1,12 +1,12 @@
 import { UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Args, Context, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '@pleey/domain/party';
 import { CreateProjectUseCase } from '../../../application/workspace/projects/use-cases/create-project-use-case';
 import { DeleteProjectUseCase } from '../../../application/workspace/projects/use-cases/delete-project-use-case';
 import { ListOrganizationProjectsUseCase } from '../../../application/workspace/projects/use-cases/list-organization-projects-use-case';
 import { UpdateProjectUseCase } from '../../../application/workspace/projects/use-cases/update-project-use-case';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
-import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '../../../domain/game/party/shared/entities/party-settings';
 import type { UserId } from '../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
 import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';

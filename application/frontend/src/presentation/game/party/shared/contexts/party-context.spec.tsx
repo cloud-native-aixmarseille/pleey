@@ -1,3 +1,5 @@
+import type { PartyId } from '@pleey/domain/party';
+import { PartyStatus } from '@pleey/domain/party';
 import { act, renderHook } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -5,9 +7,7 @@ import type { PartyManagementPort } from '../../../../../domains/game/party/host
 import type { GuestUsernameGeneratorPort } from '../../../../../domains/game/party/player/ports/guest-username-generator.port';
 import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
 import type { PartyPlayerPort } from '../../../../../domains/game/party/player/ports/party-player.port';
-import type { PartyId } from '../../../../../domains/game/party/shared/entities/party';
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
-import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import type {
   PartyObservationConnectionState,
   PartyObservationHandlers,

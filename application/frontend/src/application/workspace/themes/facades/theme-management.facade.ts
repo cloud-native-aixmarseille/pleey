@@ -1,8 +1,8 @@
 import type { PaginationQuery } from '@pleey/domain/shared/primitives';
+import type { ThemeId } from '@pleey/domain/theme';
 import { inject, injectable } from 'inversify';
 import type { OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { ThemeDocument } from '../../../../domains/theme/entities/theme-document';
-import type { ThemeId } from '../../../../domains/theme/entities/theme-id';
 import {
   type SaveThemeCommand,
   type ThemeRepository,

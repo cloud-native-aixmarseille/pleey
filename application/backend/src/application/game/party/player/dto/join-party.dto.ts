@@ -1,7 +1,7 @@
 import type { GuestId } from '@pleey/domain/identity';
+import type { PartyPin } from '@pleey/domain/party';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import type { AuthenticatedPartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
-import type { PartyPin } from '../../../../../domain/game/party/shared/entities/party';
 
 interface GuestPartyJoiningIdentity {
   readonly kind: PartyPlayerKind.GUEST;

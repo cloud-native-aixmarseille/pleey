@@ -1,6 +1,7 @@
+import type { PartySettings } from '@pleey/domain/party';
+import { hasNonBlankProjectName, normalizeProjectName } from '@pleey/domain/project';
+import type { ThemeId } from '@pleey/domain/theme';
 import { injectable } from 'inversify';
-import type { PartySettings } from '../../game/party/shared/entities/party-settings';
-import type { ThemeId } from '../../theme/entities/theme-id';
 import { ProjectValidationErrorCode } from '../errors/project-validation-error-code';
 
 export interface ProjectFormInput {
@@ -13,7 +14,7 @@ export interface ProjectFormInput {
 @injectable()
 export class ProjectFormService {
   validateName(name: string): ProjectValidationErrorCode | null {
-    return name.trim().length > 0 ? null : ProjectValidationErrorCode.NAME_REQUIRED;
+    return hasNonBlankProjectName(name) ? null : ProjectValidationErrorCode.NAME_REQUIRED;
   }
 
   createInput(
@@ -23,7 +24,7 @@ export class ProjectFormService {
     defaultThemeId: ThemeId | null,
   ): ProjectFormInput {
     return {
-      name: name.trim(),
+      name: normalizeProjectName(name),
       description: description.trim() || null,
       defaultPartySettings,
       defaultThemeId,

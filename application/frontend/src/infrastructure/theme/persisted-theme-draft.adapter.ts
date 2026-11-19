@@ -1,3 +1,4 @@
+import { CURATED_THEME_IDS } from '@pleey/domain/theme';
 import { inject, injectable } from 'inversify';
 import type {
   ThemeDraft,
@@ -6,7 +7,6 @@ import type {
 } from '../../application/workspace/themes/ports/theme-draft.port';
 import { type StoragePort, StoragePortToken } from '../../domains/shared/ports/storage.port';
 import { StorageKey } from '../../domains/shared/value-objects/storage-key';
-import { CURATED_THEME_IDS } from '../../domains/theme/entities/theme-id';
 
 const MAX_DRAFT_AGE = 7 * 24 * 60 * 60 * 1000;
 const MAX_DRAFTS = 20;

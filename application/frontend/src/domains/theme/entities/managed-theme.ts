@@ -1,6 +1,6 @@
+import type { ThemeId } from '@pleey/domain/theme';
 import type { OrganizationId } from '../../organization/entities/organization';
 import type { ThemeDocument } from './theme-document';
-import type { ThemeId } from './theme-id';
 export interface ManagedTheme {
   readonly id: ThemeId;
   readonly organizationId: OrganizationId;

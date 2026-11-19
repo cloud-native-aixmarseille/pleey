@@ -1,7 +1,7 @@
 import { Field, InputType } from '@nestjs/graphql';
+import { THEME_ID_PATTERN, type ThemeId } from '@pleey/domain/theme';
 import { Type } from 'class-transformer';
 import { IsOptional, IsString, Matches, MaxLength, MinLength, ValidateNested } from 'class-validator';
-import { THEME_ID_PATTERN, type ThemeId } from '../../../../domain/theme/entities/theme-id';
 import { PartySettingsInput } from '../../../shared/graphql/types/party-settings-input';
 
 @InputType()

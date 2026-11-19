@@ -1,7 +1,7 @@
 import type { OrganizationRole } from '@pleey/domain/organization';
+import type { PartySettings } from '@pleey/domain/party';
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
-import type { PartySettings } from '../../game/party/shared/entities/party-settings';
-import type { ThemeId } from '../../theme/entities/theme-id';
+import type { ThemeId } from '@pleey/domain/theme';
 import type { Organization, OrganizationId } from '../entities/organization';
 import type { OrganizationDashboard } from '../entities/organization-dashboard';
 import type { OrganizationMember, OrganizationMemberId } from '../entities/organization-member';

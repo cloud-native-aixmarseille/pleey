@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
-import { PAGINATION_LIMITS } from '../../../domain/shared/value-objects/pagination-limits';
+import { PAGINATION_LIMITS } from '@pleey/domain/shared/primitives';
 
 interface NormalizedPaginationQuery {
   readonly page: number;

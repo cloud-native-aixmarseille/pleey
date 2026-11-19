@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import type { GameId, GameTypeId } from '@pleey/domain/game';
 import { GameType } from '@pleey/domain/game';
+import { PartyStatus } from '@pleey/domain/party';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
-import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
 import { Quiz, type QuizId } from '../../../../domain/game/types/quiz/entities/quiz';
 import {
   QuizNotCreatedError,

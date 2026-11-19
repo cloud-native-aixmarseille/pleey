@@ -1,6 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
+import { PAGINATION_LIMITS } from '@pleey/domain/shared/primitives';
 import { IsInt, Max, Min } from 'class-validator';
-import { PAGINATION_LIMITS } from '../../../../domain/shared/value-objects/pagination-limits';
 
 @InputType()
 export class PaginationInput {

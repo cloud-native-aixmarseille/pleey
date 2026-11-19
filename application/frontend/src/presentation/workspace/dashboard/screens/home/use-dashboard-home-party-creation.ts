@@ -1,10 +1,10 @@
 import type { GameId } from '@pleey/domain/game';
+import type { PartySettings } from '@pleey/domain/party';
+import type { ThemeId } from '@pleey/domain/theme';
 import { useState } from 'react';
 import type { DashboardGameListItem } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { Party } from '../../../../../domains/game/party/shared/entities/party';
-import type { PartySettings } from '../../../../../domains/game/party/shared/entities/party-settings';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
-import type { ThemeId } from '../../../../../domains/theme/entities/theme-id';
 import { usePresentationNavigate } from '../../../../shared/routing/router';
 
 interface CreatePartyOptions {

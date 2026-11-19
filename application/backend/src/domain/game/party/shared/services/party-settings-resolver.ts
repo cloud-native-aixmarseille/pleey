@@ -1,5 +1,5 @@
+import { DEFAULT_PARTY_SETTINGS, PARTY_READING_TIME_LIMITS, type PartySettings } from '@pleey/domain/party';
 import { GameValidationFailedError } from '../../../errors';
-import { DEFAULT_PARTY_SETTINGS, PARTY_READING_TIME_LIMITS, type PartySettings } from '../entities/party-settings';
 
 interface ResolvePartySettingsInput {
   readonly organizationDefaultSettings?: PartySettings | null;

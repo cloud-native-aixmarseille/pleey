@@ -1,4 +1,4 @@
-import type { CuratedThemeId } from './theme-id';
+import type { CuratedThemeId } from '@pleey/domain/theme';
 
 export const THEME_FONT_FAMILIES = ['system-ui, sans-serif', 'ui-monospace, monospace', 'Georgia, serif'] as const;
 export const THEME_RADIUS_KEYS = ['field', 'inset', 'panel', 'pill'] as const;

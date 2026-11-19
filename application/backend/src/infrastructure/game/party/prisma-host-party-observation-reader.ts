@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { PartyId } from '@pleey/domain/party';
 import { HostPartyObservationReaderPort } from '../../../application/game/party/host/ports/host-party-observation-reader.port';
 import { PartyIdentifier } from '../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../../application/game/party/shared/services/identifiers/party-pin-identifier';
@@ -8,7 +9,6 @@ import { UserIdentifier } from '../../../application/identity/shared/services/id
 import { ThemeDocumentValidator } from '../../../application/workspace/themes/services/theme-document-validator';
 import type { HostPartyObservation } from '../../../domain/game/party/host/entities/host-party-observation';
 import type { PartyHost } from '../../../domain/game/party/host/entities/party-host';
-import type { PartyId } from '../../../domain/game/party/shared/entities/party';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
 import { createDomainError } from '../../../domain/shared/errors/domain-error';
 import { PrismaService } from '../../database/prisma-service';

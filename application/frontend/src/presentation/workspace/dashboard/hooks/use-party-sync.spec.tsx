@@ -1,9 +1,9 @@
+import type { PartyId } from '@pleey/domain/party';
+import { PartyRole, PartyStatus } from '@pleey/domain/party';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type { Party, PartyId } from '../../../../domains/game/party/shared/entities/party';
+import type { Party } from '../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../domains/game/party/shared/entities/party-observation';
-import { PartyRole } from '../../../../domains/game/party/shared/entities/party-role';
-import { PartyStatus } from '../../../../domains/game/party/shared/entities/party-status';
 import { PartyFixtureFactory } from '../../../../test-utils/fixtures/party-fixture-factory';
 import { usePartySync } from './use-party-sync';
 

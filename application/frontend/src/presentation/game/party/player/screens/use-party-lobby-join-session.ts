@@ -1,8 +1,8 @@
 import type { GuestId } from '@pleey/domain/identity';
+import type { PartyPin } from '@pleey/domain/party';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
 import { PartyJoinReceiptStatus } from '../../../../../domains/game/party/player/ports/party-player.port';
-import type { PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';

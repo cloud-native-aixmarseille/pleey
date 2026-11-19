@@ -1,13 +1,13 @@
+import type { PartyId } from '@pleey/domain/party';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
-import type { PartyId } from '../../../../../domains/game/party/shared/entities/party';
 import { useAuth } from '../../../../identity/contexts/auth-context';
 import { usePresentationParams, usePresentationPathname } from '../../../../shared/routing/router';
 import { useParty } from '../contexts/party-context';
-import type { PartyIdParser, PartyPinParser, StageIdParser } from '../contexts/party-dependencies-context';
+import type { PartyIdParser, PartyPinParser, PartyStageIdParser } from '../contexts/party-dependencies-context';
 import {
   defaultNormalizePartyId,
+  defaultNormalizePartyStageId,
   defaultNormalizePin,
-  defaultNormalizeStageId,
   type PartyLobbyRouteKind,
   resolveStageSegmentFromPathname,
 } from './party-lobby-screen-route-utils';
@@ -28,7 +28,7 @@ interface UsePartyLobbyScreenViewStateParams {
   readonly resolveJoinPartyRoute: NonNullable<PartyLobbyScreenProps['resolveJoinPartyRoute']>;
   readonly resolvePartyLobbyRoute: NonNullable<PartyLobbyScreenProps['resolvePartyLobbyRoute']>;
   readonly routeKind: PartyLobbyRouteKind;
-  readonly stageIdentifier: StageIdParser;
+  readonly stageIdentifier: PartyStageIdParser;
 }
 
 export function usePartyLobbyScreenViewState({
@@ -62,10 +62,13 @@ export function usePartyLobbyScreenViewState({
     normalizePin ?? ((value: string | undefined) => defaultNormalizePin(value, partyPinIdentifier));
   const resolvedNormalizePartyId =
     normalizePartyId ?? ((value: string | undefined) => defaultNormalizePartyId(value, partyIdentifier));
-  const resolvedNormalizeStageId = (value: string | undefined) => defaultNormalizeStageId(value, stageIdentifier);
+  const resolvedNormalizePartyStageId = (value: string | undefined) =>
+    defaultNormalizePartyStageId(value, stageIdentifier);
   const normalizedPin = resolvedNormalizePin(pin);
   const normalizedPartyId = resolvedNormalizePartyId(partyId);
-  const requestedStageId = resolvedNormalizeStageId(stageId ?? resolveStageSegmentFromPathname(pathname, routeKind));
+  const requestedPartyStageId = resolvedNormalizePartyStageId(
+    stageId ?? resolveStageSegmentFromPathname(pathname, routeKind),
+  );
   const { bootstrapErrorMessage, bootstrapPartyByPin, party, partyIdErrorMessage, routeState, runtimeNotice } =
     usePartyLobbyRouteContext({
       getErrorByPartyId,
@@ -113,7 +116,7 @@ export function usePartyLobbyScreenViewState({
     normalizedPartyId,
     normalizedPin,
     party,
-    requestedStageId,
+    requestedPartyStageId,
     runtimeNotice,
     user,
     viewModel,

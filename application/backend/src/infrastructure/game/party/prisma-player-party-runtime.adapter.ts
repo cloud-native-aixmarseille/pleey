@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { PartyPin } from '@pleey/domain/party';
 import { v7 as uuidv7 } from 'uuid';
 import {
   type ActivePlayerPartySession,
@@ -16,7 +17,6 @@ import { GuestIdentifier } from '../../../application/identity/shared/services/i
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import { PartyPlayerKind } from '../../../domain/game/party/enums/party-player-kind.enum';
 import type { GuestPartyPlayerIdentity } from '../../../domain/game/party/player/entities/party-player-identity';
-import type { PartyPin } from '../../../domain/game/party/shared/entities/party';
 import type { UserId } from '../../../domain/identity/entities/user';
 import type { GuestRepository } from '../../../domain/identity/ports/guest.repository';
 import { GuestRepositoryProvider } from '../../../domain/identity/ports/guest.repository';

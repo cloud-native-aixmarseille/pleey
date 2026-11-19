@@ -1,8 +1,8 @@
+import { PartyStatus } from '@pleey/domain/party';
 import { StageIdentifier } from '../../application/game/party/shared/services/identifiers/stage-identifier';
 import type { PartyObservation } from '../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../domains/game/party/shared/entities/party-observation-player';
 import { PartyRuntimePhase } from '../../domains/game/party/shared/entities/party-runtime-context';
-import { PartyStatus } from '../../domains/game/party/shared/entities/party-status';
 import { PartyFixtureFactory } from './party-fixture-factory';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 

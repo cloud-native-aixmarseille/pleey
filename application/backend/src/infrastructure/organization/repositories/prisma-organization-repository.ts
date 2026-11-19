@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import type { ThemeId } from '@pleey/domain/theme';
 import { Prisma, type Organization as PrismaOrganization } from '@prisma/client';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ThemeIdentifier } from '../../../application/workspace/themes/services/theme-identifier';
 import { Organization, type OrganizationId } from '../../../domain/organization/entities/organization';
 import type { OrganizationRepository } from '../../../domain/organization/ports/organization.repository';
-import type { ThemeId } from '../../../domain/theme/entities/theme-id';
 import { PrismaService } from '../../database/prisma-service';
 import { PrismaPartySettingsMapper } from '../../game/shared/prisma-party-settings.mapper';
 

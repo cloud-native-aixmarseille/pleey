@@ -1,8 +1,7 @@
 import { GameType } from '@pleey/domain/game';
+import { DEFAULT_PARTY_SETTINGS, PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
-import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { ThemeFixtureFactory } from '../../../../../test-utils/fixtures/theme-fixture-factory';
 import { HostPartyObservationMessageMapper } from './host-party-observation-message-mapper';

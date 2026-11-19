@@ -1,4 +1,4 @@
-import { DEFAULT_THEME_ID, type ThemeId } from '../../../../domains/theme/entities/theme-id';
+import { DEFAULT_THEME_ID, type ThemeId } from '@pleey/domain/theme';
 
 export const DEFAULT_UI_THEME_ID = DEFAULT_THEME_ID;
 export const UI_COLOR_SCHEMES = ['light', 'dark'] as const;

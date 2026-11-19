@@ -1,12 +1,11 @@
-import type { PartyId } from '../../../../../domains/game/party/shared/entities/party';
+import type { PartyId, PartyStageId } from '@pleey/domain/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
-import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
 
 export interface PartyStageScoreboardSnapshot {
   readonly partyId: PartyId;
-  readonly stageId: StageId;
+  readonly stageId: PartyStageId;
   readonly stagePosition: number;
   readonly phase: PartyRuntimePhase;
   readonly submittedPlayerCount: number;

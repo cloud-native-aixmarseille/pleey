@@ -1,11 +1,11 @@
 import { OrganizationRole } from '@pleey/domain/organization';
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { vi } from 'vitest';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
-import { DEFAULT_PARTY_SETTINGS } from '../../domains/game/party/shared/entities/party-settings';
 import { type Organization, type OrganizationId } from '../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../domains/organization/entities/organization-dashboard';
 import type { OrganizationMember } from '../../domains/organization/entities/organization-member';

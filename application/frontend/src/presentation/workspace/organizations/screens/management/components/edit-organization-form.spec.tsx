@@ -1,8 +1,8 @@
 import { OrganizationPermissionReason, OrganizationRole } from '@pleey/domain/organization';
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import { OrganizationFixtureFactory } from '../../../../../../test-utils/fixtures/organization-fixture-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { EditOrganizationForm } from './edit-organization-form';

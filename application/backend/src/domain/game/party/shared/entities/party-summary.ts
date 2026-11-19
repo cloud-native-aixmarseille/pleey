@@ -1,7 +1,5 @@
 import type { GameId } from '@pleey/domain/game';
-import type { PartyRole } from '../../enums/party-role.enum';
-import type { PartyStatus } from '../../enums/party-status.enum';
-import type { PartyId, PartyPin } from './party';
+import type { PartyId, PartyPin, PartyRole, PartyStatus } from '@pleey/domain/party';
 
 export interface PartySummary {
   readonly partyId: PartyId;

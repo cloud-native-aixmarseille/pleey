@@ -2,10 +2,10 @@ import { ThemeFixtureFactory } from '../../../../../test-utils/fixtures/theme-fi
 import { createWorkspacePermissionServices } from '../../../../../test-utils/fixtures/workspace-permission-fixture-factory';
 import { ThemeSelectionServiceMockFactory } from '../../../../../test-utils/mock-factories/theme-selection-service-mock-factory';
 import 'reflect-metadata';
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PinAlreadyInUseError } from '../../../../../domain/game/party/errors/pin-already-in-use.error';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { PartySettingsResolver } from '../../../../../domain/game/party/shared/services/party-settings-resolver';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberRepositoryMock } from '../../../../../test-utils/mock-factories/organization.mock-factory';

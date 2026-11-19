@@ -1,6 +1,6 @@
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
 import { GameValidationFailedError } from '../../../errors';
-import { DEFAULT_PARTY_SETTINGS } from '../entities/party-settings';
 import { PartySettingsResolver } from './party-settings-resolver';
 
 describe('PartySettingsResolver', () => {

@@ -1,6 +1,6 @@
+import { CURATED_THEME_PALETTES } from '@pleey/domain/theme';
 import { useContext } from 'react';
 import type { ThemeColorScale, ThemeDocument, ThemeOverrides } from '../../../domains/theme/entities/theme-document';
-import { CURATED_THEME_PALETTES } from '../../../domains/theme/services/curated-theme-palettes';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { Button } from '../../shared/ui/actions/button';
 import { Input } from '../../shared/ui/forms/input';

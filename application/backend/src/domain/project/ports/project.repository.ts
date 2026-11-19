@@ -1,7 +1,7 @@
+import type { PartySettings } from '@pleey/domain/party';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
-import type { PartySettings } from '../../game/party/shared/entities/party-settings';
+import type { ThemeId } from '@pleey/domain/theme';
 import type { OrganizationId } from '../../organization/entities/organization';
-import type { ThemeId } from '../../theme/entities/theme-id';
 import type { Project, ProjectId } from '../entities/project';
 
 export const ProjectRepositoryProvider = Symbol('ProjectRepository');

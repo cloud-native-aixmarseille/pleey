@@ -1,5 +1,5 @@
-import type { PartySettings } from '../../../../domain/game/party/shared/entities/party-settings';
-import type { ThemeId } from '../../../../domain/theme/entities/theme-id';
+import type { PartySettings } from '@pleey/domain/party';
+import type { ThemeId } from '@pleey/domain/theme';
 
 export class UpdateOrganizationDto {
   name!: string;

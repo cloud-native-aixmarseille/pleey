@@ -1,4 +1,4 @@
-import type { PartyActionId } from '../../../../../../../domains/game/party/shared/entities/party-action';
+import type { PartyActionId } from '@pleey/domain/party';
 import type { PartyObservation } from '../../../../../../../domains/game/party/shared/entities/party-observation';
 import { PlayableChoicePlayerStageSurface } from '../../../../shared/screens/live/components/playable-choice-runtime-panels';
 import { predictionRuntimeCopy } from './prediction-runtime-copy';

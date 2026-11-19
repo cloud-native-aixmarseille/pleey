@@ -1,3 +1,35 @@
+export const PartyRole = {
+  HOST: 'HOST',
+  PLAYER: 'PLAYER',
+};
+
+export const PartyStatus = {
+  WAITING: 'WAITING',
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  ENDED: 'ENDED',
+};
+
+export const PartyRuntimePhase = {
+  LOBBY: 'lobby',
+  STAGE: 'stage',
+  RESULT: 'result',
+  ENDED: 'ended',
+};
+
+export const DEFAULT_PARTY_SETTINGS = {
+  questionReadingTimeSeconds: 3,
+  allowJoiningAfterStart: false,
+  allowOptionChangeAfterVoting: true,
+  randomizeOptionOrder: false,
+  randomizeStageOrder: false,
+};
+
+export const PARTY_READING_TIME_LIMITS = {
+  min: 0,
+  max: 30,
+};
+
 export const PARTY_SOCKET_INBOUND_EVENTS = {
   JOIN_PARTY: 'join-party',
   LEAVE_PARTY: 'leave-party',

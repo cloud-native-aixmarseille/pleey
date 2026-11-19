@@ -1,14 +1,14 @@
 import type { GameId } from '@pleey/domain/game';
+import type { PartySettings } from '@pleey/domain/party';
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
+import type { ThemeId } from '@pleey/domain/theme';
 import { inject, injectable } from 'inversify';
 import type { DashboardGameListPage } from '../../../../domains/game/management/entities/dashboard-game-list-page';
 import type { DashboardGameListQuery } from '../../../../domains/game/management/entities/dashboard-game-list-query';
 import type { Party } from '../../../../domains/game/party/shared/entities/party';
-import type { PartySettings } from '../../../../domains/game/party/shared/entities/party-settings';
 import type { Organization, OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../domains/organization/entities/organization-dashboard';
 import type { Project, ProjectId } from '../../../../domains/project/entities/project';
-import type { ThemeId } from '../../../../domains/theme/entities/theme-id';
 import { ListProjectGamesUseCase } from '../../../game/management/use-cases/list-project-games-use-case';
 import { CreatePartyUseCase } from '../../../game/party/host/use-cases/create-party-use-case';
 import { ListPartiesUseCase } from '../../../game/party/host/use-cases/list-parties-use-case';

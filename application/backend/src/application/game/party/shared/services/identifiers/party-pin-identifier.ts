@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { PartyPin } from '../../../../../../domain/game/party/shared/entities/party';
+import type { PartyPin } from '@pleey/domain/party';
 import { StringIdentifierParser } from '../../../../../shared/services/identifier-parser';
 
 @Injectable()

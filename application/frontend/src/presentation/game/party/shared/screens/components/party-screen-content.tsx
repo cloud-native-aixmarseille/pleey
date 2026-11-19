@@ -1,5 +1,5 @@
+import type { PartyPin } from '@pleey/domain/party';
 import { useEffect } from 'react';
-import type { PartyPin } from '../../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
 import { type PartyRuntimeNoticeKind } from '../../../../../../domains/game/party/shared/ports/party-observation.port';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';

@@ -1,6 +1,5 @@
 import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { PartyRole } from '../../../../../domain/game/party/enums/party-role.enum';
-import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
+import { PartyRole, PartyStatus } from '@pleey/domain/party';
 
 registerEnumType(PartyStatus, {
   name: 'PartyStatus',

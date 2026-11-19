@@ -1,6 +1,6 @@
-export type GuestId = string & {
-  readonly __identifierBrand: 'GuestId';
-};
+import type { GuestId } from '@pleey/domain/identity';
+
+export type { GuestId } from '@pleey/domain/identity';
 
 type GuestProps = {
   id: GuestId;

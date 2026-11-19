@@ -1,5 +1,5 @@
+import type { ThemeId } from '@pleey/domain/theme';
 import type { OrganizationId } from '../../../../../../domains/organization/entities/organization';
-import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { ContentStack } from '../../../../../shared/ui/layout/containers';
 import { InsetPanel } from '../../../../../shared/ui/layout/panels';

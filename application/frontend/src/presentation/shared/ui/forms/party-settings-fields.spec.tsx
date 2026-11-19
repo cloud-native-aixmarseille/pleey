@@ -1,6 +1,6 @@
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import { fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../domains/game/party/shared/entities/party-settings';
 import { renderWithUiProvider } from '../../../../test-utils/render-with-ui-provider';
 import { PartySettingsFields } from './party-settings-fields';
 

@@ -1,5 +1,5 @@
+import { PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
-import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import {
   type PartyRuntimeContext,
   PartyRuntimePhase,

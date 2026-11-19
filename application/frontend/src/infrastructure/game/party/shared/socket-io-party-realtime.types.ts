@@ -1,11 +1,11 @@
 import type { GameType } from '@pleey/domain/game';
 import type { GuestId } from '@pleey/domain/identity';
+import type { PartyId, PartyPin } from '@pleey/domain/party';
 import type {
   PartyJoinReceipt,
   PartySubmitActionCommand,
 } from '../../../../domains/game/party/player/ports/party-player.port';
 import { PartyJoinReceiptStatus } from '../../../../domains/game/party/player/ports/party-player.port';
-import type { PartyId, PartyPin } from '../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyRuntimeNoticeKind } from '../../../../domains/game/party/shared/ports/party-observation.port';
 import type { UserId } from '../../../../domains/identity/entities/user';

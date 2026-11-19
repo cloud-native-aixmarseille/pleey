@@ -1,3 +1,10 @@
+export const PAGINATION_LIMITS: {
+  readonly defaultPage: 1;
+  readonly defaultPageSize: 9;
+  readonly maxPage: 10000;
+  readonly maxPageSize: 100;
+};
+
 export type ActionPermission<Reason extends string = string> =
   | { readonly allowed: true; readonly reason: null }
   | { readonly allowed: false; readonly reason: Reason };

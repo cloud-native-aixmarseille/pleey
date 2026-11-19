@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { ThemeId } from '@pleey/domain/theme';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
-import type { ThemeId } from '../../../../domain/theme/entities/theme-id';
 import { ThemeError, ThemeErrorCode } from '../../../../domain/theme/errors/theme-error';
 import { ThemeRepository } from '../../../../domain/theme/ports/theme-repository';
 import { ThemePermissionService } from '../services/theme-permission-service';

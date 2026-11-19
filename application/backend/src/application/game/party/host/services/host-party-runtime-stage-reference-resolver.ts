@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { GameId } from '@pleey/domain/game';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import {
   type PartyStageCatalogEntry,
   PartyStageCatalogPort,

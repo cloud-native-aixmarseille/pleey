@@ -1,6 +1,5 @@
-import type { PartyRuntimeNoticeKind as SharedPartyRuntimeNoticeKind } from '@pleey/domain/party';
+import type { PartyId, PartyRuntimeNoticeKind as SharedPartyRuntimeNoticeKind } from '@pleey/domain/party';
 import { PARTY_RUNTIME_NOTICE_KINDS } from '@pleey/domain/party';
-import type { PartyId } from '../entities/party';
 import type { PartyObservation } from '../entities/party-observation';
 
 export const PartyRuntimeNoticeKind = PARTY_RUNTIME_NOTICE_KINDS;

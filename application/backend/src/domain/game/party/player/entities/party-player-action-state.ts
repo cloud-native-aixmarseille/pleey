@@ -1,5 +1,4 @@
-import type { PartyActionId } from '../../shared/entities/party-action';
-import type { PartyStageId } from '../../shared/entities/party-stage';
+import type { PartyActionId, PartyStageId } from '@pleey/domain/party';
 
 export const PARTY_PLAYER_ACTION_STATE_STATUS = {
   ACKNOWLEDGED: 'acknowledged',

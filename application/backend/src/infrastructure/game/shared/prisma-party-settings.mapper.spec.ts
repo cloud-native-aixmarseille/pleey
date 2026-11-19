@@ -1,5 +1,5 @@
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PARTY_SETTINGS } from '../../../domain/game/party/shared/entities/party-settings';
 import { PrismaPartySettingsMapper } from './prisma-party-settings.mapper';
 
 describe('PrismaPartySettingsMapper', () => {

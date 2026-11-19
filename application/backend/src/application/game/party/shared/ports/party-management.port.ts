@@ -1,13 +1,12 @@
 import type { GameId } from '@pleey/domain/game';
+import type { PartyId, PartyPin, PartySettings } from '@pleey/domain/party';
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
-import type { PartyId, PartyPin } from '../../../../../domain/game/party/shared/entities/party';
-import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
+import type { ThemeId } from '@pleey/domain/theme';
 import type { PartySummary } from '../../../../../domain/game/party/shared/entities/party-summary';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../../../domain/organization/entities/organization';
 import type { ProjectId } from '../../../../../domain/project/entities/project';
 import type { ThemeDocument } from '../../../../../domain/theme/entities/theme-document';
-import type { ThemeId } from '../../../../../domain/theme/entities/theme-id';
 
 export interface ManagedGameContext {
   readonly projectDefaultThemeId: ThemeId | null;

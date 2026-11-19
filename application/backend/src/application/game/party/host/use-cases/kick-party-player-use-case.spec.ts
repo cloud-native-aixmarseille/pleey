@@ -1,7 +1,7 @@
+import { PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
-import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { KickPartyPlayerUseCase } from './kick-party-player-use-case';
 

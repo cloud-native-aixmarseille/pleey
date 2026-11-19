@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { PartyStatus } from '@pleey/domain/party';
 import {
   PartyCommandNotAvailableError,
   PartyNotFoundError,
   PlayerAlreadyInActivePartyError,
 } from '../../../../../domain/game/errors';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
-import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import {
   GuestPlayerRejoinNotFoundError,
   GuestUsernameRequiredError,

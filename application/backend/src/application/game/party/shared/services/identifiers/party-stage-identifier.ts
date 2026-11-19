@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { PartyStageId } from '../../../../../../domain/game/party/shared/entities/party-stage';
+import type { PartyStageId } from '@pleey/domain/party';
 import { UuidV7IdentifierParser } from '../../../../../shared/services/identifier-parser';
 
 @Injectable()

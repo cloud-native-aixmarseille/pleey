@@ -2,7 +2,7 @@
 
 # Paramètres de partie
 
-[party-settings.ts](../../../../application/backend/src/domain/game/party/shared/entities/party-settings.ts)
+[index.js](../../../../packages/pleey-domain/party/index.js)
 
 | Paramètre                      | Valeur par défaut | Valeurs autorisées |
 | ------------------------------ | ----------------- | ------------------ |

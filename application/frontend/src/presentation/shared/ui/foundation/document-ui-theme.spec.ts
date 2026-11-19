@@ -1,5 +1,5 @@
+import { CURATED_THEME_PALETTES } from '@pleey/domain/theme';
 import { describe, expect, it } from 'vitest';
-import { CURATED_THEME_PALETTES } from '../../../../domains/theme/services/curated-theme-palettes';
 import { ThemeFixtureFactory } from '../../../../test-utils/fixtures/theme-fixture-factory';
 import { createUiThemeFromDocument } from './document-ui-theme';
 import { uiThemes } from './ui-theme-definition';

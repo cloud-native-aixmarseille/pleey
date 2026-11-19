@@ -1,4 +1,4 @@
-import type { PartyPin } from '../../../../../../domains/game/party/shared/entities/party';
+import type { PartyPin } from '@pleey/domain/party';
 import { StringIdentifierParser } from '../../../../../shared/services/identifier-parser';
 
 export class PartyPinIdentifier extends StringIdentifierParser<PartyPin> {

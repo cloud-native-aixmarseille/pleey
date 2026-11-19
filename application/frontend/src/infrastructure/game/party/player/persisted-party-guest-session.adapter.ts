@@ -1,9 +1,9 @@
 import type { GuestId } from '@pleey/domain/identity';
+import type { PartyId, PartyPin } from '@pleey/domain/party';
 import { inject, injectable } from 'inversify';
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import type { PartyGuestSessionPort } from '../../../../domains/game/party/player/ports/party-guest-session.port';
-import type { PartyId, PartyPin } from '../../../../domains/game/party/shared/entities/party';
 import { type StoragePort, StoragePortToken } from '../../../../domains/shared/ports/storage.port';
 
 const STORAGE_KEY = 'party.guest-session.v1';

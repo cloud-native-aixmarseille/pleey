@@ -1,11 +1,8 @@
+import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '@pleey/domain/party';
+import type { ThemeId } from '@pleey/domain/theme';
 import { useEffect, useState } from 'react';
 import type { DashboardGameListItem } from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { CreatePartyCommand } from '../../../../../../domains/game/party/host/ports/party-management.port';
-import {
-  DEFAULT_PARTY_SETTINGS,
-  type PartySettings,
-} from '../../../../../../domains/game/party/shared/entities/party-settings';
-import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePartyDependencies } from '../../../../../game/party/shared/contexts/party-dependencies-context';
 
 interface UseDashboardCreatePartyDialogStateParams {

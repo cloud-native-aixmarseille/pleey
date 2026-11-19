@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import type { GameType } from '@pleey/domain/game';
+import type { PartyId } from '@pleey/domain/party';
 import { PartyGameTypeReaderPort } from '../../../application/game/party/shared/ports/party-game-type-reader.port';
 import { GameTypeParser } from '../../../application/game/types/shared/services/game-type-parser';
-import type { PartyId } from '../../../domain/game/party/shared/entities/party';
 import { PrismaService } from '../../database/prisma-service';
 
 @Injectable()

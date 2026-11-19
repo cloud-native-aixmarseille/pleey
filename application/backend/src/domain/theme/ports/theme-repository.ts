@@ -1,8 +1,8 @@
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
+import type { ThemeId } from '@pleey/domain/theme';
 import type { OrganizationId } from '../../organization/entities/organization';
 import type { ManagedTheme, ThemeAsset, ThemeAssetId } from '../entities/managed-theme';
 import type { ThemeDocument } from '../entities/theme-document';
-import type { ThemeId } from '../entities/theme-id';
 export abstract class ThemeRepository {
   abstract findPage(organizationId: OrganizationId, query: PaginationQuery): Promise<PaginatedResult<ManagedTheme>>;
   abstract findById(organizationId: OrganizationId, id: ThemeId): Promise<ManagedTheme | null>;

@@ -12,8 +12,8 @@ import { CURATED_THEME_DOCUMENTS } from '../../../domain/theme/entities/curated-
 import { PrismaPartySettingsMapper } from '../shared/prisma-party-settings.mapper';
 import { PrismaPartyReadModelMapper } from './services/prisma-party-read-model-mapper';
 import 'reflect-metadata';
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PARTY_SETTINGS } from '../../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { PrismaIntegrationTestHarness } from '../../../test-utils/fixtures/integration/prisma-integration-test-harness';
 import { PrismaPartyManagementAdapter } from './prisma-party-management.adapter';

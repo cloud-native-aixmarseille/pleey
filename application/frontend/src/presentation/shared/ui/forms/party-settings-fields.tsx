@@ -1,4 +1,4 @@
-import type { PartySettings } from '../../../../domains/game/party/shared/entities/party-settings';
+import type { PartySettings } from '@pleey/domain/party';
 import { usePresentationTranslation } from '../../i18n/use-presentation-translation';
 import { Checkbox } from './checkbox';
 import { FieldShell } from './field-shell';

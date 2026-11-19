@@ -1,5 +1,5 @@
+import { PartyStatus } from '@pleey/domain/party';
 import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
-import { PartyStatus } from '../../../../../../domains/game/party/shared/entities/party-status';
 import { GuideLaunch } from '../../../../../shared/guide/guide-launch';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { usePresentationMediaQuery } from '../../../../../shared/ui/layout/use-presentation-media-query';

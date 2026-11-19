@@ -1,5 +1,5 @@
-import type { PartyActionId } from '../../../../../../../domains/game/party/shared/entities/party-action';
-import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
+import type { PartyActionId } from '@pleey/domain/party';
+import { PartyStatus } from '@pleey/domain/party';
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
 import { useKeyboardShortcut, useShortcutScope } from '../../../../../../shared/keyboard';
 import { ResponsiveGrid } from '../../../../../../shared/ui/layout/containers';
