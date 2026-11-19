@@ -29,7 +29,6 @@ interface PlayerStageSurfaceFrameProps {
   readonly children: ReactNode;
   readonly contentGap?: 'sm' | 'md' | 'lg';
   readonly isLocked: boolean;
-  readonly isSubmitting: boolean;
   readonly lockedLabel: string;
   readonly mobileTimer?: MobileStageTimer;
   readonly onLeaveParty: () => void;
@@ -37,7 +36,6 @@ interface PlayerStageSurfaceFrameProps {
   readonly playerActionErrorMessage: string | null;
   readonly stageAside?: ReactNode;
   readonly stageProgressLabelKey: string;
-  readonly submittingLabel: string;
   readonly testId: string;
 }
 
@@ -64,7 +62,6 @@ export function PlayerStageSurfaceFrame({
   children,
   contentGap = 'md',
   isLocked,
-  isSubmitting,
   lockedLabel,
   mobileTimer,
   onLeaveParty,
@@ -72,7 +69,6 @@ export function PlayerStageSurfaceFrame({
   playerActionErrorMessage,
   stageAside,
   stageProgressLabelKey,
-  submittingLabel,
   testId,
 }: PlayerStageSurfaceFrameProps) {
   const { t } = usePresentationTranslation();
@@ -105,12 +101,6 @@ export function PlayerStageSurfaceFrame({
 
   const submissionBanners = (
     <MotionPresence>
-      {isSubmitting ? (
-        <MotionFadeIn key="submitting-banner">
-          <StatusBanner tone="success">{submittingLabel}</StatusBanner>
-        </MotionFadeIn>
-      ) : null}
-
       {isLocked ? (
         <MotionFadeIn key="locked-banner">
           <StatusBanner tone="success">{lockedLabel}</StatusBanner>

@@ -326,7 +326,6 @@ describe('prediction runtime panels', () => {
       expect(screen.getByRole('button', { name: 'Away wins' })).toHaveAttribute('aria-pressed', 'true');
       expect(screen.getByRole('button', { name: 'Away wins' })).toBeDisabled();
       expect(screen.getByRole('button', { name: 'Home wins' })).toHaveAttribute('aria-pressed', 'false');
-      expect(screen.getByText('game.party.player.route.actionSubmitting')).toBeInTheDocument();
       expect(onSubmitAction).not.toHaveBeenCalled();
     } finally {
       restoreEnvironment();

@@ -9,8 +9,7 @@ export class ThemePaletteGenerator {
     if (!/^#[0-9a-f]{6}$/i.test(color)) {
       throw new ThemeError(ThemeErrorCode.INVALID_DOCUMENT, { field: `colorScales.${group}` });
     }
-    const channels = [1, 3, 5].map((offset) => parseInt(color.slice(offset, offset + 2), 16));
-    const scale = SHADE_LUMINANCES.map((target) => this.shade(channels, target)) as unknown as ThemeColorScale;
+    const scale = this.generateScale(color);
     const overrides = { ...document.overrides, colorScales: { ...document.overrides.colorScales, [group]: scale } };
     if (group === 'accent') {
       overrides.semantic = { ...document.overrides.semantic };
@@ -23,6 +22,14 @@ export class ThemePaletteGenerator {
       }
     }
     return { ...document, overrides };
+  }
+
+  generateScale(color: string): ThemeColorScale {
+    if (!/^#[0-9a-f]{6}$/i.test(color)) {
+      throw new ThemeError(ThemeErrorCode.INVALID_DOCUMENT, { field: 'colorScales' });
+    }
+    const channels = [1, 3, 5].map((offset) => parseInt(color.slice(offset, offset + 2), 16));
+    return SHADE_LUMINANCES.map((target) => this.shade(channels, target)) as unknown as ThemeColorScale;
   }
 
   private shade(channels: readonly number[], target: number): string {

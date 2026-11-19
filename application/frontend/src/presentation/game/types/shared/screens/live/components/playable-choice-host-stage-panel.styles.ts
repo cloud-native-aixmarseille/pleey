@@ -66,6 +66,13 @@ export const stagePromptRegionStyle = {
   width: '100%',
 } as const;
 
+export const stagePromptRegionWithoutMediaStyle = {
+  ...stagePromptRegionStyle,
+  flex: '0 0 auto',
+  justifyContent: 'flex-start',
+  minHeight: 'auto',
+} as const;
+
 export const stageMediaSlotStyle = {
   alignItems: 'center',
   display: 'flex',

@@ -16,6 +16,23 @@ import { ThemeBuilderForm } from './theme-builder-form';
 
 const fixtures = new ThemeFixtureFactory();
 describe('ThemeBuilderForm', () => {
+  it('shows a localized error for an invalid imported theme JSON file', async () => {
+    // Arrange
+    const theme = fixtures.createManagedTheme();
+    const user = userEvent.setup();
+    renderWithProviders(
+      <ThemeBuilderForm organizationId={theme.organizationId} theme={theme} onSaved={vi.fn()} onCancel={vi.fn()} />,
+    );
+    // Act
+    await user.upload(
+      await screen.findByLabelText('Import theme JSON'),
+      new File(['{"schemaVersion":2}'], 'theme.json', { type: 'application/json' }),
+    );
+    // Assert
+    expect(
+      await screen.findByText('The theme file is not valid JSON or does not match the theme document format.'),
+    ).toBeInTheDocument();
+  });
   it('saves a renamed theme with its expected revision', async ({ onTestFinished }) => {
     // Arrange
     const theme = fixtures.createManagedTheme();
