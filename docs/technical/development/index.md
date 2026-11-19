@@ -51,6 +51,56 @@ It does not pass `--force`. All selected projects are attempted even if one fail
 the target fails if any invocation fails, including when vulnerabilities remain.
 Review dependency changes and run the affected project's checks after either command.
 
+## Shared domain package
+
+[`packages/pleey-domain/`](../../../packages/pleey-domain) is the private
+repository package `@pleey/domain` for contracts and deterministic policies
+consumed by backend and frontend. [ADR 0022](../architecture/adr/0022-evaluate-a-shared-frontend-backend-library.md)
+owns the decision and eligibility scope.
+
+Extract a declaration only when it has an identified cross-application consumer
+and remains framework-neutral. Keep the following in the application that owns
+them:
+
+- NestJS, React, Prisma, Apollo, Socket.IO, browser and Node runtime capabilities;
+- authorization enforcement, persistence and side effects;
+- signing, hashing, media bytes and storage access;
+- private or audience-incomplete runtime state;
+- translation copy and transport-specific client diagnostics.
+
+Use one explicit feature entry point such as `@pleey/domain/game` or
+`@pleey/domain/identity`. Do not add a catch-all package barrel or application
+re-export wrapper for a shared declaration. Preserve an application adapter only
+when its runtime representation or enum vocabulary intentionally differs from
+the shared public contract.
+
+Shared JavaScript and declaration files must remain aligned. Update both
+applications to consume a moved contract before deleting the superseded local
+file. A runtime projection must be mapped at its infrastructure or presentation
+boundary; importing a shared type does not grant the frontend access and does
+not authorize the backend to expose a private field.
+
+For package, lockfile, policy or API-surface changes, run:
+
+```bash
+node scripts/check-shared-domain-package.mjs
+npm --prefix application/backend run lint:ci
+npm --prefix application/frontend run lint:ci
+npm --prefix application/backend run test
+npm --prefix application/frontend run test
+```
+
+Changes under `packages/pleey-domain/` and to the shared guard take the full PR CI
+route. [P7 contract tests](../../../.github/actions/determine-pr-checks/shared-package-docker.spec.js)
+also verify Docker build, production, CI, Compose and lockfile wiring. Use a cold
+Docker build when changing package layout or Docker inputs, then verify a warm
+build reuses the expected layers:
+
+```bash
+docker compose --env-file /dev/null build --no-cache backend frontend
+docker compose --env-file /dev/null build backend frontend
+```
+
 ## Application base images
 
 The [backend](../../../application/backend/Dockerfile) and
