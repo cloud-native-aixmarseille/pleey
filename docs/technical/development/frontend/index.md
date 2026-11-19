@@ -10,6 +10,15 @@ This reference documents the current approved frontend state only. Update it in 
 - [Application patterns](./application-patterns.md)
 - [Standards and pagination](./standards.md)
 
+## Shared domain package
+
+Follow the canonical [shared domain package workflow](../index.md#shared-domain-package)
+for `@pleey/domain` extraction and validation. Import shared contracts directly
+from their feature entry point and map generated GraphQL or Socket.IO values at
+the infrastructure boundary. Shared frontend types describe public data; they
+must not bypass authenticated access, signed media renewal or server-produced
+permission decisions.
+
 ## Resource permissions
 
 Use [ADR 0014](../../architecture/adr/0014-unify-resource-scoped-permissions.md)

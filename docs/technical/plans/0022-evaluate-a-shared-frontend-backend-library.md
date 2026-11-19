@@ -3,7 +3,8 @@
 - Issue: add when created
 - Decision: [ADR 0022](../architecture/adr/0022-evaluate-a-shared-frontend-backend-library.md)
 - Updated: 2026-11-19
-- Status: In progress (P1-P7 implemented; ADR accepted; P8 pending)
+- Status: Implemented (P1-P9; documentation validation complete)
+- Implementation: [PR #537](https://github.com/cloud-native-aixmarseille/pleey/pull/537)
 
 This plan implements ADR 0022 through incremental slices that preserve current
 runtime authority and wire contracts while removing duplicated domain semantics.
@@ -240,10 +241,10 @@ Done when:
 
 ## P8 - Documentation and developer workflow updates
 
-- [ ] Update backend/frontend technical development docs where shared package rules
+- [x] Update backend/frontend technical development docs where shared package rules
       change contributor workflows.
-- [ ] Document extraction rules, adapter expectations, and validation requirements.
-- [ ] Keep this plan current with implemented slices and links to implementation PRs.
+- [x] Document extraction rules, adapter expectations, and validation requirements.
+- [x] Keep this plan current with implemented slices and links to implementation PRs.
 
 Done when:
 
@@ -298,27 +299,27 @@ Run the smallest relevant checks per slice, then required repository checks.
 
 Per application:
 
-- [ ] Backend lint/test: `npm run lint` and `npm run test` in [application/backend/](../../../application/backend)
-- [ ] Frontend lint/test: `npm run lint` and `npm run test` in [application/frontend/](../../../application/frontend)
+- [x] Backend lint/test: `npm run lint` and `npm run test` in [application/backend/](../../../application/backend)
+- [x] Frontend lint/test: `npm run lint` and `npm run test` in [application/frontend/](../../../application/frontend)
 
 Cross-application:
 
-- [ ] Shared fixtures pass for valid/invalid policy cases.
-- [ ] Serialized contracts (GraphQL/Socket where touched) remain compatible.
-- [ ] Package export map check passes.
-- [ ] Boundary guards (`check-module-exports`, pagination checks, resolver checks,
+- [x] Shared fixtures pass for valid/invalid policy cases.
+- [x] Serialized contracts (GraphQL/Socket where touched) remain compatible.
+- [x] Package export map check passes.
+- [x] Boundary guards (`check-module-exports`, pagination checks, resolver checks,
       naming checks, domain error checks) pass for both apps.
 
 Container validation:
 
-- [ ] Backend Docker build includes and compiles with shared package.
-- [ ] Frontend Docker build includes and bundles with shared package.
+- [x] Backend Docker build includes and compiles with shared package.
+- [x] Frontend Docker build includes and bundles with shared package.
 
 Acceptance gate:
 
-- [ ] Both apps compile/test in CI with shared package.
-- [ ] No required authority moved out of backend boundaries.
-- [ ] Wire contract changes are either absent or explicitly versioned and tested.
+- [x] Both apps compile/test in CI with shared package.
+- [x] No required authority moved out of backend boundaries.
+- [x] Wire contract changes are either absent or explicitly versioned and tested.
 
 ## PR slicing strategy
 
