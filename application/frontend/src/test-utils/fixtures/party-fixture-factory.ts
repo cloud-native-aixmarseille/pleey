@@ -1,9 +1,11 @@
+import type { GameId } from '@pleey/domain/game';
+import { GameType } from '@pleey/domain/game';
+import type { GuestId } from '@pleey/domain/identity';
 import { PartyIdentifier } from '../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { GameIdentifier } from '../../application/game/shared/services/identifiers/game-identifier';
 import { GuestIdentifier } from '../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
-import type { GameId } from '../../domains/game/entities/game';
 import type { HostPartyPermissions } from '../../domains/game/party/host/value-objects/host-party-permissions';
 import { HostPartyDisabledReason } from '../../domains/game/party/host/value-objects/host-party-permissions';
 import type { Party, PartyId, PartyPin } from '../../domains/game/party/shared/entities/party';
@@ -17,8 +19,6 @@ import {
 import { PartyRole } from '../../domains/game/party/shared/entities/party-role';
 import { DEFAULT_PARTY_SETTINGS } from '../../domains/game/party/shared/entities/party-settings';
 import { PartyStatus } from '../../domains/game/party/shared/entities/party-status';
-import { GameType } from '../../domains/game/types/shared/game-type';
-import type { GuestId } from '../../domains/identity/entities/guest';
 import type { UserId } from '../../domains/identity/entities/user';
 import { ThemeFixtureFactory } from './theme-fixture-factory';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';

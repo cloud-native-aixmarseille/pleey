@@ -1,6 +1,6 @@
+import { OrganizationPermissionReason } from '@pleey/domain/organization';
+import { ProjectPermissionReason } from '@pleey/domain/project';
 import type { ActionPermission } from '@pleey/domain/shared/primitives';
-import { OrganizationActionDisabledReason } from '../../../../domains/organization/value-objects/organization-permissions';
-import { ProjectActionDisabledReason } from '../../../../domains/project/value-objects/project-permissions';
 import { usePresentationTranslation } from '../../../shared/i18n/use-presentation-translation';
 
 export function useWorkspacePermissionReason() {
@@ -8,15 +8,15 @@ export function useWorkspacePermissionReason() {
   return (permission: ActionPermission | undefined): string | null => {
     if (permission?.allowed) return null;
     switch (permission?.reason) {
-      case OrganizationActionDisabledReason.NOT_A_MEMBER:
+      case OrganizationPermissionReason.NOT_A_MEMBER:
         return t('organization.permissions.membershipRequired');
-      case OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS:
+      case OrganizationPermissionReason.INSUFFICIENT_PERMISSIONS:
         return t('organization.permissions.managementRequired');
-      case OrganizationActionDisabledReason.CANNOT_REMOVE_LAST_OWNER:
+      case OrganizationPermissionReason.CANNOT_REMOVE_LAST_OWNER:
         return t('organization.permissions.lastOwner');
-      case ProjectActionDisabledReason.CANNOT_DELETE_LAST_PROJECT:
+      case ProjectPermissionReason.CANNOT_DELETE_LAST_PROJECT:
         return t('project.permissions.lastProject');
-      case ProjectActionDisabledReason.UNAVAILABLE:
+      case ProjectPermissionReason.UNAVAILABLE:
       default:
         return t('common.permissions.unavailable');
     }

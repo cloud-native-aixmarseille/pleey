@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { GuestId } from '@pleey/domain/identity';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyStageIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
@@ -17,7 +18,6 @@ import {
   type PartyRuntimeContext,
   PartyRuntimePhase,
 } from '../../../../domain/game/party/shared/entities/party-runtime-context';
-import type { GuestId } from '../../../../domain/identity/entities/guest';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import { createDomainError } from '../../../../domain/shared/errors/domain-error';
 

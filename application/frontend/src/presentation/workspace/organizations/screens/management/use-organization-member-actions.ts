@@ -1,6 +1,6 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { type RefObject, useEffect, useState } from 'react';
-import { OrganizationRole } from '../../../../../domains/organization/entities/organization';
 import type { OrganizationMember } from '../../../../../domains/organization/entities/organization-member';
 import type {
   AddOrganizationMemberCommand,

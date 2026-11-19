@@ -1,3 +1,5 @@
+import type { GameType } from '@pleey/domain/game';
+import type { GuestId } from '@pleey/domain/identity';
 import type {
   PartyJoinReceipt,
   PartySubmitActionCommand,
@@ -6,8 +8,6 @@ import { PartyJoinReceiptStatus } from '../../../../domains/game/party/player/po
 import type { PartyId, PartyPin } from '../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyRuntimeNoticeKind } from '../../../../domains/game/party/shared/ports/party-observation.port';
-import type { GameType } from '../../../../domains/game/types/shared/game-type';
-import type { GuestId } from '../../../../domains/identity/entities/guest';
 import type { UserId } from '../../../../domains/identity/entities/user';
 
 export type PartyObservationPayload = Omit<PartyObservation, 'gameType' | 'permissions'> & {

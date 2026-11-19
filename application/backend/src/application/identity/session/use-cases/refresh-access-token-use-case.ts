@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { AuthToken } from '@pleey/domain/identity';
 import { InvalidRefreshTokenError, RefreshTokenExpiredError } from '../../../../domain/identity/errors';
 import {
   type AuthTokenResponse,
@@ -7,7 +8,6 @@ import {
 } from '../../../../domain/identity/ports/auth-token.service';
 import type { UserAuthenticationRepository } from '../../../../domain/identity/ports/user-authentication.repository';
 import { UserAuthenticationRepositoryProvider } from '../../../../domain/identity/ports/user-authentication.repository';
-import type { AuthToken } from '../../../../domain/identity/types/auth-token';
 @Injectable()
 export class RefreshAccessTokenUseCase {
   constructor(

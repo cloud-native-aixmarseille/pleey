@@ -1,11 +1,10 @@
-import type { QuizQuestionId, QuizQuestionKind } from '@pleey/domain/game';
+import type { GameTypeId, QuizQuestionId, QuizQuestionKind } from '@pleey/domain/game';
 import { inject, injectable } from 'inversify';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { QuizQuestionIdentifier } from '../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { collectPaginatedItems } from '../../../../application/shared/services/collect-paginated-items';
 import type { QuizManagementRepository } from '../../../../domains/game/types/quiz/ports/quiz-management.repository';
-import type { GameTypeId } from '../../../../domains/game/types/shared/game-type';
 import type {
   PlayableContentImportCreationInput,
   PlayableContentImportCreationResult,

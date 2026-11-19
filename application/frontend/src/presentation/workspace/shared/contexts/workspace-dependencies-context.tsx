@@ -1,8 +1,8 @@
+import type { GameType } from '@pleey/domain/game';
 import { createContext, createElement, type ReactElement, type ReactNode, useContext } from 'react';
 import { OrganizationFormFacade } from '../../../../application/workspace/organizations/facades/organization-form.facade';
 import { ProjectFormFacade } from '../../../../application/workspace/projects/facades/project-form.facade';
 import { ThemeManagementFacade } from '../../../../application/workspace/themes/facades/theme-management.facade';
-import type { GameType } from '../../../../domains/game/types/shared/game-type';
 import type { OrganizationId } from '../../../../domains/organization/entities/organization';
 import type { ProjectId } from '../../../../domains/project/entities/project';
 import { PresentationRuntimeDependencyProviderRequiredError } from '../../../../domains/shared/errors/presentation-context-error-code';

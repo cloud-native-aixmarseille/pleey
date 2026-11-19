@@ -1,6 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
+import type { AuthToken } from '@pleey/domain/identity';
 import { describe, expect, it } from 'vitest';
-import type { AuthToken } from '../../../domain/identity/types/auth-token';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { JwtAuthTokenService } from './jwt-auth-token-service';
 

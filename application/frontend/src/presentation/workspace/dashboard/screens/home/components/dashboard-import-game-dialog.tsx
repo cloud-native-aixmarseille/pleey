@@ -1,6 +1,6 @@
+import { GameType } from '@pleey/domain/game';
 import type { PlayableContentImportExampleProvider } from '../../../../../../application/game/types/shared/ports/playable-content-import-example-provider.port';
 import { PlayableContentImportExampleFormat as ImportExampleFormat } from '../../../../../../application/game/types/shared/ports/playable-content-import-example-provider.port';
-import { GameType } from '../../../../../../domains/game/types/shared/game-type';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';

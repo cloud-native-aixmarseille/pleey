@@ -1,7 +1,7 @@
+import type { GameType } from '@pleey/domain/game';
 import { vi } from 'vitest';
 import type { GameTypeRegistry } from '../../application/game/types/shared/services/game-type-registry';
 import type { DashboardGameListItem } from '../../domains/game/management/entities/dashboard-game-list-item';
-import type { GameType } from '../../domains/game/types/shared/game-type';
 
 interface GameTypeRegistryMock {
   enrichGames(items: readonly DashboardGameListItem[]): DashboardGameListItem[];

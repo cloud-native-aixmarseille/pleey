@@ -1,6 +1,6 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { describe, expect, it } from 'vitest';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
-import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { ThemeErrorCode } from '../../../../domain/theme/errors/theme-error';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { ThemeFixtureFactory } from '../../../../test-utils/fixtures/theme-fixture-factory';

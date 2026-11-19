@@ -1,9 +1,9 @@
+import type { GameType } from '@pleey/domain/game';
 import { useCallback, useMemo, useState } from 'react';
 import type {
   DashboardGameSortDirection,
   DashboardGameSortField,
 } from '../../../../domains/game/management/entities/dashboard-game-list-query';
-import type { GameType } from '../../../../domains/game/types/shared/game-type';
 
 export interface GameListFiltersState {
   readonly search: string;

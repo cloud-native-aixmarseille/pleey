@@ -1,6 +1,5 @@
+import type { GameId, GameTypeId } from '@pleey/domain/game';
 import type { ProjectId } from '../../../../project/entities/project';
-import type { GameId } from '../../../entities/game';
-import type { GameTypeId } from '../../shared/entities/game-type';
 import type { Quiz, QuizId } from '../entities/quiz';
 import type { QuizQuestionCreationData } from './quiz-question.repository';
 

@@ -1,4 +1,4 @@
-import type { GameId } from '../../../../../../domains/game/entities/game';
+import type { GameId } from '@pleey/domain/game';
 import type { Party } from '../../../../../../domains/game/party/shared/entities/party';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { FeedbackState, FeedbackStateGate } from '../../../../../shared/ui/feedback/feedback-state-gate';

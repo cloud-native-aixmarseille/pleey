@@ -1,5 +1,5 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import type { FormEvent } from 'react';
-import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
 import type { OrganizationMember } from '../../../../../../domains/organization/entities/organization-member';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { Badge } from '../../../../../shared/ui/feedback/badge';

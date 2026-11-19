@@ -1,10 +1,10 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import type { UserId } from '../../../domain/identity/entities/user';
 import type { OrganizationId } from '../../../domain/organization/entities/organization';
 import {
   OrganizationMember,
   type OrganizationMemberId,
 } from '../../../domain/organization/entities/organization-member';
-import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import { backendTestIdentifiers } from '../../branded-identifiers';
 
 type OrganizationMemberFixtureParams = {

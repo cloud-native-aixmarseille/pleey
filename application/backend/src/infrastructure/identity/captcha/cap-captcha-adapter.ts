@@ -1,12 +1,12 @@
 import { createHash, createHmac } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
+import type { CaptchaAction } from '@pleey/domain/identity';
 import type {
   CaptchaChallenge,
   CaptchaPort,
   CaptchaProof,
   CaptchaRedemption,
 } from '../../../application/identity/captcha/ports/captcha.port';
-import type { CaptchaAction } from '../../../domain/identity/enums/captcha-action.enum';
 import { CaptchaInvalidError } from '../../../domain/identity/errors/captcha-invalid.error';
 import { CaptchaRateLimitedError } from '../../../domain/identity/errors/captcha-rate-limited.error';
 import { CaptchaUnavailableError } from '../../../domain/identity/errors/captcha-unavailable.error';

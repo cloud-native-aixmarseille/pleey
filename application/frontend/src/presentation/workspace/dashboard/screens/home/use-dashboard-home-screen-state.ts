@@ -1,11 +1,11 @@
 import { PlayableContentImportErrorKind, resolvePlayableContentImportErrorKind } from '@pleey/domain/errors';
+import type { GameId } from '@pleey/domain/game';
+import { GameType } from '@pleey/domain/game';
 import { useEffect, useMemo, useState } from 'react';
 import type { DashboardHomeActionsFacade } from '../../../../../application/workspace/dashboard/facades/dashboard-home-actions.facade';
 import type { DashboardWorkspaceGateway } from '../../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
-import type { GameId } from '../../../../../domains/game/entities/game';
 import type { DashboardGameListQuery } from '../../../../../domains/game/management/entities/dashboard-game-list-query';
 import type { Party } from '../../../../../domains/game/party/shared/entities/party';
-import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import type { GameTypeDescriptor } from '../../../../../domains/game/types/shared/game-type-catalog';
 import { resolvePresentationErrorCode } from '../../../../shared/errors/resolve-presentation-error-message';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';

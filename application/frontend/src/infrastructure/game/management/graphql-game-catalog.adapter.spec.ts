@@ -1,10 +1,7 @@
+import { CreatePartyDisabledReason, LaunchReadinessDisabledReason } from '@pleey/domain/game';
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
 import { GameTypeParser } from '../../../application/game/types/shared/services/game-type-parser';
-import {
-  CreatePartyDisabledReason,
-  LaunchReadinessDisabledReason,
-} from '../../../domains/game/management/entities/dashboard-game-list-item';
 import { GameIdentifierMockFactory } from '../../../test-utils/mocks/game-identifier-mock-factory';
 import { GameTypeIdentifierMockFactory } from '../../../test-utils/mocks/game-type-identifier-mock-factory';
 import { GraphqlClientMockFactory } from '../../../test-utils/mocks/graphql-client-mock-factory';

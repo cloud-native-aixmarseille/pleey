@@ -1,7 +1,7 @@
 import { Body, Controller, Header, HttpCode, Inject, Param, ParseEnumPipe, Post, Req } from '@nestjs/common';
+import { CaptchaAction } from '@pleey/domain/identity';
 import type { Request } from 'express';
 import { type CaptchaPort, CaptchaPortProvider } from '../../../application/identity/captcha/ports/captcha.port';
-import { CaptchaAction } from '../../../domain/identity/enums/captcha-action.enum';
 import { CaptchaProofInput } from './types/captcha-proof-input';
 
 @Controller('api/identity/captcha')

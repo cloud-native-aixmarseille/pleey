@@ -1,5 +1,5 @@
+import { GameType } from '@pleey/domain/game';
 import type { GameTypeCatalogGateway } from '../../application/game/types/shared/gateways/game-type-catalog.gateway';
-import { GameType } from '../../domains/game/types/shared/game-type';
 import type { GameTypeDescriptor } from '../../domains/game/types/shared/game-type-catalog';
 import { StaticGameTypeCatalog } from '../../domains/game/types/shared/static-game-type-catalog';
 import { createGameTypeDescriptorFixture } from '../fixtures/game-type-descriptor-fixture-factory';

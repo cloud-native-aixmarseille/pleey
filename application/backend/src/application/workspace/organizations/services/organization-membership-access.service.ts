@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { OrganizationRole } from '@pleey/domain/organization';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { Organization, OrganizationId } from '../../../../domain/organization/entities/organization';
 import type { OrganizationMember } from '../../../../domain/organization/entities/organization-member';
-import type { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import { OrganizationNotFoundError } from '../../../../domain/organization/errors';
 import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';

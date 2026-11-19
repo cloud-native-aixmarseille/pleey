@@ -1,6 +1,6 @@
+import { GameType } from '@pleey/domain/game';
 import { createElement } from 'react';
 import { describe, expect, it } from 'vitest';
-import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import type { PartyGameTypeRuntimeViewContributor } from '../party-game-type-runtime-view-contributor';
 import { AppPartyGameTypeRuntimeRegistry } from './app-party-game-type-runtime-registry';
 

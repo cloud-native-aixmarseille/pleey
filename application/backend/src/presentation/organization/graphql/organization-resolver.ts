@@ -1,5 +1,6 @@
 import { UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Args, Context, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { OrganizationRole } from '@pleey/domain/organization';
 import { GetOrganizationDashboardUseCase } from '../../../application/workspace/dashboard/use-cases/get-organization-dashboard-use-case';
 import { AddMemberToOrganizationUseCase } from '../../../application/workspace/organizations/use-cases/add-member-to-organization-use-case';
 import { CreateOrganizationUseCase } from '../../../application/workspace/organizations/use-cases/create-organization-use-case';
@@ -13,7 +14,6 @@ import { OrganizationMemberIdentifier } from '../../../application/workspace/sha
 import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '../../../domain/game/party/shared/entities/party-settings';
 import type { UserId } from '../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
-import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';
 import { AddOrganizationMemberInput } from './types/add-organization-member-input';
 import { CreateOrganizationInput } from './types/create-organization-input';

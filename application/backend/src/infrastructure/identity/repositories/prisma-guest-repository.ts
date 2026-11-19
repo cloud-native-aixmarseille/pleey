@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import type { GuestId } from '@pleey/domain/identity';
 import type { Guest as PrismaGuest } from '@prisma/client';
 import { GuestIdentifier } from '../../../application/identity/shared/services/identifiers/guest-identifier';
-import { Guest, type GuestId } from '../../../domain/identity/entities/guest';
+import { Guest } from '../../../domain/identity/entities/guest';
 import type { GuestRepository } from '../../../domain/identity/ports/guest.repository';
 import { PrismaService } from '../../database/prisma-service';
 

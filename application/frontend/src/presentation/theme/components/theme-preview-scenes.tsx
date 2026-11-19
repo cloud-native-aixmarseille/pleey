@@ -1,7 +1,7 @@
+import type { GuestId } from '@pleey/domain/identity';
 import { useState } from 'react';
 import type { PartyObservationPlayer } from '../../../domains/game/party/shared/entities/party-observation-player';
 import { PartyPlayerIdentityKind } from '../../../domains/game/party/shared/entities/party-player-identity';
-import type { GuestId } from '../../../domains/identity/entities/guest';
 import { PartyLobbyPlayersPanel } from '../../game/party/shared/screens/components/party-lobby-players-panel';
 import { PartyStandingsList } from '../../game/party/shared/screens/components/party-standings-list';
 import { PlayableChoiceResultActionTile } from '../../game/types/shared/screens/live/components/playable-choice-result-action-tile';

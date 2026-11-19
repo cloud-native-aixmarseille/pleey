@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import type { GameType } from '@pleey/domain/game';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import type { PlayerPartyObservation } from '../../../../../domain/game/party/player/entities/player-party-observation';
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
-import type { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import type { PlayerPartyObservationMessage } from './party-observation-message';
 
 @Injectable()

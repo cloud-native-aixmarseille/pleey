@@ -1,5 +1,5 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { IsEnum, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
-import { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 
 /**
  * DTO for adding a member to an organization

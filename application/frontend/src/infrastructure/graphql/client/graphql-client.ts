@@ -11,13 +11,13 @@ import {
 } from '@apollo/client';
 import { SetContextLink } from '@apollo/client/link/context';
 import { canonicalStringify, print } from '@apollo/client/utilities';
+import type { AuthSession } from '@pleey/domain/identity';
 import UploadHttpLink from 'apollo-upload-client/UploadHttpLink.mjs';
 import { inject, injectable } from 'inversify';
 import type {
   AuthSessionTransport,
   AuthSessionTransportHandlers,
 } from '../../../application/identity/ports/auth-session-transport.port';
-import type { AuthSession } from '../../../domains/identity/entities/auth-session';
 import { AUTH_ERROR_DEFINITIONS, AuthErrorCode } from '../../../domains/identity/errors/auth-error-code';
 import { GenericAuthError } from '../../../domains/identity/errors/generic-auth-error';
 import { AuthPayloadInspector } from '../../../domains/identity/services/auth-payload-inspector';

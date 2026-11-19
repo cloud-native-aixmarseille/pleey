@@ -1,8 +1,8 @@
+import { OrganizationPermissionReason } from '@pleey/domain/organization';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type ComponentProps, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { OrganizationActionDisabledReason } from '../../../../../../domains/organization/value-objects/organization-permissions';
 import { ProjectFixtureFactory } from '../../../../../../test-utils/fixtures/project-fixture-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { OrganizationProjectsSection } from './organization-projects-section';
@@ -102,7 +102,7 @@ describe('OrganizationProjectsSection', () => {
     renderWithProviders(
       <OrganizationProjectsSection
         actionErrorMessage={null}
-        createPermission={{ allowed: false, reason: OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS }}
+        createPermission={{ allowed: false, reason: OrganizationPermissionReason.INSUFFICIENT_PERMISSIONS }}
         createButtonLabel="Create project"
         eyebrow="Projects"
         onCreateProject={vi.fn()}

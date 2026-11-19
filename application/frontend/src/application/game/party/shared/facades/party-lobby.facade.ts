@@ -1,3 +1,4 @@
+import type { GuestId } from '@pleey/domain/identity';
 import { inject, injectable } from 'inversify';
 import {
   type HostPartyPlayerControlCommand,
@@ -23,7 +24,6 @@ import {
 } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { Party, PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
-import type { GuestId } from '../../../../../domains/identity/entities/guest';
 
 export interface PartyLobbyGateway {
   clearGuestId(pin: PartyPin): void;

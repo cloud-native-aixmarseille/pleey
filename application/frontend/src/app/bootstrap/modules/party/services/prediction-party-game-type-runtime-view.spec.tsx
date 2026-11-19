@@ -1,6 +1,6 @@
+import { GameType } from '@pleey/domain/game';
 import { isValidElement, type ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import type { PartyGameTypeRuntimeView } from '../../../../../presentation/game/party/shared/contexts/party-game-type-runtime-registry-context';
 import { PredictionHostResultPanel } from '../../../../../presentation/game/types/prediction/screens/live/components/prediction-host-result-panel';
 import { PredictionHostStagePanel } from '../../../../../presentation/game/types/prediction/screens/live/components/prediction-host-stage-panel';

@@ -1,5 +1,5 @@
+import type { GameTypeId } from '@pleey/domain/game';
 import { GameTypeIdentifier } from '../../application/game/types/shared/services/game-type-identifier';
-import type { GameTypeId } from '../../domains/game/types/shared/game-type';
 import type {
   PlayableChoiceOption,
   PlayableManagementItem,

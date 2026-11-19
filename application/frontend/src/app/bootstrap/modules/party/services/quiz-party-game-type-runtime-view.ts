@@ -1,6 +1,6 @@
+import { GameType } from '@pleey/domain/game';
 import { injectable } from 'inversify';
 import { createElement } from 'react';
-import { GameType } from '../../../../../domains/game/types/shared/game-type';
 import type { PartyGameTypeRuntimeView } from '../../../../../presentation/game/party/shared/contexts/party-game-type-runtime-registry-context';
 import { QuizHostResultPanel } from '../../../../../presentation/game/types/quiz/screens/live/components/quiz-host-result-panel';
 import { QuizHostStagePanel } from '../../../../../presentation/game/types/quiz/screens/live/components/quiz-host-stage-panel';

@@ -1,4 +1,4 @@
-import type { GameId } from '../../../entities/game';
+import type { GameId } from '@pleey/domain/game';
 import type { PartyRole } from './party-role';
 import type { PartyStatus } from './party-status';
 

@@ -1,8 +1,8 @@
+import type { GuestId } from '@pleey/domain/identity';
 import type { Party, PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
-import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import type { UserId } from '../../../../../domains/identity/entities/user';
 import { PartyLobbyRouteKind } from './party-lobby-screen-route-utils';
 

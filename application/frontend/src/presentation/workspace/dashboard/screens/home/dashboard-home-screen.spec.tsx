@@ -1,13 +1,13 @@
+import type { GameTypeId } from '@pleey/domain/game';
+import { CreatePartyDisabledReason } from '@pleey/domain/game';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, vi, it as vitestIt } from 'vitest';
 import type { DashboardWorkspaceGateway } from '../../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
-import { CreatePartyDisabledReason } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
 import { PartyRole } from '../../../../../domains/game/party/shared/entities/party-role';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
-import type { GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type { GameTypeDescriptor } from '../../../../../domains/game/types/shared/game-type-catalog';
 import type { Organization, OrganizationId } from '../../../../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../../../../domains/organization/entities/organization-dashboard';

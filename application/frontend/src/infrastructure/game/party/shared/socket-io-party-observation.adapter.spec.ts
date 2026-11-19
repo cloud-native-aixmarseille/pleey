@@ -1,3 +1,4 @@
+import { GameType } from '@pleey/domain/game';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { GameTypeParser } from '../../../../application/game/types/shared/services/game-type-parser';
@@ -5,7 +6,6 @@ import { PartyJoinReceiptStatus } from '../../../../domains/game/party/player/po
 import { PartyPlayerIdentityKind } from '../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyRuntimePhase } from '../../../../domains/game/party/shared/entities/party-runtime-context';
 import { DEFAULT_PARTY_SETTINGS } from '../../../../domains/game/party/shared/entities/party-settings';
-import { GameType } from '../../../../domains/game/types/shared/game-type';
 import type { ThemeDocument } from '../../../../domains/theme/entities/theme-document';
 import { ThemeErrorCode } from '../../../../domains/theme/errors/theme-error';
 import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';

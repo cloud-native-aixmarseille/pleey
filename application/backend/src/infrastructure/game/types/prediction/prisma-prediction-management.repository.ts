@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import type { GameId, GameTypeId } from '@pleey/domain/game';
+import { GameType } from '@pleey/domain/game';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { GameTypeIdentifier } from '../../../../application/game/types/shared/services/game-type-identifier';
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
-import type { GameId } from '../../../../domain/game/entities/game';
 import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
 import { Prediction, type PredictionId } from '../../../../domain/game/types/prediction/entities/prediction';
 import {
@@ -15,8 +16,6 @@ import type {
   PredictionManagementRepository,
   UpdatePredictionData,
 } from '../../../../domain/game/types/prediction/ports/prediction-management.repository';
-import type { GameTypeId } from '../../../../domain/game/types/shared/entities/game-type';
-import { GameType } from '../../../../domain/game/types/shared/entities/game-type';
 import type { ProjectId } from '../../../../domain/project/entities/project';
 import { PrismaService } from '../../../database/prisma-service';
 

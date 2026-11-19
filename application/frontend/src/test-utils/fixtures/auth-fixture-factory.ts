@@ -1,5 +1,5 @@
+import type { AuthSession } from '@pleey/domain/identity';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
-import type { AuthSession } from '../../domains/identity/entities/auth-session';
 import type { User, UserId } from '../../domains/identity/entities/user';
 import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 

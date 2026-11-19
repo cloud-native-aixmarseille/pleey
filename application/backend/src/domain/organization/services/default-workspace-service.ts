@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { OrganizationRole } from '@pleey/domain/organization';
 import { DEFAULT_PARTY_SETTINGS } from '../../game/party/shared/entities/party-settings';
 import type { UserId } from '../../identity/entities/user';
 import type { ProjectRepository } from '../../project/ports/project.repository';
 import { ProjectRepositoryProvider } from '../../project/ports/project.repository';
-import { OrganizationRole } from '../enums/organization-role.enum';
 import type { OrganizationRepository } from '../ports/organization.repository';
 import { OrganizationRepositoryProvider } from '../ports/organization.repository';
 import type { OrganizationMemberRepository } from '../ports/organization-member.repository';

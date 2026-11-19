@@ -1,3 +1,4 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { vi } from 'vitest';
 import { QuizQuestionIdentifier } from '../../../application/game/types/quiz/services/quiz-question-identifier';
 import { GetQuizQuestionMediaAccessUseCase } from '../../../application/game/types/quiz/use-cases/get-quiz-question-media-access-use-case';
@@ -8,7 +9,6 @@ import { QuizQuestion, QuizQuestionType } from '../../../domain/game/types/quiz/
 import type { QuizManagementRepository } from '../../../domain/game/types/quiz/ports/quiz-management.repository';
 import type { QuizQuestionRepository } from '../../../domain/game/types/quiz/ports/quiz-question.repository';
 import { OrganizationMember } from '../../../domain/organization/entities/organization-member';
-import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import type { OrganizationMemberRepository } from '../../../domain/organization/ports/organization-member.repository';
 import { Project } from '../../../domain/project/entities/project';
 import type { ProjectRepository } from '../../../domain/project/ports/project.repository';

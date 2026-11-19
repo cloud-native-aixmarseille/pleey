@@ -1,7 +1,7 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
 import { OrganizationFixtureFactory } from '../../../../../../test-utils/fixtures/organization-fixture-factory';
 import { OrganizationScreenFixtureFactory } from '../../../../../../test-utils/fixtures/organization-screen-fixture-factory';
 import { coerceUuidV7TestValue } from '../../../../../../test-utils/fixtures/uuid-v7-test-value';

@@ -3,7 +3,7 @@ import type { ActionPermission } from '@pleey/domain/shared/primitives';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { createActionPermissionType } from '../../../shared/graphql/types/action-permission-type';
 
-registerEnumType(OrganizationErrorCode, { name: 'OrganizationActionDisabledReason' });
+registerEnumType(OrganizationErrorCode, { name: 'OrganizationPermissionReason' });
 const OrganizationActionPermissionType = createActionPermissionType<OrganizationErrorCode>(
   'OrganizationActionPermission',
   OrganizationErrorCode,

@@ -31,7 +31,8 @@ export function loadDataModule(filename) {
   const exports = {};
   const require = (specifier) => {
     if (!specifier.startsWith(".")) throw new Error(`Data modules cannot import packages: ${filename}`);
-    return loadDataModule(path.resolve(path.dirname(filename), `${specifier}.ts`));
+    const resolvedSpecifier = path.extname(specifier) ? specifier : `${specifier}.ts`;
+    return loadDataModule(path.resolve(path.dirname(filename), resolvedSpecifier));
   };
   vm.runInNewContext(output, { exports, require }, { filename, timeout: 1000 });
   return exports;

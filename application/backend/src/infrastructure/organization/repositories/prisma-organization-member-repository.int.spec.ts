@@ -1,9 +1,9 @@
+import { OrganizationRole } from '@pleey/domain/organization';
 import { describe, expect, it } from 'vitest';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
-import { OrganizationRole } from '../../../domain/organization/enums/organization-role.enum';
 import { OrganizationMembershipPolicy } from '../../../domain/organization/services/organization-membership-policy';
 import { createPersistedOrganizationFixture } from '../../../test-utils/fixtures/integration/organization.fixture';
 import { PrismaIntegrationTestHarness } from '../../../test-utils/fixtures/integration/prisma-integration-test-harness';

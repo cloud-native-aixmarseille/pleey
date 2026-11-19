@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CaptchaAction } from '../../../../domain/identity/enums/captcha-action.enum';
+import { CaptchaAction } from '@pleey/domain/identity';
 import {
   type PasswordRecoveryPort,
   PasswordRecoveryPortProvider,

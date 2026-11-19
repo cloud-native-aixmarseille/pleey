@@ -1,3 +1,4 @@
+import type { GuestId } from '@pleey/domain/identity';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
 import { PartyJoinReceiptStatus } from '../../../../../domains/game/party/player/ports/party-player.port';
@@ -6,7 +7,6 @@ import type { PartyObservation } from '../../../../../domains/game/party/shared/
 import type { PartyJoiningPlayerIdentity } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import type { PartyObservationConnectionState } from '../../../../../domains/game/party/shared/ports/party-observation.port';
-import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import type { UserId } from '../../../../../domains/identity/entities/user';
 
 type PartyObservationPlayer = PartyObservation['players'][number];

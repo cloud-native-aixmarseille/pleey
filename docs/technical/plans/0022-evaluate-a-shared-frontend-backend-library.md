@@ -2,8 +2,8 @@
 
 - Issue: add when created
 - Decision: [ADR 0022](../architecture/adr/0022-evaluate-a-shared-frontend-backend-library.md)
-- Updated: 2026-11-18
-- Status: In progress (P1-P3 implemented, P4-P5 in validation)
+- Updated: 2026-11-19
+- Status: In progress (P1-P3 implemented, P4-P6 in validation)
 
 This plan implements ADR 0022 through incremental slices that preserve current
 runtime authority and wire contracts while removing duplicated domain semantics.
@@ -200,10 +200,20 @@ Done when:
 
 ## P6 - Duplication cleanup and hardening
 
-- [ ] Remove superseded duplicate code paths from backend/frontend domains.
-- [ ] Keep local adapters explicit and documented.
-- [ ] Confirm no remaining accidental cross-app dependencies.
-- [ ] Tighten package export map to only used APIs.
+- [x] Remove superseded duplicate code paths from backend/frontend domains.
+- [x] Keep local adapters explicit and documented.
+- [x] Confirm no remaining accidental cross-app dependencies.
+- [x] Tighten package export map to only used APIs.
+
+Retained adapters after cleanup:
+
+- backend organization/project permission value objects retain domain error enums
+  as their reason types; shared permission types describe the public wire
+  vocabulary;
+- backend entities retain constructors and authority-bearing behavior while
+  importing shared identifiers and deterministic values;
+- GraphQL-generated enums remain generated transport artifacts and are decoded
+  into shared/domain vocabulary at repository boundaries.
 
 Done when:
 

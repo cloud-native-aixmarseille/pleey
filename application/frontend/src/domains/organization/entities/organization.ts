@@ -1,14 +1,8 @@
-import { type OrganizationId as SharedOrganizationId } from '@pleey/domain/organization';
+import type { OrganizationPermissions } from '@pleey/domain/organization';
+import { type OrganizationRole, type OrganizationId as SharedOrganizationId } from '@pleey/domain/organization';
 import type { PartySettings } from '../../game/party/shared/entities/party-settings';
 import type { ThemeId } from '../../theme/entities/theme-id';
-import type { OrganizationPermissions } from '../value-objects/organization-permissions';
 export type OrganizationId = SharedOrganizationId;
-
-export enum OrganizationRole {
-  OWNER = 'owner',
-  MANAGER = 'manager',
-  MEMBER = 'member',
-}
 
 export interface Organization {
   readonly permissions: OrganizationPermissions;

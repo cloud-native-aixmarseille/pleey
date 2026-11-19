@@ -1,3 +1,5 @@
+import { GameType } from '@pleey/domain/game';
+import type { GuestId } from '@pleey/domain/identity';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, vi, it as vitestIt } from 'vitest';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
@@ -22,8 +24,6 @@ import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/enti
 import { DEFAULT_PARTY_SETTINGS } from '../../../../../domains/game/party/shared/entities/party-settings';
 import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
-import { GameType } from '../../../../../domains/game/types/shared/game-type';
-import type { GuestId } from '../../../../../domains/identity/entities/guest';
 import type { User, UserId } from '../../../../../domains/identity/entities/user';
 import { AuthFixtureFactory } from '../../../../../test-utils/fixtures/auth-fixture-factory';
 import { PartyFixtureFactory } from '../../../../../test-utils/fixtures/party-fixture-factory';

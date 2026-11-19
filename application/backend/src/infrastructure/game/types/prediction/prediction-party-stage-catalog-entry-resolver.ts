@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import type { GameId } from '@pleey/domain/game';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyStageIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import type { PartyStageCatalogEntry } from '../../../../application/game/types/shared/ports/party-stage-catalog.port';
-import type { GameId } from '../../../../domain/game/entities/game';
 import type { PartyStageId } from '../../../../domain/game/party/shared/entities/party-stage';
 import { PrismaService } from '../../../database/prisma-service';
 import type { GameTypePartyStageCatalogProvider } from '../shared/game-type-party-stage-catalog-provider-registry';

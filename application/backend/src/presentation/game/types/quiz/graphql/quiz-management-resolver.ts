@@ -1,5 +1,6 @@
 import { ParseUUIDPipe, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Args, Context, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { GameType } from '@pleey/domain/game';
 import { QuizQuestionIdentifier } from '../../../../../application/game/types/quiz/services/quiz-question-identifier';
 import { QuizSelectableOptionIdentifier } from '../../../../../application/game/types/quiz/services/quiz-selectable-option-identifier';
 import { CreateQuizFromImportUseCase } from '../../../../../application/game/types/quiz/use-cases/create-quiz-from-import-use-case';
@@ -20,7 +21,6 @@ import {
   QUIZ_ERROR_DEFINITIONS,
   QuizErrorCode,
 } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
-import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
 import { createDomainError } from '../../../../../domain/shared/errors/domain-error';

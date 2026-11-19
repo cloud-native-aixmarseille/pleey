@@ -1,9 +1,9 @@
 import 'reflect-metadata';
+import type { GameId } from '@pleey/domain/game';
+import { GameType, type GameTypeId } from '@pleey/domain/game';
 import { describe, expect, it, vi } from 'vitest';
 import { StaticGameTypeCatalogFactory } from '../../../../../app/bootstrap/modules/workspace/container';
-import type { GameId } from '../../../../../domains/game/entities/game';
 import type { DashboardGameListItem } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
-import { GameType, type GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import { GameIdentifierMockFactory } from '../../../../../test-utils/mocks/game-identifier-mock-factory';
 import { GameTypeIdentifierMockFactory } from '../../../../../test-utils/mocks/game-type-identifier-mock-factory';
 import { ProjectIdentifierMockFactory } from '../../../../../test-utils/mocks/project-identifier-mock-factory';

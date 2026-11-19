@@ -1,6 +1,6 @@
 import 'reflect-metadata';
+import { OrganizationPermissionReason } from '@pleey/domain/organization';
 import { describe, expect, it } from 'vitest';
-import { OrganizationActionDisabledReason } from '../../domains/organization/value-objects/organization-permissions';
 import { GraphqlThemeRepositoryFixtureFactory } from '../../test-utils/fixtures/graphql-theme-repository-fixture-factory';
 import { ThemeFixtureFactory } from '../../test-utils/fixtures/theme-fixture-factory';
 
@@ -31,7 +31,7 @@ describe('GraphqlThemeRepository', () => {
     // Act
     const result = await repository.permissions(fixtures.createManagedTheme().organizationId);
     // Assert
-    const denied = { allowed: false, reason: OrganizationActionDisabledReason.UNAVAILABLE };
+    const denied = { allowed: false, reason: OrganizationPermissionReason.UNAVAILABLE };
     expect(result).toEqual({ read: denied, create: denied, update: denied, uploadAsset: denied });
   });
 });

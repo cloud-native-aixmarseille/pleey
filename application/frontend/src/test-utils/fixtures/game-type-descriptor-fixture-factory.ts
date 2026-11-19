@@ -1,4 +1,4 @@
-import { GameType } from '../../domains/game/types/shared/game-type';
+import { GameType } from '@pleey/domain/game';
 import type { GameTypeDescriptor } from '../../domains/game/types/shared/game-type-catalog';
 
 let sequence = 0;

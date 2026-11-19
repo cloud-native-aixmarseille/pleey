@@ -1,5 +1,5 @@
+import { GameType } from '@pleey/domain/game';
 import { describe, expect, it, vi } from 'vitest';
-import { GameType } from '../../../domain/game/types/shared/entities/game-type';
 import { PrismaPartyStageConfigurationAdapter } from './prisma-party-stage-configuration.adapter';
 
 describe('PrismaPartyStageConfigurationAdapter', () => {

@@ -1,4 +1,5 @@
-import type { GameId } from '../../../../../domain/game/entities/game';
+import type { GameId } from '@pleey/domain/game';
+import type { GuestId } from '@pleey/domain/identity';
 import type { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
 import type {
@@ -7,7 +8,6 @@ import type {
 } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import type { PartyId, PartyPin } from '../../../../../domain/game/party/shared/entities/party';
 import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
-import type { GuestId } from '../../../../../domain/identity/entities/guest';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 
 export interface ActivePlayerPartySession {

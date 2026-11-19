@@ -1,3 +1,8 @@
+import {
+  OrganizationPermissionReason,
+  type OrganizationPermissions,
+  OrganizationRole,
+} from '@pleey/domain/organization';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
@@ -7,8 +12,7 @@ import { OrganizationMemberIdentifier } from '../../application/workspace/shared
 import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
 import type { PartySettings } from '../../domains/game/party/shared/entities/party-settings';
 import type { UserId } from '../../domains/identity/entities/user';
-import type { OrganizationId } from '../../domains/organization/entities/organization';
-import { type Organization, OrganizationRole } from '../../domains/organization/entities/organization';
+import type { Organization, OrganizationId } from '../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../domains/organization/entities/organization-dashboard';
 import type { OrganizationMember } from '../../domains/organization/entities/organization-member';
 import {
@@ -25,10 +29,6 @@ import type {
   UpdateOrganizationCommand,
   UpdateOrganizationMemberRoleCommand,
 } from '../../domains/organization/ports/organization-repository';
-import {
-  OrganizationActionDisabledReason,
-  type OrganizationPermissions,
-} from '../../domains/organization/value-objects/organization-permissions';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
   AddOrganizationMemberDocument,
@@ -318,8 +318,8 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
       organizationId: this.organizationIdentifier.parse(member.organizationId),
       role: this.toDomainRole(member.role) ?? OrganizationRole.MEMBER,
       permissions: {
-        updateRole: decodeActionPermission(member.permissions?.updateRole, OrganizationActionDisabledReason),
-        remove: decodeActionPermission(member.permissions?.remove, OrganizationActionDisabledReason),
+        updateRole: decodeActionPermission(member.permissions?.updateRole, OrganizationPermissionReason),
+        remove: decodeActionPermission(member.permissions?.remove, OrganizationPermissionReason),
       },
       assignableRoles: this.toAssignableRoles(member.assignableRoles),
       username: member.username,
@@ -333,7 +333,7 @@ export class GraphqlOrganizationRepository implements OrganizationRepository {
     readonly createProject: unknown;
     readonly manageMembers: unknown;
   }): OrganizationPermissions {
-    const reasons = OrganizationActionDisabledReason;
+    const reasons = OrganizationPermissionReason;
     return {
       read: decodeActionPermission(permissions?.read, reasons),
       update: decodeActionPermission(permissions?.update, reasons),

@@ -1,6 +1,6 @@
+import type { OrganizationRole } from '@pleey/domain/organization';
 import type { Organization } from '../../../../domain/organization/entities/organization';
 import type { OrganizationMember } from '../../../../domain/organization/entities/organization-member';
-import type { OrganizationRole } from '../../../../domain/organization/enums/organization-role.enum';
 import type {
   OrganizationMemberPermissions,
   OrganizationPermissions,

@@ -1,6 +1,6 @@
+import { OrganizationPermissionReason } from '@pleey/domain/organization';
 import { type ReactNode, Suspense, useRef } from 'react';
 import type { OrganizationId } from '../../../domains/organization/entities/organization';
-import { OrganizationActionDisabledReason } from '../../../domains/organization/value-objects/organization-permissions';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { PresentationRedirect, usePresentationParams } from '../../shared/routing/router';
 import { Button } from '../../shared/ui/actions/button';
@@ -55,7 +55,7 @@ function ThemeManagementAccess({
         {t(
           access.error
             ? 'theme.management.accessFailed'
-            : permission?.reason === OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS
+            : permission?.reason === OrganizationPermissionReason.INSUFFICIENT_PERMISSIONS
               ? 'theme.management.accessDenied'
               : 'common.permissions.unavailable',
         )}

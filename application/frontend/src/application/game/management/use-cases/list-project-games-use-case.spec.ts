@@ -1,6 +1,6 @@
 import 'reflect-metadata';
+import { GameType } from '@pleey/domain/game';
 import { describe, expect, it, vi } from 'vitest';
-import { GameType } from '../../../../domains/game/types/shared/game-type';
 import { DashboardHomeScreenFixtureFactory } from '../../../../test-utils/fixtures/dashboard-home-screen-fixture-factory';
 import { GameCatalogPortMockFactory } from '../../../../test-utils/mocks/game-catalog-port-mock-factory';
 import { GameIdentifierMockFactory } from '../../../../test-utils/mocks/game-identifier-mock-factory';

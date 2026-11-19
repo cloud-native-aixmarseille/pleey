@@ -1,10 +1,9 @@
-import type { PredictionPromptId } from '@pleey/domain/game';
+import type { GameTypeId, PredictionPromptId } from '@pleey/domain/game';
 import { inject, injectable } from 'inversify';
 import {
   type PredictionManagementRepository,
   PredictionManagementRepositoryToken,
 } from '../../../../../domains/game/types/prediction/ports/prediction-management.repository';
-import type { GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type {
   PlayableContentImportCreationInput,
   PlayableContentImportCreationResult,

@@ -1,7 +1,7 @@
-import type { GameId } from '../../../../../../domains/game/entities/game';
+import type { GameId } from '@pleey/domain/game';
+import { GameType } from '@pleey/domain/game';
 import type { DashboardGameListItem } from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { DashboardGameSortField } from '../../../../../../domains/game/management/entities/dashboard-game-list-query';
-import { GameType } from '../../../../../../domains/game/types/shared/game-type';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { FeedbackState, FeedbackStateGate } from '../../../../../shared/ui/feedback/feedback-state-gate';

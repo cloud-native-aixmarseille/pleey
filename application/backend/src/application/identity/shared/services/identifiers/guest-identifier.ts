@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { GuestId } from '../../../../../domain/identity/entities/guest';
+import type { GuestId } from '@pleey/domain/identity';
 import { UuidV7IdentifierParser } from '../../../../shared/services/identifier-parser';
 
 @Injectable()

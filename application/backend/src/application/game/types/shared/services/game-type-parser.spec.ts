@@ -1,6 +1,6 @@
 import 'reflect-metadata';
+import { GameType } from '@pleey/domain/game';
 import { describe, expect, it } from 'vitest';
-import { GameType } from '../../../../../domain/game/types/shared/entities/game-type';
 import { GameTypeParser } from './game-type-parser';
 
 describe('GameTypeParser', () => {

@@ -1,10 +1,9 @@
-import type { QuizQuestionId } from '@pleey/domain/game';
+import type { GameTypeId, QuizQuestionId } from '@pleey/domain/game';
 import { inject, injectable } from 'inversify';
 import {
   type QuizManagementRepository,
   QuizManagementRepositoryToken,
 } from '../../../../../domains/game/types/quiz/ports/quiz-management.repository';
-import type { GameTypeId } from '../../../../../domains/game/types/shared/game-type';
 import type {
   PlayableContentImportCreationInput,
   PlayableContentImportCreationResult,

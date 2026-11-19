@@ -1,13 +1,10 @@
+import { CreatePartyDisabledReason, LaunchReadinessDisabledReason } from '@pleey/domain/game';
 import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import type { GameCatalogPort } from '../../../application/game/management/ports/game-catalog.port';
 import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
 import { GameTypeIdentifier } from '../../../application/game/types/shared/services/game-type-identifier';
 import { GameTypeParser } from '../../../application/game/types/shared/services/game-type-parser';
-import {
-  CreatePartyDisabledReason,
-  LaunchReadinessDisabledReason,
-} from '../../../domains/game/management/entities/dashboard-game-list-item';
 import type { DashboardGameListPage } from '../../../domains/game/management/entities/dashboard-game-list-page';
 import type { DashboardGameListQuery } from '../../../domains/game/management/entities/dashboard-game-list-query';
 import { GraphqlClient } from '../../graphql/client/graphql-client';
@@ -61,7 +58,8 @@ export class GraphqlGameCatalogAdapter implements GameCatalogPort {
             {
               allowed: item.permissions?.launchReadiness?.allowed,
               reason:
-                item.permissions?.launchReadiness?.reason === 'NO_STAGES_AVAILABLE'
+                item.permissions?.launchReadiness?.reason === 'NO_STAGES_AVAILABLE' ||
+                item.permissions?.launchReadiness?.reason === 'PARTY_STAGES_NOT_AVAILABLE'
                   ? LaunchReadinessDisabledReason.NO_STAGES_AVAILABLE
                   : item.permissions?.launchReadiness?.reason,
             },

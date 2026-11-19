@@ -17,6 +17,37 @@ const EXPECTED_EXPORT_ENTRIES = [
   "./theme",
 ].sort();
 
+const EXPECTED_PACKAGE_FILES = [
+  "README.md",
+  "empty.cjs",
+  "empty.d.ts",
+  "empty.js",
+  "errors/",
+  "game/",
+  "identity/",
+  "media/",
+  "organization/",
+  "package.json",
+  "party/",
+  "project/",
+  "shared/",
+  "theme/",
+].sort();
+
+const SUPERSEDED_APPLICATION_CONTRACTS = [
+  "application/backend/src/domain/game/entities/game.ts",
+  "application/backend/src/domain/game/types/shared/entities/game-type.ts",
+  "application/backend/src/domain/identity/enums/captcha-action.enum.ts",
+  "application/backend/src/domain/identity/types/auth-token.ts",
+  "application/backend/src/domain/organization/enums/organization-role.enum.ts",
+  "application/frontend/src/domains/game/entities/game.ts",
+  "application/frontend/src/domains/game/types/shared/game-type.ts",
+  "application/frontend/src/domains/identity/entities/auth-session.ts",
+  "application/frontend/src/domains/identity/entities/guest.ts",
+  "application/frontend/src/domains/organization/value-objects/organization-permissions.ts",
+  "application/frontend/src/domains/project/value-objects/project-permissions.ts",
+];
+
 const FORBIDDEN_IMPORT_RULES = [
   { matcher: "@nestjs/", reason: "NestJS runtime imports must stay application-local." },
   { matcher: "@prisma/", reason: "Prisma imports must stay infrastructure-local." },
@@ -83,6 +114,41 @@ function checkPackageApiSurface(packageRoot) {
     fail(
       `Unexpected shared package exports. Expected ${EXPECTED_EXPORT_ENTRIES.join(", ")}, received ${exportEntries.join(", ")}`,
     );
+  }
+
+  const packageFiles = asSortedUnique(packageJson.files ?? []);
+  if (!isSameSortedValues(packageFiles, EXPECTED_PACKAGE_FILES)) {
+    fail(
+      `Unexpected shared package files. Expected ${EXPECTED_PACKAGE_FILES.join(", ")}, received ${packageFiles.join(", ")}`,
+    );
+  }
+
+  for (const exportName of EXPECTED_EXPORT_ENTRIES) {
+    if (exportName === "./package.json") continue;
+    const exportEntry = packageJson.exports[exportName];
+    for (const condition of ["types", "import", "require", "default"]) {
+      const target = exportEntry?.[condition] ?? (condition === "default" ? exportEntry : null);
+      if (typeof target !== "string" || !fs.existsSync(path.join(packageRoot, target))) {
+        fail(`Shared package export "${exportName}" has no valid ${condition} target.`);
+      }
+    }
+  }
+}
+
+function checkSupersededApplicationContracts(root = workspaceRoot) {
+  const repositoryRoot =
+    fs.existsSync(path.join(root, "application"))
+      ? root
+      : fs.existsSync(path.join("/usr/src/repository", "application"))
+        ? "/usr/src/repository"
+        : null;
+  if (!repositoryRoot) return;
+
+  const restoredContracts = SUPERSEDED_APPLICATION_CONTRACTS.filter((file) =>
+    fs.existsSync(path.join(repositoryRoot, file)),
+  );
+  if (restoredContracts.length > 0) {
+    fail(`Superseded application contracts must remain removed:\n${restoredContracts.map((file) => `- ${file}`).join("\n")}`);
   }
 }
 
@@ -394,6 +460,7 @@ function runProject(projectName) {
   const packageRoot = resolveSharedPackageRoot();
   checkPackageApiSurface(packageRoot);
   checkSharedSourceImports(packageRoot);
+  checkSupersededApplicationContracts();
   checkCrossApplicationContracts(packageRoot);
 }
 
@@ -403,6 +470,7 @@ export {
   checkPackageApiSurface,
   checkPartyRealtimeFixtures,
   checkSharedSourceImports,
+  checkSupersededApplicationContracts,
   resolveSharedPackageRoot,
   runProject,
 };

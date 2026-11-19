@@ -1,9 +1,8 @@
+import { OrganizationPermissionReason, OrganizationRole } from '@pleey/domain/organization';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { DEFAULT_PARTY_SETTINGS } from '../../../../../../domains/game/party/shared/entities/party-settings';
-import { OrganizationRole } from '../../../../../../domains/organization/entities/organization';
-import { OrganizationActionDisabledReason } from '../../../../../../domains/organization/value-objects/organization-permissions';
 import { OrganizationFixtureFactory } from '../../../../../../test-utils/fixtures/organization-fixture-factory';
 import { renderWithProviders } from '../../../../../../test-utils/render-with-providers';
 import { EditOrganizationForm } from './edit-organization-form';
@@ -27,7 +26,7 @@ describe('EditOrganizationForm', () => {
           role: OrganizationRole.MEMBER,
           permissions: {
             ...organizationFixtureFactory.createOrganization().permissions,
-            update: { allowed: false, reason: OrganizationActionDisabledReason.INSUFFICIENT_PERMISSIONS },
+            update: { allowed: false, reason: OrganizationPermissionReason.INSUFFICIENT_PERMISSIONS },
           },
         })}
         onSubmit={vi.fn()}

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { GameType } from '@pleey/domain/game';
 import { GameCatalogPort } from '../../../application/game/management/ports/game-catalog.port';
 import { GamePermissionResolver } from '../../../application/game/management/services/game-permission-resolver';
 import { ListProjectGamesUseCase } from '../../../application/game/management/use-cases/list-project-games-use-case';
@@ -57,7 +58,6 @@ import {
 import { PartyObservationPolicy } from '../../../domain/game/party/shared/services/party-observation-policy';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
 import { PartySettingsResolver } from '../../../domain/game/party/shared/services/party-settings-resolver';
-import { GameType } from '../../../domain/game/types/shared/entities/game-type';
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 import { ProjectRepositoryProvider } from '../../../domain/project/ports/project.repository';
 import { PrismaGameCatalogAdapter } from '../../../infrastructure/game/management/prisma-game-catalog.adapter';

@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { GameTypeId } from '@pleey/domain/game';
 import {
   PredictionHasActivePartyError,
   PredictionNotFoundError,
 } from '../../../../../domain/game/types/prediction/errors';
 import type { PredictionManagementRepository } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import { PredictionManagementRepositoryProvider } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
-import type { GameTypeId } from '../../../../../domain/game/types/shared/entities/game-type';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { GameTypeManagementAccessGuard } from '../../shared/services/game-type-management-access-guard';
 

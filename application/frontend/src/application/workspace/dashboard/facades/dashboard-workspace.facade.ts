@@ -1,6 +1,6 @@
+import type { GameId } from '@pleey/domain/game';
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
-import type { GameId } from '../../../../domains/game/entities/game';
 import type { DashboardGameListPage } from '../../../../domains/game/management/entities/dashboard-game-list-page';
 import type { DashboardGameListQuery } from '../../../../domains/game/management/entities/dashboard-game-list-query';
 import type { Party } from '../../../../domains/game/party/shared/entities/party';
