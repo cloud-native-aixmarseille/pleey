@@ -80,14 +80,28 @@ file. A runtime projection must be mapped at its infrastructure or presentation
 boundary; importing a shared type does not grant the frontend access and does
 not authorize the backend to expose a private field.
 
+[`@pleey/domain/i18n`](../../../packages/pleey-domain/i18n) owns localized
+meaning only for exported public business error codes. Screen labels,
+accessibility copy, email content and application-local errors remain in their
+application catalogs. Add a shared message only when the same error code is
+public in both runtimes and follows [ADR 0025](../architecture/adr/0025-share-business-error-translations.md).
+
 For package, lockfile, policy or API-surface changes, run:
 
 ```bash
 node scripts/check-shared-domain-package.mjs
+node scripts/check-shared-translations.mjs
 npm --prefix application/backend run lint:ci
 npm --prefix application/frontend run lint:ci
 npm --prefix application/backend run test
 npm --prefix application/frontend run test
+```
+
+After changing `packages/pleey-domain/i18n/index.js`, regenerate generated
+backend namespaces with:
+
+```bash
+node scripts/check-shared-translations.mjs --write
 ```
 
 Changes under `packages/pleey-domain/` and to the shared guard take the full PR CI

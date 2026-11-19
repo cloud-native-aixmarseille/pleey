@@ -323,8 +323,10 @@ domain package. This does not prevent extracting its pure calculations.
   package must not maintain a competing hand-written wire schema.
 - Shared party vocabulary does not cover every Socket.IO event or envelope.
   Realtime payloads must use producer/consumer compatibility tests.
-- Translation catalogs and framework adapters remain local. Shared business error
-  codes map to existing translation keys without merging display copy.
+- Translation catalogs and framework adapters remain local, except the public
+  business error messages explicitly shared under
+  [ADR 0025][translation-sharing]. Shared business error codes map to their
+  canonical translation keys and locales.
 - Shared functions must be deterministic unless they receive an explicit clock,
   locale or source of randomness. Random IDs, wall clocks and environment access
   stay outside pure policies.
@@ -424,7 +426,7 @@ The acceptance test must demonstrate:
 | Build or Docker paths omit the package.                      | Require package installation and build smoke checks in both application CI jobs.                                 |
 | Extraction changes wire compatibility.                       | Add fixture and version-skew tests for timestamps, enums, optional/null fields and errors.                       |
 | Migration removes duplication without a maintenance benefit. | Extract only when both consumers use the contract or an intentionally staged pair of consumers is complete.      |
-| Package code and translation copy drift.                     | Share machine-readable codes, not display text or locale catalogs.                                               |
+| Package code and translation copy drift.                     | Share display text only for public business errors under ADR 0025; keep screen and transport copy local.        |
 
 ### Implementation
 
@@ -478,6 +480,7 @@ workflow updates remain tracked as P8 and do not change the accepted decision.
 [implementation-plan]: ../../plans/0022-evaluate-a-shared-frontend-backend-library.md
 [implementation-pr]: https://github.com/cloud-native-aixmarseille/pleey/pull/537
 [frontend-error]: ../../../../application/frontend/src/domains/shared/errors/domain-error.ts
+[translation-sharing]: ./0025-share-business-error-translations.md
 [backend-context]: ../../../../application/backend/src/domain/game/party/shared/entities/party-runtime-context.ts
 [frontend-context]: ../../../../application/frontend/src/domains/game/party/shared/entities/party-runtime-context.ts
 [projector]: ../../../../application/backend/src/domain/game/party/shared/services/party-runtime-context-projection.service.ts

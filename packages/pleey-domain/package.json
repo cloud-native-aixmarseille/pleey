@@ -14,6 +14,7 @@
     "organization/",
     "project/",
     "game/",
+    "i18n/",
     "media/",
     "errors/",
     "party/",
@@ -60,6 +61,12 @@
       "import": "./game/index.js",
       "require": "./game/index.js",
       "default": "./game/index.js"
+    },
+    "./i18n": {
+      "types": "./i18n/index.d.ts",
+      "import": "./i18n/index.js",
+      "require": "./i18n/index.js",
+      "default": "./i18n/index.js"
     },
     "./party": {
       "types": "./party/index.d.ts",

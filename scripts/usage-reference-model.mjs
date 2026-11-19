@@ -30,6 +30,14 @@ export function loadDataModule(filename) {
   }).outputText;
   const exports = {};
   const require = (specifier) => {
+    if (specifier === "@pleey/domain/i18n") {
+      const packageRoot = [
+        path.resolve(repositoryRoot, "packages/pleey-domain"),
+        "/usr/packages/pleey-domain",
+      ].find((candidate) => fs.existsSync(candidate));
+      if (!packageRoot) throw new Error(`Unable to locate shared i18n data for: ${filename}`);
+      return loadDataModule(path.join(packageRoot, "i18n/index.js"));
+    }
     if (!specifier.startsWith(".")) throw new Error(`Data modules cannot import packages: ${filename}`);
     const resolvedSpecifier = path.extname(specifier) ? specifier : `${specifier}.ts`;
     return loadDataModule(path.resolve(path.dirname(filename), resolvedSpecifier));

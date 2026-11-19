@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { SHARED_ERROR_TRANSLATION_KEYS } from '@pleey/domain/i18n';
 import { describe, expect, it } from 'vitest';
 import { TranslationResourceComposer } from './translation-resource-composer';
 
@@ -218,14 +219,22 @@ describe('TranslationResourceComposer', () => {
         frenchTranslationKeys.flatMap((key) => [key, key.replace(/_(zero|one|two|few|many|other)$/, '')]),
       );
       const { exactKeys, rootedKeys } = collectFrontendTranslationReferences(sourceDirectory);
-      const effectiveEnglishRoots = [...rootedKeys, ...collectDefinedReferenceRoots(exactKeys, englishTranslationKeys)];
-      const effectiveFrenchRoots = [...rootedKeys, ...collectDefinedReferenceRoots(exactKeys, frenchTranslationKeys)];
+      const sharedErrorKeys = Object.values(SHARED_ERROR_TRANSLATION_KEYS);
+      const allExactKeys = [...exactKeys, ...sharedErrorKeys];
+      const effectiveEnglishRoots = [
+        ...rootedKeys,
+        ...collectDefinedReferenceRoots(allExactKeys, englishTranslationKeys),
+      ];
+      const effectiveFrenchRoots = [
+        ...rootedKeys,
+        ...collectDefinedReferenceRoots(allExactKeys, frenchTranslationKeys),
+      ];
 
       // Assert
-      expect(exactKeys.filter((key) => !englishKeys.has(key) && !isCoveredByRoot(key, effectiveEnglishRoots))).toEqual(
-        [],
-      );
-      expect(exactKeys.filter((key) => !frenchKeys.has(key) && !isCoveredByRoot(key, effectiveFrenchRoots))).toEqual(
+      expect(
+        allExactKeys.filter((key) => !englishKeys.has(key) && !isCoveredByRoot(key, effectiveEnglishRoots)),
+      ).toEqual([]);
+      expect(allExactKeys.filter((key) => !frenchKeys.has(key) && !isCoveredByRoot(key, effectiveFrenchRoots))).toEqual(
         [],
       );
     });
@@ -238,14 +247,15 @@ describe('TranslationResourceComposer', () => {
       const resources = translationResourceComposer.compose();
       const englishKeys = flattenTranslationKeys(resources.en.translation).sort();
       const { exactKeys, rootedKeys } = collectFrontendTranslationReferences(sourceDirectory);
-      const effectiveRoots = [...rootedKeys, ...collectDefinedReferenceRoots(exactKeys, englishKeys)];
+      const allExactKeys = [...exactKeys, ...Object.values(SHARED_ERROR_TRANSLATION_KEYS)];
+      const effectiveRoots = [...rootedKeys, ...collectDefinedReferenceRoots(allExactKeys, englishKeys)];
 
       // Assert
       expect(
         englishKeys.filter(
           (key) =>
-            !exactKeys.includes(key) &&
-            !exactKeys.includes(key.replace(/_(zero|one|two|few|many|other)$/, '')) &&
+            !allExactKeys.includes(key) &&
+            !allExactKeys.includes(key.replace(/_(zero|one|two|few|many|other)$/, '')) &&
             !isCoveredByRoot(key, effectiveRoots),
         ),
       ).toEqual([]);

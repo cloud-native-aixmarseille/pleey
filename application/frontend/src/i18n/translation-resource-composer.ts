@@ -1,3 +1,4 @@
+import { SHARED_TRANSLATIONS } from '@pleey/domain/i18n';
 import { gamePartyHostEn } from '../presentation/game/party/host/i18n/en';
 import { gamePartyHostFr } from '../presentation/game/party/host/i18n/fr';
 import { gamePartyPlayerEn } from '../presentation/game/party/player/i18n/en';
@@ -30,6 +31,7 @@ export class TranslationResourceComposer {
     return {
       en: {
         translation: this.merge(
+          SHARED_TRANSLATIONS.en,
           sharedEn,
           homeEn,
           notFoundEn,
@@ -46,6 +48,7 @@ export class TranslationResourceComposer {
       },
       fr: {
         translation: this.merge(
+          SHARED_TRANSLATIONS.fr,
           sharedFr,
           homeFr,
           notFoundFr,
