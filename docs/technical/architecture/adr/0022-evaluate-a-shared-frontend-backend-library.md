@@ -1,9 +1,10 @@
 # ADR 0022: Evaluate a shared frontend/backend library
 
-- Status: Proposed
+- Status: Accepted
 - Proposed date: 2026-10-27
-- Accepted date: N/A
+- Accepted date: 2026-11-18
 - Implementation plan: [docs/technical/plans/0022](../../plans/0022-evaluate-a-shared-frontend-backend-library.md)
+- Implementation: [PR #537](https://github.com/cloud-native-aixmarseille/pleey/pull/537)
 
 ## Context
 
@@ -42,7 +43,7 @@ The audit on 2026-11-05 covered all 279 non-test TypeScript files under
 `application/backend/src/domain` and `application/frontend/src/domains` at
 `aa7d922386c5b707d19bf5bc8da9715c4f4066f1`. Selected consumers in application,
 infrastructure, and presentation layers were inspected to establish reuse.
-The findings inform the proposed scope; they do not establish compatibility or
+The findings informed the accepted scope; they do not establish compatibility or
 measure maintenance savings.
 
 The assessment distinguishes:
@@ -425,23 +426,34 @@ The acceptance test must demonstrate:
 | Migration removes duplication without a maintenance benefit. | Extract only when both consumers use the contract or an intentionally staged pair of consumers is complete.      |
 | Package code and translation copy drift.                     | Share machine-readable codes, not display text or locale catalogs.                                               |
 
-### Follow-Up
+### Implementation
 
-- After acceptance, choose the package layout and module exports against the
-  backend, frontend and Docker build configurations.
-- Integrate build, lint, module-export, pagination and test discovery into CI.
+The implementation started with
+`d3d777fb3cf77696fd35658844e28595428b029b` on 2026-11-18. It established the
+private `@pleey/domain` package, integrated both applications and their container
+builds, then extracted and verified the accepted scope through [PR #537][implementation-pr].
+The PR remained open when this ADR was finalized.
+
+- The package layout and module exports are integrated with the backend,
+  frontend and Docker build configurations.
+- Build, lint, module-export, pagination and test discovery are enforced in CI.
 - Do not add a separate publishing workflow without a concrete publication need.
-- Migrate in cohesive slices with both consumers and tests. Themes, party settings,
-  identifiers, permission/pagination contracts and duplicated input rules are
-  established candidates.
+- Migrate future candidates in cohesive slices with both consumers and tests.
+  Themes, party settings, identifiers, permission/pagination contracts,
+  duplicated input rules, identity/workspace contracts, game content and public
+  media/error contracts are implemented candidates.
 - Preserve error, optional/null, timestamp, identity-branding and audience
   semantics during each slice.
 - Re-run normalization/rejection, serialization and app-local enforcement cases
   as each contract moves.
 - Preserve ADR 0012 theme synchronization and ADR 0014 authorization requirements.
-- Update this proposed scope only if a later audit or implementation establishes
+- Update this accepted scope only if a later audit or implementation establishes
   a materially different consumer set; dated findings do not replace verification.
 - Link implementation pull requests and package changes back to this ADR.
+
+Final implementation verification is recorded in the
+[implementation plan][implementation-plan]. Documentation and contributor
+workflow updates remain tracked as P8 and do not change the accepted decision.
 
 [architecture]: ./0002-use-clean-architecture-with-strict-boundaries.md
 [release]: ../../../../.github/workflows/release.yml
@@ -462,6 +474,8 @@ The acceptance test must demonstrate:
 [settings]: ../../../../application/backend/src/domain/game/party/shared/services/party-settings-resolver.ts
 [password-policy]: ../../../../application/backend/src/domain/identity/services/password-service.ts
 [backend-error]: ../../../../application/backend/src/domain/shared/errors/domain-error.ts
+[implementation-plan]: ../../plans/0022-evaluate-a-shared-frontend-backend-library.md
+[implementation-pr]: https://github.com/cloud-native-aixmarseille/pleey/pull/537
 [frontend-error]: ../../../../application/frontend/src/domains/shared/errors/domain-error.ts
 [backend-context]: ../../../../application/backend/src/domain/game/party/shared/entities/party-runtime-context.ts
 [frontend-context]: ../../../../application/frontend/src/domains/game/party/shared/entities/party-runtime-context.ts
