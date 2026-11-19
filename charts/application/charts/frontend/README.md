@@ -1,6 +1,6 @@
 # frontend
 
-![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
+![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.0](https://img.shields.io/badge/AppVersion-1.1.0-informational?style=flat-square)
 
 Pleey frontend service subchart.
 
@@ -36,11 +36,11 @@ Pleey frontend service subchart.
 | global.imagePullPolicy                     | string | `"Always"`                                                                  |             |
 | global.imagePullSecrets                    | list   | `[]`                                                                        |             |
 | global.imageRegistry                       | string | `""`                                                                        |             |
-| image.digest                               | string | `"sha256:3d21577e7be2ff238814d8ddd7bcd1f5970d1657772049f3b5d6ba1e924e7ac1"` |             |
+| image.digest                               | string | `"sha256:cec4b97dce3a0a1f88ace2b699caa654bae8f6ee1e28c2c152ba50b0b551c62f"` |             |
 | image.pullPolicy                           | string | `""`                                                                        |             |
 | image.registry                             | string | `""`                                                                        |             |
 | image.repository                           | string | `"ghcr.io/cloud-native-aixmarseille/pleey/frontend"`                        |             |
-| image.tag                                  | string | `"1.0.0"`                                                                   |             |
+| image.tag                                  | string | `"1.1.0"`                                                                   |             |
 | imagePullSecrets                           | list   | `[]`                                                                        |             |
 | livenessProbe.enabled                      | bool   | `true`                                                                      |             |
 | livenessProbe.httpGet.path                 | string | `"/"`                                                                       |             |
