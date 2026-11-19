@@ -1,13 +1,13 @@
+import { OrganizationPermissionReason } from '@pleey/domain/organization';
 import type { ActionPermission } from '@pleey/domain/shared/primitives';
+import type { ThemePermissions } from '@pleey/domain/theme';
 import type { OrganizationMember } from '../../organization/entities/organization-member';
-import { OrganizationErrorCode } from '../../organization/enums/organization-error-code.enum';
-import type { ThemePermissions } from '../value-objects/theme-permissions';
 
 export class ThemePermissionPolicy {
   resolve(member: OrganizationMember): ThemePermissions {
-    const management: ActionPermission<OrganizationErrorCode> = member.hasManagementPrivileges()
+    const management: ActionPermission<OrganizationPermissionReason> = member.hasManagementPrivileges()
       ? { allowed: true, reason: null }
-      : { allowed: false, reason: OrganizationErrorCode.INSUFFICIENT_PERMISSIONS };
+      : { allowed: false, reason: OrganizationPermissionReason.INSUFFICIENT_PERMISSIONS };
     return { read: { allowed: true, reason: null }, create: management, update: management, uploadAsset: management };
   }
 }

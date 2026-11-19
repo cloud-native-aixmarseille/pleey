@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SHARED_ERROR_TRANSLATION_KEYS } from '@pleey/domain/i18n';
+import { THEME_ERROR_TRANSLATION_KEYS } from '@pleey/domain/theme';
 import { describe, expect, it } from 'vitest';
 
 function flattenTranslationKeys(value: unknown, prefix = ''): string[] {
@@ -113,7 +114,13 @@ describe('backend locale parity', () => {
 
     // Act
     const usedKeys = collectStaticBackendTranslationKeys(sourceDirectory, namespaces);
-    const allUsedKeys = [...new Set([...usedKeys, ...Object.values(SHARED_ERROR_TRANSLATION_KEYS)])];
+    const allUsedKeys = [
+      ...new Set([
+        ...usedKeys,
+        ...Object.values(SHARED_ERROR_TRANSLATION_KEYS),
+        ...Object.values(THEME_ERROR_TRANSLATION_KEYS),
+      ]),
+    ];
 
     // Assert
     expect(englishKeys.filter((key) => !allUsedKeys.includes(key))).toEqual([]);

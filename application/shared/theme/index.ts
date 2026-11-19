@@ -1,12 +1,15 @@
-export { ThemeDocumentNormalizerCore } from './theme-document-normalizer-core.ts';
-export { CURATED_THEME_PALETTES } from './curated-theme-palettes.ts';
-export { CYBER_ARCADE_THEME_PALETTE } from './cyber-arcade-theme-palette.ts';
-export { SOLAR_GRID_THEME_PALETTE } from './solar-grid-theme-palette.ts';
+import type { OrganizationPermissionReason } from "../organization/index.ts";
+import type { ActionPermission } from "../shared/primitives/index.ts";
 
-export const CURATED_THEME_IDS = ['cyber-arcade', 'solar-grid'] as const;
+export { CURATED_THEME_PALETTES } from "./curated-theme-palettes.ts";
+export { CYBER_ARCADE_THEME_PALETTE } from "./cyber-arcade-theme-palette.ts";
+export { SOLAR_GRID_THEME_PALETTE } from "./solar-grid-theme-palette.ts";
+export { ThemeDocumentNormalizerCore } from "./theme-document-normalizer-core.ts";
+
+export const CURATED_THEME_IDS = ["cyber-arcade", "solar-grid"] as const;
 export type CuratedThemeId = (typeof CURATED_THEME_IDS)[number];
 export type ThemeId = CuratedThemeId | `custom:${string}`;
-export const DEFAULT_THEME_ID = 'cyber-arcade' as const;
+export const DEFAULT_THEME_ID = "cyber-arcade" as const;
 export const THEME_ID_PATTERN =
   /^(?:cyber-arcade|solar-grid|custom:[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/;
 
@@ -15,71 +18,88 @@ export const THEME_ASSET_POLICY: {
   readonly maxFileSizeBytes: 5_242_880;
   readonly maxInputPixels: 16_000_000;
 } = {
-  acceptedMimeTypes: ['image/png', 'image/jpeg', 'image/webp'],
+  acceptedMimeTypes: ["image/png", "image/jpeg", "image/webp"],
   maxFileSizeBytes: 5_242_880,
   maxInputPixels: 16_000_000,
 } as const;
 
-export const THEME_FONT_FAMILIES = [
-  'system-ui, sans-serif',
-  'ui-monospace, monospace',
-  'Georgia, serif',
-] as const;
-export const THEME_RADIUS_KEYS = ['field', 'inset', 'panel', 'pill'] as const;
-export const THEME_SPACING_KEYS = ['xxs', 'xs', 'sm', 'md', 'lg', 'xl', 'xxl', 'xxxl'] as const;
-export const THEME_MOTION_KEYS = ['emphasis', 'modal', 'quick', 'reveal', 'standard'] as const;
-export const THEME_TYPOGRAPHY_KEYS = ['body', 'display', 'mono', 'overline'] as const;
+export type ThemeAssetId = string & { readonly __identifierBrand: "ThemeAssetId" };
+
+export interface ThemeAsset<TId extends string = ThemeAssetId> {
+  readonly id: TId;
+  readonly url: string;
+  readonly width: number;
+  readonly height: number;
+}
+
+export const ThemeErrorCode = {
+  INVALID_DOCUMENT: "THEME_INVALID_DOCUMENT",
+  INVALID_SELECTION: "THEME_INVALID_SELECTION",
+  REVISION_CONFLICT: "THEME_REVISION_CONFLICT",
+  INVALID_ASSET: "THEME_INVALID_ASSET",
+  NOT_FOUND: "THEME_NOT_FOUND",
+} as const;
+export type ThemeErrorCode = (typeof ThemeErrorCode)[keyof typeof ThemeErrorCode];
+export const THEME_ERROR_TRANSLATION_KEYS: Readonly<Record<ThemeErrorCode, string>> = {
+  [ThemeErrorCode.INVALID_DOCUMENT]: "theme.errors.invalidDocument",
+  [ThemeErrorCode.INVALID_SELECTION]: "theme.errors.invalidSelection",
+  [ThemeErrorCode.REVISION_CONFLICT]: "theme.errors.revisionConflict",
+  [ThemeErrorCode.INVALID_ASSET]: "theme.errors.invalidAsset",
+  [ThemeErrorCode.NOT_FOUND]: "theme.errors.notFound",
+};
+
+export interface ThemePermissions {
+  readonly read: ActionPermission<OrganizationPermissionReason>;
+  readonly create: ActionPermission<OrganizationPermissionReason>;
+  readonly update: ActionPermission<OrganizationPermissionReason>;
+  readonly uploadAsset: ActionPermission<OrganizationPermissionReason>;
+}
+
+export const THEME_FONT_FAMILIES = ["system-ui, sans-serif", "ui-monospace, monospace", "Georgia, serif"] as const;
+export const THEME_RADIUS_KEYS = ["field", "inset", "panel", "pill"] as const;
+export const THEME_SPACING_KEYS = ["xxs", "xs", "sm", "md", "lg", "xl", "xxl", "xxxl"] as const;
+export const THEME_MOTION_KEYS = ["emphasis", "modal", "quick", "reveal", "standard"] as const;
+export const THEME_TYPOGRAPHY_KEYS = ["body", "display", "mono", "overline"] as const;
 export const THEME_SURFACE_KEYS = [
-  'accentMuted',
-  'accentPanel',
-  'canvas',
-  'danger',
-  'field',
-  'live',
-  'neutralMuted',
-  'overlay',
-  'panel',
-  'recessed',
-  'strongAccent',
-  'warning',
+  "accentMuted",
+  "accentPanel",
+  "canvas",
+  "danger",
+  "field",
+  "live",
+  "neutralMuted",
+  "overlay",
+  "panel",
+  "recessed",
+  "strongAccent",
+  "warning",
 ] as const;
 export const THEME_TEXT_KEYS = [
-  'danger',
-  'emphasis',
-  'link',
-  'live',
-  'onAction',
-  'primary',
-  'quiet',
-  'secondary',
-  'soft',
-  'status',
-  'statusSoft',
-  'warning',
+  "danger",
+  "emphasis",
+  "link",
+  "live",
+  "onAction",
+  "primary",
+  "quiet",
+  "secondary",
+  "soft",
+  "status",
+  "statusSoft",
+  "warning",
 ] as const;
 export const THEME_BORDER_KEYS = [
-  'accent',
-  'danger',
-  'info',
-  'live',
-  'strong',
-  'subtle',
-  'success',
-  'warning',
+  "accent",
+  "danger",
+  "info",
+  "live",
+  "strong",
+  "subtle",
+  "success",
+  "warning",
 ] as const;
 
-export type ThemeColorScale = readonly [
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-];
+export type ThemeColorScale = readonly [string, string, string, string, string, string, string, string, string, string];
 
 export interface ThemeSemanticOverrides {
   readonly surface?: Partial<Record<(typeof THEME_SURFACE_KEYS)[number], string>>;
@@ -88,8 +108,8 @@ export interface ThemeSemanticOverrides {
 }
 
 export interface ThemeOverrides {
-  readonly colorScales?: Partial<Record<'accent' | 'highlight' | 'success', ThemeColorScale>>;
-  readonly semantic?: Partial<Record<'light' | 'dark', ThemeSemanticOverrides>>;
+  readonly colorScales?: Partial<Record<"accent" | "highlight" | "success", ThemeColorScale>>;
+  readonly semantic?: Partial<Record<"light" | "dark", ThemeSemanticOverrides>>;
   readonly radius?: Partial<Record<(typeof THEME_RADIUS_KEYS)[number], string>>;
   readonly spacing?: Partial<Record<(typeof THEME_SPACING_KEYS)[number], string>>;
   readonly motion?: Partial<Record<(typeof THEME_MOTION_KEYS)[number], string>>;

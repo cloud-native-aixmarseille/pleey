@@ -1,52 +1,8 @@
-import type { IdentifierParseResult, IdentifierParserPort } from './contracts';
-import { IdentifierParser } from './identifier-parser';
+import { StringIdentifierParser as SharedStringIdentifierParser } from '@pleey/domain/identifier';
+import { invalidIdentifier } from './invalid-identifier';
 
-export abstract class StringIdentifierParser<TIdentifier>
-  extends IdentifierParser<string, TIdentifier>
-  implements IdentifierParserPort<TIdentifier>
-{
+export abstract class StringIdentifierParser<TIdentifier> extends SharedStringIdentifierParser<TIdentifier> {
   protected constructor(label: string) {
-    super(label);
-  }
-
-  parse<TValue>(value: TValue): IdentifierParseResult<TValue, TIdentifier> {
-    const candidate = this.parseStringCandidate(value, (rawValue) => this.normalize(rawValue));
-
-    if (candidate !== null) {
-      return this.cast(candidate) as IdentifierParseResult<TValue, TIdentifier>;
-    }
-
-    if (this.isEmpty(value)) {
-      return null as IdentifierParseResult<TValue, TIdentifier>;
-    }
-
-    this.invalidValue(value);
-  }
-
-  parseOrNull(value: unknown): TIdentifier | null {
-    const candidate = this.parseStringCandidate(value, (rawValue) => this.normalize(rawValue));
-
-    return candidate === null ? null : this.cast(candidate);
-  }
-
-  protected normalize(value: string): string {
-    return value.trim();
-  }
-
-  private parseStringCandidate(
-    value: unknown,
-    normalize: (value: string) => string = (candidate) => candidate.trim(),
-  ): string | null {
-    if (this.isEmpty(value) || typeof value !== 'string') {
-      return null;
-    }
-
-    const normalized = normalize(value);
-
-    if (normalized.length === 0) {
-      return null;
-    }
-
-    return normalized;
+    super(label, invalidIdentifier);
   }
 }

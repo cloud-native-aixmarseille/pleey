@@ -10,6 +10,7 @@
   },
   "files": [
     "shared/",
+    "identifier/",
     "identity/",
     "organization/",
     "project/",
@@ -33,6 +34,11 @@
       "types": "./shared/primitives/index.ts",
       "import": "./shared/primitives/index.ts",
       "default": "./shared/primitives/index.ts"
+    },
+    "./identifier": {
+      "types": "./identifier/index.ts",
+      "import": "./identifier/index.ts",
+      "default": "./identifier/index.ts"
     },
     "./identity": {
       "types": "./identity/index.ts",

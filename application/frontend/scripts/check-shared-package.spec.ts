@@ -4,13 +4,14 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
+  IdentifierParserErrorCode,
   PlayableContentImportErrorKind,
   PredictionErrorCode,
   QuizErrorCode,
   resolvePlayableContentImportErrorKind,
 } from "@pleey/domain/errors";
 import { SHARED_ERROR_TRANSLATION_KEYS, SHARED_TRANSLATIONS } from "@pleey/domain/i18n";
-import { THEME_ASSET_POLICY } from "@pleey/domain/theme";
+import { THEME_ASSET_POLICY, THEME_ERROR_TRANSLATION_KEYS, ThemeErrorCode } from "@pleey/domain/theme";
 import { describe, expect, it } from "vitest";
 
 const scriptPath = [
@@ -35,6 +36,18 @@ describe("shared domain package checker", () => {
     expect(THEME_ASSET_POLICY.acceptedMimeTypes).toEqual(["image/png", "image/jpeg", "image/webp"]);
     expect(THEME_ASSET_POLICY.maxFileSizeBytes).toBe(5 * 1024 * 1024);
     expect(THEME_ASSET_POLICY.maxInputPixels).toBe(16_000_000);
+  });
+
+  it("keeps public identifier and theme error vocabulary stable", () => {
+    // Act + Assert
+    expect(IdentifierParserErrorCode.INVALID_VALUE).toBe("shared.errors.identifier.invalidValue");
+    expect(THEME_ERROR_TRANSLATION_KEYS).toEqual({
+      [ThemeErrorCode.INVALID_DOCUMENT]: "theme.errors.invalidDocument",
+      [ThemeErrorCode.INVALID_SELECTION]: "theme.errors.invalidSelection",
+      [ThemeErrorCode.REVISION_CONFLICT]: "theme.errors.revisionConflict",
+      [ThemeErrorCode.INVALID_ASSET]: "theme.errors.invalidAsset",
+      [ThemeErrorCode.NOT_FOUND]: "theme.errors.notFound",
+    });
   });
 
   it("defines each shared error translation key in every supported locale", () => {

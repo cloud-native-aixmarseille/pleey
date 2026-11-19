@@ -1,8 +1,8 @@
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
+import type { ThemePermissions } from '@pleey/domain/theme';
 import { useEffect, useState } from 'react';
 import type { OrganizationId } from '../../../domains/organization/entities/organization';
 import type { ManagedTheme } from '../../../domains/theme/entities/managed-theme';
-import type { ThemePermissions } from '../../../domains/theme/value-objects/theme-permissions';
 import { useWorkspaceDependencies } from '../../workspace/shared/contexts/workspace-dependencies-context';
 export function useThemeLibrary(organizationId: OrganizationId | undefined, active: boolean) {
   const { themeManagementFacade } = useWorkspaceDependencies();

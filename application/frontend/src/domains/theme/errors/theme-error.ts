@@ -1,36 +1,34 @@
+import { ThemeErrorCode as SharedThemeErrorCode, THEME_ERROR_TRANSLATION_KEYS } from '@pleey/domain/theme';
 import { DomainError } from '../../shared/errors/domain-error';
-export enum ThemeErrorCode {
-  INVALID_DOCUMENT = 'THEME_INVALID_DOCUMENT',
-  INVALID_SELECTION = 'THEME_INVALID_SELECTION',
-  REVISION_CONFLICT = 'THEME_REVISION_CONFLICT',
-  INVALID_ASSET = 'THEME_INVALID_ASSET',
-  NOT_FOUND = 'THEME_NOT_FOUND',
-}
+
+export const ThemeErrorCode = SharedThemeErrorCode;
+export type ThemeErrorCode = (typeof ThemeErrorCode)[keyof typeof ThemeErrorCode];
+
 const definitions = {
   [ThemeErrorCode.INVALID_DOCUMENT]: {
     code: ThemeErrorCode.INVALID_DOCUMENT,
     message: 'Invalid theme document.',
-    messageKey: 'theme.errors.invalidDocument',
+    messageKey: THEME_ERROR_TRANSLATION_KEYS[ThemeErrorCode.INVALID_DOCUMENT],
   },
   [ThemeErrorCode.INVALID_SELECTION]: {
     code: ThemeErrorCode.INVALID_SELECTION,
     message: 'Theme is unavailable in this organization.',
-    messageKey: 'theme.errors.invalidSelection',
+    messageKey: THEME_ERROR_TRANSLATION_KEYS[ThemeErrorCode.INVALID_SELECTION],
   },
   [ThemeErrorCode.REVISION_CONFLICT]: {
     code: ThemeErrorCode.REVISION_CONFLICT,
     message: 'The theme has changed. Reload before saving.',
-    messageKey: 'theme.errors.revisionConflict',
+    messageKey: THEME_ERROR_TRANSLATION_KEYS[ThemeErrorCode.REVISION_CONFLICT],
   },
   [ThemeErrorCode.INVALID_ASSET]: {
     code: ThemeErrorCode.INVALID_ASSET,
     message: 'Invalid theme image.',
-    messageKey: 'theme.errors.invalidAsset',
+    messageKey: THEME_ERROR_TRANSLATION_KEYS[ThemeErrorCode.INVALID_ASSET],
   },
   [ThemeErrorCode.NOT_FOUND]: {
     code: ThemeErrorCode.NOT_FOUND,
     message: 'Theme not found.',
-    messageKey: 'theme.errors.notFound',
+    messageKey: THEME_ERROR_TRANSLATION_KEYS[ThemeErrorCode.NOT_FOUND],
   },
 };
 export class ThemeError extends DomainError<ThemeErrorCode> {

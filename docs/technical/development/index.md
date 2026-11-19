@@ -68,8 +68,8 @@ them:
 - private or audience-incomplete runtime state;
 - translation copy and transport-specific client diagnostics.
 
-Use one explicit feature entry point such as `@pleey/domain/game` or
-`@pleey/domain/identity`. Do not add a catch-all package barrel or application
+Use one explicit feature entry point such as `@pleey/domain/game`,
+`@pleey/domain/identifier` or `@pleey/domain/identity`. Do not add a catch-all package barrel or application
 reexport wrapper for a shared declaration. Preserve an application adapter only
 when its runtime representation or enum vocabulary intentionally differs from
 the shared public contract.
@@ -80,6 +80,10 @@ consume a moved contract before deleting the superseded local file. A runtime
 projection must be mapped at its infrastructure or presentation boundary;
 importing a shared type does not grant the frontend access and does not
 authorize the backend to expose a private field.
+
+Identifier parsing is shared through `@pleey/domain/identifier`. Application
+adapters provide the local `DomainError` strategy so runtime-specific error
+construction and `instanceof` behavior remain owned by each application.
 
 [`@pleey/domain/i18n`](../../../application/shared/i18n) owns localized
 meaning only for exported public business error codes. Screen labels,

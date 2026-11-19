@@ -1,8 +1,8 @@
+import { IdentifierParserErrorCode as SharedIdentifierParserErrorCode } from '@pleey/domain/errors';
 import { type DomainErrorDefinition } from './domain-error';
 
-export enum IdentifierParserErrorCode {
-  INVALID_VALUE = 'shared.errors.identifier.invalidValue',
-}
+export const IdentifierParserErrorCode = SharedIdentifierParserErrorCode;
+export type IdentifierParserErrorCode = (typeof IdentifierParserErrorCode)[keyof typeof IdentifierParserErrorCode];
 
 export const IDENTIFIER_PARSER_ERROR_DEFINITIONS: Readonly<
   Record<IdentifierParserErrorCode, DomainErrorDefinition<IdentifierParserErrorCode>>

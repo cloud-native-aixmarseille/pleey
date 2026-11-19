@@ -1,6 +1,6 @@
+import type { ThemePermissions } from '@pleey/domain/theme';
 import type { ReactElement } from 'react';
 import { vi } from 'vitest';
-import type { ThemePermissions } from '../domains/theme/value-objects/theme-permissions';
 import { ThemePermissionsContext } from '../presentation/theme/components/theme-permissions-context';
 import { ThemeFixtureFactory } from './fixtures/theme-fixture-factory';
 import { renderWithDataRouter } from './render-with-data-router';

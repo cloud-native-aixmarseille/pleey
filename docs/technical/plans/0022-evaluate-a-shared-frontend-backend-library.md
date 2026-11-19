@@ -289,6 +289,8 @@ after P1-P9 and found additional high-confidence candidates:
 - party player, join-receipt, action-state and host permission vocabulary;
 - shared public identity/game error codes;
 - public business-error translation keys and locale text under ADR 0025.
+- identifier parser behavior and parser error vocabulary;
+- theme error vocabulary, asset identity/shape and permission vocabulary.
 
 These candidates are consumed through `@pleey/domain` and their superseded local
 declarations are guarded against restoration.
@@ -299,11 +301,13 @@ The remaining exact duplicates are deliberately local adapters or tests:
   each application's own error type around the shared normalizer core;
 - `InvalidIdentifierValueError` remains local because each application owns its
   runtime `DomainError` base class;
+- identifier parsers keep local error-adapter objects while the parsing
+  implementation is shared;
 - mirrored normalizer specs remain in each application because they verify the
   local error adaptation and domain projection.
 
-No other exact backend/frontend domain duplicates or duplicated identifier
-brands remain after the follow-up. The 4-option frontend limit now follows the
+No other exact backend/frontend domain duplicates remain after the follow-up.
+The 4-option frontend limit now follows the
 backend policy instead of exposing 8 editor slots. Future extraction proposals
 must still pass the ADR 0022 eligibility rules and must not move local
 projections solely to remove structurally similar code.

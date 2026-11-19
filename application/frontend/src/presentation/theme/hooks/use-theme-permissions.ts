@@ -1,6 +1,6 @@
+import type { ThemePermissions } from '@pleey/domain/theme';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { OrganizationId } from '../../../domains/organization/entities/organization';
-import type { ThemePermissions } from '../../../domains/theme/value-objects/theme-permissions';
 import { useAuth } from '../../identity/contexts/auth-context';
 import { useWorkspaceDependencies } from '../../workspace/shared/contexts/workspace-dependencies-context';
 
