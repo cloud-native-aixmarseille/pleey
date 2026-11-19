@@ -1,11 +1,12 @@
-import type { SelectableOption, SelectableOptionId } from '../../shared/entities/selectable-option';
+import type {
+  SelectableOption,
+  PredictionPromptId as SharedPredictionPromptId,
+  PredictionSelectableOptionId as SharedPredictionSelectableOptionId,
+} from '@pleey/domain/game';
 import type { PredictionId } from './prediction';
 
-export type PredictionPromptId = string & {
-  readonly __identifierBrand: 'PredictionPromptId';
-};
-
-export type PredictionSelectableOptionId = SelectableOptionId<'PredictionSelectableOptionId'>;
+export type PredictionPromptId = SharedPredictionPromptId;
+export type PredictionSelectableOptionId = SharedPredictionSelectableOptionId;
 
 export class PredictionPrompt {
   constructor(

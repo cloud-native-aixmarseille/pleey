@@ -14,7 +14,7 @@
 
 ## Quiz and prediction editor defaults
 
-[playable-content-management-model.ts](../../../application/frontend/src/presentation/game/types/shared/management/playable-content-management-model.ts)
+[index.js](../../../packages/pleey-domain/game/index.js)
 
 | Domain     | Setting   | Default | Minimum (integer) | Source                                                                                                                         |
 | ---------- | --------- | ------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------ |

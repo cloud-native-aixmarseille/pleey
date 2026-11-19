@@ -1,15 +1,11 @@
+import {
+  PredictionErrorCode as SharedPredictionErrorCode,
+  type PredictionErrorCode as SharedPredictionErrorCodeType,
+} from '@pleey/domain/errors';
 import { type DomainErrorDefinition } from '../../../../shared/errors/domain-error';
 
-export enum PredictionErrorCode {
-  PREDICTION_NOT_FOUND = 'PREDICTION_NOT_FOUND',
-  PROMPT_NOT_FOUND = 'PREDICTION_PROMPT_NOT_FOUND',
-  PREDICTION_HAS_ACTIVE_PARTY = 'PREDICTION_HAS_ACTIVE_PARTY',
-  INVALID_CORRECT_OPTION = 'PREDICTION_INVALID_CORRECT_OPTION',
-  OPTION_TEXT_EMPTY = 'PREDICTION_OPTION_TEXT_EMPTY',
-  PREDICTION_IMPORT_INVALID_FILE = 'PREDICTION_IMPORT_INVALID_FILE',
-  PREDICTION_IMPORT_UNSUPPORTED_FORMAT = 'PREDICTION_IMPORT_UNSUPPORTED_FORMAT',
-  PREDICTION_IMPORT_EMPTY_FILE = 'PREDICTION_IMPORT_EMPTY_FILE',
-}
+export const PredictionErrorCode = SharedPredictionErrorCode;
+export type PredictionErrorCode = SharedPredictionErrorCodeType;
 
 export const PREDICTION_ERROR_DEFINITIONS: Readonly<
   Record<PredictionErrorCode, DomainErrorDefinition<PredictionErrorCode>>

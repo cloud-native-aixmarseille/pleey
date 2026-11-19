@@ -1,3 +1,4 @@
+import type { PredictionPromptId } from '@pleey/domain/game';
 import type { ProjectId } from '../../../../project/entities/project';
 import type { GameTypeId } from '../../shared/game-type';
 import type {
@@ -8,7 +9,6 @@ import type {
   PlayableManagementItemInput,
   PlayableManagementState,
 } from '../../shared/management/playable-management';
-import type { PredictionPromptId } from '../entities/prediction-prompt-id';
 
 export interface PredictionManagementRepository {
   createPrediction(projectId: ProjectId, input: PlayableGameMetadataInput): Promise<GameTypeId>;

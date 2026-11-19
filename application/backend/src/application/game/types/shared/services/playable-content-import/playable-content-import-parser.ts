@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import type { SelectableOptionInput } from '../../../../../../domain/game/types/shared/entities/selectable-option';
+import { PLAYABLE_CONTENT_DEFAULTS, type SelectableOptionInput } from '@pleey/domain/game';
 import {
   PlayableContentImportEmptyFileError,
   PlayableContentImportInvalidFileError,
 } from '../../../../../../domain/game/types/shared/errors/import-parser.error';
 import {
-  DEFAULT_POINTS,
-  DEFAULT_TIME_LIMIT,
   type PlayableImportItemDefinition,
   PlayableImportItemKind,
   type RawImportItem,
@@ -82,9 +80,9 @@ export class PlayableContentImportParser {
     return {
       kind,
       options,
-      points: item.points ?? DEFAULT_POINTS,
+      points: item.points ?? PLAYABLE_CONTENT_DEFAULTS.points,
       text,
-      timeLimit: item.timeLimit ?? DEFAULT_TIME_LIMIT,
+      timeLimit: item.timeLimit ?? PLAYABLE_CONTENT_DEFAULTS.timeLimit,
     };
   }
 

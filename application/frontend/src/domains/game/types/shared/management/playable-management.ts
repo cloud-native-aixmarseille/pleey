@@ -1,12 +1,8 @@
+import type { PlayableContentInput, SelectableOptionValue } from '@pleey/domain/game';
 import type { GameId } from '../../../../game/entities/game';
 import type { GameTypeId } from '../game-type';
 
-export interface PlayableChoiceOption {
-  readonly id: string | null;
-  readonly text: string | null;
-  readonly position: number;
-  readonly isCorrect: boolean;
-}
+export interface PlayableChoiceOption extends SelectableOptionValue {}
 
 export interface PlayableMedia {
   readonly id?: string;
@@ -25,14 +21,12 @@ export interface PlayableManagementGame {
   readonly itemCount: number;
 }
 
-export interface PlayableManagementItem<TItemId extends string = string, TKind extends string = string> {
+export interface PlayableManagementItem<TItemId extends string = string, TKind extends string = string>
+  extends PlayableContentInput {
   readonly id: TItemId;
   readonly gameTypeId: GameTypeId;
   readonly position: number;
-  readonly text: string;
   readonly kind?: TKind;
-  readonly timeLimit: number;
-  readonly points: number;
   readonly media?: PlayableMedia | null;
   readonly options: readonly PlayableChoiceOption[];
 }
@@ -56,12 +50,9 @@ export interface PlayableContentImportCreationResult {
   readonly importedCount: number;
 }
 
-export interface PlayableManagementItemInput<TKind extends string = string> {
+export interface PlayableManagementItemInput<TKind extends string = string> extends PlayableContentInput {
   readonly position?: number;
-  readonly text: string;
   readonly kind?: TKind;
-  readonly timeLimit: number;
-  readonly points: number;
   readonly mediaFile?: File | null;
   readonly clearMedia?: boolean;
   readonly options: readonly PlayableChoiceOption[];

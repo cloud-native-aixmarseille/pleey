@@ -3,6 +3,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import {
+  PlayableContentImportErrorKind,
+  PredictionErrorCode,
+  QuizErrorCode,
+  resolvePlayableContentImportErrorKind,
+} from "@pleey/domain/errors";
 import { describe, expect, it } from "vitest";
 
 const scriptPath = [
@@ -19,6 +25,26 @@ const { checkPackageApiSurface, checkPartyRealtimeFixtures, checkSharedSourceImp
 );
 
 describe("shared domain package checker", () => {
+  it.each([
+    [QuizErrorCode.QUIZ_IMPORT_EMPTY_FILE, PlayableContentImportErrorKind.EmptyFile],
+    [QuizErrorCode.QUIZ_IMPORT_UNSUPPORTED_FORMAT, PlayableContentImportErrorKind.UnsupportedFormat],
+    [PredictionErrorCode.PREDICTION_IMPORT_INVALID_FILE, PlayableContentImportErrorKind.InvalidFile],
+  ])("classifies the shared import error %s", (code, expectedKind) => {
+    // Act
+    const kind = resolvePlayableContentImportErrorKind(code);
+
+    // Assert
+    expect(kind).toBe(expectedKind);
+  });
+
+  it("does not classify unrelated business errors as import failures", () => {
+    // Act
+    const kind = resolvePlayableContentImportErrorKind(QuizErrorCode.QUIZ_NOT_FOUND);
+
+    // Assert
+    expect(kind).toBeNull();
+  });
+
   it("rejects export surface drift", () => {
     // Arrange
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-shared-package-"));

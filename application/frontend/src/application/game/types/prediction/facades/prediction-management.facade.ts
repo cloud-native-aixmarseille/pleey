@@ -1,5 +1,5 @@
+import type { PredictionPromptId } from '@pleey/domain/game';
 import { inject, injectable } from 'inversify';
-import type { PredictionPromptId } from '../../../../../domains/game/types/prediction/entities/prediction-prompt-id';
 import {
   type PredictionManagementRepository,
   PredictionManagementRepositoryToken,

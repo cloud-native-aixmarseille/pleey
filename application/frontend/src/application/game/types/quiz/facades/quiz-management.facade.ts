@@ -1,5 +1,5 @@
+import type { QuizQuestionId } from '@pleey/domain/game';
 import { inject, injectable } from 'inversify';
-import type { QuizQuestionId } from '../../../../../domains/game/types/quiz/entities/quiz-question-id';
 import {
   type QuizManagementRepository,
   QuizManagementRepositoryToken,

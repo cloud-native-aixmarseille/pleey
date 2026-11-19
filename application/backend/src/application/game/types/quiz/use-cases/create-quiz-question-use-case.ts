@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { SelectableOptionInput } from '@pleey/domain/game';
 import { type QuizQuestion, QuizQuestionType } from '../../../../../domain/game/types/quiz/entities/quiz-question';
 import { QuizErrorCode } from '../../../../../domain/game/types/quiz/enums/quiz-error-code.enum';
 import { QuizNotFoundError } from '../../../../../domain/game/types/quiz/errors';
@@ -7,7 +8,6 @@ import { QuizManagementRepositoryProvider } from '../../../../../domain/game/typ
 import type { QuizQuestionRepository } from '../../../../../domain/game/types/quiz/ports/quiz-question.repository';
 import { QuizQuestionRepositoryProvider } from '../../../../../domain/game/types/quiz/ports/quiz-question.repository';
 import type { GameTypeId } from '../../../../../domain/game/types/shared/entities/game-type';
-import type { SelectableOptionInput } from '../../../../../domain/game/types/shared/entities/selectable-option';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { MediaUploadSource } from '../../../../media/ports/media-upload-source.port';

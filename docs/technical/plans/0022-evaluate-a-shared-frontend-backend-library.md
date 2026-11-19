@@ -3,7 +3,7 @@
 - Issue: add when created
 - Decision: [ADR 0022](../architecture/adr/0022-evaluate-a-shared-frontend-backend-library.md)
 - Updated: 2026-11-18
-- Status: In progress (P1-P3 implemented)
+- Status: In progress (P1-P3 implemented, P4-P5 in validation)
 
 This plan implements ADR 0022 through incremental slices that preserve current
 runtime authority and wire contracts while removing duplicated domain semantics.
@@ -178,20 +178,20 @@ Done when:
 
 ### P5.1 Quiz and prediction common core
 
-- [ ] Extract shared IDs, question kinds, option/input semantics, content/timing/points
+- [x] Extract shared IDs, question kinds, option/input semantics, content/timing/points
       fields, and common public error vocabulary.
-- [ ] Preserve unrevealed authoring/player-private payload boundaries.
+- [x] Preserve unrevealed authoring/player-private payload boundaries.
 
 ### P5.2 Media public contract
 
-- [ ] Extract shared `MediaId` and public delivery-grant contract
+- [x] Extract shared `MediaId` and public delivery-grant contract
       (`id`, `mimeType`, `uri`, `expiresAt`) and safe metadata.
-- [ ] Preserve bytes/storage/signing/grant-issuance authority in backend.
+- [x] Preserve bytes/storage/signing/grant-issuance authority in backend.
 
 ### P5.3 Error vocabulary
 
-- [ ] Extract stable machine-readable business and permission-denial codes.
-- [ ] Preserve local diagnostics, translation strings, and transport/client errors.
+- [x] Extract stable machine-readable business and permission-denial codes.
+- [x] Preserve local diagnostics, translation strings, and transport/client errors.
 
 Done when:
 

@@ -1,5 +1,5 @@
+import { SelectableOption, type SelectableOptionId, type SelectableOptionInput } from '@pleey/domain/game';
 import { createDomainError } from '../../../../shared/errors/domain-error';
-import { SelectableOption, type SelectableOptionId, type SelectableOptionInput } from '../entities/selectable-option';
 
 const FIRST_CHOICE_POSITION = 0;
 const MAX_SELECTABLE_OPTIONS = 4;

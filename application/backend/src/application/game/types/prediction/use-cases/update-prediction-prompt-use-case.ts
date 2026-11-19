@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { SelectableOptionInput } from '@pleey/domain/game';
 import type {
   PredictionPrompt,
   PredictionPromptId,
@@ -12,7 +13,6 @@ import type { PredictionManagementRepository } from '../../../../../domain/game/
 import { PredictionManagementRepositoryProvider } from '../../../../../domain/game/types/prediction/ports/prediction-management.repository';
 import type { PredictionPromptRepository } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
 import { PredictionPromptRepositoryProvider } from '../../../../../domain/game/types/prediction/ports/prediction-prompt.repository';
-import type { SelectableOptionInput } from '../../../../../domain/game/types/shared/entities/selectable-option';
 import { SelectableOptionPolicy } from '../../../../../domain/game/types/shared/services/selectable-option-policy';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { GameTypeManagementAccessGuard } from '../../shared/services/game-type-management-access-guard';
