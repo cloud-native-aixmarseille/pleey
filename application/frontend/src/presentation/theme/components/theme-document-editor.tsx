@@ -62,6 +62,8 @@ export function ThemeDocumentEditor({
   const [mobileView, setMobileView] = useState('edit');
   const mobile = usePresentationMediaQuery('(max-width: 61.99em)');
   const [reloadRequested, setReloadRequested] = useState(false);
+  const [importFailed, setImportFailed] = useState(false);
+  const assetPermission = useThemeActionPermission('uploadAsset');
   const [lastValid, setLastValid] = useState(savedTheme?.document ?? initial);
   const draft = useThemeDraft({
     organizationId,
@@ -123,6 +125,20 @@ export function ThemeDocumentEditor({
           ? 'theme.studio.unsaved'
           : 'theme.studio.saved';
   const problem = invalidField.includes('contrast') ? 'theme.studio.contrastIssue' : 'theme.errors.invalidDocument';
+  const importDocument = async (file: File) => {
+    try {
+      onUploadingChange(true);
+      const imported = await facade.importDocument(organizationId, file, {
+        allowAssetUpload: assetPermission.allowed,
+      });
+      setImportFailed(false);
+      history.change(imported);
+    } catch {
+      setImportFailed(true);
+    } finally {
+      onUploadingChange(false);
+    }
+  };
   const fieldPath = invalidField
     .replace(/\.contrast$/, '')
     .replace(/^(light|dark)\.(?!colorScales)/, 'semantic.$1.')
@@ -160,6 +176,8 @@ export function ThemeDocumentEditor({
               name={document.name}
               onNameChange={(name) => history.change({ ...document, name }, 'name')}
               onBack={onBack}
+              onImport={(file) => void importDocument(file)}
+              onDownloadTemplate={() => facade.downloadTemplate()}
               onUndo={history.undo}
               onRedo={history.redo}
               canUndo={history.canUndo}
@@ -174,8 +192,9 @@ export function ThemeDocumentEditor({
             />
           </div>
           {savedTheme && !dirty && <SupportingText>{t('theme.studio.savedHelp')}</SupportingText>}
-          {(failure || !valid || draft.recoverable || draft.unavailable || uploading) && (
+          {(failure || importFailed || !valid || draft.recoverable || draft.unavailable || uploading) && (
             <ContentStack>
+              {importFailed && <StatusBanner tone="error">{t('theme.studio.importFailed')}</StatusBanner>}
               <StatusBanner tone="error">
                 {failure
                   ? t(failure === 'conflict' ? 'theme.errors.revisionConflict' : 'theme.builder.saveFailed')

@@ -4,6 +4,7 @@ import { usePresentationTranslation } from '../../shared/i18n/use-presentation-t
 import { Button } from '../../shared/ui/actions/button';
 import { IconTriggerButton } from '../../shared/ui/actions/icon-trigger-button';
 import { Input } from '../../shared/ui/forms/input';
+import { FilePickerButton } from '../../shared/ui/forms/file-picker-button';
 import { AppIcon } from '../../shared/ui/icons/app-icon';
 import { ActionRow, ContentStack, FlexGrowItem, SplitWrapRow, StretchRow } from '../../shared/ui/layout/containers';
 import { ElevatedPanel } from '../../shared/ui/layout/panels';
@@ -23,6 +24,8 @@ export function ThemeStudioToolbar({
   savePermission,
   savePermissionReason,
   status,
+  onImport,
+  onDownloadTemplate,
 }: {
   readonly name: string;
   readonly onNameChange: (name: string) => void;
@@ -36,6 +39,8 @@ export function ThemeStudioToolbar({
   readonly savePermission?: ThemePermissions['create'];
   readonly savePermissionReason?: string;
   readonly status: string;
+  readonly onImport: (file: File) => void;
+  readonly onDownloadTemplate: () => void;
 }) {
   const { t } = usePresentationTranslation();
   const validation = useThemeFieldValidation('name');
@@ -70,6 +75,23 @@ export function ThemeStudioToolbar({
               <SupportingText>{t(status)}</SupportingText>
             </div>
             <ActionRow gap="xs">
+              <FilePickerButton
+                accept="application/json,.json"
+                disabled={disabled}
+                inputProps={{ 'aria-label': t('theme.studio.import') }}
+                onSelect={(file) => {
+                  if (file) onImport(file);
+                }}
+              >
+                {(props) => (
+                  <Button {...props} intent="ghost" size="sm" disabled={disabled}>
+                    {t('theme.studio.import')}
+                  </Button>
+                )}
+              </FilePickerButton>
+              <Button intent="ghost" size="sm" onClick={onDownloadTemplate}>
+                {t('theme.studio.downloadTemplate')}
+              </Button>
               <IconTriggerButton onClick={onUndo} disabled={disabled || !canUndo} aria-label={t('theme.studio.undo')}>
                 <AppIcon name="undo" />
               </IconTriggerButton>

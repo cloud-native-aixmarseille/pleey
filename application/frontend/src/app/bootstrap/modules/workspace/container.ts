@@ -50,6 +50,13 @@ import { OrganizationMemberIdentifier } from '../../../../application/workspace/
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
 import { ThemeManagementFacade } from '../../../../application/workspace/themes/facades/theme-management.facade';
 import { ThemeDraftPortToken } from '../../../../application/workspace/themes/ports/theme-draft.port';
+import {
+  ThemeAssetUriReaderPortToken,
+  ThemeDocumentFileReaderPortToken,
+  ThemeTemplateDownloadPortToken,
+} from '../../../../application/workspace/themes/ports/theme-document-transfer.port';
+import { ThemeDocumentImportService } from '../../../../application/workspace/themes/services/theme-document-import.service';
+import { ThemeDocumentTemplateFactory } from '../../../../application/workspace/themes/services/theme-document-template.factory';
 import { ThemeIdentifier } from '../../../../application/workspace/themes/services/theme-identifier';
 import { PredictionManagementRepositoryToken } from '../../../../domains/game/types/prediction/ports/prediction-management.repository';
 import { QuizManagementRepositoryToken } from '../../../../domains/game/types/quiz/ports/quiz-management.repository';
@@ -69,6 +76,7 @@ import { PlayableManagementGraphqlMapper } from '../../../../infrastructure/game
 import { GraphqlOrganizationRepository } from '../../../../infrastructure/organization/graphql-organization.repository';
 import { GraphqlProjectRepository } from '../../../../infrastructure/project/graphql-project.repository';
 import { GraphqlThemeRepository } from '../../../../infrastructure/theme/graphql-theme-repository';
+import { BrowserThemeDocumentTransferAdapter } from '../../../../infrastructure/theme/browser-theme-document-transfer.adapter';
 import { PersistedThemeDraftAdapter } from '../../../../infrastructure/theme/persisted-theme-draft.adapter';
 import { PersistedWorkspaceSelectionAdapter } from '../../../../infrastructure/workspace/persisted-workspace-selection.adapter';
 import { PredictionManagementRoutesFactory } from '../../../../presentation/game/types/prediction/routes/prediction-management-routes-factory';
@@ -95,6 +103,11 @@ export const workspaceContainerModule = new ContainerModule(({ bind }) => {
     .toDynamicValue(() => new ThemeDocumentNormalizer())
     .inSingletonScope();
   bind(ThemeManagementFacade).toSelf().inSingletonScope();
+  bind(ThemeDocumentImportService).toSelf().inSingletonScope();
+  bind(ThemeDocumentTemplateFactory).toSelf().inSingletonScope();
+  bind(ThemeAssetUriReaderPortToken).to(BrowserThemeDocumentTransferAdapter).inSingletonScope();
+  bind(ThemeDocumentFileReaderPortToken).to(BrowserThemeDocumentTransferAdapter).inSingletonScope();
+  bind(ThemeTemplateDownloadPortToken).to(BrowserThemeDocumentTransferAdapter).inSingletonScope();
   bind(ThemePaletteGenerator)
     .toDynamicValue(() => new ThemePaletteGenerator())
     .inSingletonScope();

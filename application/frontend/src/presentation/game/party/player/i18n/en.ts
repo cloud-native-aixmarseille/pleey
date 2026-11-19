@@ -34,7 +34,6 @@ export const gamePartyPlayerEn = {
           scoringExplanation:
             'Correct answers earn about 80% of the points, plus up to 20% for speed. Wrong answers earn 0. Without a timer, correct answers earn full points.',
           currentHost: 'Hosted by {{username}}',
-          actionSubmitting: 'Submitting your answer...',
           answerShortcuts: 'Answer choices',
           answerShortcut: 'Select answer {{number}}',
           actionPaused: 'The host paused the party. Answers are temporarily locked.',

@@ -109,7 +109,6 @@ export function PlayableChoicePlayerStageSurface({
     <PlayerStageSurfaceFrame
       contentGap={isMobile ? 'sm' : 'md'}
       isLocked={isLocked}
-      isSubmitting={isSubmitting}
       lockedLabel={t(copy.responseLocked)}
       mobileTimer={{
         isPaused: party.status === PartyStatus.PAUSED,
@@ -129,7 +128,6 @@ export function PlayableChoicePlayerStageSurface({
           totalDurationMs={totalDurationMs}
         />
       }
-      submittingLabel={t('game.party.player.route.actionSubmitting')}
       testId={`${testIdPrefix}-player-stage-surface`}
     >
       {!isReading &&

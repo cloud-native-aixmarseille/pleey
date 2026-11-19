@@ -17,6 +17,7 @@ import {
   stageMetaStyle,
   stageMetaTimerSlotStyle,
   stagePromptRegionStyle,
+  stagePromptRegionWithoutMediaStyle,
   stageShellStyle,
 } from './playable-choice-host-stage-panel.styles';
 import { PlayableChoiceResultActionTile } from './playable-choice-result-action-tile';
@@ -91,7 +92,7 @@ export function PlayableChoiceHostStagePanel({ copy, party, testIdPrefix }: Play
           </InsetPanel>
         </div>
 
-        <div style={stagePromptRegionStyle}>
+        <div style={currentStage.media ? stagePromptRegionStyle : stagePromptRegionWithoutMediaStyle}>
           <MotionFadeIn key={`question-${stageId}`} duration={STAGE_QUESTION_REVEAL_DURATION_SECONDS}>
             <Heading hero level={1}>
               {currentStage.text}

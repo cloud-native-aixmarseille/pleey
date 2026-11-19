@@ -520,9 +520,7 @@ vi.mock('../contexts/party-game-type-runtime-registry-context', async (importOri
               ))}
               {playerActionErrorMessage ? <span>{playerActionErrorMessage}</span> : null}
               {currentPlayerAction ? <span>runtime-stage.current-player.locked</span> : null}
-              {pendingActionId !== null && currentPlayerAction === null ? (
-                <span>game.party.player.route.actionSubmitting</span>
-              ) : null}
+              {pendingActionId !== null && currentPlayerAction === null ? <span>pending-action</span> : null}
             </div>
           );
         },
@@ -1442,7 +1440,7 @@ describe('PartyLobbyScreen', () => {
       });
     });
 
-    expect(screen.getByText('game.party.player.route.actionSubmitting')).toBeInTheDocument();
+    expect(screen.getByText('pending-action')).toBeInTheDocument();
   });
 
   for (const scenario of [

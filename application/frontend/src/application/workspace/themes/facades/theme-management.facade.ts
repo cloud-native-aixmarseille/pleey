@@ -16,6 +16,12 @@ import {
   ThemeDraftPortToken,
   type ThemeDraftScope,
 } from '../ports/theme-draft.port';
+import {
+  type ThemeTemplateDownloadPort,
+  ThemeTemplateDownloadPortToken,
+} from '../ports/theme-document-transfer.port';
+import { ThemeDocumentImportService } from '../services/theme-document-import.service';
+import { ThemeDocumentTemplateFactory } from '../services/theme-document-template.factory';
 @injectable()
 export class ThemeManagementFacade {
   constructor(
@@ -23,6 +29,9 @@ export class ThemeManagementFacade {
     @inject(ThemeDocumentNormalizer) private readonly normalizer: ThemeDocumentNormalizer,
     @inject(ThemePaletteGenerator) private readonly paletteGenerator: ThemePaletteGenerator,
     @inject(ThemeDraftPortToken) private readonly drafts: ThemeDraftPort,
+    @inject(ThemeDocumentImportService) private readonly importer: ThemeDocumentImportService,
+    @inject(ThemeDocumentTemplateFactory) private readonly templateFactory: ThemeDocumentTemplateFactory,
+    @inject(ThemeTemplateDownloadPortToken) private readonly templateDownload: ThemeTemplateDownloadPort,
   ) {}
   normalize(value: unknown): ThemeDocument {
     return this.normalizer.normalize(value);
@@ -53,5 +62,15 @@ export class ThemeManagementFacade {
   }
   upload(organizationId: OrganizationId, file: File) {
     return this.repository.upload(organizationId, file);
+  }
+  importDocument(
+    organizationId: OrganizationId,
+    file: File,
+    options: { readonly allowAssetUpload: boolean },
+  ): Promise<ThemeDocument> {
+    return this.importer.execute(organizationId, file, options);
+  }
+  downloadTemplate(): void {
+    this.templateDownload.download(this.templateFactory.create());
   }
 }

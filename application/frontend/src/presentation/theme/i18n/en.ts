@@ -72,6 +72,9 @@ export const themeEn = {
       saveFailed: 'Save failed',
       uploading: 'Uploading image...',
       uploadingHelp: 'Your image is uploading. Saving will be available when it finishes.',
+      import: 'Import theme JSON',
+      downloadTemplate: 'Download template',
+      importFailed: 'The theme file is not valid JSON or does not match the theme document format.',
       uploadFailed: 'The image could not be uploaded. Your theme is still here; try again.',
       retryUpload: 'Retry upload',
       assetPreview: '{{asset}} preview',
@@ -156,6 +159,33 @@ export const themeEn = {
         lockAnswer: 'Lock in answer',
         answerLocked: 'Answer selected in the preview. Choose another to try again.',
         sample: 'Sample game · preview only',
+      },
+    },
+    template: {
+      root:
+        'Theme document template. Every value in overrides is optional. Remove fields to inherit the selected base theme; $comment fields are ignored on import.',
+      name: 'My theme',
+      overrides:
+        'Optional sections are colorScales, semantic, radius, spacing, motion, typography, and assets. Each key can be omitted independently.',
+      colorScales:
+        'Ten HEX colors per scale, from lightest to darkest. accent controls actions, highlight controls emphasis, and success controls positive states.',
+      semantic: {
+        root: 'Mode-specific surface, text, and border colors. Use HEX values and preserve readable WCAG contrast.',
+        light: 'Semantic values for light mode.',
+        dark: 'Semantic values for dark mode.',
+        surface: 'Colors for the canvas, panels, fields, overlays, and state surfaces.',
+        text: 'Foreground colors paired with the corresponding surfaces.',
+        border: 'Colors for borders, focus rings, dividers, and state indicators.',
+      },
+      radius:
+        'Corner radii in px or rem: field for controls, inset for nested surfaces, panel for cards, and pill for fully rounded elements.',
+      spacing: 'Spacing in px or rem, from xxs as the smallest token to xxxl as the largest.',
+      motion: 'Durations in ms, optionally followed by ease, linear, or ease-in-out. The maximum is 500ms.',
+      typography:
+        'Approved font-family strings for body text, display headings, monospace content, and overline labels.',
+      assets: {
+        root:
+          'logoAssetUri and backgroundAssetUri accept PNG, JPEG, or WebP URIs. Import downloads and replaces them with managed asset IDs.',
       },
     },
     management: {

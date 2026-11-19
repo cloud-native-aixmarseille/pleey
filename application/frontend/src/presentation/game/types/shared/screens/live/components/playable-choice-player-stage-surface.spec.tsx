@@ -172,4 +172,33 @@ describe('PlayableChoicePlayerStageSurface', () => {
       vi.useRealTimers();
     }
   });
+
+  it('keeps an answer change selected and does not show transient submitting copy', () => {
+    // Arrange
+    vi.useFakeTimers();
+    vi.setSystemTime(105_000);
+    const baseParty = fixtures.createObservation();
+    const secondActionId = baseParty.context!.stage!.current!.actions[1].id;
+    const party = {
+      ...baseParty,
+      settings: { ...baseParty.settings, allowOptionChangeAfterVoting: true },
+    };
+    // Act
+    renderWithUiProvider(
+      <KeyboardShortcutsProvider>
+        <PlayableChoicePlayerStageSurface
+          copy={quizRuntimeCopy}
+          testIdPrefix="quiz"
+          party={party}
+          onLeaveParty={vi.fn()}
+          onSubmitAction={vi.fn()}
+          pendingActionId={secondActionId}
+          playerActionErrorMessage={null}
+        />
+      </KeyboardShortcutsProvider>,
+    );
+    // Assert
+    expect(screen.getByRole('button', { name: 'Second answer' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
 });

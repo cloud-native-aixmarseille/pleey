@@ -149,7 +149,7 @@ export function buildTileStyle(
       border: `2px solid ${slot.badgeBackground}`,
       boxShadow: `0 0 0 3px ${slot.surfaceBorder}`,
       cursor: options.disabled ? 'not-allowed' : undefined,
-      opacity: options.disabled ? 0.6 : 1,
+      opacity: 1,
     };
   }
 
