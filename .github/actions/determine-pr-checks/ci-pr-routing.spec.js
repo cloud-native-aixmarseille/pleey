@@ -42,6 +42,8 @@ describe("pull request CI routing", () => {
     "application/backend/src/schema.gql",
     "application/frontend/package-lock.json",
     "scripts/check-pagination.mjs",
+    "scripts/check-shared-domain-package.mjs",
+    "packages/pleey-domain/game/index.js",
     ".github/workflows/__shared-ci.yml",
     "application/backend/Dockerfile",
     "charts/application/Chart.yaml",

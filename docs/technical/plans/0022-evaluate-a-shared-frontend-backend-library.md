@@ -3,7 +3,7 @@
 - Issue: add when created
 - Decision: [ADR 0022](../architecture/adr/0022-evaluate-a-shared-frontend-backend-library.md)
 - Updated: 2026-11-19
-- Status: In progress (P1-P3 implemented, P4-P6 in validation)
+- Status: In progress (P1-P3 implemented, P4-P7 in validation)
 
 This plan implements ADR 0022 through incremental slices that preserve current
 runtime authority and wire contracts while removing duplicated domain semantics.
@@ -223,10 +223,15 @@ Done when:
 
 ## P7 - CI and Docker hardening
 
-- [ ] Ensure shared package checks run on relevant CI routes.
-- [ ] Verify CI routing still classifies documentation-only and application changes correctly.
-- [ ] Verify Docker layer inputs include the shared package deterministically.
-- [ ] Validate fresh and warm build behavior after package introduction.
+- [x] Ensure shared package checks run on relevant CI routes.
+- [x] Verify CI routing still classifies documentation-only and application changes correctly.
+- [x] Verify Docker layer inputs include the shared package deterministically.
+- [x] Validate fresh and warm build behavior after package introduction.
+
+The full CI route includes package source and shared-check script changes. The
+CI-routing suite verifies that shared package changes stay on full CI and that
+both application Dockerfiles, lockfiles, production stages, CI stages, build
+context and development mounts retain deterministic shared-package wiring.
 
 Done when:
 
