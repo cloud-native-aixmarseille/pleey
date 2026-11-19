@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { PartyStatus } from '@pleey/domain/party';
 import {
   GameValidationFailedError,
   PartyCommandNotAvailableError,
   PartyStagesNotAvailableError,
 } from '../../../../../domain/game/errors';
-import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { PartyRuntimePhase } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
 import {
   type EvaluatePartyActionSubmissionCommand,

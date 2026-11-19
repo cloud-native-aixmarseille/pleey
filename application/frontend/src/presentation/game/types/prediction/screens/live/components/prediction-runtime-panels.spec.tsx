@@ -1,10 +1,9 @@
 import { GameType } from '@pleey/domain/game';
+import { DEFAULT_PARTY_SETTINGS, PartyStatus } from '@pleey/domain/party';
 import { act, fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { PartyObservation } from '../../../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyRuntimePhase } from '../../../../../../../domains/game/party/shared/entities/party-runtime-context';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../../../domains/game/party/shared/entities/party-settings';
-import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 import { PartyFixtureFactory } from '../../../../../../../test-utils/fixtures/party-fixture-factory';
 import { ThemeFixtureFactory } from '../../../../../../../test-utils/fixtures/theme-fixture-factory';
 import { PartyActionIdentifierMockFactory } from '../../../../../../../test-utils/mocks/party-action-identifier-mock-factory';

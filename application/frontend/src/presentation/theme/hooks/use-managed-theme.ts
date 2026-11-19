@@ -1,8 +1,8 @@
+import type { ThemeId } from '@pleey/domain/theme';
 import { useEffect, useState } from 'react';
 import type { OrganizationId } from '../../../domains/organization/entities/organization';
 import { isDomainError } from '../../../domains/shared/errors/domain-error';
 import type { ManagedTheme } from '../../../domains/theme/entities/managed-theme';
-import type { ThemeId } from '../../../domains/theme/entities/theme-id';
 import { ThemeErrorCode } from '../../../domains/theme/errors/theme-error';
 import { useWorkspaceDependencies } from '../../workspace/shared/contexts/workspace-dependencies-context';
 

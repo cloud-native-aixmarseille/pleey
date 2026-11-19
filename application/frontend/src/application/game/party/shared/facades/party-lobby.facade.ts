@@ -1,4 +1,5 @@
 import type { GuestId } from '@pleey/domain/identity';
+import type { PartyId, PartyPin } from '@pleey/domain/party';
 import { inject, injectable } from 'inversify';
 import {
   type HostPartyPlayerControlCommand,
@@ -22,7 +23,7 @@ import {
   PartyPlayerPortToken,
   type PartySubmitActionCommand,
 } from '../../../../../domains/game/party/player/ports/party-player.port';
-import type { Party, PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
+import type { Party } from '../../../../../domains/game/party/shared/entities/party';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 
 export interface PartyLobbyGateway {

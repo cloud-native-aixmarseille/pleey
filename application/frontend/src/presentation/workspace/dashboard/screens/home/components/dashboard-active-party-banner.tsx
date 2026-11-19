@@ -1,6 +1,5 @@
+import { PartyRole, PartyStatus } from '@pleey/domain/party';
 import type { Party } from '../../../../../../domains/game/party/shared/entities/party';
-import { PartyRole } from '../../../../../../domains/game/party/shared/entities/party-role';
-import { PartyStatus } from '../../../../../../domains/game/party/shared/entities/party-status';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
 import { AppIcon, type AppIconName } from '../../../../../shared/ui/icons/app-icon';

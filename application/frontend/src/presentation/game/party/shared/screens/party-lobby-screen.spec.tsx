@@ -1,5 +1,7 @@
 import { GameType } from '@pleey/domain/game';
 import type { GuestId } from '@pleey/domain/identity';
+import type { PartyActionId, PartyId } from '@pleey/domain/party';
+import { DEFAULT_PARTY_SETTINGS, PartyRole, PartyStatus } from '@pleey/domain/party';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, vi, it as vitestIt } from 'vitest';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
@@ -14,15 +16,11 @@ import type {
   PartyPlayerPort,
 } from '../../../../../domains/game/party/player/ports/party-player.port';
 import { PartyJoinReceiptStatus } from '../../../../../domains/game/party/player/ports/party-player.port';
-import type { Party, PartyId } from '../../../../../domains/game/party/shared/entities/party';
-import type { PartyActionId } from '../../../../../domains/game/party/shared/entities/party-action';
+import type { Party } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
-import { PartyRole } from '../../../../../domains/game/party/shared/entities/party-role';
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../domains/game/party/shared/entities/party-settings';
-import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import type { User, UserId } from '../../../../../domains/identity/entities/user';
 import { AuthFixtureFactory } from '../../../../../test-utils/fixtures/auth-fixture-factory';
@@ -53,7 +51,7 @@ const partyIdentifier = new PartyIdentifierMockFactory().create();
 const partyPinIdentifier = new PartyPinIdentifierMockFactory().create();
 const stageIdentifier = new StageIdentifierMockFactory().create();
 const partyActionIdentifier = new PartyActionIdentifierMockFactory().create();
-const toStageId = (value: number) => stageIdentifier.parse(value);
+const toPartyStageId = (value: number) => stageIdentifier.parse(value);
 const toActionId = (value: number) => partyActionIdentifier.parse(value);
 const gameIdentifier = new GameIdentifierMockFactory().create();
 const authFixtureFactory = new AuthFixtureFactory();
@@ -641,7 +639,7 @@ function createActiveStageContext(overrides: StagePartyRuntimeContextOverrides =
     lifecycle: {
       phase: PartyRuntimePhase.STAGE,
       stageEndsAtEpochMs: null,
-      stageId: toStageId(1),
+      stageId: toPartyStageId(1),
       stagePosition: 0,
       stageRemainingDurationMs: null,
       stageTimeLimitSeconds: null,
@@ -686,7 +684,7 @@ function createRuntimeResultContext(overrides: ResultPartyRuntimeContextOverride
     lifecycle: {
       phase: PartyRuntimePhase.RESULT,
       stageEndsAtEpochMs: null,
-      stageId: toStageId(1),
+      stageId: toPartyStageId(1),
       stagePosition: 0,
       stageRemainingDurationMs: null,
       stageTimeLimitSeconds: null,
@@ -1671,7 +1669,7 @@ describe('PartyLobbyScreen', () => {
     expect(await screen.findByText('game.party.host.route.shareHeading')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mocks.navigate).toHaveBeenCalledWith(`/party/${partyIdentifier.parse(9)}/stage/${toStageId(1)}`);
+      expect(mocks.navigate).toHaveBeenCalledWith(`/party/${partyIdentifier.parse(9)}/stage/${toPartyStageId(1)}`);
     });
   });
 
@@ -1800,7 +1798,7 @@ describe('PartyLobbyScreen', () => {
       context: createActiveStageContext({
         lifecycle: {
           stageEndsAtEpochMs: null,
-          stageId: toStageId(1),
+          stageId: toPartyStageId(1),
           stagePosition: 0,
           stageRemainingDurationMs: 8_000,
           stageTimeLimitSeconds: 30,
@@ -1819,7 +1817,7 @@ describe('PartyLobbyScreen', () => {
             context: createActiveStageContext({
               lifecycle: {
                 stageEndsAtEpochMs: 30_000,
-                stageId: toStageId(1),
+                stageId: toPartyStageId(1),
                 stagePosition: 0,
                 stageRemainingDurationMs: 30_000,
                 stageTimeLimitSeconds: 30,
@@ -1906,7 +1904,7 @@ describe('PartyLobbyScreen', () => {
       context: createActiveStageContext({
         lifecycle: {
           stageEndsAtEpochMs: null,
-          stageId: toStageId(1),
+          stageId: toPartyStageId(1),
           stagePosition: 0,
           stageRemainingDurationMs: 8_000,
           stageTimeLimitSeconds: 30,
@@ -1958,7 +1956,7 @@ describe('PartyLobbyScreen', () => {
       context: createActiveStageContext({
         lifecycle: {
           stageEndsAtEpochMs: 30_000,
-          stageId: toStageId(1),
+          stageId: toPartyStageId(1),
           stagePosition: 0,
           stageRemainingDurationMs: 30_000,
           stageTimeLimitSeconds: 30,
@@ -2014,7 +2012,7 @@ describe('PartyLobbyScreen', () => {
         lifecycle: {
           phase: PartyRuntimePhase.STAGE,
           stageEndsAtEpochMs: null,
-          stageId: toStageId(2),
+          stageId: toPartyStageId(2),
           stagePosition: 1,
           stageRemainingDurationMs: null,
           stageTimeLimitSeconds: null,
@@ -2133,7 +2131,7 @@ describe('PartyLobbyScreen', () => {
         lifecycle: {
           phase: PartyRuntimePhase.ENDED,
           stageEndsAtEpochMs: null,
-          stageId: toStageId(1),
+          stageId: toPartyStageId(1),
           stagePosition: 0,
           stageRemainingDurationMs: null,
           stageTimeLimitSeconds: null,
@@ -2495,7 +2493,7 @@ describe('PartyLobbyScreen', () => {
             lifecycle: {
               phase: PartyRuntimePhase.STAGE,
               stageEndsAtEpochMs: null,
-              stageId: toStageId(1),
+              stageId: toPartyStageId(1),
               stagePosition: 0,
               stageRemainingDurationMs: null,
               stageTimeLimitSeconds: null,
@@ -2513,7 +2511,7 @@ describe('PartyLobbyScreen', () => {
         lifecycle: {
           phase: PartyRuntimePhase.RESULT,
           stageEndsAtEpochMs: null,
-          stageId: toStageId(2),
+          stageId: toPartyStageId(2),
           stagePosition: 1,
           stageRemainingDurationMs: null,
           stageTimeLimitSeconds: null,
@@ -2558,7 +2556,7 @@ describe('PartyLobbyScreen', () => {
     );
 
     await waitFor(() => {
-      expect(mocks.navigate).toHaveBeenCalledWith(`/party/${partyIdentifier.parse(9)}/stage/${toStageId(1)}`);
+      expect(mocks.navigate).toHaveBeenCalledWith(`/party/${partyIdentifier.parse(9)}/stage/${toPartyStageId(1)}`);
     });
   });
 
@@ -2601,7 +2599,7 @@ describe('PartyLobbyScreen', () => {
         lifecycle: {
           phase: PartyRuntimePhase.RESULT,
           stageEndsAtEpochMs: null,
-          stageId: toStageId(2),
+          stageId: toPartyStageId(2),
           stagePosition: 1,
           stageRemainingDurationMs: null,
           stageTimeLimitSeconds: null,
@@ -2694,7 +2692,7 @@ describe('PartyLobbyScreen', () => {
       lifecycle: {
         phase: PartyRuntimePhase.RESULT,
         stageEndsAtEpochMs: null,
-        stageId: toStageId(4),
+        stageId: toPartyStageId(4),
         stagePosition: 3,
         stageRemainingDurationMs: null,
         stageTimeLimitSeconds: null,
@@ -2738,7 +2736,7 @@ describe('PartyLobbyScreen', () => {
           lifecycle: {
             phase: PartyRuntimePhase.ENDED,
             stageEndsAtEpochMs: null,
-            stageId: toStageId(4),
+            stageId: toPartyStageId(4),
             stagePosition: 3,
             stageRemainingDurationMs: null,
             stageTimeLimitSeconds: null,
@@ -2793,7 +2791,7 @@ describe('PartyLobbyScreen', () => {
         lifecycle: {
           phase: PartyRuntimePhase.ENDED,
           stageEndsAtEpochMs: null,
-          stageId: toStageId(1),
+          stageId: toPartyStageId(1),
           stagePosition: 0,
           stageRemainingDurationMs: null,
           stageTimeLimitSeconds: null,
@@ -2861,7 +2859,7 @@ describe('PartyLobbyScreen', () => {
         lifecycle: {
           phase: PartyRuntimePhase.ENDED,
           stageEndsAtEpochMs: null,
-          stageId: toStageId(1),
+          stageId: toPartyStageId(1),
           stagePosition: 0,
           stageRemainingDurationMs: null,
           stageTimeLimitSeconds: null,
@@ -2935,7 +2933,7 @@ describe('PartyLobbyScreen', () => {
         lifecycle: {
           phase: PartyRuntimePhase.ENDED,
           stageEndsAtEpochMs: null,
-          stageId: toStageId(1),
+          stageId: toPartyStageId(1),
           stagePosition: 0,
           stageRemainingDurationMs: null,
           stageTimeLimitSeconds: null,
@@ -2985,7 +2983,7 @@ describe('PartyLobbyScreen', () => {
         lifecycle: {
           phase: PartyRuntimePhase.ENDED,
           stageEndsAtEpochMs: null,
-          stageId: toStageId(1),
+          stageId: toPartyStageId(1),
           stagePosition: 0,
           stageRemainingDurationMs: null,
           stageTimeLimitSeconds: null,

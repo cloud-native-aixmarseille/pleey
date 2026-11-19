@@ -1,17 +1,14 @@
 import type { GameId } from '@pleey/domain/game';
 import { GameType } from '@pleey/domain/game';
+import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '@pleey/domain/party';
+import type { ThemeId } from '@pleey/domain/theme';
 import { useState } from 'react';
 import type { PlayableContentImportExampleProvider } from '../../../../../../application/game/types/shared/ports/playable-content-import-example-provider.port';
 import type { DashboardGameListItem } from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { DashboardGameSortField } from '../../../../../../domains/game/management/entities/dashboard-game-list-query';
-import {
-  DEFAULT_PARTY_SETTINGS,
-  type PartySettings,
-} from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
 import type { Project } from '../../../../../../domains/project/entities/project';
-import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';

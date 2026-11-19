@@ -1,3 +1,4 @@
+import { PartyStatus } from '@pleey/domain/party';
 import { injectable } from 'inversify';
 import type {
   HostPartyRuntimeControlsState,
@@ -5,7 +6,6 @@ import type {
 } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
-import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 
 @injectable()
 export class HostPartyRuntimeControlsResolver implements PartyHostRuntimeControlsPort {

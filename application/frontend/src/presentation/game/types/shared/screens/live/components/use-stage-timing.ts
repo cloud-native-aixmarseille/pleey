@@ -1,7 +1,7 @@
+import { PartyStatus } from '@pleey/domain/party';
 import { useEffect, useState } from 'react';
 import type { PartyObservation } from '../../../../../../../domains/game/party/shared/entities/party-observation';
 import { PartyRuntimePhase } from '../../../../../../../domains/game/party/shared/entities/party-runtime-context';
-import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 
 const COUNTDOWN_TICK_INTERVAL_MS = 250;
 

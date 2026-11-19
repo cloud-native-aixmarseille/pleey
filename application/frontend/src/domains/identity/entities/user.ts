@@ -1,6 +1,6 @@
-export type UserId = string & {
-  readonly __identifierBrand: 'UserId';
-};
+import type { UserId } from '@pleey/domain/identity';
+
+export type { UserId } from '@pleey/domain/identity';
 
 export interface User {
   readonly id: UserId;

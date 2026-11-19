@@ -1,9 +1,9 @@
+import type { PartySettings } from '@pleey/domain/party';
+import type { ThemeId } from '@pleey/domain/theme';
 import { inject, injectable } from 'inversify';
-import type { PartySettings } from '../../../../domains/game/party/shared/entities/party-settings';
 import type { ProjectValidationErrorCode } from '../../../../domains/project/errors/project-validation-error-code';
 import type { ProjectFormInput } from '../../../../domains/project/services/project-form.service';
 import { ProjectFormService } from '../../../../domains/project/services/project-form.service';
-import type { ThemeId } from '../../../../domains/theme/entities/theme-id';
 
 @injectable()
 export class ProjectFormFacade {

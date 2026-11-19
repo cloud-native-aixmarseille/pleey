@@ -1,5 +1,5 @@
 import { OrganizationRole } from '@pleey/domain/organization';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../domain/game/party/shared/entities/party-settings';
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createOrganizationMemberFixture } from '../../../../test-utils/fixtures/unit/organization-member.fixture';

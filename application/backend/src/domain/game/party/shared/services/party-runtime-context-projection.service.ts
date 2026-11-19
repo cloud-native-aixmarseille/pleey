@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import type { PartyActionId } from '@pleey/domain/party';
 import type { PartyStageCatalogEntry } from '../../../../../application/game/types/shared/ports/party-stage-catalog.port';
 import type { PartyPlayerActionState } from '../../player/entities/party-player-action-state';
-import type { PartyActionId } from '../entities/party-action';
 import { type PartyRuntimeContext, PartyRuntimePhase } from '../entities/party-runtime-context';
 
 interface ProjectPartyRuntimeContextInput {

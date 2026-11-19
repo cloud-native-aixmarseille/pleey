@@ -1,6 +1,6 @@
+import { PartyStatus } from '@pleey/domain/party';
 import type { HostPartyRuntimeCommand } from '../../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
-import { PartyStatus } from '../../../../../../domains/game/party/shared/entities/party-status';
 import { GuideLaunch } from '../../../../../shared/guide/guide-launch';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Badge } from '../../../../../shared/ui/feedback/badge';

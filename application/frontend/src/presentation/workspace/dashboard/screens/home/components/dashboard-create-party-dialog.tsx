@@ -1,7 +1,7 @@
+import type { PartySettings } from '@pleey/domain/party';
 import { useState } from 'react';
 import type { DashboardGameListItem } from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
 import type { CreatePartyCommand } from '../../../../../../domains/game/party/host/ports/party-management.port';
-import type { PartySettings } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import type { OrganizationId } from '../../../../../../domains/organization/entities/organization';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';

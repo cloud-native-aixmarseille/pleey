@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyStageIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-stage-identifier';
@@ -6,7 +7,6 @@ import { GuestIdentifier } from '../../../../application/identity/shared/service
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
-import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { ChoiceSubmissionFixtureFactory } from '../../../../test-utils/fixtures/choice-submission-fixture-factory';
 import { PrismaPartyReadModelMapper } from './prisma-party-read-model-mapper';

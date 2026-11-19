@@ -1,5 +1,5 @@
 import type { GuestId } from '@pleey/domain/identity';
-import type { PartyId, PartyPin } from '../../shared/entities/party';
+import type { PartyId, PartyPin } from '@pleey/domain/party';
 
 /**
  * Party Guest Session Port

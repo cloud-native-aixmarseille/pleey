@@ -119,4 +119,4 @@ export const CYBER_ARCADE_THEME_PALETTE = {
       },
     },
   },
-} as const;
+};

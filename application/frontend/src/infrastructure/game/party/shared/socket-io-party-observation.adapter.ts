@@ -1,5 +1,5 @@
+import type { PartyId } from '@pleey/domain/party';
 import { inject, injectable } from 'inversify';
-import type { PartyId } from '../../../../domains/game/party/shared/entities/party';
 import {
   type PartyObservationConnectionState,
   type PartyObservationHandlers,

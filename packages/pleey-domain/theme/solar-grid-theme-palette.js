@@ -119,4 +119,4 @@ export const SOLAR_GRID_THEME_PALETTE = {
       },
     },
   },
-} as const;
+};

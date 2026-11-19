@@ -1,7 +1,7 @@
+import type { PartyId } from '@pleey/domain/party';
 import { inject, injectable } from 'inversify';
 import { io, type Socket } from 'socket.io-client';
 import { PartyIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-identifier';
-import type { PartyId } from '../../../../domains/game/party/shared/entities/party';
 import { PartyManagementErrorCode } from '../../../../domains/game/party/shared/errors/party-management-error-code';
 import type { MediaAccessGrant } from '../../../../domains/media/ports/media-access.port';
 import { createDomainError } from '../../../../domains/shared/errors/domain-error';

@@ -1,7 +1,7 @@
 import type { GameId } from '@pleey/domain/game';
-import type { ThemeId } from '../../../../theme/entities/theme-id';
+import type { PartySettings } from '@pleey/domain/party';
+import type { ThemeId } from '@pleey/domain/theme';
 import type { Party } from '../../shared/entities/party';
-import type { PartySettings } from '../../shared/entities/party-settings';
 
 export interface CreatePartyCommand {
   readonly gameId: GameId;

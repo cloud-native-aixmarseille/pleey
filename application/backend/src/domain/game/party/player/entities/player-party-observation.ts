@@ -1,8 +1,6 @@
+import type { PartyId, PartyPin, PartySettings, PartyStatus } from '@pleey/domain/party';
 import type { ThemeDocument } from '../../../../theme/entities/theme-document';
-import type { PartyStatus } from '../../enums/party-status.enum';
-import type { PartyId, PartyPin } from '../../shared/entities/party';
 import type { PartyRuntimeContext } from '../../shared/entities/party-runtime-context';
-import type { PartySettings } from '../../shared/entities/party-settings';
 import type { PartyPlayerActionState } from './party-player-action-state';
 import type { PartyPlayerIdentity } from './party-player-identity';
 

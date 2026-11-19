@@ -1,5 +1,5 @@
+import { PartyRole } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
-import { PartyRole } from '../../../../../domains/game/party/shared/entities/party-role';
 import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
 import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stage-identifier-mock-factory';
 import { PartyPinIdentifier } from './identifiers/party-pin-identifier';
@@ -78,8 +78,8 @@ describe('PartyRouteService', () => {
 
   it('normalizes blank or invalid stage ids to null', () => {
     // Arrange + Act + Assert
-    expect(service.normalizeStageId('   ')).toBeNull();
-    expect(service.normalizeStageId('0')).toBeNull();
-    expect(service.normalizeStageId(' 4 ')).toBe(stageIdentifier.parse(4));
+    expect(service.normalizePartyStageId('   ')).toBeNull();
+    expect(service.normalizePartyStageId('0')).toBeNull();
+    expect(service.normalizePartyStageId(' 4 ')).toBe(stageIdentifier.parse(4));
   });
 });

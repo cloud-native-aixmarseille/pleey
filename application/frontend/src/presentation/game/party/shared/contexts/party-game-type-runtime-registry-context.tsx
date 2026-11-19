@@ -1,6 +1,6 @@
 import { type GameType } from '@pleey/domain/game';
+import type { PartyActionId } from '@pleey/domain/party';
 import { createContext, createElement, type PropsWithChildren, type ReactElement, useContext } from 'react';
-import type { PartyActionId } from '../../../../../domains/game/party/shared/entities/party-action';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import { PresentationRuntimeDependencyProviderRequiredError } from '../../../../../domains/shared/errors/presentation-context-error-code';
 

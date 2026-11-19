@@ -1,7 +1,7 @@
 import { Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { THEME_ID_PATTERN } from '@pleey/domain/theme';
 import { Allow, IsInt, IsOptional, IsString, Matches, MaxLength, Min } from 'class-validator';
 import type { ThemeDocument } from '../../../domain/theme/entities/theme-document';
-import { THEME_ID_PATTERN } from '../../../domain/theme/entities/theme-id';
 import type { ThemePermissions } from '../../../domain/theme/value-objects/theme-permissions';
 import { Paginated } from '../../shared/graphql/types/paginated';
 import { PaginationInput } from '../../shared/graphql/types/pagination-input';

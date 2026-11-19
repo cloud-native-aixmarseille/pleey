@@ -1,12 +1,7 @@
-import type { PartyActionId } from './party-action';
-import type { StageId } from './party-stage';
+import type { PartyActionId, PartyStageId } from '@pleey/domain/party';
+import { PartyRuntimePhase } from '@pleey/domain/party';
 
-export enum PartyRuntimePhase {
-  LOBBY = 'lobby',
-  STAGE = 'stage',
-  RESULT = 'result',
-  ENDED = 'ended',
-}
+export { PartyRuntimePhase } from '@pleey/domain/party';
 
 const PARTY_RUNTIME_ACTION_SUBMISSION_STATUS = {
   ACKNOWLEDGED: 'acknowledged',
@@ -34,19 +29,19 @@ interface PartyRuntimeLobbyLifecycleContext extends PartyRuntimeBaseLifecycleCon
 
 interface PartyRuntimeStageLifecycleContext extends PartyRuntimeBaseLifecycleContext {
   readonly phase: PartyRuntimePhase.STAGE;
-  readonly stageId: StageId;
+  readonly stageId: PartyStageId;
   readonly stagePosition: number;
 }
 
 interface PartyRuntimeResultLifecycleContext extends PartyRuntimeBaseLifecycleContext {
   readonly phase: PartyRuntimePhase.RESULT;
-  readonly stageId: StageId;
+  readonly stageId: PartyStageId;
   readonly stagePosition: number;
 }
 
 interface PartyRuntimeEndedLifecycleContext extends PartyRuntimeBaseLifecycleContext {
   readonly phase: PartyRuntimePhase.ENDED;
-  readonly stageId: StageId | null;
+  readonly stageId: PartyStageId | null;
   readonly stagePosition: number | null;
 }
 

@@ -1,4 +1,4 @@
-import type { PartyId } from '../../shared/entities/party';
+import type { PartyId } from '@pleey/domain/party';
 import type { PartyPlayerIdentity } from '../../shared/entities/party-player-identity';
 
 export interface HostPartyControlCommand {

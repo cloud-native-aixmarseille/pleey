@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
+import type { PartyId } from '@pleey/domain/party';
 import { PartyObservationBroadcasterPort } from '../ports/party-observation-broadcaster.port';
 import { LoadPartyObservationSnapshotUseCase } from './load-party-observation-snapshot-use-case';
 

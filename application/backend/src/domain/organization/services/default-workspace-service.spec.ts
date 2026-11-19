@@ -1,3 +1,4 @@
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import {
@@ -5,7 +6,6 @@ import {
   createOrganizationRepositoryMock,
 } from '../../../test-utils/mock-factories/organization.mock-factory';
 import { createProjectRepositoryMock } from '../../../test-utils/mock-factories/project-repository.mock-factory';
-import { DEFAULT_PARTY_SETTINGS } from '../../game/party/shared/entities/party-settings';
 import { DefaultWorkspaceService } from './default-workspace-service';
 
 const defaultOrganizationId = backendTestIdentifiers.organization(42);

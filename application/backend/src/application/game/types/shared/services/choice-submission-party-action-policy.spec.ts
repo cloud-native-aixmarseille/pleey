@@ -1,6 +1,6 @@
+import { PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyCommandNotAvailableError } from '../../../../../domain/game/errors';
-import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { ChoiceSubmissionFixtureFactory } from '../../../../../test-utils/fixtures/choice-submission-fixture-factory';
 import type { PartyStageCatalogPort } from '../ports/party-stage-catalog.port';

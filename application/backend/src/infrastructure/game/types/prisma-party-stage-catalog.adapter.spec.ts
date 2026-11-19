@@ -1,7 +1,7 @@
 import { GameType } from '@pleey/domain/game';
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
 import type { PartyStageCatalogEntry } from '../../../application/game/types/shared/ports/party-stage-catalog.port';
-import { DEFAULT_PARTY_SETTINGS } from '../../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
 import { PrismaPartyStageCatalogAdapter } from './prisma-party-stage-catalog.adapter';
 

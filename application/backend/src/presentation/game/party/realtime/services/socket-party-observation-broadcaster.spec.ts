@@ -1,7 +1,7 @@
 import 'reflect-metadata';
+import { PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
-import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { createPartyMediaAccessFixture } from '../../../../../test-utils/fixtures/unit/party-media-access.fixture';
 

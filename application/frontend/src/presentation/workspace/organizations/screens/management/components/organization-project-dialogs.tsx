@@ -1,10 +1,7 @@
-import {
-  DEFAULT_PARTY_SETTINGS,
-  type PartySettings,
-} from '../../../../../../domains/game/party/shared/entities/party-settings';
+import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '@pleey/domain/party';
+import type { ThemeId } from '@pleey/domain/theme';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
 import type { Project } from '../../../../../../domains/project/entities/project';
-import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { ProjectFormDialog } from './project-form-dialog';
 import { ProjectRemovalDialog } from './project-removal-dialog';

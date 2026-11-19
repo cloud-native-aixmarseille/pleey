@@ -1,9 +1,7 @@
 import type { GameId } from '@pleey/domain/game';
-import { type PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
-import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
+import type { PartyId, PartySettings, PartyStageId } from '@pleey/domain/party';
+import { type PartyStatus } from '@pleey/domain/party';
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
-import type { PartySettings } from '../../../../../domain/game/party/shared/entities/party-settings';
-import type { PartyStageId } from '../../../../../domain/game/party/shared/entities/party-stage';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { HostPartyPlayerIdentity } from '../dto/host-party-player-control.dto';
 

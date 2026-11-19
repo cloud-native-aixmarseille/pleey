@@ -1,6 +1,6 @@
+import type { ThemeId } from '@pleey/domain/theme';
 import { useMemo, useState } from 'react';
 import type { OrganizationId } from '../../../domains/organization/entities/organization';
-import type { ThemeId } from '../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { AsyncCombobox } from '../../shared/ui/forms/async-combobox';
 import { FieldShell } from '../../shared/ui/forms/field-shell';

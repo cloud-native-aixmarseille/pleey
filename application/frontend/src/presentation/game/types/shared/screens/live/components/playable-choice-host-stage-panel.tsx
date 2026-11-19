@@ -1,4 +1,4 @@
-import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
+import { PartyStatus } from '@pleey/domain/party';
 import { usePresentationTranslation } from '../../../../../../shared/i18n/use-presentation-translation';
 import { Badge } from '../../../../../../shared/ui/feedback/badge';
 import { AppIcon } from '../../../../../../shared/ui/icons/app-icon';

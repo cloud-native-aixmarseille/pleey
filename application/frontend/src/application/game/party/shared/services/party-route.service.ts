@@ -1,7 +1,7 @@
+import type { PartyId, PartyPin, PartyStageId } from '@pleey/domain/party';
+import { PartyRole } from '@pleey/domain/party';
 import { inject, injectable } from 'inversify';
-import type { Party, PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
-import { PartyRole } from '../../../../../domains/game/party/shared/entities/party-role';
-import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
+import type { Party } from '../../../../../domains/game/party/shared/entities/party';
 import { PartyIdentifier } from './identifiers/party-identifier';
 import { PartyPinIdentifier } from './identifiers/party-pin-identifier';
 import { StageIdentifier } from './identifiers/stage-identifier';
@@ -48,32 +48,32 @@ export class PartyRouteService {
     return `${PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH}/${partyId}/final`;
   }
 
-  resolvePartyResultRoute(partyId: PartyId | null | undefined, stageId: StageId | null | undefined): string {
+  resolvePartyResultRoute(partyId: PartyId | null | undefined, stageId: PartyStageId | null | undefined): string {
     if (partyId === null || partyId === undefined || stageId === null || stageId === undefined) {
       return PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH;
     }
 
-    const normalizedStageId = this.stageIdentifier.parseOrNull(stageId);
+    const normalizedPartyStageId = this.stageIdentifier.parseOrNull(stageId);
 
-    if (normalizedStageId === null) {
+    if (normalizedPartyStageId === null) {
       return PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH;
     }
 
-    return `${PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH}/${partyId}/stage/${normalizedStageId}/result`;
+    return `${PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH}/${partyId}/stage/${normalizedPartyStageId}/result`;
   }
 
-  resolvePartyStageRoute(partyId: PartyId | null | undefined, stageId: StageId | null | undefined): string {
+  resolvePartyStageRoute(partyId: PartyId | null | undefined, stageId: PartyStageId | null | undefined): string {
     if (partyId === null || partyId === undefined || stageId === null || stageId === undefined) {
       return PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH;
     }
 
-    const normalizedStageId = this.stageIdentifier.parseOrNull(stageId);
+    const normalizedPartyStageId = this.stageIdentifier.parseOrNull(stageId);
 
-    if (normalizedStageId === null) {
+    if (normalizedPartyStageId === null) {
       return PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH;
     }
 
-    return `${PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH}/${partyId}/stage/${normalizedStageId}`;
+    return `${PartyRouteService.PARTY_LOBBY_ROUTE_BASE_PATH}/${partyId}/stage/${normalizedPartyStageId}`;
   }
 
   resolveJoinPartyRoute(pin: PartyPin | null | undefined): string {
@@ -126,7 +126,7 @@ export class PartyRouteService {
     return this.partyIdentifier.parseOrNull(partyId);
   }
 
-  normalizeStageId(stageId?: string | number | null): StageId | null {
+  normalizePartyStageId(stageId?: string | number | null): PartyStageId | null {
     return this.stageIdentifier.parseOrNull(stageId);
   }
 }

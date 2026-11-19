@@ -1,5 +1,5 @@
+import { CURATED_THEME_IDS } from '@pleey/domain/theme';
 import type { OrganizationId } from '../../../domains/organization/entities/organization';
-import { CURATED_THEME_IDS } from '../../../domains/theme/entities/theme-id';
 import { usePresentationNavigate, usePresentationParams } from '../../shared/routing/router';
 import { ThemeBuilderForm } from '../components/theme-builder-form';
 

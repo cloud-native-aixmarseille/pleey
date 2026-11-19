@@ -1,14 +1,7 @@
 import type { GameId } from '@pleey/domain/game';
-import type { PartyRole } from './party-role';
-import type { PartyStatus } from './party-status';
+import type { PartyId, PartyPin, PartyRole, PartyStatus } from '@pleey/domain/party';
 
-export type PartyId = string & {
-  readonly __identifierBrand: 'PartyId';
-};
-
-export type PartyPin = string & {
-  readonly __identifierBrand: 'PartyPin';
-};
+export type { PartyId, PartyPin } from '@pleey/domain/party';
 
 export interface Party {
   readonly partyId: PartyId;

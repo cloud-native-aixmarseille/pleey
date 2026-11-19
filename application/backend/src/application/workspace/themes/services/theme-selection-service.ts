@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { CURATED_THEME_IDS, DEFAULT_THEME_ID, type ThemeId } from '@pleey/domain/theme';
 import type { OrganizationId } from '../../../../domain/organization/entities/organization';
 import { CURATED_THEME_DOCUMENTS } from '../../../../domain/theme/entities/curated-theme-documents';
 import type { ThemeDocument } from '../../../../domain/theme/entities/theme-document';
-import { CURATED_THEME_IDS, DEFAULT_THEME_ID, type ThemeId } from '../../../../domain/theme/entities/theme-id';
 import { ThemeError, ThemeErrorCode } from '../../../../domain/theme/errors/theme-error';
 import { ThemeRepository } from '../../../../domain/theme/ports/theme-repository';
 

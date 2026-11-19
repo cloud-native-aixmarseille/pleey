@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { PartyStatus } from '@pleey/domain/party';
 import {
   type OrganizationDashboardStats,
   WorkspaceGameManagementPort,
 } from '../../../application/workspace/ports/workspace-game-management.port';
-import { PartyStatus } from '../../../domain/game/party/enums/party-status.enum';
 import type { OrganizationId } from '../../../domain/organization/entities/organization';
 import type { ProjectId } from '../../../domain/project/entities/project';
 import { PrismaService } from '../../database/prisma-service';

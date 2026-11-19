@@ -1,6 +1,5 @@
+import { CURATED_THEME_IDS, CURATED_THEME_PALETTES } from '@pleey/domain/theme';
 import type { OrganizationId } from '../../../domains/organization/entities/organization';
-import { CURATED_THEME_IDS } from '../../../domains/theme/entities/theme-id';
-import { CURATED_THEME_PALETTES } from '../../../domains/theme/services/curated-theme-palettes';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { Button } from '../../shared/ui/actions/button';
 import { CatalogItemCard } from '../../shared/ui/data/catalog-item-card';

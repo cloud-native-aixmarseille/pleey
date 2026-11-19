@@ -1,7 +1,7 @@
 import 'reflect-metadata';
+import { PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
-import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import {
   type PartyRuntimeContext,
   PartyRuntimePhase,

@@ -1,3 +1,4 @@
+import type { PartySettings } from '@pleey/domain/party';
 import { ProjectPermissionReason } from '@pleey/domain/project';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { decodeActionPermission } from '@pleey/domain/shared/primitives';
@@ -5,7 +6,6 @@ import { inject, injectable } from 'inversify';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../application/workspace/shared/services/identifiers/project-identifier';
 import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
-import type { PartySettings } from '../../domains/game/party/shared/entities/party-settings';
 import type { Project } from '../../domains/project/entities/project';
 import { PROJECT_ERROR_DEFINITIONS, ProjectErrorCode } from '../../domains/project/errors/project-error-code';
 import type {

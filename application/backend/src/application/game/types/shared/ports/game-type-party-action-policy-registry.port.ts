@@ -1,8 +1,6 @@
 import type { GameId, GameType } from '@pleey/domain/game';
-import type { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
+import type { PartyActionId, PartyId, PartyStatus } from '@pleey/domain/party';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
-import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
-import type { PartyActionId } from '../../../../../domain/game/party/shared/entities/party-action';
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
 
 export interface EvaluatePartyActionSubmissionCommand {

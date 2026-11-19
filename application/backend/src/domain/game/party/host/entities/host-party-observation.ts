@@ -1,10 +1,8 @@
 import type { GameId } from '@pleey/domain/game';
+import type { PartyId, PartyPin, PartySettings, PartyStatus } from '@pleey/domain/party';
 import type { ThemeDocument } from '../../../../theme/entities/theme-document';
-import type { PartyStatus } from '../../enums/party-status.enum';
 import type { PartyPlayer } from '../../player/entities/party-player';
-import type { PartyId, PartyPin } from '../../shared/entities/party';
 import type { PartyRuntimeContext } from '../../shared/entities/party-runtime-context';
-import type { PartySettings } from '../../shared/entities/party-settings';
 import type { PartyHost } from './party-host';
 
 export interface HostPartyObservation {

@@ -1,7 +1,7 @@
+import { PartyStatus } from '@pleey/domain/party';
 import type { EvaluatePartyActionSubmissionCommand } from '../../application/game/types/shared/ports/game-type-party-action-policy-registry.port';
 import type { PartyStageCatalogEntry } from '../../application/game/types/shared/ports/party-stage-catalog.port';
 import { PartyPlayerKind } from '../../domain/game/party/enums/party-player-kind.enum';
-import { PartyStatus } from '../../domain/game/party/enums/party-status.enum';
 import {
   type PartyRuntimeContext,
   PartyRuntimePhase,

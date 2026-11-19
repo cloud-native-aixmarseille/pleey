@@ -1,8 +1,7 @@
+import type { PartyStageId, PartyStatus } from '@pleey/domain/party';
 import { HostPartyControlForbiddenError, PartyNotFoundError } from '../../../../../domain/game/errors';
-import type { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { HostPartyLifecyclePolicy } from '../../../../../domain/game/party/host/services/host-party-lifecycle-policy';
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
-import type { PartyStageId } from '../../../../../domain/game/party/shared/entities/party-stage';
 import { BroadcastPartyObservationUseCase } from '../../shared/use-cases/broadcast-party-observation-use-case';
 import type { HostPartyControlDto } from '../dto/host-party-control.dto';
 import {

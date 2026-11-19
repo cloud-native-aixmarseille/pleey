@@ -87,7 +87,7 @@ export function generateUsageReference(root = repositoryRoot, check = false) {
   const output = new Map();
   const domainPath = "application/backend/src/domain";
   const domain = path.join(root, domainPath);
-  const partyPath = `${domainPath}/game/party/shared/entities/party-settings.ts`;
+  const partyPath = "packages/pleey-domain/party/index.js";
   const party = loadDataModule(path.join(root, partyPath));
   const gameTypePath = "packages/pleey-domain/game/index.js";
   const gameTypes = Object.entries(loadDataModule(path.join(root, gameTypePath)).GameType);

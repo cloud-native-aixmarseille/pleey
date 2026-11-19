@@ -1,5 +1,6 @@
 import type { GuestId } from '@pleey/domain/identity';
-import type { Party, PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
+import type { PartyId, PartyPin } from '@pleey/domain/party';
+import type { Party } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
 import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';

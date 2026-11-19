@@ -1,7 +1,7 @@
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import type { Mocked } from 'vitest';
 import type { PlayerPartyRuntimePort } from '../../application/game/party/player/ports/player-party-runtime.port';
 import { PartyPlayerKind } from '../../domain/game/party/enums/party-player-kind.enum';
-import { DEFAULT_PARTY_SETTINGS } from '../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../branded-identifiers';
 import { mockFn } from './mock-factory.utils';
 

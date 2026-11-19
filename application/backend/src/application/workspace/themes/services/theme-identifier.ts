@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { THEME_ID_PATTERN, type ThemeId } from '../../../../domain/theme/entities/theme-id';
+import { THEME_ID_PATTERN, type ThemeId } from '@pleey/domain/theme';
 import { StringIdentifierParser } from '../../../shared/services/identifier-parser';
 import type { IdentifierParseResult } from '../../../shared/services/identifier-parser/contracts';
 

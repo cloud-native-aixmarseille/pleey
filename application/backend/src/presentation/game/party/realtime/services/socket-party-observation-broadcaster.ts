@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { PartyId } from '@pleey/domain/party';
 import type { Server, Socket } from 'socket.io';
 import type { PartyObservationSnapshot } from '../../../../../application/game/party/shared/entities/party-observation-snapshot';
 import { PartyObservationBroadcasterPort } from '../../../../../application/game/party/shared/ports/party-observation-broadcaster.port';
@@ -6,7 +7,6 @@ import { PartyIdentifier } from '../../../../../application/game/party/shared/se
 import { LoadPartyObservationSnapshotUseCase } from '../../../../../application/game/party/shared/use-cases/load-party-observation-snapshot-use-case';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
-import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { PartyObserverSocketData } from '../party-observer-socket-data';
 import {

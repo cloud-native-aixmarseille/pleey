@@ -1,8 +1,8 @@
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { DashboardGameListItem } from '../../../../../../domains/game/management/entities/dashboard-game-list-item';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { GameFixtureFactory } from '../../../../../../test-utils/fixtures/game-fixture-factory';
 import { createGameTypeDescriptorFixture } from '../../../../../../test-utils/fixtures/game-type-descriptor-fixture-factory';

@@ -1,11 +1,11 @@
 import { GameType } from '@pleey/domain/game';
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { GameTypeParser } from '../../../../application/game/types/shared/services/game-type-parser';
 import { PartyJoinReceiptStatus } from '../../../../domains/game/party/player/ports/party-player.port';
 import { PartyPlayerIdentityKind } from '../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyRuntimePhase } from '../../../../domains/game/party/shared/entities/party-runtime-context';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../domains/game/party/shared/entities/party-settings';
 import type { ThemeDocument } from '../../../../domains/theme/entities/theme-document';
 import { ThemeErrorCode } from '../../../../domains/theme/errors/theme-error';
 import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';

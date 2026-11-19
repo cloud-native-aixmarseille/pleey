@@ -1,4 +1,4 @@
-import type { PartyActionId } from '../../../../../../../domains/game/party/shared/entities/party-action';
+import type { PartyActionId } from '@pleey/domain/party';
 import type { PartyObservation } from '../../../../../../../domains/game/party/shared/entities/party-observation';
 import type { PlayableChoiceResultActionTileCopy } from './playable-choice-result-action-tile';
 

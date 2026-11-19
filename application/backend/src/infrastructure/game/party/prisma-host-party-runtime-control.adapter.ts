@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { PartyActionId, PartyId, PartyStageId } from '@pleey/domain/party';
 import { Prisma } from '@prisma/client';
 import {
   type HostControlledPartyRuntime,
@@ -13,9 +14,6 @@ import { GameIdentifier } from '../../../application/game/shared/services/identi
 import { PartyStageCatalogPort } from '../../../application/game/types/shared/ports/party-stage-catalog.port';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import { PartyStagesNotAvailableError } from '../../../domain/game/errors';
-import type { PartyId } from '../../../domain/game/party/shared/entities/party';
-import type { PartyActionId } from '../../../domain/game/party/shared/entities/party-action';
-import type { PartyStageId } from '../../../domain/game/party/shared/entities/party-stage';
 import { PartyRuntimeContextProjectionService } from '../../../domain/game/party/shared/services/party-runtime-context-projection.service';
 import { PrismaService } from '../../database/prisma-service';
 import { PrismaPartySettingsMapper } from '../shared/prisma-party-settings.mapper';

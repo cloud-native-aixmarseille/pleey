@@ -1,12 +1,7 @@
-import type { PartyActionId } from './party-action';
-import type { PartyStageId } from './party-stage';
+import type { PartyActionId, PartyStageId } from '@pleey/domain/party';
+import { PartyRuntimePhase } from '@pleey/domain/party';
 
-export enum PartyRuntimePhase {
-  LOBBY = 'lobby',
-  STAGE = 'stage',
-  RESULT = 'result',
-  ENDED = 'ended',
-}
+export { PartyRuntimePhase } from '@pleey/domain/party';
 
 const PARTY_RUNTIME_ACTION_SUBMISSION_STATUS = {
   ACKNOWLEDGED: 'acknowledged',

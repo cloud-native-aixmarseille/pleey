@@ -1,4 +1,4 @@
-import type { ThemeId } from '../../../domains/theme/entities/theme-id';
+import type { ThemeId } from '@pleey/domain/theme';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { FieldShell } from '../../shared/ui/forms/field-shell';
 import { Select } from '../../shared/ui/forms/select';

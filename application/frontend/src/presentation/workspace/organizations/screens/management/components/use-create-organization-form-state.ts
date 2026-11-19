@@ -1,11 +1,8 @@
+import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '@pleey/domain/party';
+import type { ThemeId } from '@pleey/domain/theme';
 import { useState } from 'react';
-import {
-  DEFAULT_PARTY_SETTINGS,
-  type PartySettings,
-} from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
 import type { CreateOrganizationCommand } from '../../../../../../domains/organization/ports/organization-repository';
-import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { usePresentationFeedbackChannel } from '../../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';

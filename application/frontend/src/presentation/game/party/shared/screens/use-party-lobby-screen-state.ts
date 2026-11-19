@@ -1,9 +1,7 @@
+import type { PartyActionId, PartyId, PartyPin, PartyStageId } from '@pleey/domain/party';
 import { useEffect, useRef, useState } from 'react';
 import { HostPartyRuntimeCommand } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
-import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
-import type { PartyActionId } from '../../../../../domains/game/party/shared/entities/party-action';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
-import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
 import type { PartyRuntimeNoticeKind } from '../../../../../domains/game/party/shared/ports/party-observation.port';
 import { usePartyLobbyHostRuntime } from '../../host/screens/use-party-lobby-host-runtime';
 import { usePartyLobbyJoinSession } from '../../player/screens/use-party-lobby-join-session';
@@ -38,8 +36,8 @@ export interface PartyLobbyScreenProps {
   readonly resolvePartyAbsoluteUrl?: (pin: PartyPin) => string;
   readonly resolvePartyLobbyRoute?: (partyId: PartyId) => string;
   readonly resolvePartyLeaderboardRoute?: (partyId: PartyId) => string;
-  readonly resolvePartyResultRoute?: (partyId: PartyId, stageId: StageId) => string;
-  readonly resolvePartyStageRoute?: (partyId: PartyId, stageId: StageId) => string;
+  readonly resolvePartyResultRoute?: (partyId: PartyId, stageId: PartyStageId) => string;
+  readonly resolvePartyStageRoute?: (partyId: PartyId, stageId: PartyStageId) => string;
   readonly resolveJoinPartyRoute?: (pin: PartyPin) => string;
   readonly screenSection?: PartyScreenSection;
 }
@@ -120,7 +118,7 @@ export function usePartyLobbyScreenState({
     normalizedPartyId,
     normalizedPin,
     party,
-    requestedStageId,
+    requestedPartyStageId,
     runtimeNotice,
     user,
     viewModel,
@@ -201,7 +199,7 @@ export function usePartyLobbyScreenState({
   });
   const runtimeRedirectTo = partyLobbyRuntimeRedirectResolver.resolve({
     party,
-    requestedStageId,
+    requestedPartyStageId,
     resolvePartyLeaderboardRoute,
     resolvePartyLobbyRoute,
     resolvePartyResultRoute,

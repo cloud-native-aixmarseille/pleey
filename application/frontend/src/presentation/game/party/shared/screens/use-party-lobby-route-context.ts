@@ -1,8 +1,9 @@
+import type { PartyId, PartyPin } from '@pleey/domain/party';
+import { PartyStatus } from '@pleey/domain/party';
 import { useEffect, useState } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
-import type { Party, PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
+import type { Party } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
-import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import type { PartyRuntimeNotice } from '../../../../../domains/game/party/shared/ports/party-observation.port';
 import type { PartyLobbyRouteKind } from './party-lobby-screen-route-utils';
 import { resolvePartyLobbyRouteState } from './party-lobby-screen-view-model';

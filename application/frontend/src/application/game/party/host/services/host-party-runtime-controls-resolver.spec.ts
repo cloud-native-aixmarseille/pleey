@@ -1,6 +1,6 @@
+import { PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
 import { HostPartyDisabledReason } from '../../../../../domains/game/party/host/value-objects/host-party-permissions';
-import { PartyStatus } from '../../../../../domains/game/party/shared/entities/party-status';
 import { PartyFixtureFactory } from '../../../../../test-utils/fixtures/party-fixture-factory';
 import { HostPartyRuntimeControlsResolver } from './host-party-runtime-controls-resolver';
 

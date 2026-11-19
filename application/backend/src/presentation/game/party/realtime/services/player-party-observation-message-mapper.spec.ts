@@ -1,10 +1,9 @@
 import { GameType } from '@pleey/domain/game';
+import { DEFAULT_PARTY_SETTINGS, PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
-import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { PARTY_PLAYER_ACTION_STATE_STATUS } from '../../../../../domain/game/party/player/entities/party-player-action-state';
 import { PartyRuntimePhase } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
-import { DEFAULT_PARTY_SETTINGS } from '../../../../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { ThemeFixtureFactory } from '../../../../../test-utils/fixtures/theme-fixture-factory';
 import { PlayerPartyObservationMessageMapper } from './player-party-observation-message-mapper';

@@ -1,6 +1,6 @@
+import type { PartyId } from '@pleey/domain/party';
 import { createContext, type PropsWithChildren, startTransition, useContext, useEffect, useRef, useState } from 'react';
 import { unavailableHostPermissions } from '../../../../../domains/game/party/host/value-objects/host-party-permissions';
-import type { PartyId } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type {
   PartyObservationConnectionState,

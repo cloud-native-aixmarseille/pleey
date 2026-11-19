@@ -3,6 +3,7 @@ import {
   type OrganizationPermissions,
   OrganizationRole,
 } from '@pleey/domain/organization';
+import type { PartySettings } from '@pleey/domain/party';
 import type { PaginatedResult } from '@pleey/domain/shared/primitives';
 import { decodeActionPermission } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
@@ -10,7 +11,6 @@ import { UserIdentifier } from '../../application/identity/shared/services/ident
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
-import type { PartySettings } from '../../domains/game/party/shared/entities/party-settings';
 import type { UserId } from '../../domains/identity/entities/user';
 import type { Organization, OrganizationId } from '../../domains/organization/entities/organization';
 import type { OrganizationDashboard } from '../../domains/organization/entities/organization-dashboard';

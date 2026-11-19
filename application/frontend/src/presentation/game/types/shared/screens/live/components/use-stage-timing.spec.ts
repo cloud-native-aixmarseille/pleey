@@ -1,6 +1,6 @@
+import { PartyStatus } from '@pleey/domain/party';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { PartyStatus } from '../../../../../../../domains/game/party/shared/entities/party-status';
 import { PartyStageFixtureFactory } from '../../../../../../../test-utils/fixtures/party-stage-fixture-factory';
 import { useStageTiming } from './use-stage-timing';
 

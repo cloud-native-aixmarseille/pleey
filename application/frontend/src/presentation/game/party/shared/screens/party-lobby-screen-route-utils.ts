@@ -1,6 +1,5 @@
-import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
-import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
-import type { PartyIdParser, PartyPinParser, StageIdParser } from '../contexts/party-dependencies-context';
+import type { PartyId, PartyPin, PartyStageId } from '@pleey/domain/party';
+import type { PartyIdParser, PartyPinParser, PartyStageIdParser } from '../contexts/party-dependencies-context';
 
 export enum PartyLobbyRouteKind {
   PARTY_ID = 'partyId',
@@ -30,11 +29,11 @@ export function defaultResolvePartyLeaderboardRoute(partyId: PartyId): string {
   return `/party/${partyId}/final`;
 }
 
-export function defaultResolvePartyResultRoute(partyId: PartyId, stageId: StageId): string {
+export function defaultResolvePartyResultRoute(partyId: PartyId, stageId: PartyStageId): string {
   return `/party/${partyId}/stage/${stageId}/result`;
 }
 
-export function defaultResolvePartyStageRoute(partyId: PartyId, stageId: StageId): string {
+export function defaultResolvePartyStageRoute(partyId: PartyId, stageId: PartyStageId): string {
   return `/party/${partyId}/stage/${stageId}`;
 }
 
@@ -54,7 +53,10 @@ export function defaultNormalizePartyId(partyId: string | undefined, partyIdenti
   return partyIdentifier.parseOrNull(partyId);
 }
 
-export function defaultNormalizeStageId(stageId: string | undefined, stageIdentifier: StageIdParser): StageId | null {
+export function defaultNormalizePartyStageId(
+  stageId: string | undefined,
+  stageIdentifier: PartyStageIdParser,
+): PartyStageId | null {
   return stageIdentifier.parseOrNull(stageId);
 }
 

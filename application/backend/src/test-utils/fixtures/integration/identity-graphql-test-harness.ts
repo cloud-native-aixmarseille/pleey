@@ -5,6 +5,7 @@ import { type INestApplication, ValidationPipe } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { Test } from '@nestjs/testing';
 import { CaptchaAction } from '@pleey/domain/identity';
+import { DEFAULT_THEME_ID } from '@pleey/domain/theme';
 import { I18nModule } from 'nestjs-i18n';
 import request from 'supertest';
 import { afterAll, beforeAll, vi } from 'vitest';
@@ -13,7 +14,6 @@ import { DeliverPasswordResetUseCase } from '../../../application/identity/recov
 import { LoginUserUseCase } from '../../../application/identity/session/use-cases/login-user-use-case';
 import { PasswordService } from '../../../domain/identity/services/password-service';
 import { CURATED_THEME_DOCUMENTS } from '../../../domain/theme/entities/curated-theme-documents';
-import { DEFAULT_THEME_ID } from '../../../domain/theme/entities/theme-id';
 import { PrismaService } from '../../../infrastructure/database/prisma-service';
 import { CapCaptchaAdapter } from '../../../infrastructure/identity/captcha/cap-captcha-adapter';
 import { CAPTCHA_CONFIG, type CaptchaConfig } from '../../../infrastructure/identity/captcha/captcha-config.token';

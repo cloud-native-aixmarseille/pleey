@@ -1,3 +1,4 @@
+import type { PartyId, PartyPin, PartyStageId } from '@pleey/domain/party';
 import { createContext, createElement, type ReactElement, type ReactNode, useContext } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
 import type { PartyHostControlPort } from '../../../../../domains/game/party/host/ports/party-host-control.port';
@@ -5,8 +6,6 @@ import type { PartyHostRuntimeControlsPort } from '../../../../../domains/game/p
 import type { PartyManagementPort } from '../../../../../domains/game/party/host/ports/party-management.port';
 import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
 import type { PartyPlayerPort } from '../../../../../domains/game/party/player/ports/party-player.port';
-import type { PartyId, PartyPin } from '../../../../../domains/game/party/shared/entities/party';
-import type { StageId } from '../../../../../domains/game/party/shared/entities/party-stage';
 import type { PartyObservationPort } from '../../../../../domains/game/party/shared/ports/party-observation.port';
 import type { PrivatePartyPasswordGeneratorPort } from '../../../../../domains/game/party/shared/ports/private-party-password-generator.port';
 import { PresentationRuntimeDependencyProviderRequiredError } from '../../../../../domains/shared/errors/presentation-context-error-code';
@@ -22,8 +21,8 @@ export interface PartyPinParser {
   parseOrNull(value: unknown): PartyPin | null;
 }
 
-export interface StageIdParser {
-  parseOrNull(value: unknown): StageId | null;
+export interface PartyStageIdParser {
+  parseOrNull(value: unknown): PartyStageId | null;
 }
 
 export interface PartyDependencies {
@@ -40,7 +39,7 @@ export interface PartyDependencies {
   readonly partyPinIdentifier: PartyPinParser;
   readonly playerRuntimeNoticeMessageResolver: PlayerRuntimeNoticeMessageResolver;
   readonly privatePartyPasswordGeneratorPort: PrivatePartyPasswordGeneratorPort;
-  readonly stageIdentifier: StageIdParser;
+  readonly stageIdentifier: PartyStageIdParser;
 }
 
 const PartyDependenciesContext = createContext<PartyDependencies | null>(null);

@@ -86,6 +86,11 @@ accessibility copy, email content and application-local errors remain in their
 application catalogs. Add a shared message only when the same error code is
 public in both runtimes and follows [ADR 0025](../architecture/adr/0025-share-business-error-translations.md).
 
+Party lifecycle vocabulary, settings, pagination bounds and curated theme data
+are shared only at their deterministic contract level. Runtime party
+projections, transport envelopes and app-local error adaptation remain owned by
+their application.
+
 For package, lockfile, policy or API-surface changes, run:
 
 ```bash

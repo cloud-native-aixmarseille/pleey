@@ -1,6 +1,5 @@
-import { PartyStatus } from '../../domain/game/party/enums/party-status.enum';
+import { DEFAULT_PARTY_SETTINGS, PartyStatus } from '@pleey/domain/party';
 import type { HostPartyObservation } from '../../domain/game/party/host/entities/host-party-observation';
-import { DEFAULT_PARTY_SETTINGS } from '../../domain/game/party/shared/entities/party-settings';
 import { backendTestIdentifiers } from '../branded-identifiers';
 import { ThemeFixtureFactory } from './theme-fixture-factory';
 

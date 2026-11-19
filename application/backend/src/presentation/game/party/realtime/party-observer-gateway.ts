@@ -9,6 +9,8 @@ import {
   WsException,
 } from '@nestjs/websockets';
 import type { GameId } from '@pleey/domain/game';
+import type { PartyId, PartyPin } from '@pleey/domain/party';
+import { PartyStatus } from '@pleey/domain/party';
 import type { Server, Socket } from 'socket.io';
 import { AdvanceStageUseCase } from '../../../../application/game/party/host/use-cases/advance-stage-use-case';
 import { EndPartyUseCase } from '../../../../application/game/party/host/use-cases/end-party-use-case';
@@ -39,7 +41,6 @@ import {
   PartyCommandNotAvailableError,
 } from '../../../../domain/game/errors';
 import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
-import { PartyStatus } from '../../../../domain/game/party/enums/party-status.enum';
 import type {
   AuthenticatedPartyPlayerIdentity,
   PartyPlayerIdentity,
@@ -48,7 +49,6 @@ import {
   PartyPlayerSessionRegistry,
   PartyPlayerSessionRegistryProvider,
 } from '../../../../domain/game/party/player/services/party-player-session-registry';
-import type { PartyId, PartyPin } from '../../../../domain/game/party/shared/entities/party';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import { I18nWsExceptionFilter } from '../../../shared/error-handling/i18n-ws-exception-filter';
 import {

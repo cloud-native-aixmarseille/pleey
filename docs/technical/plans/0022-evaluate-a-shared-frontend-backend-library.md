@@ -275,6 +275,34 @@ Final verification before finalization:
 - PR CI run [44477741474](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44477741474):
   passed, including Helm candidate validation and image promotion.
 
+## Post-implementation sharing audit
+
+The follow-up audit on 2026-11-19 compared the backend and frontend domain trees
+after P1-P9 and found additional high-confidence candidates:
+
+- party IDs, roles, status, runtime phase and party settings;
+- pagination bounds;
+- identity and project identifier brands;
+- theme IDs, default, pattern and curated palette data;
+- public business-error translation keys and locale text under ADR 0025.
+
+These candidates are consumed through `@pleey/domain` and their superseded local
+declarations are guarded against restoration.
+
+The remaining exact duplicates are deliberately local adapters or tests:
+
+- `ThemeDocumentNormalizer` remains local because invalid-result behavior maps to
+  each application's own error type around the shared normalizer core;
+- `InvalidIdentifierValueError` remains local because each application owns its
+  runtime `DomainError` base class;
+- mirrored normalizer specs remain in each application because they verify the
+  local error adaptation and domain projection.
+
+No other exact backend/frontend domain duplicates or duplicated identifier
+brands remained after this audit. Future extraction proposals must still pass
+the ADR 0022 eligibility rules and must not move local projections solely to
+remove structurally similar code.
+
 Done when:
 
 - ADR status/index match repository rules and implementation reality.

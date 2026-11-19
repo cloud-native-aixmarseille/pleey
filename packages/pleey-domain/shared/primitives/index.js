@@ -1,3 +1,10 @@
+export const PAGINATION_LIMITS = {
+  defaultPage: 1,
+  defaultPageSize: 9,
+  maxPage: 10000,
+  maxPageSize: 100,
+};
+
 export function decodeActionPermission(value, reasons) {
   if (typeof value === 'object' && value !== null && 'allowed' in value && 'reason' in value) {
     if (value.allowed === true && value.reason === null) {

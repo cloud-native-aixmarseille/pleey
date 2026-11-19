@@ -1,12 +1,12 @@
 import { randomInt } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
+import type { PartyPin } from '@pleey/domain/party';
 import { GameNotFoundError } from '../../../../../domain/game/errors';
 import {
   InvalidPrivatePartyPasswordError,
   PartyPinGenerationFailedError,
 } from '../../../../../domain/game/party/errors/create-party.error';
 import { PinAlreadyInUseError } from '../../../../../domain/game/party/errors/pin-already-in-use.error';
-import type { PartyPin } from '../../../../../domain/game/party/shared/entities/party';
 import type { PartySummary } from '../../../../../domain/game/party/shared/entities/party-summary';
 import { PartySettingsResolver } from '../../../../../domain/game/party/shared/services/party-settings-resolver';
 import { PasswordService } from '../../../../../domain/identity/services/password-service';

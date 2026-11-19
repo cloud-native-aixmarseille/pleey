@@ -1,5 +1,6 @@
+import type { PartySettings } from '@pleey/domain/party';
+import type { ThemeId } from '@pleey/domain/theme';
 import { type RefObject, useEffect, useState } from 'react';
-import type { PartySettings } from '../../../../../domains/game/party/shared/entities/party-settings';
 import type { Project, ProjectId } from '../../../../../domains/project/entities/project';
 import {
   ProjectCreateFailedError,
@@ -10,7 +11,6 @@ import type {
   DeleteProjectCommand,
   UpdateProjectCommand,
 } from '../../../../../domains/project/ports/project-repository';
-import type { ThemeId } from '../../../../../domains/theme/entities/theme-id';
 import { usePresentationTranslation } from '../../../../shared/i18n/use-presentation-translation';
 import type { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import type { useDashboardWorkspace } from '../../../dashboard/hooks/use-dashboard-workspace';

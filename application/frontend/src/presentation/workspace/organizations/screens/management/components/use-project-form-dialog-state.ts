@@ -1,10 +1,7 @@
+import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '@pleey/domain/party';
+import type { ThemeId } from '@pleey/domain/theme';
 import { useEffect, useState } from 'react';
-import {
-  DEFAULT_PARTY_SETTINGS,
-  type PartySettings,
-} from '../../../../../../domains/game/party/shared/entities/party-settings';
 import type { Project } from '../../../../../../domains/project/entities/project';
-import type { ThemeId } from '../../../../../../domains/theme/entities/theme-id';
 import { usePresentationFeedbackChannel } from '../../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
 

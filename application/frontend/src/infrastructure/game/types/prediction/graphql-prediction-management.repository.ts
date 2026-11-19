@@ -1,4 +1,5 @@
 import type { GameTypeId, PredictionPromptId } from '@pleey/domain/game';
+import { PAGINATION_LIMITS } from '@pleey/domain/shared/primitives';
 import { inject, injectable } from 'inversify';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { PredictionPromptIdentifier } from '../../../../application/game/types/prediction/services/prediction-prompt-identifier';
@@ -15,7 +16,6 @@ import type {
 } from '../../../../domains/game/types/shared/management/playable-management';
 import type { ProjectId } from '../../../../domains/project/entities/project';
 import { createDomainError } from '../../../../domains/shared/errors/domain-error';
-import { PAGINATION_LIMITS } from '../../../../domains/shared/value-objects/pagination-limits';
 import { GraphqlClient } from '../../../graphql/client/graphql-client';
 import {
   CreatePredictionFromImportManagementDocument,

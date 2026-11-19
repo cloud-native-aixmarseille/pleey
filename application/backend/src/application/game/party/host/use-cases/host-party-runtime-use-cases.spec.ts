@@ -1,6 +1,6 @@
+import { PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
-import { PartyStatus } from '../../../../../domain/game/party/enums/party-status.enum';
 import { HostPartyLifecyclePolicy } from '../../../../../domain/game/party/host/services/host-party-lifecycle-policy';
 import {
   type PartyRuntimeContext,

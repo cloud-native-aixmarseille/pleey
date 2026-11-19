@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { PartyId } from '@pleey/domain/party';
 import { PartyNotFoundError } from '../../../../../domain/game/errors';
 import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import type { HostPartyObservation } from '../../../../../domain/game/party/host/entities/host-party-observation';
@@ -7,7 +8,6 @@ import {
   PartyPlayerSessionRegistry,
   PartyPlayerSessionRegistryProvider,
 } from '../../../../../domain/game/party/player/services/party-player-session-registry';
-import type { PartyId } from '../../../../../domain/game/party/shared/entities/party';
 import { PartyObservationPolicy } from '../../../../../domain/game/party/shared/services/party-observation-policy';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 
