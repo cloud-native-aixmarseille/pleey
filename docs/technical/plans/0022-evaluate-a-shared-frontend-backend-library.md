@@ -3,7 +3,7 @@
 - Issue: add when created
 - Decision: [ADR 0022](../architecture/adr/0022-evaluate-a-shared-frontend-backend-library.md)
 - Updated: 2026-11-19
-- Status: In progress (P1-P3 implemented, P4-P7 in validation)
+- Status: In progress (P1-P7 implemented; ADR accepted; P8 pending)
 
 This plan implements ADR 0022 through incremental slices that preserve current
 runtime authority and wire contracts while removing duplicated domain semantics.
@@ -148,26 +148,26 @@ Done when:
 
 ### P4.1 Identity
 
-- [ ] Extract shared IDs, captcha action, public token vocabulary, and password
+- [x] Extract shared IDs, captcha action, public token vocabulary, and password
       input contract.
-- [ ] Preserve local auth state, signing, verification, recovery, and rotation logic.
+- [x] Preserve local auth state, signing, verification, recovery, and rotation logic.
 
 ### P4.2 Organization
 
-- [ ] Extract IDs, roles, defaults, nonblank name validation, permission actions/reasons.
-- [ ] Preserve membership loading, last-owner protection, and persistence invariants.
+- [x] Extract IDs, roles, defaults, nonblank name validation, permission actions/reasons.
+- [x] Preserve membership loading, last-owner protection, and persistence invariants.
 
 ### P4.3 Project
 
-- [ ] Extract IDs, common create/update contracts, nonblank name validation,
+- [x] Extract IDs, common create/update contracts, nonblank name validation,
       permission actions/reasons.
-- [ ] Preserve access projections, migration workflows, and repository semantics.
+- [x] Preserve access projections, migration workflows, and repository semantics.
 
 ### P4.4 Game management
 
-- [ ] Extract game IDs/types, shared metadata, sort/filter vocabulary, and common
+- [x] Extract game IDs/types, shared metadata, sort/filter vocabulary, and common
       pagination/permission/error contracts.
-- [ ] Preserve dashboard-specific projections, backend defaults, and wire mappings.
+- [x] Preserve dashboard-specific projections, backend defaults, and wire mappings.
 
 Done when:
 
@@ -252,9 +252,26 @@ Done when:
 
 ## P9 - ADR finalization
 
-- [ ] Re-evaluate ADR 0022 status after accepted target slices are implemented.
-- [ ] If accepted, update accepted date to the earliest adoption commit and update ADR index.
-- [ ] Link merged implementation PRs and final verification evidence.
+- [x] Re-evaluate ADR 0022 status after accepted target slices are implemented.
+- [x] If accepted, update accepted date to the earliest adoption commit and update ADR index.
+- [x] Link implementation PRs and final verification evidence.
+
+ADR 0022 was accepted on 2026-11-18, the date of the first adoption commit
+`d3d777fb3cf77696fd35658844e28595428b029b`. The implementation PR is
+[PR #537](https://github.com/cloud-native-aixmarseille/pleey/pull/537). It was
+still open at finalization and must be updated to merged after merge.
+
+Final verification before finalization:
+
+- backend `lint:ci`: passed;
+- frontend `lint:ci`: passed;
+- backend tests: 1218 passed, 72 skipped;
+- frontend tests: 1207 passed;
+- cold and warm backend/frontend Docker builds: passed;
+- shared package, CI routing, Docker wiring and generated documentation guards:
+  passed;
+- PR CI run [44470883886](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44470883886):
+  passed, including Helm candidate validation and image promotion.
 
 Done when:
 
