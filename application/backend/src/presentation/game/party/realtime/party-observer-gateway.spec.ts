@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-identifier';
@@ -6,7 +7,6 @@ import { PartyPinIdentifier } from '../../../../application/game/party/shared/se
 import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
-import { PartyPlayerKind } from '../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyPlayerSessionRegistry } from '../../../../domain/game/party/player/services/party-player-session-registry';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
 import { createPartyPlayerSessionRegistryMock } from '../../../../test-utils/mock-factories/party-player-session-registry.mock-factory';

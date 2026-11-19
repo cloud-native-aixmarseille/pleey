@@ -390,13 +390,13 @@ export class SocketIoPartyRealtimeTransport {
     switch (errorCode) {
       case 'HOST_PARTY_CONTROL_FORBIDDEN':
         return PartyManagementErrorCode.HOST_PARTY_CONTROL_FORBIDDEN;
-      case 'PARTY_COMMAND_NOT_AVAILABLE':
+      case GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE:
         return PartyManagementErrorCode.PARTY_COMMAND_NOT_AVAILABLE;
-      case 'PARTY_NOT_FOUND':
+      case GameErrorCode.PARTY_NOT_FOUND:
         return PartyManagementErrorCode.PARTY_NOT_FOUND;
-      case 'PARTY_STAGES_NOT_AVAILABLE':
+      case GameErrorCode.PARTY_STAGES_NOT_AVAILABLE:
         return PartyManagementErrorCode.PARTY_STAGES_NOT_AVAILABLE;
-      case 'VALIDATION_FAILED':
+      case GameErrorCode.VALIDATION_FAILED:
         return PartyManagementErrorCode.VALIDATION_FAILED;
       default:
         return errorCode;
@@ -419,3 +419,5 @@ export class SocketIoPartyRealtimeTransport {
     return this.partyIdentifier.parseOrNull(payload.partyId);
   }
 }
+
+import { GameErrorCode } from '@pleey/domain/errors';

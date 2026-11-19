@@ -23,16 +23,20 @@ const table = (headers, rows) => {
 const sourceFile = (file) => ts.createSourceFile(file, fs.readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true);
 
 function gameSettings(root) {
-  const modelPath = "packages/pleey-domain/game/index.js";
+  const modelPath = "application/shared/game/index.ts";
   const sharedGame = sourceFile(path.join(root, modelPath));
   const defaultsDeclaration = sharedGame.statements
     .flatMap((statement) => (ts.isVariableStatement(statement) ? [...statement.declarationList.declarations] : []))
     .find((declaration) => declaration.name.getText(sharedGame) === "PLAYABLE_CONTENT_DEFAULTS");
-  if (!defaultsDeclaration?.initializer || !ts.isObjectLiteralExpression(defaultsDeclaration.initializer)) {
+  const defaultsInitializer =
+    defaultsDeclaration?.initializer && ts.isAsExpression(defaultsDeclaration.initializer)
+      ? defaultsDeclaration.initializer.expression
+      : defaultsDeclaration?.initializer;
+  if (!defaultsInitializer || !ts.isObjectLiteralExpression(defaultsInitializer)) {
     throw new Error("Cannot extract shared playable content defaults.");
   }
   const values = Object.fromEntries(
-    defaultsDeclaration.initializer.properties
+    defaultsInitializer.properties
       .filter(ts.isPropertyAssignment)
       .map((property) => [property.name.getText(sharedGame), property.initializer.getText(sharedGame)]),
   );
@@ -87,12 +91,14 @@ export function generateUsageReference(root = repositoryRoot, check = false) {
   const output = new Map();
   const domainPath = "application/backend/src/domain";
   const domain = path.join(root, domainPath);
-  const partyPath = "packages/pleey-domain/party/index.js";
+  const partyPath = "application/shared/party/index.ts";
   const party = loadDataModule(path.join(root, partyPath));
-  const gameTypePath = "packages/pleey-domain/game/index.js";
+  const gameTypePath = "application/shared/game/index.ts";
   const gameTypes = Object.entries(loadDataModule(path.join(root, gameTypePath)).GameType);
-  const sharedErrorsPath = "packages/pleey-domain/errors/index.js";
+  const sharedErrorsPath = "application/shared/errors/index.ts";
   const sharedErrors = loadDataModule(path.join(root, sharedErrorsPath));
+  const sharedPartyPath = "application/shared/party/index.ts";
+  const sharedParty = loadDataModule(path.join(root, sharedPartyPath));
   const editor = gameSettings(root);
   const enums = [];
   const permissions = [];
@@ -120,6 +126,9 @@ export function generateUsageReference(root = repositoryRoot, check = false) {
   for (const [name, values] of Object.entries(sharedErrors)) {
     if (!name.endsWith("ErrorCode") || typeof values !== "object" || values === null) continue;
     for (const code of Object.values(values)) enums.push([name, `\`${code}\``, sharedErrorsPath]);
+  }
+  for (const action of sharedParty.HOST_PARTY_PERMISSION_ACTIONS) {
+    permissions.push(["HostPartyPermissions", `\`${action}\``, "`HostPartyDisabledReason`", sharedPartyPath]);
   }
   if (!enums.length || !permissions.length) throw new Error("Missing permission or error-code sources.");
   for (const locale of ["en", "fr"]) {

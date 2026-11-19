@@ -1,20 +1,11 @@
+import {
+  IdentityErrorCode as SharedIdentityErrorCode,
+  type IdentityErrorCode as SharedIdentityErrorCodeType,
+} from '@pleey/domain/errors';
 import { type DomainErrorDefinition } from '../../shared/errors/domain-error';
 
-export enum IdentityErrorCode {
-  CAPTCHA_INVALID = 'CAPTCHA_INVALID',
-  CAPTCHA_UNAVAILABLE = 'CAPTCHA_UNAVAILABLE',
-  CAPTCHA_RATE_LIMITED = 'CAPTCHA_RATE_LIMITED',
-  INVALID_RESET_TOKEN = 'INVALID_RESET_TOKEN',
-  INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
-  USER_ALREADY_EXISTS = 'USER_ALREADY_EXISTS',
-  PASSWORD_TOO_SHORT = 'PASSWORD_TOO_SHORT',
-  USER_NOT_FOUND = 'USER_NOT_FOUND',
-  UNAUTHORIZED = 'UNAUTHORIZED',
-  AUTHENTICATION_REQUIRED = 'AUTHENTICATION_REQUIRED',
-  AVATAR_NOT_FOUND = 'AVATAR_NOT_FOUND',
-  INVALID_REFRESH_TOKEN = 'INVALID_REFRESH_TOKEN',
-  REFRESH_TOKEN_EXPIRED = 'REFRESH_TOKEN_EXPIRED',
-}
+export const IdentityErrorCode = SharedIdentityErrorCode;
+export type IdentityErrorCode = SharedIdentityErrorCodeType;
 
 export const IDENTITY_ERROR_DEFINITIONS: Readonly<Record<IdentityErrorCode, DomainErrorDefinition<IdentityErrorCode>>> =
   {

@@ -1,3 +1,4 @@
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { inject, injectable } from 'inversify';
 import type {
   PartyJoinCommand,
@@ -5,7 +6,6 @@ import type {
   PartyPlayerPort,
   PartySubmitActionCommand,
 } from '../../../../domains/game/party/player/ports/party-player.port';
-import { PartyPlayerIdentityKind } from '../../../../domains/game/party/shared/entities/party-player-identity';
 import { SocketIoPartyPayloadMapper } from '../shared/socket-io-party-payload-mapper';
 import {
   SocketIoPartyJoinEventName,
@@ -56,8 +56,7 @@ export class SocketIoPartyPlayerAdapter implements PartyPlayerPort {
     return {
       guestCredential: command.guestCredential,
       avatarSeed: command.avatarSeed,
-      guestId:
-        command.playerIdentity.kind === PartyPlayerIdentityKind.Guest ? command.playerIdentity.guestId : undefined,
+      guestId: command.playerIdentity.kind === PartyPlayerKind.GUEST ? command.playerIdentity.guestId : undefined,
       partyPassword: command.partyPassword,
       pin: command.pin,
       username: command.username,

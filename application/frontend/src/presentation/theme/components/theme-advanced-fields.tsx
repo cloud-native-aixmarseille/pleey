@@ -9,7 +9,7 @@ import {
   THEME_TYPOGRAPHY_KEYS,
   type ThemeDocument,
   type ThemeOverrides,
-} from '../../../domains/theme/entities/theme-document';
+} from '@pleey/domain/theme';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { ContentStack } from '../../shared/ui/layout/containers';
 import { SupportingText } from '../../shared/ui/layout/typography';

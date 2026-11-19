@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { PartyId } from '@pleey/domain/party';
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { PartyNotFoundError } from '../../../../../domain/game/errors';
-import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import type { HostPartyObservation } from '../../../../../domain/game/party/host/entities/host-party-observation';
 import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import {

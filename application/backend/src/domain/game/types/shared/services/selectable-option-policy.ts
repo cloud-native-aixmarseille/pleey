@@ -1,8 +1,12 @@
-import { SelectableOption, type SelectableOptionId, type SelectableOptionInput } from '@pleey/domain/game';
+import {
+  PLAYABLE_CONTENT_LIMITS,
+  SelectableOption,
+  type SelectableOptionId,
+  type SelectableOptionInput,
+} from '@pleey/domain/game';
 import { createDomainError } from '../../../../shared/errors/domain-error';
 
 const FIRST_CHOICE_POSITION = 0;
-const MAX_SELECTABLE_OPTIONS = 4;
 
 interface SelectableOptionPolicyErrorCodes {
   readonly invalidCorrectOption: string;
@@ -41,28 +45,28 @@ export class SelectableOptionPolicy {
       );
     }
 
-    if (options.length > MAX_SELECTABLE_OPTIONS) {
+    if (options.length > PLAYABLE_CONTENT_LIMITS.maxOptions) {
       throw createDomainError(
         {
           code: errorCodes.invalidCorrectOption,
           messageKey: errorCodes.invalidCorrectOption,
         },
         {
-          maxSelectableOptions: MAX_SELECTABLE_OPTIONS,
+          maxSelectableOptions: PLAYABLE_CONTENT_LIMITS.maxOptions,
           optionCount: options.length,
         },
       );
     }
 
     for (const option of options) {
-      if (option.position < FIRST_CHOICE_POSITION || option.position >= MAX_SELECTABLE_OPTIONS) {
+      if (option.position < FIRST_CHOICE_POSITION || option.position >= PLAYABLE_CONTENT_LIMITS.maxOptions) {
         throw createDomainError(
           {
             code: errorCodes.invalidCorrectOption,
             messageKey: errorCodes.invalidCorrectOption,
           },
           {
-            maxSelectableOptions: MAX_SELECTABLE_OPTIONS,
+            maxSelectableOptions: PLAYABLE_CONTENT_LIMITS.maxOptions,
             optionCount: options.length,
             optionPosition: option.position,
           },
@@ -117,7 +121,7 @@ export class SelectableOptionPolicy {
   }
 
   private assertBaseOptions(options: readonly SelectableOption[], errorCode: string): void {
-    if (options.length < 2) {
+    if (options.length < PLAYABLE_CONTENT_LIMITS.minOptions) {
       throw createDomainError(
         {
           code: errorCode,

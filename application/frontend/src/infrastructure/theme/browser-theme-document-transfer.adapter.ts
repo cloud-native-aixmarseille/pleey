@@ -1,3 +1,4 @@
+import { THEME_ASSET_POLICY } from '@pleey/domain/theme';
 import { injectable } from 'inversify';
 import type {
   ThemeAssetUriReaderPort,
@@ -6,9 +7,6 @@ import type {
   ThemeTemplateFile,
 } from '../../application/workspace/themes/ports/theme-document-transfer.port';
 import { ThemeError, ThemeErrorCode } from '../../domains/theme/errors/theme-error';
-
-const MAX_THEME_ASSET_BYTES = 5 * 1024 * 1024;
-const THEME_ASSET_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
 @injectable()
 export class BrowserThemeDocumentTransferAdapter
@@ -51,7 +49,7 @@ export class BrowserThemeDocumentTransferAdapter
       throw new ThemeError(ThemeErrorCode.INVALID_ASSET, { field: 'uri', status: response.status });
     }
     const blob = await response.blob();
-    if (blob.size > MAX_THEME_ASSET_BYTES || !THEME_ASSET_TYPES.has(blob.type)) {
+    if (blob.size > THEME_ASSET_POLICY.maxFileSizeBytes || !THEME_ASSET_POLICY.acceptedMimeTypes.includes(blob.type)) {
       throw new ThemeError(ThemeErrorCode.INVALID_ASSET, { field: 'uri' });
     }
     return new File([blob], this.fileName(url, blob.type), { type: blob.type });

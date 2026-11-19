@@ -1,4 +1,4 @@
-import { PartyStatus } from '@pleey/domain/party';
+import { PartyPlayerKind, PartyStatus } from '@pleey/domain/party';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
 import {
@@ -7,7 +7,6 @@ import {
 } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
-import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { usePartyDependencies } from '../../shared/contexts/party-dependencies-context';
@@ -31,7 +30,7 @@ interface UsePartyLobbyHostRuntimeResult {
 }
 
 function toPlayerKey(player: PartyObservationPlayer): string {
-  return player.identity.kind === PartyPlayerIdentityKind.User
+  return player.identity.kind === PartyPlayerKind.USER
     ? `user:${player.identity.userId}`
     : `guest:${player.identity.guestId}`;
 }

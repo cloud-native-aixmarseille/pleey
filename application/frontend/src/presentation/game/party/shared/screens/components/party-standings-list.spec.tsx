@@ -1,6 +1,6 @@
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { act, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { PartyPlayerIdentityKind } from '../../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyFixtureFactory } from '../../../../../../test-utils/fixtures/party-fixture-factory';
 import { TranslationFixtureFactory } from '../../../../../../test-utils/fixtures/translation-fixture-factory';
 import { renderWithUiProvider } from '../../../../../../test-utils/render-with-ui-provider';
@@ -24,17 +24,17 @@ describe('PartyStandingsList', () => {
     const translation = await translations.create(language);
     const previous = [
       players.createObservationPlayer({
-        identity: { kind: PartyPlayerIdentityKind.User, userId: 1 },
+        identity: { kind: PartyPlayerKind.USER, userId: 1 },
         username: 'A',
         totalScore: 1200,
       }),
       players.createObservationPlayer({
-        identity: { kind: PartyPlayerIdentityKind.User, userId: 2 },
+        identity: { kind: PartyPlayerKind.USER, userId: 2 },
         username: 'B',
         totalScore: 1150,
       }),
       players.createObservationPlayer({
-        identity: { kind: PartyPlayerIdentityKind.User, userId: 3 },
+        identity: { kind: PartyPlayerKind.USER, userId: 3 },
         username: 'C',
         totalScore: 1125,
       }),
@@ -68,17 +68,17 @@ describe('PartyStandingsList', () => {
     // Arrange
     const translation = await translations.create();
     const departed = players.createObservationPlayer({
-      identity: { kind: PartyPlayerIdentityKind.User, userId: 1 },
+      identity: { kind: PartyPlayerKind.USER, userId: 1 },
       totalScore: 1000,
       username: 'Departed',
     });
     const remaining = players.createObservationPlayer({
-      identity: { kind: PartyPlayerIdentityKind.User, userId: 2 },
+      identity: { kind: PartyPlayerKind.USER, userId: 2 },
       totalScore: 500,
       username: 'Remaining',
     });
     const newcomer = players.createObservationPlayer({
-      identity: { kind: PartyPlayerIdentityKind.Guest, guestId: 'new' },
+      identity: { kind: PartyPlayerKind.GUEST, guestId: 'new' },
       totalScore: 800,
       username: 'Newcomer',
     });
@@ -104,13 +104,13 @@ describe('PartyStandingsList', () => {
     // Arrange
     const translation = await translations.create();
     const first = players.createObservationPlayer({
-      identity: { kind: PartyPlayerIdentityKind.User, userId: 1 },
+      identity: { kind: PartyPlayerKind.USER, userId: 1 },
       username: 'Same',
       totalScore: 900,
       isCurrentPlayer: true,
     });
     const second = players.createObservationPlayer({
-      identity: { kind: PartyPlayerIdentityKind.User, userId: 2 },
+      identity: { kind: PartyPlayerKind.USER, userId: 2 },
       username: 'Same',
       totalScore: 900,
     });

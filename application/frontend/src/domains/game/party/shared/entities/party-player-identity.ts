@@ -1,23 +1,19 @@
 import type { GuestId } from '@pleey/domain/identity';
+import type { PartyPlayerKind } from '@pleey/domain/party';
 import type { UserId } from '../../../../identity/entities/user';
 
-export enum PartyPlayerIdentityKind {
-  User = 'user',
-  Guest = 'guest',
-}
-
 interface AuthenticatedPartyPlayerIdentity {
-  readonly kind: PartyPlayerIdentityKind.User;
+  readonly kind: PartyPlayerKind.USER;
   readonly userId: UserId;
 }
 
 interface GuestPartyPlayerIdentity {
-  readonly kind: PartyPlayerIdentityKind.Guest;
+  readonly kind: PartyPlayerKind.GUEST;
   readonly guestId: GuestId;
 }
 
 interface GuestPartyJoiningIdentity {
-  readonly kind: PartyPlayerIdentityKind.Guest;
+  readonly kind: PartyPlayerKind.GUEST;
   readonly guestId?: GuestId;
 }
 

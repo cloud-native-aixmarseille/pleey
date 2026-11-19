@@ -1,5 +1,5 @@
+import type { ThemeDocument } from '@pleey/domain/theme';
 import { useEffect, useRef, useState } from 'react';
-import type { ThemeDocument } from '../../../domains/theme/entities/theme-document';
 
 export function useThemeHistory(initial: ThemeDocument, onChange: (value: ThemeDocument) => void) {
   const entries = useRef([initial]);

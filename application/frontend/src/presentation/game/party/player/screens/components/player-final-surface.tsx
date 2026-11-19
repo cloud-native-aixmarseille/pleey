@@ -1,5 +1,5 @@
+import { PartyPlayerKind } from '@pleey/domain/party';
 import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
-import { PartyPlayerIdentityKind } from '../../../../../../domains/game/party/shared/entities/party-player-identity';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { UserAvatar } from '../../../../../shared/ui/data/user-avatar';
 import { Badge } from '../../../../../shared/ui/feedback/badge';
@@ -22,7 +22,7 @@ export function PlayerFinalSurface({ onLeaveParty, party }: PlayerFinalSurfacePr
   const { t } = usePresentationTranslation();
   const isMobile = usePresentationMediaQuery();
   const { currentPlayer, currentPlayerRank } = createPartyFinalSummaryModel(party.players);
-  const shouldPromptGuestSignIn = currentPlayer?.identity.kind === PartyPlayerIdentityKind.Guest;
+  const shouldPromptGuestSignIn = currentPlayer?.identity.kind === PartyPlayerKind.GUEST;
 
   return (
     <div data-testid="player-final-surface">

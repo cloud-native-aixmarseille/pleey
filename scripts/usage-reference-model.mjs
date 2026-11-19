@@ -32,15 +32,15 @@ export function loadDataModule(filename) {
   const require = (specifier) => {
     if (specifier.startsWith("@pleey/domain/")) {
       const packageRoot = [
-        path.resolve(repositoryRoot, "packages/pleey-domain"),
-        "/usr/packages/pleey-domain",
+        path.resolve(repositoryRoot, "application/shared"),
+        "/usr/src/shared",
       ].find((candidate) => fs.existsSync(candidate));
       if (!packageRoot) throw new Error(`Unable to locate shared data for: ${filename}`);
       const entryPoint = specifier.slice("@pleey/domain/".length);
       const sharedSource =
         entryPoint === "shared/primitives"
-          ? path.join(packageRoot, "shared/primitives/index.js")
-          : path.join(packageRoot, entryPoint, "index.js");
+          ? path.join(packageRoot, "shared/primitives/index.ts")
+          : path.join(packageRoot, entryPoint, "index.ts");
       return loadDataModule(sharedSource);
     }
     if (!specifier.startsWith(".")) throw new Error(`Data modules cannot import packages: ${filename}`);

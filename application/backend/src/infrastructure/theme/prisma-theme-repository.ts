@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { PaginationQuery } from '@pleey/domain/shared/primitives';
-import type { ThemeId } from '@pleey/domain/theme';
+import type { ThemeDocument, ThemeId } from '@pleey/domain/theme';
 import { Prisma, type Theme } from '@prisma/client';
 import { PaginationQueryNormalizer } from '../../application/shared/services/pagination-query-normalizer';
 import { OrganizationIdentifier } from '../../application/workspace/shared/services/identifiers/organization-identifier';
@@ -9,7 +9,6 @@ import { ThemeDocumentValidator } from '../../application/workspace/themes/servi
 import { ThemeIdentifier } from '../../application/workspace/themes/services/theme-identifier';
 import type { OrganizationId } from '../../domain/organization/entities/organization';
 import type { ManagedTheme, ThemeAssetId } from '../../domain/theme/entities/managed-theme';
-import type { ThemeDocument } from '../../domain/theme/entities/theme-document';
 import { ThemeError, ThemeErrorCode } from '../../domain/theme/errors/theme-error';
 import { ThemeRepository } from '../../domain/theme/ports/theme-repository';
 import { PrismaService } from '../database/prisma-service';

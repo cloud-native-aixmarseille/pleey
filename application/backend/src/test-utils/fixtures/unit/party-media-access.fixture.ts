@@ -1,10 +1,9 @@
 import { GameType } from '@pleey/domain/game';
-import { DEFAULT_PARTY_SETTINGS, PartyStatus } from '@pleey/domain/party';
+import { DEFAULT_PARTY_SETTINGS, PartyPlayerKind, PartyStatus } from '@pleey/domain/party';
 import { vi } from 'vitest';
 import type { PartyObservationSnapshot } from '../../../application/game/party/shared/entities/party-observation-snapshot';
 import { PartyIdentifier } from '../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyObservationAccessService } from '../../../application/game/party/shared/services/party-observation-access-service';
-import { PartyPlayerKind } from '../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyPlayerSessionRegistry } from '../../../domain/game/party/player/services/party-player-session-registry';
 import { PartyRuntimePhase } from '../../../domain/game/party/shared/entities/party-runtime-context';
 import { PartyObservationPolicy } from '../../../domain/game/party/shared/services/party-observation-policy';

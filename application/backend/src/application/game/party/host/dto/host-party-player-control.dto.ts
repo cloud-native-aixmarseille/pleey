@@ -1,5 +1,5 @@
 import type { GuestId } from '@pleey/domain/identity';
-import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
+import { PartyPlayerKind } from '@pleey/domain/party';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import type { HostPartyControlDto } from './host-party-control.dto';
 

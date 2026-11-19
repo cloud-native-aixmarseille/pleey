@@ -1,5 +1,5 @@
+import type { ThemeDocument } from '@pleey/domain/theme';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
-import type { ThemeDocument } from '../../../domains/theme/entities/theme-document';
 import { useAuth } from '../../identity/contexts/auth-context';
 import { useWorkspaceDependencies } from '../../workspace/shared/contexts/workspace-dependencies-context';
 

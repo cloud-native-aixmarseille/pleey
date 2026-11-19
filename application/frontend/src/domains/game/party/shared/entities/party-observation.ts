@@ -1,6 +1,6 @@
 import type { GameType } from '@pleey/domain/game';
 import type { PartySettings, PartyStatus } from '@pleey/domain/party';
-import type { ThemeDocument } from '../../../../theme/entities/theme-document';
+import type { ThemeDocument } from '@pleey/domain/theme';
 import type { HostPartyPermissions } from '../../host/value-objects/host-party-permissions';
 import type { PartyId, PartyPin } from './party';
 import type { PartyHost } from './party-host';

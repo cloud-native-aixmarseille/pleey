@@ -1,6 +1,7 @@
+import type { ThemeOverrides } from '@pleey/domain/theme';
+import { THEME_ASSET_POLICY } from '@pleey/domain/theme';
 import { useState } from 'react';
 import type { OrganizationId } from '../../../domains/organization/entities/organization';
-import type { ThemeOverrides } from '../../../domains/theme/entities/theme-document';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { Button } from '../../shared/ui/actions/button';
 import { StatusBanner } from '../../shared/ui/feedback/status-banner';
@@ -35,7 +36,7 @@ export function ThemeAssetFields({
   const [retry, setRetry] = useState<{ kind: 'logoAssetId' | 'backgroundAssetId'; file: File } | null>(null);
   async function upload(kind: 'logoAssetId' | 'backgroundAssetId', file: File) {
     if (uploadDisabled) return;
-    if (file.size > 5 * 1024 * 1024 || !['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+    if (file.size > THEME_ASSET_POLICY.maxFileSizeBytes || !THEME_ASSET_POLICY.acceptedMimeTypes.includes(file.type)) {
       setError('theme.errors.invalidAsset');
       setRetry(null);
       return;
@@ -83,7 +84,7 @@ export function ThemeAssetFields({
                   />
                 )}
                 <FilePickerButton
-                  accept="image/png,image/jpeg,image/webp"
+                  accept={THEME_ASSET_POLICY.acceptedMimeTypes.join(',')}
                   disabled={uploadDisabled}
                   inputProps={{ 'aria-label': t(`theme.builder.${kind}`) }}
                   onSelect={(file) => {

@@ -1,4 +1,4 @@
-import type { ThemeDocument } from '../../../../domains/theme/entities/theme-document';
+import type { ThemeDocument } from '@pleey/domain/theme';
 import type { UiThemeSeed } from './ui-theme-contract';
 import { createUiThemeDefinition, findUiTheme } from './ui-theme-definition';
 export function createUiThemeFromDocument(document: ThemeDocument) {

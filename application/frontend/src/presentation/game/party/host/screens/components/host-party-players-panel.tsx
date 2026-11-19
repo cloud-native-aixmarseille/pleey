@@ -1,6 +1,6 @@
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { useState } from 'react';
 import type { PartyObservationPlayer } from '../../../../../../domains/game/party/shared/entities/party-observation-player';
-import { PartyPlayerIdentityKind } from '../../../../../../domains/game/party/shared/entities/party-player-identity';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
@@ -20,7 +20,7 @@ interface PendingKickPlayer {
 }
 
 function toPlayerKey(player: PartyObservationPlayer): string {
-  return player.identity.kind === PartyPlayerIdentityKind.User
+  return player.identity.kind === PartyPlayerKind.USER
     ? `user:${player.identity.userId}`
     : `guest:${player.identity.guestId}`;
 }

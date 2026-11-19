@@ -1,8 +1,8 @@
+import type { ThemeDocument } from '@pleey/domain/theme';
 import { useEffect, useEffectEvent, useId, useRef, useState } from 'react';
 import type { OrganizationId } from '../../../domains/organization/entities/organization';
 import { isDomainError } from '../../../domains/shared/errors/domain-error';
 import type { ManagedTheme } from '../../../domains/theme/entities/managed-theme';
-import type { ThemeDocument } from '../../../domains/theme/entities/theme-document';
 import { usePresentationFormPort } from '../../shared/forms/form-provider';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { usePresentationNavigationBlocker } from '../../shared/routing/router';

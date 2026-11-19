@@ -10,6 +10,7 @@
     ],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "isolatedModules": true,
     "resolveJsonModule": true,

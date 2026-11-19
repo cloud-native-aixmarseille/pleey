@@ -11,8 +11,8 @@ describe("shared package Docker wiring", () => {
     const dockerfile = read(`application/${application}/Dockerfile`);
 
     // Act + Assert
-    expect(dockerfile).toContain("COPY ./packages/pleey-domain /usr/packages/pleey-domain");
-    expect(dockerfile).toContain("COPY --chown=node:node --from=build /usr/packages/pleey-domain /usr/packages/pleey-domain");
+    expect(dockerfile).toContain("COPY ./application/shared /usr/src/shared");
+    expect(dockerfile).toContain("COPY --chown=node:node --from=build /usr/src/shared /usr/src/shared");
   });
 
   it("keeps the shared package in the backend production image", () => {
@@ -21,7 +21,7 @@ describe("shared package Docker wiring", () => {
 
     // Act + Assert
     expect(dockerfile).toContain(
-      "COPY --chown=node:node --from=build-prod /usr/packages/pleey-domain /usr/packages/pleey-domain",
+      "COPY --chown=node:node --from=build-prod /usr/src/shared /usr/src/shared",
     );
   });
 
@@ -31,7 +31,7 @@ describe("shared package Docker wiring", () => {
 
     // Act + Assert
     expect(dockerfile).toContain(
-      "COPY --chown=node:node ./packages/pleey-domain /usr/src/repository/packages/pleey-domain",
+      "COPY --chown=node:node ./application/shared /usr/src/repository/application/shared",
     );
   });
 
@@ -41,9 +41,9 @@ describe("shared package Docker wiring", () => {
     const compose = read("compose.yaml");
 
     // Act + Assert
-    expect(dockerignore).not.toMatch(/^packages\/?$/mu);
-    expect(dockerignore).not.toContain("packages/pleey-domain");
-    expect(compose).toContain("- ./packages:/usr/packages:ro");
+    expect(dockerignore).not.toMatch(/^application\/?$/mu);
+    expect(dockerignore).not.toContain("application/shared");
+    expect(compose).toContain("- ./application/shared:/usr/src/shared:ro");
   });
 
   it.each(["backend", "frontend"])("keeps the %s file dependency lock aligned with the package", (application) => {
@@ -52,8 +52,8 @@ describe("shared package Docker wiring", () => {
     const packageLock = JSON.parse(read(`application/${application}/package-lock.json`));
 
     // Act + Assert
-    expect(packageJson.dependencies["@pleey/domain"]).toBe("file:../../packages/pleey-domain");
-    expect(packageLock.packages["node_modules/@pleey/domain"].resolved).toBe("../../packages/pleey-domain");
-    expect(packageLock.packages["../../packages/pleey-domain"].name).toBe("@pleey/domain");
+    expect(packageJson.dependencies["@pleey/domain"]).toBe("file:../shared");
+    expect(packageLock.packages["node_modules/@pleey/domain"].resolved).toBe("../shared");
+    expect(packageLock.packages["../shared"].name).toBe("@pleey/domain");
   });
 });

@@ -1,6 +1,5 @@
-import type { ThemeId } from '@pleey/domain/theme';
+import type { ThemeDocument, ThemeId } from '@pleey/domain/theme';
 import type { ComponentType, PropsWithChildren } from 'react';
-import type { ThemeDocument } from '../../../domains/theme/entities/theme-document';
 
 type UiThemeId = ThemeId;
 type UiColorScheme = 'light' | 'dark';

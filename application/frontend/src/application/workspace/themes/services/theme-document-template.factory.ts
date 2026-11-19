@@ -1,11 +1,12 @@
-import { CURATED_THEME_PALETTES, DEFAULT_THEME_ID } from '@pleey/domain/theme';
-import { inject, injectable } from 'inversify';
 import {
+  CURATED_THEME_PALETTES,
+  DEFAULT_THEME_ID,
   THEME_MOTION_KEYS,
   THEME_RADIUS_KEYS,
   THEME_SPACING_KEYS,
   THEME_TYPOGRAPHY_KEYS,
-} from '../../../../domains/theme/entities/theme-document';
+} from '@pleey/domain/theme';
+import { inject, injectable } from 'inversify';
 import { ThemePaletteGenerator } from '../../../../domains/theme/services/theme-palette-generator';
 import { type TranslationPort, TranslationPortToken } from '../../../shared/ports/translation.port';
 import type { ThemeTemplateFile } from '../ports/theme-document-transfer.port';

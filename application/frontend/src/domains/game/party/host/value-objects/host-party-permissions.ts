@@ -1,34 +1,15 @@
-import type { Permissions } from '@pleey/domain/shared/primitives';
+import {
+  HostPartyDisabledReason as SharedHostPartyDisabledReason,
+  type HostPartyPermissions as SharedHostPartyPermissions,
+} from '@pleey/domain/party';
 
-export enum HostPartyDisabledReason {
-  UNAVAILABLE = 'PERMISSION_UNAVAILABLE',
-  HOST_REQUIRED = 'HOST_REQUIRED',
-  PARTY_NOT_WAITING = 'PARTY_NOT_WAITING',
-  NO_PLAYERS = 'NO_PLAYERS',
-  NO_STAGES = 'NO_STAGES',
-  RUNTIME_UNAVAILABLE = 'RUNTIME_UNAVAILABLE',
-  RESULT_REQUIRED = 'RESULT_REQUIRED',
-  STAGE_REQUIRED = 'STAGE_REQUIRED',
-  PREVIOUS_STAGE_REQUIRED = 'PREVIOUS_STAGE_REQUIRED',
-  ACTIVE_PARTY_REQUIRED = 'ACTIVE_PARTY_REQUIRED',
-  PAUSED_PARTY_REQUIRED = 'PAUSED_PARTY_REQUIRED',
-  PARTY_ENDED = 'PARTY_ENDED',
-}
+export const HostPartyDisabledReason = {
+  ...SharedHostPartyDisabledReason,
+  UNAVAILABLE: 'PERMISSION_UNAVAILABLE',
+} as const;
+export type HostPartyDisabledReason = (typeof HostPartyDisabledReason)[keyof typeof HostPartyDisabledReason];
 
-export type HostPartyPermissions = Permissions<
-  Record<
-    | 'startParty'
-    | 'advanceStage'
-    | 'restartStage'
-    | 'rewindStage'
-    | 'rewindParty'
-    | 'pauseParty'
-    | 'resumeParty'
-    | 'revealStageResult'
-    | 'endParty',
-    HostPartyDisabledReason
-  >
->;
+export type HostPartyPermissions = SharedHostPartyPermissions<HostPartyDisabledReason>;
 
 export function unavailableHostPermissions(): HostPartyPermissions {
   return {

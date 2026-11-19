@@ -1,7 +1,13 @@
 import { GameType } from '@pleey/domain/game';
 import type { GuestId } from '@pleey/domain/identity';
 import type { PartyActionId, PartyId } from '@pleey/domain/party';
-import { DEFAULT_PARTY_SETTINGS, PartyRole, PartyStatus } from '@pleey/domain/party';
+import {
+  DEFAULT_PARTY_SETTINGS,
+  PartyJoinReceiptStatus,
+  PartyPlayerKind,
+  PartyRole,
+  PartyStatus,
+} from '@pleey/domain/party';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, vi, it as vitestIt } from 'vitest';
 import type { PartyLobbyGateway } from '../../../../../application/game/party/shared/facades/party-lobby.facade';
@@ -15,11 +21,9 @@ import type {
   PartyJoinReceipt,
   PartyPlayerPort,
 } from '../../../../../domains/game/party/player/ports/party-player.port';
-import { PartyJoinReceiptStatus } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { Party } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
-import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
 import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
 import type { User, UserId } from '../../../../../domains/identity/entities/user';
@@ -93,11 +97,11 @@ type ResultPartyRuntimeContextOverrides = {
 
 type LegacyPartyIdentity =
   | {
-      readonly kind: PartyPlayerIdentityKind.User;
+      readonly kind: PartyPlayerKind.USER;
       readonly userId: UserId;
     }
   | {
-      readonly kind: PartyPlayerIdentityKind.Guest;
+      readonly kind: PartyPlayerKind.GUEST;
       readonly guestId: GuestId;
     };
 
@@ -112,7 +116,7 @@ interface LegacyObservedPartyEntry {
 
 type LegacyObservedUserPartyEntry = LegacyObservedPartyEntry & {
   readonly identity: {
-    readonly kind: PartyPlayerIdentityKind.User;
+    readonly kind: PartyPlayerKind.USER;
     readonly userId: UserId;
   };
 };
@@ -145,7 +149,7 @@ function createGuestJoinPlayer(
   return {
     avatarUri: null,
     identity: {
-      kind: PartyPlayerIdentityKind.Guest,
+      kind: PartyPlayerKind.GUEST,
       guestId,
     },
     username,
@@ -164,7 +168,7 @@ function createUserEntry(
 ): LegacyObservedPartyEntry {
   return {
     avatarUri: options.avatarUri,
-    identity: { kind: PartyPlayerIdentityKind.User, userId },
+    identity: { kind: PartyPlayerKind.USER, userId },
     joinedAt: options.joinedAt,
     totalScore: options.totalScore,
     username,
@@ -183,7 +187,7 @@ function createGuestEntry(
 ): LegacyObservedPartyEntry {
   return {
     avatarUri: options.avatarUri,
-    identity: { kind: PartyPlayerIdentityKind.Guest, guestId },
+    identity: { kind: PartyPlayerKind.GUEST, guestId },
     joinedAt: options.joinedAt,
     totalScore: options.totalScore,
     username,
@@ -550,7 +554,7 @@ function createPartyObservation(
     readonly liveObserverIdentities?: readonly LegacyPartyIdentity[];
   };
   const playerIdentity: LegacyPartyIdentity = {
-    kind: PartyPlayerIdentityKind.User,
+    kind: PartyPlayerKind.USER,
     userId: userIdentifier.parse(11),
   };
   const resolvedEntries = legacyEntries ?? [
@@ -573,12 +577,10 @@ function createPartyObservation(
   const hostEntry =
     resolvedEntries.find(
       (entry): entry is LegacyObservedUserPartyEntry =>
-        entry.role === PartyRole.HOST && entry.identity.kind === PartyPlayerIdentityKind.User,
+        entry.role === PartyRole.HOST && entry.identity.kind === PartyPlayerKind.USER,
     ) ?? defaultHostEntry;
   const livePlayerIdentities = legacyLiveObserverIdentities
-    ?.filter(
-      (identity) => identity.kind !== PartyPlayerIdentityKind.User || identity.userId !== hostEntry.identity.userId,
-    )
+    ?.filter((identity) => identity.kind !== PartyPlayerKind.USER || identity.userId !== hostEntry.identity.userId)
     .map((identity) => toPlayerKey(identity)) ?? [toPlayerKey(playerIdentity)];
   const players = resolvedEntries
     .filter((entry) => entry.role === PartyRole.PLAYER)
@@ -617,7 +619,7 @@ function toObservationPlayer(
 }
 
 function toPlayerKey(identity: LegacyPartyIdentity): string {
-  return identity.kind === PartyPlayerIdentityKind.User ? `user:${identity.userId}` : `guest:${identity.guestId}`;
+  return identity.kind === PartyPlayerKind.USER ? `user:${identity.userId}` : `guest:${identity.guestId}`;
 }
 
 function createManagedParty(overrides: Partial<Party> = {}): Party {
@@ -923,7 +925,7 @@ describe('PartyLobbyScreen', () => {
       expect(mocks.partyHostControlPort.kickPlayer).toHaveBeenCalledWith({
         partyId: partyIdentifier.parse(9),
         playerIdentity: {
-          kind: PartyPlayerIdentityKind.User,
+          kind: PartyPlayerKind.USER,
           userId: userIdentifier.parse(11),
         },
       });
@@ -1055,7 +1057,7 @@ describe('PartyLobbyScreen', () => {
     mocks.partyGuestSessionPort.getGuestId = vi.fn(() => guestId);
     mocks.partyPlayerPort.rejoinParty = vi.fn(async () => createRejectedJoinReceipt());
     mocks.observationState.currentParty = createPartyObservation({
-      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.Guest, guestId }],
+      liveObserverIdentities: [{ kind: PartyPlayerKind.GUEST, guestId }],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
           avatarUri: '/avatars/host.png',
@@ -1306,9 +1308,9 @@ describe('PartyLobbyScreen', () => {
     mocks.partyManagementState.parties = [createManagedParty({ role: PartyRole.PLAYER })];
     mocks.observationState.currentParty = createPartyObservation({
       liveObserverIdentities: [
-        { kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) },
-        { kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(11) },
-        { kind: PartyPlayerIdentityKind.Guest, guestId: guestIdentifier.parse('guest-1') },
+        { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+        { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(11) },
+        { kind: PartyPlayerKind.GUEST, guestId: guestIdentifier.parse('guest-1') },
       ],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
@@ -1689,7 +1691,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorMessage = null;
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.currentParty = createPartyObservation({
-      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
+      liveObserverIdentities: [{ kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) }],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
           avatarUri: '/avatars/host.png',
@@ -1746,7 +1748,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.currentParty = createPartyObservation({
       context: createActiveStageContext(),
-      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
+      liveObserverIdentities: [{ kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) }],
       status: PartyStatus.ACTIVE,
     });
 
@@ -2031,7 +2033,7 @@ describe('PartyLobbyScreen', () => {
           },
         },
       }),
-      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
+      liveObserverIdentities: [{ kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) }],
       status: PartyStatus.ACTIVE,
     });
 
@@ -2079,7 +2081,7 @@ describe('PartyLobbyScreen', () => {
     mocks.observationState.currentErrorPartyId = null;
     mocks.observationState.currentParty = createPartyObservation({
       context: createActiveStageContext(),
-      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
+      liveObserverIdentities: [{ kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) }],
       status: PartyStatus.ACTIVE,
     });
 
@@ -3007,7 +3009,7 @@ describe('PartyLobbyScreen', () => {
       ],
       liveObserverIdentities: [
         {
-          kind: PartyPlayerIdentityKind.User,
+          kind: PartyPlayerKind.USER,
           userId: userIdentifier.parse(11),
         },
       ],
@@ -3166,8 +3168,8 @@ describe('PartyLobbyScreen', () => {
     mocks.partyPlayerPort.rejoinParty = vi.fn(async () => createRejectedJoinReceipt());
     mocks.observationState.currentParty = createPartyObservation({
       liveObserverIdentities: [
-        { kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) },
-        { kind: PartyPlayerIdentityKind.Guest, guestId: guestIdentifier.parse('guest-1') },
+        { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+        { kind: PartyPlayerKind.GUEST, guestId: guestIdentifier.parse('guest-1') },
       ],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
@@ -3207,7 +3209,7 @@ describe('PartyLobbyScreen', () => {
     });
 
     mocks.observationState.currentParty = createPartyObservation({
-      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
+      liveObserverIdentities: [{ kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) }],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
           avatarUri: '/avatars/host.png',
@@ -3566,7 +3568,7 @@ describe('PartyLobbyScreen', () => {
         player: {
           avatarUri: null,
           identity: {
-            kind: PartyPlayerIdentityKind.Guest,
+            kind: PartyPlayerKind.GUEST,
             guestId: guestIdentifier.parse('guest-1'),
           },
           username: 'Guest One',
@@ -3577,7 +3579,7 @@ describe('PartyLobbyScreen', () => {
       }),
     );
     mocks.observationState.currentParty = createPartyObservation({
-      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) }],
+      liveObserverIdentities: [{ kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) }],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
           avatarUri: '/avatars/host.png',
@@ -3605,7 +3607,7 @@ describe('PartyLobbyScreen', () => {
       expect(mocks.partyPlayerPort.rejoinParty).toHaveBeenCalledWith({
         pin: partyPinIdentifier.parse('AB12CD'),
         playerIdentity: {
-          kind: PartyPlayerIdentityKind.Guest,
+          kind: PartyPlayerKind.GUEST,
           guestId: guestIdentifier.parse('guest-1'),
         },
         username: undefined,
@@ -3838,7 +3840,7 @@ describe('PartyLobbyScreen', () => {
       players: [
         partyFixtureFactory.createObservationPlayer({
           avatarUri: '/avatars/neo.png',
-          identity: { kind: PartyPlayerIdentityKind.User, userId: 11 },
+          identity: { kind: PartyPlayerKind.USER, userId: 11 },
           isCurrentPlayer: false,
           isLive: true,
           totalScore: 4,
@@ -3888,7 +3890,7 @@ describe('PartyLobbyScreen', () => {
       players: [
         partyFixtureFactory.createObservationPlayer({
           avatarUri: '/avatars/neo.png',
-          identity: { kind: PartyPlayerIdentityKind.User, userId: 11 },
+          identity: { kind: PartyPlayerKind.USER, userId: 11 },
           isCurrentPlayer: false,
           isLive: true,
           totalScore: 0,
@@ -3977,7 +3979,7 @@ describe('PartyLobbyScreen', () => {
         player: {
           avatarUri: '/avatars/guest.png',
           identity: {
-            kind: PartyPlayerIdentityKind.Guest,
+            kind: PartyPlayerKind.GUEST,
             guestId: guestIdentifier.parse('guest-1'),
           },
           username: 'Guest One',
@@ -3989,8 +3991,8 @@ describe('PartyLobbyScreen', () => {
     );
     mocks.observationState.currentParty = createPartyObservation({
       liveObserverIdentities: [
-        { kind: PartyPlayerIdentityKind.User, userId: userIdentifier.parse(7) },
-        { kind: PartyPlayerIdentityKind.Guest, guestId: guestIdentifier.parse('guest-1') },
+        { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
+        { kind: PartyPlayerKind.GUEST, guestId: guestIdentifier.parse('guest-1') },
       ],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
@@ -4024,7 +4026,7 @@ describe('PartyLobbyScreen', () => {
       expect(mocks.partyPlayerPort.rejoinParty).toHaveBeenCalledWith({
         pin: partyPinIdentifier.parse('AB12CD'),
         playerIdentity: {
-          kind: PartyPlayerIdentityKind.Guest,
+          kind: PartyPlayerKind.GUEST,
           guestId: guestIdentifier.parse('guest-1'),
         },
         username: undefined,
@@ -4059,7 +4061,7 @@ describe('PartyLobbyScreen', () => {
       }),
     );
     mocks.observationState.currentParty = createPartyObservation({
-      liveObserverIdentities: [{ kind: PartyPlayerIdentityKind.Guest, guestId }],
+      liveObserverIdentities: [{ kind: PartyPlayerKind.GUEST, guestId }],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
           avatarUri: '/avatars/host.png',
@@ -4152,7 +4154,7 @@ describe('PartyLobbyScreen', () => {
     await waitFor(() => {
       expect(mocks.partyPlayerPort.joinParty).toHaveBeenCalledWith(
         expect.objectContaining({
-          playerIdentity: { kind: PartyPlayerIdentityKind.Guest },
+          playerIdentity: { kind: PartyPlayerKind.GUEST },
         }),
       );
     });

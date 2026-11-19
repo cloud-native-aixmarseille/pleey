@@ -16,7 +16,7 @@ WORKDIR /usr/src/app
 FROM base AS build
 
 COPY ./application/frontend/package*.json /usr/src/app/
-COPY ./packages/pleey-domain /usr/packages/pleey-domain
+COPY ./application/shared /usr/src/shared
 
 RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
     --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \
@@ -77,7 +77,7 @@ CMD ["nginx", "-g", "daemon off;"]
 FROM base AS ci
 
 COPY --chown=node:node --from=build /usr/src/app/ /usr/src/app/
-COPY --chown=node:node --from=build /usr/packages/pleey-domain /usr/packages/pleey-domain
+COPY --chown=node:node --from=build /usr/src/shared /usr/src/shared
 COPY --chown=node:node ./application/backend/src/schema.gql /usr/src/backend/src/schema.gql
 COPY --chown=node:node ./application/backend/src/presentation/game/party/realtime/party-socket-events.ts /usr/src/backend/src/presentation/game/party/realtime/party-socket-events.ts
 COPY --chown=node:node ./scripts /usr/src/shared-scripts
@@ -85,7 +85,7 @@ COPY --chown=node:node ./docs /usr/src/repository/docs
 COPY --chown=node:node ./README.md ./AGENTS.md ./CONTRIBUTING.md /usr/src/repository/
 COPY --chown=node:node ./application/frontend/src /usr/src/repository/application/frontend/src
 COPY --chown=node:node ./application/backend/src/domain /usr/src/repository/application/backend/src/domain
-COPY --chown=node:node ./packages/pleey-domain /usr/src/repository/packages/pleey-domain
+COPY --chown=node:node ./application/shared /usr/src/repository/application/shared
 COPY --chown=node:node ./application/backend/src/presentation/game/types/quiz/graphql/types/quiz-inputs.ts /usr/src/repository/application/backend/src/presentation/game/types/quiz/graphql/types/quiz-inputs.ts
 COPY --chown=node:node ./application/backend/src/presentation/game/types/prediction/graphql/types/prediction-inputs.ts /usr/src/repository/application/backend/src/presentation/game/types/prediction/graphql/types/prediction-inputs.ts
 COPY --chown=node:node ./application/backend/prisma/seed.ts /usr/src/repository/application/backend/prisma/seed.ts

@@ -1,9 +1,9 @@
 import type { GuestId } from '@pleey/domain/identity';
 import type { PartyId, PartyPin } from '@pleey/domain/party';
+import { PartyPlayerKind } from '@pleey/domain/party';
 import type { Party } from '../../../../../domains/game/party/shared/entities/party';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyObservationPlayer } from '../../../../../domains/game/party/shared/entities/party-observation-player';
-import { PartyPlayerIdentityKind } from '../../../../../domains/game/party/shared/entities/party-player-identity';
 import type { UserId } from '../../../../../domains/identity/entities/user';
 import { PartyLobbyRouteKind } from './party-lobby-screen-route-utils';
 
@@ -89,7 +89,7 @@ export function resolvePartyLobbyScreenViewModel({
   const isAuthenticatedUserObservedInParty =
     userId !== null &&
     (party?.players.some(
-      (player) => player.identity.kind === PartyPlayerIdentityKind.User && player.identity.userId === userId,
+      (player) => player.identity.kind === PartyPlayerKind.USER && player.identity.userId === userId,
     ) ??
       false);
   const isRecoveringPersistedGuestSession =

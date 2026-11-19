@@ -284,6 +284,10 @@ after P1-P9 and found additional high-confidence candidates:
 - pagination bounds;
 - identity and project identifier brands;
 - theme IDs, default, pattern and curated palette data;
+- complete theme document/override contracts and theme asset upload policy;
+- playable option bounds and editor/server validation limits;
+- party player, join-receipt, action-state and host permission vocabulary;
+- shared public identity/game error codes;
 - public business-error translation keys and locale text under ADR 0025.
 
 These candidates are consumed through `@pleey/domain` and their superseded local
@@ -299,9 +303,10 @@ The remaining exact duplicates are deliberately local adapters or tests:
   local error adaptation and domain projection.
 
 No other exact backend/frontend domain duplicates or duplicated identifier
-brands remained after this audit. Future extraction proposals must still pass
-the ADR 0022 eligibility rules and must not move local projections solely to
-remove structurally similar code.
+brands remain after the follow-up. The 4-option frontend limit now follows the
+backend policy instead of exposing 8 editor slots. Future extraction proposals
+must still pass the ADR 0022 eligibility rules and must not move local
+projections solely to remove structurally similar code.
 
 Done when:
 

@@ -1,5 +1,4 @@
-import type { CuratedThemeId } from '@pleey/domain/theme';
-import type { ThemeDocument } from './theme-document';
+import type { CuratedThemeId, ThemeDocument } from '@pleey/domain/theme';
 
 export const CURATED_THEME_DOCUMENTS = {
   'cyber-arcade': { schemaVersion: 1, baseThemeId: 'cyber-arcade', name: 'Cyber Arcade', overrides: {} },

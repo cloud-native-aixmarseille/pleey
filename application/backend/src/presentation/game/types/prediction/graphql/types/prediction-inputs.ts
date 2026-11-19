@@ -1,6 +1,8 @@
 import { Field, ID, InputType, Int } from '@nestjs/graphql';
+import { PLAYABLE_CONTENT_LIMITS } from '@pleey/domain/game';
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
   ArrayMinSize,
   IsArray,
   IsInt,
@@ -96,7 +98,8 @@ export class CreatePredictionPromptInput {
 
   @Field(() => [SelectableOptionInput])
   @IsArray()
-  @ArrayMinSize(2)
+  @ArrayMinSize(PLAYABLE_CONTENT_LIMITS.minOptions)
+  @ArrayMaxSize(PLAYABLE_CONTENT_LIMITS.maxOptions)
   @ValidateNested({ each: true })
   @Type(() => SelectableOptionInput)
   options!: SelectableOptionInput[];
@@ -127,7 +130,8 @@ export class UpdatePredictionPromptInput {
 
   @Field(() => [SelectableOptionInput])
   @IsArray()
-  @ArrayMinSize(2)
+  @ArrayMinSize(PLAYABLE_CONTENT_LIMITS.minOptions)
+  @ArrayMaxSize(PLAYABLE_CONTENT_LIMITS.maxOptions)
   @ValidateNested({ each: true })
   @Type(() => SelectableOptionInput)
   options!: SelectableOptionInput[];

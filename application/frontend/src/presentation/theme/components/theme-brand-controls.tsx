@@ -1,6 +1,6 @@
+import type { ThemeDocument } from '@pleey/domain/theme';
 import { CURATED_THEME_IDS, CURATED_THEME_PALETTES, type CuratedThemeId } from '@pleey/domain/theme';
 import { useState } from 'react';
-import type { ThemeDocument } from '../../../domains/theme/entities/theme-document';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { Button } from '../../shared/ui/actions/button';
 import { FormSectionFrame } from '../../shared/ui/forms/frames';

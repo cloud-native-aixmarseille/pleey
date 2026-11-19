@@ -1,7 +1,7 @@
 import type { GuestId } from '@pleey/domain/identity';
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { useState } from 'react';
 import type { PartyObservationPlayer } from '../../../domains/game/party/shared/entities/party-observation-player';
-import { PartyPlayerIdentityKind } from '../../../domains/game/party/shared/entities/party-player-identity';
 import { PartyLobbyPlayersPanel } from '../../game/party/shared/screens/components/party-lobby-players-panel';
 import { PartyStandingsList } from '../../game/party/shared/screens/components/party-standings-list';
 import { PlayableChoiceResultActionTile } from '../../game/types/shared/screens/live/components/playable-choice-result-action-tile';
@@ -26,7 +26,7 @@ export function ThemePreviewScenes({
   // Inert sample identities only; these players never reach a game command or transport.
   const players: PartyObservationPlayer[] = [2450, 2180, 1920].map((score, index) => ({
     identity: {
-      kind: PartyPlayerIdentityKind.Guest,
+      kind: PartyPlayerKind.GUEST,
       guestId: `01900000-0000-7000-8000-00000000000${index + 1}` as GuestId,
     },
     username: t(`theme.studio.preview.players.${index}`),

@@ -1,8 +1,8 @@
 import { Inject } from '@nestjs/common';
 import { type CustomScalar, Scalar } from '@nestjs/graphql';
+import type { ThemeDocument } from '@pleey/domain/theme';
 import { type ValueNode, valueFromASTUntyped } from 'graphql';
 import { ThemeDocumentValidator } from '../../../application/workspace/themes/services/theme-document-validator';
-import type { ThemeDocument } from '../../../domain/theme/entities/theme-document';
 @Scalar('ThemeDocument', () => ThemeDocumentScalar)
 export class ThemeDocumentScalar implements CustomScalar<unknown, ThemeDocument> {
   description = 'A validated, versioned token-theme document.';

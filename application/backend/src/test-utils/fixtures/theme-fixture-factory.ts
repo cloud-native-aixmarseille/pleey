@@ -1,5 +1,5 @@
+import type { ThemeDocument } from '@pleey/domain/theme';
 import type { ManagedTheme } from '../../domain/theme/entities/managed-theme';
-import type { ThemeDocument } from '../../domain/theme/entities/theme-document';
 import { backendTestIdentifiers } from '../branded-identifiers';
 export class ThemeFixtureFactory {
   createManagedTheme(overrides: Partial<ManagedTheme> = {}): ManagedTheme {

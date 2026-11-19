@@ -1,5 +1,5 @@
 import type { PartyId, PartyPin, PartySettings, PartyStatus } from '@pleey/domain/party';
-import type { ThemeDocument } from '../../../../theme/entities/theme-document';
+import type { ThemeDocument } from '@pleey/domain/theme';
 import type { PartyRuntimeContext } from '../../shared/entities/party-runtime-context';
 import type { PartyPlayerActionState } from './party-player-action-state';
 import type { PartyPlayerIdentity } from './party-player-identity';

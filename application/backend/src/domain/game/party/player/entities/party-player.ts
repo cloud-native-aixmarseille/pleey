@@ -1,6 +1,6 @@
 import type { GuestId } from '@pleey/domain/identity';
+import { PartyPlayerKind } from '@pleey/domain/party';
 import type { UserId } from '../../../../identity/entities/user';
-import { PartyPlayerKind } from '../../enums/party-player-kind.enum';
 
 interface BasePartyPlayer {
   readonly avatarUri: string | null;

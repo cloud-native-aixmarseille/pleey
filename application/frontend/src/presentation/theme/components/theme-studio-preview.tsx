@@ -1,5 +1,5 @@
+import type { ThemeDocument } from '@pleey/domain/theme';
 import { useState } from 'react';
-import type { ThemeDocument } from '../../../domains/theme/entities/theme-document';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { Button } from '../../shared/ui/actions/button';
 import { AppIcon } from '../../shared/ui/icons/app-icon';

@@ -1,5 +1,5 @@
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
-import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { PartyPlayerSessionRegistry } from '../../../../../domain/game/party/player/services/party-player-session-registry';
 import { PartyObservationPolicy } from '../../../../../domain/game/party/shared/services/party-observation-policy';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';

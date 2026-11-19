@@ -1,3 +1,4 @@
+import { PLAYABLE_CONTENT_LIMITS } from '@pleey/domain/game';
 import { injectable } from 'inversify';
 import {
   type PlayableItemEditorState,
@@ -19,10 +20,6 @@ export interface PlayableManagementValidationIssue {
   readonly code: PlayableManagementValidationIssueCode;
 }
 
-const MINIMUM_OUTCOME_COUNT = 2;
-const MINIMUM_TIME_LIMIT_SECONDS = 5;
-const MINIMUM_POINTS = 0;
-
 @injectable()
 export class PlayableItemEditorValidator {
   validate(
@@ -39,7 +36,7 @@ export class PlayableItemEditorValidator {
 
     if (!hasFixedOptions) {
       const completeOutcomes = editorState.optionTexts.filter((option) => option.trim().length > 0);
-      if (completeOutcomes.length < MINIMUM_OUTCOME_COUNT) {
+      if (completeOutcomes.length < PLAYABLE_CONTENT_LIMITS.minOptions) {
         issues.push({ code: 'missingOutcome' });
       }
 
@@ -56,11 +53,11 @@ export class PlayableItemEditorValidator {
       issues.push({ code: 'missingCorrectOption' });
     }
 
-    if (Number.parseInt(editorState.timeLimit, 10) < MINIMUM_TIME_LIMIT_SECONDS) {
+    if (Number.parseInt(editorState.timeLimit, 10) < PLAYABLE_CONTENT_LIMITS.minTimeLimitSeconds) {
       issues.push({ code: 'invalidTimeLimit' });
     }
 
-    if (Number.parseInt(editorState.points, 10) < MINIMUM_POINTS) {
+    if (Number.parseInt(editorState.points, 10) < PLAYABLE_CONTENT_LIMITS.minPoints) {
       issues.push({ code: 'invalidPoints' });
     }
 

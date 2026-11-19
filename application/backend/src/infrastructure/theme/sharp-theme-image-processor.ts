@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { THEME_ASSET_POLICY } from '@pleey/domain/theme';
 import sharp from 'sharp';
 import type { ThemeImageProcessorPort } from '../../application/workspace/themes/ports/theme-image-processor.port';
 import { THEME_ASSET_MAX_FILE_SIZE_BYTES } from '../../domain/theme/entities/managed-theme';
@@ -27,7 +28,11 @@ export class SharpThemeImageProcessor implements ThemeImageProcessorPort {
       }
     }
     try {
-      const image = sharp(buffer, { limitInputPixels: 16_000_000, failOn: 'warning', animated: true });
+      const image = sharp(buffer, {
+        limitInputPixels: THEME_ASSET_POLICY.maxInputPixels,
+        failOn: 'warning',
+        animated: true,
+      });
       const metadata = await image.metadata();
       if ((metadata.pages ?? 1) !== 1) throw new ThemeError(ThemeErrorCode.INVALID_ASSET, { reason: 'animation' });
       const { data, info } = await image.rotate().webp({ quality: 85 }).toBuffer({ resolveWithObject: true });

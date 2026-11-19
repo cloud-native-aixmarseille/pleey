@@ -1,8 +1,7 @@
 import 'reflect-metadata';
 import { GameType } from '@pleey/domain/game';
-import { DEFAULT_PARTY_SETTINGS, PartyStatus } from '@pleey/domain/party';
+import { DEFAULT_PARTY_SETTINGS, PartyPlayerKind, PartyStatus } from '@pleey/domain/party';
 import { describe, expect, it, vi } from 'vitest';
-import { PartyPlayerKind } from '../../../../../domain/game/party/enums/party-player-kind.enum';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
 import { SubmitPartyActionUseCase } from './submit-party-action-use-case';
 

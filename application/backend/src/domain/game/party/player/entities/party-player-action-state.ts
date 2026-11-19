@@ -1,11 +1,5 @@
 import type { PartyActionId, PartyStageId } from '@pleey/domain/party';
-
-export const PARTY_PLAYER_ACTION_STATE_STATUS = {
-  ACKNOWLEDGED: 'acknowledged',
-} as const;
-
-type PartyPlayerActionStateStatus =
-  (typeof PARTY_PLAYER_ACTION_STATE_STATUS)[keyof typeof PARTY_PLAYER_ACTION_STATE_STATUS];
+import { type PartyPlayerActionStateStatus } from '@pleey/domain/party';
 
 export interface PartyPlayerActionState {
   readonly earnedPoints: number;

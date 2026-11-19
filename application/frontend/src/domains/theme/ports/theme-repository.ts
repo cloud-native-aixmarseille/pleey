@@ -1,8 +1,7 @@
 import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
-import type { ThemeId } from '@pleey/domain/theme';
+import type { ThemeDocument, ThemeId } from '@pleey/domain/theme';
 import type { OrganizationId } from '../../organization/entities/organization';
 import type { ManagedTheme, ThemeAsset } from '../entities/managed-theme';
-import type { ThemeDocument } from '../entities/theme-document';
 import type { ThemePermissions } from '../value-objects/theme-permissions';
 export interface SaveThemeCommand {
   readonly organizationId: OrganizationId;

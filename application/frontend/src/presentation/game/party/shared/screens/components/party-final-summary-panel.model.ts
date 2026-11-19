@@ -1,5 +1,5 @@
+import { PartyPlayerKind } from '@pleey/domain/party';
 import type { PartyObservationPlayer } from '../../../../../../domains/game/party/shared/entities/party-observation-player';
-import { PartyPlayerIdentityKind } from '../../../../../../domains/game/party/shared/entities/party-player-identity';
 
 export type PodiumRank = 1 | 2 | 3;
 
@@ -33,7 +33,7 @@ export function createPartyFinalSummaryModel(players: readonly PartyObservationP
 }
 
 export function toPartyFinalSummaryPlayerKey(player: PartyObservationPlayer): string {
-  return player.identity.kind === PartyPlayerIdentityKind.User
+  return player.identity.kind === PartyPlayerKind.USER
     ? `user:${player.identity.userId}`
     : `guest:${player.identity.guestId}`;
 }

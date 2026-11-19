@@ -1,6 +1,6 @@
+import { PartyPlayerKind } from '@pleey/domain/party';
 import { describe, expect, it } from 'vitest';
 import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
-import { PartyPlayerKind } from '../../enums/party-player-kind.enum';
 import { PartyPlayerSessionRegistry } from './party-player-session-registry';
 
 describe('PartyPlayerSessionRegistry', () => {

@@ -16,7 +16,7 @@ WORKDIR /usr/src/app
 FROM base AS build
 
 COPY ./application/backend/package*.json /usr/src/app/
-COPY ./packages/pleey-domain /usr/packages/pleey-domain
+COPY ./application/shared /usr/src/shared
 
 RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc \
     --mount=type=cache,target=/home/node/.npm,uid=1000,gid=1000 \
@@ -44,7 +44,7 @@ LABEL org.opencontainers.image.source="https://github.com/cloud-native-aixmarsei
 COPY --from=build-prod /usr/bin/dumb-init /usr/bin/dumb-init
 
 COPY --chown=node:node --from=build-prod /usr/src/app/node_modules /usr/src/app/node_modules
-COPY --chown=node:node --from=build-prod /usr/packages/pleey-domain /usr/packages/pleey-domain
+COPY --chown=node:node --from=build-prod /usr/src/shared /usr/src/shared
 COPY --chown=node:node --from=build-prod /usr/src/app/prisma /usr/src/app/prisma
 COPY --chown=node:node --from=build-prod /usr/src/app/prisma.config.ts /usr/src/app/prisma.config.ts
 COPY --chown=node:node --from=build-prod /usr/src/app/dist /usr/src/app/dist
@@ -73,7 +73,7 @@ USER 1000:1000
 FROM tools AS ci
 
 COPY --chown=node:node --from=build /usr/src/app/ /usr/src/app/
-COPY --chown=node:node --from=build /usr/packages/pleey-domain /usr/packages/pleey-domain
+COPY --chown=node:node --from=build /usr/src/shared /usr/src/shared
 COPY --chown=node:node ./application/frontend/codegen.ts /usr/src/frontend/codegen.ts
 COPY --chown=node:node ./application/frontend/src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts /usr/src/frontend/src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts
 COPY --chown=node:node ./scripts /usr/src/shared-scripts
