@@ -40,4 +40,15 @@ describe('GuestPartyEntryDraftFactory', () => {
     // Assert
     expect(generated.size).toBeGreaterThan(190);
   });
+
+  it('creates cryptographically random avatar seeds as UUIDs', () => {
+    // Arrange
+    const factory = createFactory();
+
+    // Act
+    const avatarSeed = factory.createAvatarSeed();
+
+    // Assert
+    expect(avatarSeed).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  });
 });
