@@ -3,7 +3,7 @@
 - Issue: add when created
 - Decision: [ADR 0022](../architecture/adr/0022-evaluate-a-shared-frontend-backend-library.md)
 - Updated: 2026-11-19
-- Status: Implemented (P1-P9; documentation validation complete)
+- Status: Complete (P1-P9 implemented, reviewed and CI-validated)
 - Implementation: [PR #537](https://github.com/cloud-native-aixmarseille/pleey/pull/537)
 
 This plan implements ADR 0022 through incremental slices that preserve current
@@ -259,8 +259,9 @@ Done when:
 
 ADR 0022 was accepted on 2026-11-18, the date of the first adoption commit
 `d3d777fb3cf77696fd35658844e28595428b029b`. The implementation PR is
-[PR #537](https://github.com/cloud-native-aixmarseille/pleey/pull/537). It was
-still open at finalization and must be updated to merged after merge.
+[PR #537](https://github.com/cloud-native-aixmarseille/pleey/pull/537).
+Implementation review completed on 2026-11-19. The PR remains open only for
+merge after its required checks.
 
 Final verification before finalization:
 
@@ -271,7 +272,7 @@ Final verification before finalization:
 - cold and warm backend/frontend Docker builds: passed;
 - shared package, CI routing, Docker wiring and generated documentation guards:
   passed;
-- PR CI run [44470883886](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44470883886):
+- PR CI run [44477741474](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/44477741474):
   passed, including Helm candidate validation and image promotion.
 
 Done when:

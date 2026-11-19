@@ -432,7 +432,8 @@ The implementation started with
 `d3d777fb3cf77696fd35658844e28595428b029b` on 2026-11-18. It established the
 private `@pleey/domain` package, integrated both applications and their container
 builds, then extracted and verified the accepted scope through [PR #537][implementation-pr].
-The PR remained open when this ADR was finalized.
+Implementation review completed on 2026-11-19; the PR remains open only for
+merge.
 
 - The package layout and module exports are integrated with the backend,
   frontend and Docker build configurations.
