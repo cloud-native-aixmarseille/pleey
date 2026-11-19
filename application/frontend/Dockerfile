@@ -85,6 +85,7 @@ COPY --chown=node:node ./docs /usr/src/repository/docs
 COPY --chown=node:node ./README.md ./AGENTS.md ./CONTRIBUTING.md /usr/src/repository/
 COPY --chown=node:node ./application/frontend/src /usr/src/repository/application/frontend/src
 COPY --chown=node:node ./application/backend/src/domain /usr/src/repository/application/backend/src/domain
+COPY --chown=node:node ./packages/pleey-domain /usr/src/repository/packages/pleey-domain
 COPY --chown=node:node ./application/backend/src/presentation/game/types/quiz/graphql/types/quiz-inputs.ts /usr/src/repository/application/backend/src/presentation/game/types/quiz/graphql/types/quiz-inputs.ts
 COPY --chown=node:node ./application/backend/src/presentation/game/types/prediction/graphql/types/prediction-inputs.ts /usr/src/repository/application/backend/src/presentation/game/types/prediction/graphql/types/prediction-inputs.ts
 COPY --chown=node:node ./application/backend/prisma/seed.ts /usr/src/repository/application/backend/prisma/seed.ts
