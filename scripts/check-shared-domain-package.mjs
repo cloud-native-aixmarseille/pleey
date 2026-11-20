@@ -41,6 +41,7 @@ const SUPERSEDED_APPLICATION_CONTRACTS = [
   "application/backend/src/domain/game/party/enums/party-role.enum.ts",
   "application/backend/src/domain/game/party/enums/party-status.enum.ts",
   "application/backend/src/domain/game/party/enums/party-player-kind.enum.ts",
+  "application/backend/src/domain/game/party/player/entities/party-player-identity.ts",
   "application/backend/src/domain/game/party/shared/entities/party-action.ts",
   "application/backend/src/domain/game/party/shared/entities/party-settings.ts",
   "application/backend/src/domain/game/party/shared/entities/party-stage.ts",
@@ -299,7 +300,9 @@ function parseConstObjectValues(sourceText, constName) {
     fail(`Unable to parse ${constName} from source.`);
   }
 
-  return asSortedUnique([...match[1].matchAll(/:\s*'([^']+)'/g)].map((entry) => entry[1]));
+  return asSortedUnique(
+    [...match[1].matchAll(/:\s*["']([^"']+)["']/g)].map((entry) => entry[1]),
+  );
 }
 
 function parseEnumValues(sourceText, enumName) {

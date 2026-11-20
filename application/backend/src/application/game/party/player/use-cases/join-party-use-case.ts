@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { PartyPlayerIdentity } from '@pleey/domain/party';
 import { PartyPlayerKind, PartyStatus } from '@pleey/domain/party';
 import {
   PartyCommandNotAvailableError,
@@ -12,7 +13,6 @@ import {
   JoinedPartyPlayerNotFoundError,
   MissingPartyPasswordError,
 } from '../../../../../domain/game/party/errors/join-party.error';
-import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import { PartyGuestCredentialPort } from '../../../../../domain/game/party/player/ports/party-guest-credential.port';
 import { PasswordService } from '../../../../../domain/identity/services/password-service';
 import { BroadcastPartyObservationUseCase } from '../../shared/use-cases/broadcast-party-observation-use-case';

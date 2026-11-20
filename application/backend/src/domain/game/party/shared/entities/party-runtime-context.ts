@@ -1,105 +1,20 @@
-import type { PartyActionId, PartyStageId } from '@pleey/domain/party';
-import { PARTY_PLAYER_ACTION_STATE_STATUS, PartyRuntimePhase } from '@pleey/domain/party';
+import type {
+  PartyRuntimeActionSubmissionContext,
+  PartyRuntimeCurrentPlayerResultContext,
+  PartyRuntimeCurrentResultContext,
+  PartyRuntimeCurrentStageContext,
+  PartyRuntimeEndedLifecycleContext,
+  PartyRuntimeLifecycleContext,
+  PartyRuntimeResultLifecycleContext,
+  PartyRuntimeStageLifecycleContext,
+} from '@pleey/domain/party';
 
+export type { PartyRuntimeLifecycleContext } from '@pleey/domain/party';
 export { PartyRuntimePhase } from '@pleey/domain/party';
-
-type PartyRuntimeActionSubmissionStatus =
-  (typeof PARTY_PLAYER_ACTION_STATE_STATUS)[keyof typeof PARTY_PLAYER_ACTION_STATE_STATUS];
-
-interface PartyRuntimeBaseLifecycleContext {
-  readonly reading?: {
-    readonly endsAtEpochMs: number | null;
-    readonly remainingDurationMs: number;
-  };
-  readonly stageEndsAtEpochMs: number | null;
-  readonly stageRemainingDurationMs: number | null;
-  readonly stageTimeLimitSeconds: number | null;
-  readonly totalStages: number;
-}
-
-interface PartyRuntimeLobbyLifecycleContext extends PartyRuntimeBaseLifecycleContext {
-  readonly phase: PartyRuntimePhase.LOBBY;
-  readonly stageId: null;
-  readonly stagePosition: null;
-}
-
-interface PartyRuntimeStageLifecycleContext extends PartyRuntimeBaseLifecycleContext {
-  readonly phase: PartyRuntimePhase.STAGE;
-  readonly stageId: PartyStageId;
-  readonly stagePosition: number;
-}
-
-interface PartyRuntimeResultLifecycleContext extends PartyRuntimeBaseLifecycleContext {
-  readonly phase: PartyRuntimePhase.RESULT;
-  readonly stageId: PartyStageId;
-  readonly stagePosition: number;
-}
-
-interface PartyRuntimeEndedLifecycleContext extends PartyRuntimeBaseLifecycleContext {
-  readonly phase: PartyRuntimePhase.ENDED;
-  readonly stageId: PartyStageId | null;
-  readonly stagePosition: number | null;
-}
-
-export type PartyRuntimeLifecycleContext =
-  | PartyRuntimeLobbyLifecycleContext
-  | PartyRuntimeStageLifecycleContext
-  | PartyRuntimeResultLifecycleContext
-  | PartyRuntimeEndedLifecycleContext;
-
-interface PartyRuntimeStageActionContext {
-  readonly booleanValue?: boolean;
-  readonly id: PartyActionId;
-  readonly text: string;
-}
-
-interface PartyRuntimeStageMediaContext {
-  readonly id?: string;
-  readonly expiresAt?: string;
-  readonly partyId?: string;
-  readonly mimeType: string;
-  readonly uri: string;
-}
-
-interface PartyRuntimeResultActionContext extends PartyRuntimeStageActionContext {
-  readonly actionCount: number;
-  readonly actionPercent: number;
-  readonly earnedPoints: number;
-  readonly isCorrect: boolean;
-}
-
-interface PartyRuntimeCurrentStageContext {
-  readonly actions: readonly PartyRuntimeStageActionContext[];
-  readonly media?: PartyRuntimeStageMediaContext | null;
-  readonly text: string;
-}
-
-interface PartyRuntimeCurrentPlayerActionSubmissionContext {
-  readonly selectedActionId: PartyActionId;
-  readonly status: PartyRuntimeActionSubmissionStatus;
-}
-
-interface PartyRuntimeCurrentPlayerResultContext {
-  readonly earnedPoints: number;
-  readonly isCorrect: boolean;
-  readonly selectedActionId: PartyActionId;
-}
-
-interface PartyRuntimeActionSubmissionContext {
-  readonly currentPlayer: PartyRuntimeCurrentPlayerActionSubmissionContext | null;
-  readonly submittedPlayerCount: number;
-  readonly totalEligiblePlayerCount: number;
-}
 
 interface PartyRuntimeStageContext {
   readonly actionSubmission: PartyRuntimeActionSubmissionContext | null;
   readonly current: PartyRuntimeCurrentStageContext | null;
-}
-
-interface PartyRuntimeCurrentResultContext {
-  readonly actions: readonly PartyRuntimeResultActionContext[];
-  readonly media?: PartyRuntimeStageMediaContext | null;
-  readonly text: string;
 }
 
 interface PartyRuntimeResultContext {
@@ -108,7 +23,7 @@ interface PartyRuntimeResultContext {
 }
 
 interface PartyRuntimeLobbyContext {
-  readonly lifecycle: PartyRuntimeLobbyLifecycleContext;
+  readonly lifecycle: Extract<PartyRuntimeLifecycleContext, { phase: 'lobby' }>;
   readonly result?: never;
   readonly stage?: never;
 }

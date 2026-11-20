@@ -1,6 +1,5 @@
 import type { GameId, GameType } from '@pleey/domain/game';
-import type { PartyActionId, PartyId, PartyStatus } from '@pleey/domain/party';
-import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
+import type { PartyActionId, PartyId, PartyPlayerIdentity, PartyStatus } from '@pleey/domain/party';
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
 
 export interface EvaluatePartyActionSubmissionCommand {

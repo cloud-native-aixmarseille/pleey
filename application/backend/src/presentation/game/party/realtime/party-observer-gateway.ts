@@ -9,7 +9,7 @@ import {
   WsException,
 } from '@nestjs/websockets';
 import type { GameId } from '@pleey/domain/game';
-import type { PartyId, PartyPin } from '@pleey/domain/party';
+import type { AuthenticatedPartyPlayerIdentity, PartyId, PartyPin, PartyPlayerIdentity } from '@pleey/domain/party';
 import { PartyJoinReceiptStatus, PartyPlayerKind, PartyStatus } from '@pleey/domain/party';
 import type { Server, Socket } from 'socket.io';
 import { AdvanceStageUseCase } from '../../../../application/game/party/host/use-cases/advance-stage-use-case';
@@ -40,10 +40,6 @@ import {
   HostPartyControlForbiddenError,
   PartyCommandNotAvailableError,
 } from '../../../../domain/game/errors';
-import type {
-  AuthenticatedPartyPlayerIdentity,
-  PartyPlayerIdentity,
-} from '../../../../domain/game/party/player/entities/party-player-identity';
 import {
   PartyPlayerSessionRegistry,
   PartyPlayerSessionRegistryProvider,
