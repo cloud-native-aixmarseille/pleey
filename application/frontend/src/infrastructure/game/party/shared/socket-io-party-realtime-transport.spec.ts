@@ -18,6 +18,32 @@ const MEDIA = {
 };
 
 describe('SocketIoPartyRealtimeTransport', () => {
+  it('force reconnects the party socket when the app becomes visible again', () => {
+    // Arrange
+    const originalVisibilityDescriptor = Object.getOwnPropertyDescriptor(document, 'visibilityState');
+    const fixture = new PartyMediaSocketFixture();
+    ioMock.mockReset().mockReturnValue(fixture.socket);
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'visible',
+    });
+    const transport = new SocketIoPartyRealtimeTransport(partyIdentifier);
+    transport.observeParty(PARTY_ID, { onSnapshot: vi.fn() });
+
+    // Act + Assert
+    try {
+      document.dispatchEvent(new Event('visibilitychange'));
+      expect(fixture.socket.disconnect).toHaveBeenCalledTimes(1);
+      expect(fixture.socket.connect).toHaveBeenCalledTimes(1);
+    } finally {
+      if (originalVisibilityDescriptor) {
+        Object.defineProperty(document, 'visibilityState', originalVisibilityDescriptor);
+      } else {
+        Reflect.deleteProperty(document, 'visibilityState');
+      }
+    }
+  });
+
   it('reuses the joined observation connection and accepts its matching fresh grant', async () => {
     // Arrange
     const fixture = new PartyMediaSocketFixture();
