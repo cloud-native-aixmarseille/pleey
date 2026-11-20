@@ -63,3 +63,4 @@ If a change can alter how the system is structured, operated, or extended, it ne
 - 0023: [Optimize CI execution and caching](./0023-optimize-ci-execution-and-caching.md) - Accepted - 2026-11-05
 - 0024: [Single-source end user documentation as code](./0024-single-source-end-user-documentation-as-code.md) - Accepted - 2026-11-17
 - 0025: [Share business error translations](./0025-share-business-error-translations.md) - Accepted - 2026-11-19
+- 0026: [Factorize create and update forms](./0026-factorize-create-and-update-forms.md) - Accepted - 2026-11-20

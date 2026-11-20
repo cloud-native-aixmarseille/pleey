@@ -12,6 +12,7 @@ import { PartySettingsFormField } from '../../../../../shared/ui/forms/party-set
 import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
 import { WorkspaceThemeSelectField } from '../../../../../theme/components/workspace-theme-select-field';
+import { resolveCreateEditFormModeCopy } from './create-edit-form-mode-copy';
 import { useProjectFormDialogState } from './use-project-form-dialog-state';
 
 interface ProjectFormDialogProps {
@@ -69,12 +70,10 @@ export function ProjectFormDialog({
     await handleSubmit();
   }
 
-  const titleKey = mode === 'create' ? 'project.management.form.create.title' : 'project.management.form.edit.title';
-  const eyebrowKey =
-    mode === 'create' ? 'project.management.form.create.eyebrow' : 'project.management.form.edit.eyebrow';
-  const submitKey = mode === 'create' ? 'project.management.form.create.submit' : 'project.management.form.edit.submit';
-  const submittingKey =
-    mode === 'create' ? 'project.management.form.create.submitting' : 'project.management.form.edit.submitting';
+  const { titleKey, eyebrowKey, submitKey, submittingKey } = resolveCreateEditFormModeCopy(
+    mode,
+    'project.management.form',
+  );
 
   return (
     <FormDialog

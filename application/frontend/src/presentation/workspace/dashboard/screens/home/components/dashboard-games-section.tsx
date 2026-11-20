@@ -1,5 +1,4 @@
-import type { GameId } from '@pleey/domain/game';
-import { GameType } from '@pleey/domain/game';
+import type { GameId, GameType } from '@pleey/domain/game';
 import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '@pleey/domain/party';
 import type { ThemeId } from '@pleey/domain/theme';
 import { useState } from 'react';
@@ -18,14 +17,9 @@ import { SectionCard } from '../../../../../shared/ui/layout/section-card';
 import type { GameListFiltersState } from '../../../hooks/use-game-list-filters';
 import { DashboardCreateGameDialog } from './dashboard-create-game-dialog';
 import { DashboardCreatePartyDialog } from './dashboard-create-party-dialog';
+import type { DashboardGameFormValues } from './dashboard-game-form-values';
 import { DashboardGamesCatalog } from './dashboard-games-catalog';
 import { DashboardImportGameDialog } from './dashboard-import-game-dialog';
-
-interface DashboardCreateGameForm {
-  readonly description: string;
-  readonly title: string;
-  readonly type: GameType | null;
-}
 
 function resolveOwnerDefaultPartySettings(owner: Organization | Project | null): PartySettings | null {
   if (!owner) {
@@ -50,13 +44,13 @@ function resolveDefaultPartySettings(
 interface DashboardGamesSectionProps {
   readonly hasSelectedProject: boolean;
   readonly creatingPartyGameId: GameId | null;
-  readonly createGameForm: DashboardCreateGameForm;
+  readonly createGameForm: DashboardGameFormValues;
   readonly createGameErrorMessage: string | null;
   readonly games: readonly DashboardGameListItem[];
   readonly gameTypes: readonly GameTypeDescriptor[];
   readonly gameTypesByKey: ReadonlyMap<GameType, GameTypeDescriptor>;
   readonly filters: GameListFiltersState;
-  readonly importGameForm: DashboardCreateGameForm;
+  readonly importGameForm: DashboardGameFormValues;
   readonly importGameFile: File | null;
   readonly importGameErrorMessage: string | null;
   readonly importExampleProvider: PlayableContentImportExampleProvider | null;
@@ -75,11 +69,11 @@ interface DashboardGamesSectionProps {
   readonly totalPages: number;
   readonly onCloseCreateGameDialog: () => void;
   readonly onCreateGame: () => void;
-  readonly onCreateGameFormChange: (value: Partial<DashboardCreateGameForm>) => void;
+  readonly onCreateGameFormChange: (value: Partial<DashboardGameFormValues>) => void;
   readonly onOpenCreateGameDialog: () => void;
   readonly onCloseImportGameDialog: () => void;
   readonly onImportGame: () => void;
-  readonly onImportGameFormChange: (value: Partial<DashboardCreateGameForm>) => void;
+  readonly onImportGameFormChange: (value: Partial<DashboardGameFormValues>) => void;
   readonly onImportGameFileChange: (file: File | null) => void;
   readonly onOpenImportGameDialog: () => void;
   readonly onSearchChange: (value: string) => void;

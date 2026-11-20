@@ -1,16 +1,10 @@
-import type { FormEvent } from 'react';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
 import type { CreateOrganizationCommand } from '../../../../../../domains/organization/ports/organization-repository';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
-import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
-import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
-import { Input } from '../../../../../shared/ui/forms/input';
-import { PartySettingsFormField } from '../../../../../shared/ui/forms/party-settings-form-field';
-import { Textarea } from '../../../../../shared/ui/forms/textarea';
-import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
-import { ThemeSelectField } from '../../../../../theme/components/theme-select-field';
-import { useCreateOrganizationFormState } from './use-create-organization-form-state';
+import { OrganizationFormDialog } from './organization-form-dialog';
+import { createOrganizationInitialValues, toCreateOrganizationCommand } from './organization-form-values';
+import { useOrganizationFormDialogState } from './use-organization-form-dialog-state';
 
 interface CreateOrganizationFormProps {
   readonly onSubmit: (command: CreateOrganizationCommand) => Promise<Organization>;
@@ -34,15 +28,14 @@ export function CreateOrganizationForm({ onSubmit, onCreated }: CreateOrganizati
     setDefaultPartySettings,
     defaultThemeId,
     setDefaultThemeId,
-  } = useCreateOrganizationFormState({
-    onSubmit: onSubmit as (command: CreateOrganizationCommand) => Promise<Organization>,
-    onCreated,
+  } = useOrganizationFormDialogState({
+    getInitialValues: createOrganizationInitialValues,
+    onSubmit: async (values) => onSubmit(toCreateOrganizationCommand(values)),
+    onSubmitted: onCreated,
+    successMessageKey: 'organization.management.create.success',
+    successNotificationId: 'organization-create-success-toast',
+    fallbackErrorKey: 'organization.errors.createFailed',
   });
-
-  async function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    await handleSubmit();
-  }
 
   return (
     <>
@@ -50,63 +43,22 @@ export function CreateOrganizationForm({ onSubmit, onCreated }: CreateOrganizati
         {t('organization.management.create.openButton')}
       </Button>
 
-      <FormDialog
-        banner={<StatusBanner tone="error">{errorMessage ? t(errorMessage) : null}</StatusBanner>}
-        eyebrow={t('organization.management.create.eyebrow')}
-        footer={
-          <>
-            <Button disabled={isSubmitting} intent="ghost" onClick={handleClose}>
-              {t('common.cancel')}
-            </Button>
-            <Button disabled={isSubmitting} intent="primary" type="submit">
-              {isSubmitting
-                ? t('organization.management.create.submitting')
-                : t('organization.management.create.submit')}
-            </Button>
-          </>
-        }
+      <OrganizationFormDialog
+        mode="create"
+        description={description}
+        errorMessage={errorMessage}
         isOpen={isOpen}
+        isSubmitting={isSubmitting}
+        name={name}
+        defaultPartySettings={defaultPartySettings}
+        defaultThemeId={defaultThemeId}
         onClose={handleClose}
-        onSubmit={handleFormSubmit}
-        title={t('organization.management.create.title')}
-      >
-        <FieldShell id="create-org-name" label={t('organization.management.create.fields.name.label')} required>
-          <Input
-            id="create-org-name"
-            name="name"
-            placeholder={t('organization.management.create.fields.name.placeholder')}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            disabled={isSubmitting}
-          />
-        </FieldShell>
-
-        <FieldShell id="create-org-description" label={t('organization.management.create.fields.description.label')}>
-          <Textarea
-            id="create-org-description"
-            name="description"
-            placeholder={t('organization.management.create.fields.description.placeholder')}
-            rows={3}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            disabled={isSubmitting}
-          />
-        </FieldShell>
-
-        <ThemeSelectField
-          id="create-org-theme"
-          value={defaultThemeId}
-          disabled={isSubmitting}
-          onChange={setDefaultThemeId}
-        />
-
-        <PartySettingsFormField
-          id="create-org-party-settings"
-          settings={defaultPartySettings}
-          disabled={isSubmitting}
-          onChange={setDefaultPartySettings}
-        />
-      </FormDialog>
+        onDescriptionChange={setDescription}
+        onNameChange={setName}
+        onDefaultPartySettingsChange={setDefaultPartySettings}
+        onDefaultThemeIdChange={setDefaultThemeId}
+        onSubmit={handleSubmit}
+      />
     </>
   );
 }
