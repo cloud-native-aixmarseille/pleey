@@ -2,7 +2,7 @@
 
 # Game types
 
-[index.ts](../../../application/shared/game/index.ts)
+[index.ts](../../../packages/contracts/game/index.ts)
 
 | Name       | Value      |
 | ---------- | ---------- |

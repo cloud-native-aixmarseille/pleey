@@ -1,0 +1,728 @@
+import { GameType } from '@pleey/contracts/game';
+import { DEFAULT_PARTY_SETTINGS, PartyJoinReceiptStatus, PartyPlayerKind } from '@pleey/contracts/party';
+import type { ThemeDocument } from '@pleey/contracts/theme';
+import { describe, expect, it, vi } from 'vitest';
+import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
+import { GameTypeParser } from '../../../../application/game/types/shared/services/game-type-parser';
+import { PartyRuntimePhase } from '../../../../domains/game/party/shared/entities/party-runtime-context';
+import { ThemeErrorCode } from '../../../../domains/theme/errors/theme-error';
+import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
+import { PartyFixtureFactory } from '../../../../test-utils/fixtures/party-fixture-factory';
+import { PartyStageFixtureFactory } from '../../../../test-utils/fixtures/party-stage-fixture-factory';
+import { ThemeFixtureFactory } from '../../../../test-utils/fixtures/theme-fixture-factory';
+import { GameIdentifierMockFactory } from '../../../../test-utils/mocks/game-identifier-mock-factory';
+import { GuestIdentifierMockFactory } from '../../../../test-utils/mocks/guest-identifier-mock-factory';
+import { PartyActionIdentifierMockFactory } from '../../../../test-utils/mocks/party-action-identifier-mock-factory';
+import { PartyIdentifierMockFactory } from '../../../../test-utils/mocks/party-identifier-mock-factory';
+import { StageIdentifierMockFactory } from '../../../../test-utils/mocks/stage-identifier-mock-factory';
+import { UserIdentifierMockFactory } from '../../../../test-utils/mocks/user-identifier-mock-factory';
+import { SocketIoPartyHostControlAdapter } from '../host/socket-io-party-host-control.adapter';
+import { SocketIoPartyPlayerAdapter } from '../player/socket-io-party-player.adapter';
+import { SocketIoPartyObservationAdapter } from './socket-io-party-observation.adapter';
+import { SocketIoPartyPayloadMapper } from './socket-io-party-payload-mapper';
+import { SocketIoPartyRealtimeTransport } from './socket-io-party-realtime-transport';
+
+const guestIdentifier = new GuestIdentifierMockFactory().create();
+const userIdentifier = new UserIdentifierMockFactory().create();
+const partyIdentifier = new PartyIdentifierMockFactory().create();
+const partyPinIdentifier = new PartyPinIdentifier();
+const partyActionIdentifier = new PartyActionIdentifierMockFactory().create();
+const gameIdentifier = new GameIdentifierMockFactory().create();
+const gameTypeParser = new GameTypeParser();
+const PARTY_ID = partyIdentifier.parse(44);
+const GAME_ID = gameIdentifier.parse(17);
+const GUEST_ID = guestIdentifier.parse('guest-9');
+const ACTION_ID = partyActionIdentifier.parse(100);
+
+function createPayloadMapper() {
+  return new SocketIoPartyPayloadMapper(
+    new ThemeDocumentNormalizer(),
+    partyActionIdentifier,
+    guestIdentifier,
+    userIdentifier,
+    partyIdentifier,
+    partyPinIdentifier,
+    gameIdentifier,
+    gameTypeParser,
+  );
+}
+
+function createObservationAdapter() {
+  const transport = new SocketIoPartyRealtimeTransport(partyIdentifier);
+
+  return {
+    adapter: new SocketIoPartyObservationAdapter(createPayloadMapper(), transport),
+    transport,
+  };
+}
+
+function createPlayerAdapter() {
+  return new SocketIoPartyPlayerAdapter(createPayloadMapper(), new SocketIoPartyRealtimeTransport(partyIdentifier));
+}
+
+function createHostControlAdapter() {
+  const transport = new SocketIoPartyRealtimeTransport(partyIdentifier);
+
+  return {
+    adapter: new SocketIoPartyHostControlAdapter(transport),
+    transport,
+  };
+}
+
+function createAcceptedGuestJoinReceipt() {
+  return {
+    gameId: GAME_ID,
+    player: {
+      avatarUri: '/avatars/guest-9.png',
+      identity: { kind: PartyPlayerKind.GUEST, guestId: GUEST_ID },
+      username: 'Neo',
+    },
+    partyId: PARTY_ID,
+    pin: 'AB12CD',
+    status: PartyJoinReceiptStatus.ACCEPTED,
+  };
+}
+
+const { connectMock, disconnectMock, emitMock, ioMock, offMock, onMock, socket } = vi.hoisted(() => {
+  const handlers = new Map<string, Array<(payload?: unknown) => void>>();
+  const connectMock = vi.fn();
+  const disconnectMock = vi.fn();
+  const emitMock = vi.fn();
+  const onMock = vi.fn((event: string, handler: (payload?: unknown) => void) => {
+    const currentHandlers = handlers.get(event) ?? [];
+    currentHandlers.push(handler);
+    handlers.set(event, currentHandlers);
+    return socket;
+  });
+  const offMock = vi.fn();
+  const socket = {
+    auth: {},
+    connected: false,
+    connect: connectMock,
+    disconnect: disconnectMock,
+    emit: emitMock,
+    off: offMock,
+    on: onMock,
+    recovered: false,
+  };
+
+  return {
+    connectMock,
+    disconnectMock,
+    emitMock,
+    ioMock: vi.fn(() => socket),
+    offMock,
+    onMock,
+    socket,
+  };
+});
+
+vi.mock('socket.io-client', () => ({
+  io: ioMock,
+}));
+
+describe('SocketIoPartyObservationAdapter', () => {
+  function resetSocketMocks() {
+    connectMock.mockClear();
+    disconnectMock.mockClear();
+    emitMock.mockClear();
+    ioMock.mockClear();
+    onMock.mockClear();
+    offMock.mockClear();
+    socket.connected = false;
+    socket.auth = {};
+    socket.recovered = false;
+  }
+
+  it('connects and requests observation by party id', () => {
+    // Arrange
+    resetSocketMocks();
+
+    const { adapter } = createObservationAdapter();
+
+    // Act
+    const release = adapter.observeParty(PARTY_ID, {
+      onSnapshot: vi.fn(),
+    });
+
+    // Assert
+    expect(ioMock).toHaveBeenCalledTimes(1);
+    expect(connectMock).toHaveBeenCalledTimes(1);
+    expect(emitMock).toHaveBeenCalledWith('observe-party', { partyId: PARTY_ID });
+
+    release();
+
+    expect(emitMock).toHaveBeenCalledWith('stop-observing-party');
+    expect(disconnectMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('refreshes the socket auth payload when auth tokens change', () => {
+    // Arrange
+    resetSocketMocks();
+
+    const { adapter, transport } = createObservationAdapter();
+
+    adapter.observeParty(PARTY_ID, {
+      onSnapshot: vi.fn(),
+    });
+    // Act
+    transport.setAuthSessionTokens({ accessToken: 'token-1', refreshToken: 'refresh-1' });
+
+    // Assert
+    expect(socket.auth).toEqual({ authorization: 'Bearer token-1' });
+    expect(disconnectMock).toHaveBeenCalledTimes(1);
+    expect(connectMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('preserves an active connection when persistence replays the same access token', () => {
+    // Arrange
+    resetSocketMocks();
+    const { adapter, transport } = createObservationAdapter();
+    transport.setAuthSessionTokens({ accessToken: 'token-1', refreshToken: 'refresh-1' });
+    adapter.observeParty(PARTY_ID, { onSnapshot: vi.fn() });
+    // Act
+    transport.setAuthSessionTokens({ accessToken: 'token-1', refreshToken: 'refresh-2' });
+    // Assert
+    expect(connectMock).toHaveBeenCalledTimes(1);
+    expect(disconnectMock).not.toHaveBeenCalled();
+  });
+
+  it('does not emit duplicate observe requests for the same active party id', () => {
+    // Arrange
+    resetSocketMocks();
+    socket.connected = true;
+
+    const { adapter } = createObservationAdapter();
+
+    adapter.observeParty(PARTY_ID, {
+      onSnapshot: vi.fn(),
+    });
+    // Act
+    adapter.observeParty(PARTY_ID, {
+      onSnapshot: vi.fn(),
+    });
+
+    // Assert
+    expect(emitMock).toHaveBeenCalledTimes(1);
+    expect(emitMock).toHaveBeenCalledWith('observe-party', { partyId: PARTY_ID });
+  });
+
+  it('notifies observation listeners when the socket reconnects', () => {
+    // Arrange
+    resetSocketMocks();
+    const onConnected = vi.fn();
+    const { adapter } = createObservationAdapter();
+
+    adapter.observeParty(PARTY_ID, {
+      onConnected,
+      onSnapshot: vi.fn(),
+    });
+
+    // Act
+    const connectHandler = onMock.mock.calls.find(([eventName]) => eventName === 'connect')?.[1];
+
+    // Assert
+    expect(connectHandler).toBeTypeOf('function');
+
+    socket.recovered = false;
+    connectHandler?.();
+    socket.recovered = true;
+    connectHandler?.();
+
+    expect(onConnected).toHaveBeenNthCalledWith(1, {
+      epoch: expect.any(Number),
+      recovered: false,
+      reconnected: false,
+    });
+    expect(onConnected).toHaveBeenNthCalledWith(2, {
+      epoch: expect.any(Number),
+      recovered: true,
+      reconnected: true,
+    });
+  });
+
+  it('observes host lobby routes by party id', () => {
+    // Arrange
+    resetSocketMocks();
+    const { adapter } = createObservationAdapter();
+
+    // Act
+    adapter.observeParty(PARTY_ID, {
+      onSnapshot: vi.fn(),
+    });
+
+    // Assert
+    expect(emitMock).toHaveBeenCalledWith('observe-party', { partyId: PARTY_ID });
+  });
+
+  it('dispatches rollback runtime notices to observers of the matching party', () => {
+    // Arrange
+    resetSocketMocks();
+    const onRuntimeNotice = vi.fn();
+    const { adapter } = createObservationAdapter();
+
+    adapter.observeParty(PARTY_ID, {
+      onRuntimeNotice,
+      onSnapshot: vi.fn(),
+    });
+
+    // Act
+    const runtimeNoticeHandler = onMock.mock.calls.find(([eventName]) => eventName === 'party-runtime-notice')?.[1];
+
+    // Assert
+    expect(runtimeNoticeHandler).toBeTypeOf('function');
+
+    runtimeNoticeHandler?.({ kind: 'rewindParty', partyId: 44 });
+
+    expect(onRuntimeNotice).toHaveBeenCalledWith({ kind: 'rewindParty', partyId: PARTY_ID });
+  });
+
+  it('maps observation snapshots without leaking player identity fields', () => {
+    // Arrange
+    resetSocketMocks();
+    const onSnapshot = vi.fn();
+    const { adapter } = createObservationAdapter();
+
+    adapter.observeParty(PARTY_ID, { onSnapshot });
+
+    // Act
+    const snapshotHandler = onMock.mock.calls.find(([eventName]) => eventName === 'party-snapshot')?.[1];
+
+    // Assert
+    expect(snapshotHandler).toBeTypeOf('function');
+
+    snapshotHandler?.({
+      partyId: 44,
+      gameType: GameType.Quiz,
+      pin: 'AB12CD',
+      status: 'WAITING',
+      settings: DEFAULT_PARTY_SETTINGS,
+
+      themeDocument: new ThemeFixtureFactory().createDocument(),
+      context: null,
+      isObserverHost: false,
+      host: {
+        avatarUri: '/avatars/host.png',
+        username: 'Host',
+      },
+      players: [
+        {
+          avatarUri: '/avatars/guest-9.png',
+          identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-9' },
+          isCurrentPlayer: false,
+          isLive: true,
+          totalScore: 650,
+          username: 'Neo',
+        },
+      ],
+    });
+
+    const observation = onSnapshot.mock.calls[0]?.[0];
+
+    expect(observation).toMatchObject({
+      host: {
+        avatarUri: '/avatars/host.png',
+        username: 'Host',
+      },
+      isObserverHost: false,
+      players: [
+        {
+          avatarUri: '/avatars/guest-9.png',
+          identity: { kind: PartyPlayerKind.GUEST, guestId: GUEST_ID },
+          isCurrentPlayer: false,
+          isLive: true,
+          totalScore: 650,
+          username: 'Neo',
+        },
+      ],
+      gameType: GameType.Quiz,
+      partyId: PARTY_ID,
+      pin: 'AB12CD',
+      status: 'WAITING',
+    });
+    expect(observation.players[0]).not.toHaveProperty('joinedAt');
+    expect(observation.players[0]).not.toHaveProperty('playerKey');
+  });
+
+  it('maps stage timer metadata from the snapshot payload', () => {
+    // Arrange
+    resetSocketMocks();
+    const onSnapshot = vi.fn();
+    const { adapter } = createObservationAdapter();
+
+    adapter.observeParty(PARTY_ID, { onSnapshot });
+
+    // Act
+    const snapshotHandler = onMock.mock.calls.find(([eventName]) => eventName === 'party-snapshot')?.[1];
+
+    // Assert
+    expect(snapshotHandler).toBeTypeOf('function');
+
+    snapshotHandler?.({
+      partyId: 44,
+      gameType: GameType.Quiz,
+      pin: 'AB12CD',
+      status: 'ACTIVE',
+      settings: DEFAULT_PARTY_SETTINGS,
+
+      themeDocument: new ThemeFixtureFactory().createDocument(),
+      context: {
+        lifecycle: {
+          phase: 'stage',
+          stageEndsAtEpochMs: 15_000,
+          stageId: 12,
+          stagePosition: 0,
+          stageRemainingDurationMs: 10_000,
+          stageTimeLimitSeconds: 10,
+          totalStages: 2,
+        },
+        stage: {
+          actionSubmission: {
+            currentPlayer: null,
+            submittedPlayerCount: 0,
+            totalEligiblePlayerCount: 0,
+          },
+          current: {
+            actions: [{ id: 100, text: 'First answer' }],
+            media: {
+              mimeType: 'image/png',
+              uri: '/api/quiz-questions/12/media?v=1',
+            },
+            text: 'Who answers first?',
+          },
+        },
+      },
+      isObserverHost: false,
+      host: {
+        avatarUri: '/avatars/host.png',
+        username: 'Host',
+      },
+      players: [],
+    });
+
+    expect(onSnapshot.mock.calls[0]?.[0]?.context).toMatchObject({
+      lifecycle: {
+        phase: 'stage',
+        stageEndsAtEpochMs: 15_000,
+        stageId: 12,
+        stagePosition: 0,
+        stageRemainingDurationMs: 10_000,
+        stageTimeLimitSeconds: 10,
+        totalStages: 2,
+      },
+      stage: {
+        actionSubmission: {
+          currentPlayer: null,
+          submittedPlayerCount: 0,
+          totalEligiblePlayerCount: 0,
+        },
+        current: {
+          actions: [{ id: ACTION_ID, text: 'First answer' }],
+          media: {
+            mimeType: 'image/png',
+            uri: '/api/quiz-questions/12/media?v=1',
+          },
+          text: 'Who answers first?',
+        },
+      },
+    });
+  });
+
+  it('drops malformed stage-phase context instead of throwing during snapshot mapping', () => {
+    // Arrange
+    resetSocketMocks();
+    const onSnapshot = vi.fn();
+    const { adapter } = createObservationAdapter();
+
+    adapter.observeParty(PARTY_ID, { onSnapshot });
+
+    // Act
+    const snapshotHandler = onMock.mock.calls.find(([eventName]) => eventName === 'party-snapshot')?.[1];
+
+    // Assert
+    expect(snapshotHandler).toBeTypeOf('function');
+
+    expect(() => {
+      snapshotHandler?.({
+        partyId: 44,
+        gameType: GameType.Quiz,
+        pin: 'AB12CD',
+        status: 'ACTIVE',
+        settings: DEFAULT_PARTY_SETTINGS,
+
+        themeDocument: new ThemeFixtureFactory().createDocument(),
+        context: {
+          lifecycle: {
+            phase: 'stage',
+            stageEndsAtEpochMs: 15_000,
+            stageId: 12,
+            stagePosition: 0,
+            stageRemainingDurationMs: 10_000,
+            stageTimeLimitSeconds: 10,
+            totalStages: 2,
+          },
+        },
+        isObserverHost: false,
+        host: {
+          avatarUri: '/avatars/host.png',
+          username: 'Host',
+        },
+        players: [],
+      });
+    }).not.toThrow();
+
+    expect(onSnapshot.mock.calls[0]?.[0]?.context).toBeNull();
+  });
+
+  it('maps accepted guest join acknowledgements to domain receipts', async () => {
+    // Arrange
+    resetSocketMocks();
+    // Act
+    const acceptedGuestJoinReceipt = createAcceptedGuestJoinReceipt();
+
+    // Assert
+    emitMock.mockImplementationOnce((eventName, payload, callback) => {
+      expect(eventName).toBe('join-party');
+      expect(payload).toEqual({ guestId: GUEST_ID, pin: 'AB12CD', username: 'Neo' });
+      callback(acceptedGuestJoinReceipt);
+    });
+
+    const adapter = createPlayerAdapter();
+
+    await expect(
+      adapter.joinParty({
+        pin: partyPinIdentifier.parse('AB12CD'),
+        playerIdentity: {
+          kind: PartyPlayerKind.GUEST,
+          guestId: GUEST_ID,
+        },
+        username: 'Neo',
+      }),
+    ).resolves.toEqual(acceptedGuestJoinReceipt);
+  });
+
+  it('maps rejected join acknowledgements to translation keys', async () => {
+    // Arrange + Act
+    resetSocketMocks();
+    // Assert
+    emitMock.mockImplementationOnce((eventName, payload, callback) => {
+      expect(eventName).toBe('join-party');
+      expect(payload).toEqual({
+        avatarSeed: undefined,
+        guestId: undefined,
+        pin: 'AB12CD',
+        username: undefined,
+      });
+      callback({
+        errorCode: 'PLAYER_ALREADY_IN_ACTIVE_PARTY',
+        status: PartyJoinReceiptStatus.REJECTED,
+      });
+    });
+
+    const adapter = createPlayerAdapter();
+
+    await expect(
+      adapter.joinParty({
+        pin: partyPinIdentifier.parse('AB12CD'),
+        playerIdentity: { kind: PartyPlayerKind.GUEST },
+      }),
+    ).resolves.toEqual({
+      errorMessage: 'game.party.errors.playerAlreadyInActiveParty',
+      status: PartyJoinReceiptStatus.REJECTED,
+    });
+  });
+
+  it('returns the leave acknowledgement result', async () => {
+    // Arrange + Act
+    resetSocketMocks();
+    // Assert
+    emitMock.mockImplementationOnce((eventName, callback) => {
+      expect(eventName).toBe('leave-party');
+      if (typeof callback !== 'function') {
+        throw new Error('Expected leave-party acknowledgement callback');
+      }
+      callback({ left: true });
+    });
+
+    const adapter = createPlayerAdapter();
+
+    await expect(adapter.leaveParty()).resolves.toBe(true);
+  });
+
+  it('dispatches host runtime commands through the existing socket connection', async () => {
+    // Arrange + Act
+    resetSocketMocks();
+    // Assert
+    emitMock.mockImplementationOnce((eventName, payload, callback) => {
+      expect(eventName).toBe('start-party');
+      expect(payload).toEqual({ partyId: PARTY_ID });
+      if (typeof callback !== 'function') {
+        throw new Error('Expected host command acknowledgement callback');
+      }
+      callback();
+    });
+
+    const { adapter } = createHostControlAdapter();
+
+    await expect(adapter.startParty({ partyId: PARTY_ID })).resolves.toBeUndefined();
+  });
+
+  it('re-requests the active party observation after a host runtime command completes', async () => {
+    // Arrange
+    resetSocketMocks();
+    socket.connected = true;
+
+    emitMock.mockImplementation((eventName, _payload, callback) => {
+      if (eventName === 'start-party') {
+        callback?.();
+      }
+    });
+
+    const { adapter, transport } = createHostControlAdapter();
+
+    transport.observeParty(PARTY_ID, {
+      onSnapshot: vi.fn(),
+    });
+    emitMock.mockClear();
+
+    // Act + Assert
+    await expect(adapter.startParty({ partyId: PARTY_ID })).resolves.toBeUndefined();
+
+    expect(emitMock.mock.calls).toEqual([
+      ['start-party', { partyId: PARTY_ID }, expect.any(Function)],
+      ['observe-party', { partyId: PARTY_ID }],
+    ]);
+  });
+
+  it('rejects host runtime commands when the socket reports an exception', async () => {
+    // Arrange
+    resetSocketMocks();
+    emitMock.mockImplementationOnce(() => undefined);
+
+    const { adapter } = createHostControlAdapter();
+    const pendingCommand = adapter.pauseParty({ partyId: PARTY_ID });
+    // Act
+    const exceptionHandler = onMock.mock.calls.find((call) => call[0] === 'exception')?.[1] as
+      | ((payload?: { message?: string }) => void)
+      | undefined;
+
+    // Assert
+    expect(exceptionHandler).toBeTypeOf('function');
+
+    if (!exceptionHandler) {
+      throw new Error('Expected exception handler to be registered');
+    }
+
+    exceptionHandler({ message: 'game.party.errors.partyCommandNotAvailable' });
+
+    await expect(pendingCommand).rejects.toThrow('game.party.errors.partyCommandNotAvailable');
+  });
+});
+
+describe('SocketIoPartyPayloadMapper', () => {
+  it.each([PartyRuntimePhase.STAGE, PartyRuntimePhase.RESULT] as const)(
+    'preserves boolean choice identity in %s snapshots',
+    (phase) => {
+      // Arrange
+      const mapper = createPayloadMapper();
+      const lifecycle = {
+        phase,
+        stageId: new StageIdentifierMockFactory().create().parse(12),
+        stagePosition: 0,
+        stageEndsAtEpochMs: null,
+        stageRemainingDurationMs: null,
+        stageTimeLimitSeconds: 20,
+        totalStages: 1,
+      };
+      const actions = [true, false, undefined].map((booleanValue, index) => ({
+        booleanValue,
+        id: partyActionIdentifier.parse(100 + index),
+        text: String(booleanValue),
+        isCorrect: booleanValue === false,
+        actionCount: 0,
+        actionPercent: 0,
+        earnedPoints: 0,
+      }));
+      const current = { actions, text: 'Question' };
+      const observation = new PartyFixtureFactory().createPartyObservation({
+        context:
+          phase === PartyRuntimePhase.STAGE
+            ? {
+                lifecycle: { ...lifecycle, phase },
+                stage: {
+                  current,
+                  actionSubmission: { currentPlayer: null, submittedPlayerCount: 0, totalEligiblePlayerCount: 0 },
+                },
+              }
+            : {
+                lifecycle: { ...lifecycle, phase },
+                result: { current, currentPlayer: null },
+              },
+      });
+
+      // Act
+      const result = mapper.toObservation(observation);
+
+      // Assert
+      const mapped = result.context?.stage?.current ?? result.context?.result?.current;
+      expect(mapped?.actions.map((action) => action.booleanValue)).toEqual([true, false, undefined]);
+    },
+  );
+
+  it.each([null, undefined, { schemaVersion: 2 }, {}])('rejects an invalid theme document %j', (themeDocument) => {
+    // Arrange
+    const mapper = createPayloadMapper();
+    const observation = new PartyFixtureFactory().createPartyObservation({
+      themeDocument: themeDocument as unknown as ThemeDocument,
+    });
+
+    // Act + Assert
+    expect(() => mapper.toObservation(observation)).toThrow(
+      expect.objectContaining({ code: ThemeErrorCode.INVALID_DOCUMENT }),
+    );
+  });
+
+  it('preserves custom overrides and asset references without a selection identifier', () => {
+    // Arrange
+    const mapper = createPayloadMapper();
+    const themeDocument = new ThemeFixtureFactory().createDocument({
+      overrides: { radius: { panel: '12px' }, assets: { logoAssetId: '01900000-0000-7000-8000-000000000001' } },
+    });
+    const observation = new PartyFixtureFactory().createPartyObservation({ themeDocument });
+
+    // Act
+    const result = mapper.toObservation(observation);
+
+    // Assert
+    expect(result.themeDocument).toEqual(themeDocument);
+  });
+
+  it.each(['solar-grid', 'cyber-arcade'] as const)('preserves the server-resolved theme %s', (themeId) => {
+    // Arrange
+    const mapper = createPayloadMapper();
+    const observation = new PartyFixtureFactory().createPartyObservation({
+      themeDocument: new ThemeFixtureFactory().createDocument({ baseThemeId: themeId }),
+    });
+
+    // Act
+    const result = mapper.toObservation(observation);
+
+    // Assert
+    expect(result.themeDocument).toEqual(observation.themeDocument);
+  });
+});
+
+describe('SocketIoPartyPayloadMapper reading timing', () => {
+  it.each([
+    { endsAtEpochMs: 103_000, remainingDurationMs: 3_000 },
+    { endsAtEpochMs: null, remainingDurationMs: 2_000 },
+  ])('preserves the server reading state on reconnect: %j', (reading) => {
+    // Arrange
+    const mapper = createPayloadMapper();
+    const observation = new PartyStageFixtureFactory().createObservation({ reading });
+    // Act
+    const mapped = mapper.toObservation(observation);
+    // Assert
+    expect(mapped.context?.lifecycle).toEqual(observation.context?.lifecycle);
+  });
+});

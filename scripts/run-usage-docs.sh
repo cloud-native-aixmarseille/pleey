@@ -36,4 +36,4 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 "${compose[@]}" up -d --no-build --wait --wait-timeout 180 backend frontend
-"${compose[@]}" run --rm --no-deps -T -e USAGE_CAPTURE="$capture" e2e-tests npm run docs:screenshots
+"${compose[@]}" run --rm --no-deps -T -e USAGE_CAPTURE="$capture" e2e-tests pnpm docs:screenshots

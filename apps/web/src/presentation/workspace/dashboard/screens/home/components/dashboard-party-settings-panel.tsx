@@ -1,0 +1,41 @@
+import type { PartySettings } from '@pleey/contracts/party';
+import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
+import { Badge } from '../../../../../shared/ui/feedback/badge';
+import { PartySettingsFields } from '../../../../../shared/ui/forms/party-settings-fields';
+import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
+import { ContentStack, SplitWrapRow } from '../../../../../shared/ui/layout/containers';
+import { InsetPanel } from '../../../../../shared/ui/layout/panels';
+import { SupportingText } from '../../../../../shared/ui/layout/typography';
+
+interface DashboardPartySettingsPanelProps {
+  readonly hasSettingsOverride: boolean;
+  readonly settingsOverride: PartySettings;
+  readonly onChange: (settingsOverride: PartySettings) => void;
+}
+
+export function DashboardPartySettingsPanel({
+  hasSettingsOverride,
+  settingsOverride,
+  onChange,
+}: DashboardPartySettingsPanelProps) {
+  const { t } = usePresentationTranslation();
+
+  return (
+    <InsetPanel padding="sm">
+      <ContentStack gap="sm">
+        <SplitWrapRow align="center" gap="sm">
+          <SupportingText size="sm">{t('dashboard.games.createParty.playModeDescription')}</SupportingText>
+          {hasSettingsOverride ? (
+            <Badge icon={<AppIcon name="success" size={12} />} tone="success">
+              {t('dashboard.games.createParty.settingsUpdatedBadge')}
+            </Badge>
+          ) : null}
+        </SplitWrapRow>
+
+        <ContentStack gap="xs">
+          <PartySettingsFields idPrefix="create-party" settings={settingsOverride} onChange={onChange} />
+        </ContentStack>
+      </ContentStack>
+    </InsetPanel>
+  );
+}

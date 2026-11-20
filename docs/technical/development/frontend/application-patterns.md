@@ -102,7 +102,7 @@ and cached geometry so the next animation starts from its initial state.
 
 ## Framework Abstractions
 
-Hide third-party libraries behind port interfaces in `application/shared/ports/` such as `RoutingPort`, `UiPort`, `FormPort`, and `TranslationPort`. Infrastructure adapters provide concrete implementations. Presentation code does not import framework libraries directly.
+Hide third-party libraries behind port interfaces in `packages/contracts/ports/` such as `RoutingPort`, `UiPort`, `FormPort`, and `TranslationPort`. Infrastructure adapters provide concrete implementations. Presentation code does not import framework libraries directly.
 
 The shared UI context lives in `presentation/shared/ui/ui-context.ts`, independently of its provider components. Keep that identity stable so versioned development imports and lazy theme screens consume the mounted application's UI port.
 

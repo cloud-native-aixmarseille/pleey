@@ -1,0 +1,16 @@
+import { IdentifierParserErrorCode as SharedIdentifierParserErrorCode } from '@pleey/contracts/errors';
+import type { DomainErrorDefinition } from './domain-error';
+
+export const IdentifierParserErrorCode = SharedIdentifierParserErrorCode;
+export type IdentifierParserErrorCode = (typeof IdentifierParserErrorCode)[keyof typeof IdentifierParserErrorCode];
+
+export const IDENTIFIER_PARSER_ERROR_DEFINITIONS: Readonly<
+  Record<IdentifierParserErrorCode, DomainErrorDefinition<IdentifierParserErrorCode>>
+> = {
+  [IdentifierParserErrorCode.INVALID_VALUE]: {
+    code: IdentifierParserErrorCode.INVALID_VALUE,
+    messageKey: 'shared.errors.identifier.invalidValue',
+  },
+};
+
+export { InvalidIdentifierValueError } from './invalid-identifier-value-error';

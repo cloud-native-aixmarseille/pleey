@@ -14,7 +14,7 @@ all applicable flows are compliant.
 
 In scope:
 
-- frontend presentation create/update form flows in `application/frontend/src/presentation/**`;
+- frontend presentation create/update form flows in `apps/web/src/presentation/**`;
 - mode-aware factorization per resource and feature;
 - tests and guardrails needed to keep the rule enforced;
 - ADR tracking updates.
@@ -33,17 +33,17 @@ Out of scope:
 ### A1) Organization management (compliant)
 
 - shared form values:
-  - `application/frontend/src/presentation/workspace/organizations/screens/management/components/organization-form-values.ts`
+  - `apps/web/src/presentation/workspace/organizations/screens/management/components/organization-form-values.ts`
 - shared form surface:
-  - `application/frontend/src/presentation/workspace/organizations/screens/management/components/organization-form-dialog.tsx`
+  - `apps/web/src/presentation/workspace/organizations/screens/management/components/organization-form-dialog.tsx`
 - shared state:
-  - `application/frontend/src/presentation/workspace/organizations/screens/management/components/use-organization-form-dialog-state.ts`
+  - `apps/web/src/presentation/workspace/organizations/screens/management/components/use-organization-form-dialog-state.ts`
 - mode-specific wrappers:
-  - `application/frontend/src/presentation/workspace/organizations/screens/management/components/create-organization-form.tsx`
-  - `application/frontend/src/presentation/workspace/organizations/screens/management/components/edit-organization-form.tsx`
+  - `apps/web/src/presentation/workspace/organizations/screens/management/components/create-organization-form.tsx`
+  - `apps/web/src/presentation/workspace/organizations/screens/management/components/edit-organization-form.tsx`
 - removed legacy parallel hooks:
-  - `application/frontend/src/presentation/workspace/organizations/screens/management/components/use-create-organization-form-state.ts`
-  - `application/frontend/src/presentation/workspace/organizations/screens/management/components/use-edit-organization-form-state.ts`
+  - `apps/web/src/presentation/workspace/organizations/screens/management/components/use-create-organization-form-state.ts`
+  - `apps/web/src/presentation/workspace/organizations/screens/management/components/use-edit-organization-form-state.ts`
 
 Current state: aligned with ADR 0026 (shared values + shared dialog + shared
 state + thin wrappers).
@@ -51,22 +51,22 @@ state + thin wrappers).
 ### A2) Project management (already compliant)
 
 - shared form surface:
-  - `application/frontend/src/presentation/workspace/organizations/screens/management/components/project-form-dialog.tsx`
+  - `apps/web/src/presentation/workspace/organizations/screens/management/components/project-form-dialog.tsx`
 - shared state by mode:
-  - `application/frontend/src/presentation/workspace/organizations/screens/management/components/use-project-form-dialog-state.ts`
+  - `apps/web/src/presentation/workspace/organizations/screens/management/components/use-project-form-dialog-state.ts`
 - create/update orchestration:
-  - `application/frontend/src/presentation/workspace/organizations/screens/management/use-organization-project-actions.ts`
+  - `apps/web/src/presentation/workspace/organizations/screens/management/use-organization-project-actions.ts`
 
 Current state: already aligned with ADR 0026.
 
 ### A3) Theme management (already compliant)
 
 - shared editor form:
-  - `application/frontend/src/presentation/theme/components/theme-builder-form.tsx`
+  - `apps/web/src/presentation/theme/components/theme-builder-form.tsx`
 - create screen:
-  - `application/frontend/src/presentation/theme/screens/theme-create-screen.tsx`
+  - `apps/web/src/presentation/theme/screens/theme-create-screen.tsx`
 - edit screen:
-  - `application/frontend/src/presentation/theme/screens/theme-edit-screen.tsx`
+  - `apps/web/src/presentation/theme/screens/theme-edit-screen.tsx`
 
 Current state: create/edit screens already share one form implementation with
 mode-specific orchestration around persistence/navigation.
@@ -76,17 +76,17 @@ mode-specific orchestration around persistence/navigation.
 These flows are intentionally excluded because they are not create/update pairs:
 
 - game creation/import dialogs (create/import, no update counterpart):
-  - `application/frontend/src/presentation/workspace/dashboard/screens/home/components/dashboard-create-game-dialog.tsx`
-  - `application/frontend/src/presentation/workspace/dashboard/screens/home/components/dashboard-import-game-dialog.tsx`
+  - `apps/web/src/presentation/workspace/dashboard/screens/home/components/dashboard-create-game-dialog.tsx`
+  - `apps/web/src/presentation/workspace/dashboard/screens/home/components/dashboard-import-game-dialog.tsx`
 - party creation dialog (create only):
-  - `application/frontend/src/presentation/workspace/dashboard/screens/home/components/dashboard-create-party-dialog.tsx`
+  - `apps/web/src/presentation/workspace/dashboard/screens/home/components/dashboard-create-party-dialog.tsx`
 - identity flows (sign-in, register, forgot/reset password, profile update) are
   authentication/account workflows, not create/update resource pairs.
 
 ## C) Backend confirmation
 
 Backend has no presentation-layer create/update form surfaces. No ADR 0026 form
-factorization action is required under `application/backend/**`.
+factorization action is required under `apps/api/**`.
 
 ## Target architecture pattern (for all applicable flows)
 
@@ -147,19 +147,19 @@ Frozen behavior contracts for migration:
 
 - [x] Create shared organization form files:
 
-- `application/frontend/src/presentation/workspace/organizations/screens/management/components/organization-form-values.ts`
-- `application/frontend/src/presentation/workspace/organizations/screens/management/components/organization-form-dialog.tsx`
-- `application/frontend/src/presentation/workspace/organizations/screens/management/components/use-organization-form-dialog-state.ts`
+- `apps/web/src/presentation/workspace/organizations/screens/management/components/organization-form-values.ts`
+- `apps/web/src/presentation/workspace/organizations/screens/management/components/organization-form-dialog.tsx`
+- `apps/web/src/presentation/workspace/organizations/screens/management/components/use-organization-form-dialog-state.ts`
 
 - [x] Modify wrappers to thin mode-specific orchestrators:
 
-- `application/frontend/src/presentation/workspace/organizations/screens/management/components/create-organization-form.tsx`
-- `application/frontend/src/presentation/workspace/organizations/screens/management/components/edit-organization-form.tsx`
+- `apps/web/src/presentation/workspace/organizations/screens/management/components/create-organization-form.tsx`
+- `apps/web/src/presentation/workspace/organizations/screens/management/components/edit-organization-form.tsx`
 
 - [x] Delete superseded parallel state hooks:
 
-- `application/frontend/src/presentation/workspace/organizations/screens/management/components/use-create-organization-form-state.ts`
-- `application/frontend/src/presentation/workspace/organizations/screens/management/components/use-edit-organization-form-state.ts`
+- `apps/web/src/presentation/workspace/organizations/screens/management/components/use-create-organization-form-state.ts`
+- `apps/web/src/presentation/workspace/organizations/screens/management/components/use-edit-organization-form-state.ts`
 
 - [x] Keep existing tests passing without behavior regressions.
 
@@ -236,9 +236,9 @@ P3 implementation (2026-11-20):
 - added shared checker:
   - `scripts/check-create-edit-form-factorization.mjs`
 - added frontend wrapper:
-  - `application/frontend/scripts/check-create-edit-form-factorization.mjs`
+  - `apps/web/scripts/check-create-edit-form-factorization.mjs`
 - wired into frontend lint pre-checks:
-  - `application/frontend/package.json` `_lint:pre`
+  - `apps/web/package.json` `_lint:pre`
 - checker behavior:
   - detects `create-*-form.tsx` + `edit-*-form.tsx` or `update-*-form.tsx` pairs
     in the same feature directory;
@@ -250,7 +250,7 @@ P3 implementation (2026-11-20):
 P3 validation evidence:
 
 - `node ./scripts/check-create-edit-form-factorization.mjs` (from
-  `application/frontend`)
+  `apps/web`)
   - passed.
 
 ## P4 - ADR closure updates
@@ -306,7 +306,7 @@ Duplicate inventory and decision:
    organization and project dialogs:
    - decision: factorize;
    - implementation: shared helper
-     `application/frontend/src/presentation/workspace/organizations/screens/management/components/create-edit-form-mode-copy.ts`
+     `apps/web/src/presentation/workspace/organizations/screens/management/components/create-edit-form-mode-copy.ts`
      consumed by:
      - `organization-form-dialog.tsx`
      - `project-form-dialog.tsx`
@@ -353,15 +353,15 @@ Repository-wide checks were re-run after P5 to confirm there are no remaining
 applicable create/edit form pairs outside already-covered surfaces.
 
 - frontend create/edit mode usage scan:
-  - `rg "mode:\\s*'create'\\s*\\|\\s*'edit'|mode === 'create'" application/frontend/src --glob "*.{ts,tsx}"`
+  - `rg "mode:\\s*'create'\\s*\\|\\s*'edit'|mode === 'create'" apps/web/src --glob "*.{ts,tsx}"`
   - result: matches limited to organization and project management forms and the
     shared mode-copy helper.
 - backend create/edit form scan:
-  - `rg "mode:\\s*'create'\\s*\\|\\s*'edit'|create-.*form|edit-.*form|update-.*form|Create[A-Za-z]+Form|Edit[A-Za-z]+Form" application/backend/src --glob "*.{ts,tsx}"`
+  - `rg "mode:\\s*'create'\\s*\\|\\s*'edit'|create-.*form|edit-.*form|update-.*form|Create[A-Za-z]+Form|Edit[A-Za-z]+Form" apps/api/src --glob "*.{ts,tsx}"`
   - result: no matches.
 - frontend guardrail:
   - `node ./scripts/check-create-edit-form-factorization.mjs` (from
-    `application/frontend`)
+    `apps/web`)
   - result: passed.
 
 Conclusion: ADR 0026 has been applied across the whole codebase for all
@@ -374,9 +374,9 @@ reduce duplicated form code in create/import flows (same fields, same game-type
 selection logic, same i18n structure).
 
 - shared game form values and helpers:
-  - `application/frontend/src/presentation/workspace/dashboard/screens/home/components/dashboard-game-form-values.ts`
+  - `apps/web/src/presentation/workspace/dashboard/screens/home/components/dashboard-game-form-values.ts`
 - shared game form field block:
-  - `application/frontend/src/presentation/workspace/dashboard/screens/home/components/dashboard-game-form-fields.tsx`
+  - `apps/web/src/presentation/workspace/dashboard/screens/home/components/dashboard-game-form-fields.tsx`
 - adopted by:
   - `dashboard-create-game-dialog.tsx`
   - `dashboard-import-game-dialog.tsx`
@@ -386,7 +386,7 @@ selection logic, same i18n structure).
 
 ## Validation commands
 
-Run from `application/frontend/`:
+Run from `apps/web/`:
 
 - baseline and targeted refactor checks:
   - `npm run test -- src/presentation/workspace/organizations/screens/management/components/create-organization-form.spec.tsx src/presentation/workspace/organizations/screens/management/components/edit-organization-form.spec.tsx src/presentation/workspace/organizations/screens/management/components/project-form-dialog.spec.tsx src/presentation/theme/components/theme-builder-form.spec.tsx`

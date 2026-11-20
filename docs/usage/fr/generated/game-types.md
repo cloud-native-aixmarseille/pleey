@@ -2,7 +2,7 @@
 
 # Types de jeu
 
-[index.ts](../../../../application/shared/game/index.ts)
+[index.ts](../../../../packages/contracts/game/index.ts)
 
 | Nom        | Valeur     |
 | ---------- | ---------- |

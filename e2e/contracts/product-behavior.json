@@ -1,0 +1,56 @@
+[
+  {
+    "id": "BEH-001",
+    "actor": "anonymous",
+    "operation": "guest join and play",
+    "permission": "explicit party admission",
+    "expected": "Guest can join an allowed party and submit one option.",
+    "source": "Socket.IO and current guest identity implementation",
+    "acceptance": "DEL-009"
+  },
+  {
+    "id": "BEH-002",
+    "actor": "registered user",
+    "operation": "registration and password recovery",
+    "permission": "public auth flow",
+    "expected": "Registration and self-hosted password recovery remain usable.",
+    "source": "Current GraphQL auth resolvers and mail delivery",
+    "acceptance": "DEL-010"
+  },
+  {
+    "id": "BEH-003",
+    "actor": "organization member",
+    "operation": "organization and project management",
+    "permission": "current organization/project permissions",
+    "expected": "Authorized management workflows retain existing ownership and scope.",
+    "source": "Organization/project GraphQL resolvers",
+    "acceptance": "DEL-009"
+  },
+  {
+    "id": "BEH-004",
+    "actor": "game author",
+    "operation": "quiz and prediction authoring/import",
+    "permission": "project/game permissions",
+    "expected": "Current quiz/prediction content and import formats remain usable.",
+    "source": "Quiz/prediction GraphQL resolvers and import readers",
+    "acceptance": "DEL-004"
+  },
+  {
+    "id": "BEH-005",
+    "actor": "host",
+    "operation": "party controls and results",
+    "permission": "host membership",
+    "expected": "Host can start, control, complete and review a party.",
+    "source": "Socket.IO and host party lifecycle",
+    "acceptance": "DEL-009"
+  },
+  {
+    "id": "BEH-006",
+    "actor": "player",
+    "operation": "one-option quiz/prediction submission",
+    "permission": "active player",
+    "expected": "One selected option is scored against authored isCorrect values; timed answers use bounded speed weighting.",
+    "source": "ADR 0017 and shared scoring policy",
+    "acceptance": "DEL-004"
+  }
+]
