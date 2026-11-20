@@ -289,6 +289,25 @@ export class SocketIoPartyRealtimeTransport {
       this.dispatchError(PartyManagementErrorCode.CONNECTION_LOST);
     });
 
+    const resumeConnection = () => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+        return;
+      }
+
+      if (socket.connected) {
+        socket.disconnect();
+      }
+      socket.connect();
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', resumeConnection);
+      window.addEventListener('pageshow', resumeConnection);
+    }
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', resumeConnection);
+    }
+
     this.socket = socket;
 
     return socket;
