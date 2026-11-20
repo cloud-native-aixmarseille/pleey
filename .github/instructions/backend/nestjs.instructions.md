@@ -1,7 +1,7 @@
 ---
 name: "Pleey Backend NestJS Rules"
-description: "Use when working on Pleey backend NestJS, Prisma, GraphQL, Socket.IO, or Vitest files under apps/api."
-applyTo: "apps/api/**/*.{ts,js,mts,cts}"
+description: "Use when working on Pleey backend NestJS, Prisma, GraphQL, Socket.IO, or Vitest files under application/api."
+applyTo: "application/api/**/*.{ts,js,mts,cts}"
 ---
 
 # Pleey backend NestJS rules
@@ -11,7 +11,7 @@ Use `docs/technical/architecture/backend.md` and `docs/technical/development/bac
 - Keep domain and application code free of NestJS, Prisma, and transport concerns because backend boundary checks assume the core stays framework-agnostic.
 - GraphQL resolvers must call use-case `execute()` methods for application behavior. Follow the [resolver boundary rules](../../../docs/technical/development/backend/application-patterns.md#writing-resolvers), including allowed transport helpers; `pnpm _lint:resolvers` enforces the boundary. Keep controllers and gateways thin as well.
 - Throw `Error(ErrorCode.VALUE)` from domain and application layers because transport code is responsible for mapping domain failures to framework responses.
-- Read `process.env` only from `apps/api/src/app/config/` because runtime configuration must be normalized once and then injected.
+- Read `process.env` only from `application/api/src/app/config/` because runtime configuration must be normalized once and then injected.
 - Use NestJS DI tokens and provider bindings for runtime collaborators because manual instantiation bypasses container wiring and test seams.
 - Validate GraphQL, HTTP, and WebSocket input at transport boundaries because missing DTO validation is a common source of production bugs.
 - Prefer minimal Prisma `select` and `include` shapes, and use DataLoader-style batching for nested reads, because GraphQL overfetching and N+1 queries are easy to introduce.

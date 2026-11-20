@@ -87,7 +87,7 @@ services:
   migration:
     image: ${PLEEY_API_IMAGE:?Set PLEEY_API_IMAGE}
     restart: "no"
-    working_dir: /usr/src/repository/apps/api
+    working_dir: /usr/src/repository/application/api
     environment:
       NODE_ENV: production
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}

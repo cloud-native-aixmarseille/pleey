@@ -2,7 +2,7 @@
 
 ## Implemented requirements
 
-- One pnpm workspace moves API, web and shared contracts to `apps/api`, `apps/web` and `packages/contracts`.
+- One pnpm workspace moves API, web and shared contracts to `application/api`, `application/web` and `application/contracts`.
 - The API and web build real production Node/Vite artifacts.
 - `/api/release` publishes public release identity and protocol majors with `Cache-Control: no-store`.
 - The browser waits for a supported release contract before mounting application actions.
