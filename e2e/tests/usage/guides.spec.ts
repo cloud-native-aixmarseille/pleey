@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type BrowserContext, type Page, test } from "@playwright/test";
-import type { UiThemeSeed } from "../../../apps/web/src/presentation/shared/ui/foundation/ui-theme-contract";
+import type { UiThemeSeed } from "../../../application/web/src/presentation/shared/ui/foundation/ui-theme-contract";
 import { loginViaApi, resolveGraphqlUrl } from "../helpers/auth";
 
 const root = fs.existsSync("/repository/scripts") ? "/repository" : path.resolve(__dirname, "../../..");
@@ -226,7 +226,7 @@ test("all user guides resolve real routes, localized copy and targets, with acce
     }
     if (locale === "en") {
       // Exercise the overlay's token contract without creating or changing saved themes.
-      const foundation = path.join(root, "apps/web/src/presentation/shared/ui/foundation");
+      const foundation = path.join(root, "application/web/src/presentation/shared/ui/foundation");
       const { createUiThemeTokens, createUiThemeCssVariables } = loadDataModule(
         path.join(foundation, "ui-theme-tokens.ts"),
       );

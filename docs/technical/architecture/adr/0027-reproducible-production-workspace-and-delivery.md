@@ -24,7 +24,7 @@ Preserve the current layout and add scripts around it. This would retain inconsi
 
 ### Option 2: Adopt a pnpm workspace
 
-Move the existing API, web and shared contract packages to apps/api, apps/web and packages/contracts. Use one lockfile and root commands, while keeping GraphQL and Socket.IO unchanged.
+Move the existing API, web and shared contract packages to application/api, application/web and application/contracts. Use one lockfile and root commands, while keeping GraphQL and Socket.IO unchanged.
 
 ## Decision
 

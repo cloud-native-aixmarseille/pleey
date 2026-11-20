@@ -18,13 +18,13 @@ FROM base AS build
 USER root
 WORKDIR /usr/src/repository
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY apps/api/package.json ./apps/api/package.json
-COPY apps/web/package.json ./apps/web/package.json
-COPY packages/contracts/package.json ./packages/contracts/package.json
+COPY application/api/package.json ./application/api/package.json
+COPY application/web/package.json ./application/web/package.json
+COPY application/contracts/package.json ./application/contracts/package.json
 COPY e2e/package.json ./e2e/package.json
 COPY .github/actions/determine-pr-checks/package.json ./.github/actions/determine-pr-checks/package.json
-COPY packages/contracts ./packages/contracts
-COPY apps/web ./apps/web
+COPY application/contracts ./application/contracts
+COPY application/web ./application/web
 
 RUN npm install --global pnpm@10.32.1 --ignore-scripts && pnpm install --frozen-lockfile
 RUN pnpm --filter @pleey/contracts build
@@ -46,10 +46,10 @@ RUN rm -rf /usr/share/nginx/html/* && \
     rm /etc/nginx/conf.d/default.conf
 
 # Copy built application from builder
-COPY --from=build /usr/src/repository/apps/web/dist /usr/share/nginx/html
+COPY --from=build /usr/src/repository/application/web/dist /usr/share/nginx/html
 
 # Copy custom Nginx configuration
-COPY ./apps/web/nginx.prod.conf /etc/nginx/conf.d/default.conf
+COPY ./application/web/nginx.prod.conf /etc/nginx/conf.d/default.conf
 
 # Create non-root user for Nginx (high UID to satisfy security scanners)
 RUN set -eu; \

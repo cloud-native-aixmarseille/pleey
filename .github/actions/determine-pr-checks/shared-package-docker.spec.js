@@ -11,13 +11,13 @@ describe("shared package Docker wiring", () => {
     const dockerfile = read(`application/${application}/Dockerfile`);
 
     // Act + Assert
-    expect(dockerfile).toContain("COPY ./packages/contracts /usr/src/shared");
+    expect(dockerfile).toContain("COPY ./application/contracts /usr/src/shared");
     expect(dockerfile).toContain("COPY --chown=node:node --from=build /usr/src/shared /usr/src/shared");
   });
 
   it("keeps the shared package in the backend production image", () => {
     // Arrange
-    const dockerfile = read("apps/api/Dockerfile");
+    const dockerfile = read("application/api/Dockerfile");
 
     // Act + Assert
     expect(dockerfile).toContain(
@@ -27,11 +27,11 @@ describe("shared package Docker wiring", () => {
 
   it("makes shared sources available to CI documentation checks", () => {
     // Arrange
-    const dockerfile = read("apps/web/Dockerfile");
+    const dockerfile = read("application/web/Dockerfile");
 
     // Act + Assert
     expect(dockerfile).toContain(
-      "COPY --chown=node:node ./packages/contracts /usr/src/repository/packages/contracts",
+      "COPY --chown=node:node ./application/contracts /usr/src/repository/application/contracts",
     );
   });
 
@@ -42,8 +42,8 @@ describe("shared package Docker wiring", () => {
 
     // Act + Assert
     expect(dockerignore).not.toMatch(/^application\/?$/mu);
-    expect(dockerignore).not.toContain("packages/contracts");
-    expect(compose).toContain("- ./packages/contracts:/usr/src/shared:ro");
+    expect(dockerignore).not.toContain("application/contracts");
+    expect(compose).toContain("- ./application/contracts:/usr/src/shared:ro");
   });
 
   it.each(["backend", "frontend"])("keeps the %s file dependency lock aligned with the package", (application) => {

@@ -113,13 +113,13 @@ services:
   # Backend NestJS (dev watch mode)
   backend:
     build:
-      dockerfile: apps/api/Dockerfile
+      dockerfile: application/api/Dockerfile
       target: dev
     restart: unless-stopped
     user: "${UID:-1000}:${GID:-1000}" # Keep host-mounted files writable by the local user
     volumes:
-      - ./apps/api:/usr/src/app
-      - ./packages/contracts:/usr/src/shared:ro
+      - ./application/api:/usr/src/app
+      - ./application/contracts:/usr/src/shared:ro
       - ./scripts:/usr/src/shared-scripts:ro
       - ./:/usr/src/repository:ro
     expose:
@@ -207,14 +207,14 @@ services:
   # Frontend React (Vite dev server with watch)
   frontend:
     build:
-      dockerfile: ./apps/web/Dockerfile
+      dockerfile: ./application/web/Dockerfile
       target: dev
     restart: unless-stopped
     user: "${UID:-1000}:${GID:-1000}" # Keep host-mounted files writable by the local user
     volumes:
-      - ./apps/web:/usr/src/app
-      - ./packages/contracts:/usr/src/shared:ro
-      - ./apps/api:/usr/src/backend:ro
+      - ./application/web:/usr/src/app
+      - ./application/contracts:/usr/src/shared:ro
+      - ./application/api:/usr/src/backend:ro
       - ./scripts:/usr/src/shared-scripts:ro
       - ./:/usr/src/repository:ro
     expose:

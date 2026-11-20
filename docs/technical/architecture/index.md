@@ -2,7 +2,7 @@
 
 ## Overview
 
-Pleey is a real-time interactive game platform (quiz, prediction) with a host/player model. The stack is a monorepo with two applications (`apps/api`, `apps/web`), shared tooling (`scripts/`), end-to-end tests (`e2e/`), and Helm charts (`charts/`).
+Pleey is a real-time interactive game platform (quiz, prediction) with a host/player model. The stack is a monorepo with two applications (`application/api`, `application/web`), shared tooling (`scripts/`), end-to-end tests (`e2e/`), and Helm charts (`charts/`).
 
 All architecture, technology, and design choices must start with an ADR. See [ADR Index](./adr/index.md) before proposing or implementing any structural change.
 
@@ -55,7 +55,7 @@ Domain/application layers throw plain `Error(errorCode)` using enum error codes.
 
 ### Boundary Enforcement
 
-Biome `noRestrictedImports` overrides, app-local GritQL plugins under `apps/api/biome/plugins/` and `apps/web/biome/plugins/`, plus targeted custom scripts:
+Biome `noRestrictedImports` overrides, app-local GritQL plugins under `application/api/biome/plugins/` and `application/web/biome/plugins/`, plus targeted custom scripts:
 
 - `scripts/check-naming.mjs` — enforces naming conventions for exports
 

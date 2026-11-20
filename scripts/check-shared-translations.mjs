@@ -3,7 +3,7 @@ import path from "node:path";
 
 const workspaceRoot = path.resolve(import.meta.dirname, "..");
 const packageRootCandidates = [
-  path.join(workspaceRoot, "packages/contracts"),
+  path.join(workspaceRoot, "application/contracts"),
   "/usr/src/shared",
 ];
 const packageRoot = packageRootCandidates.find((candidate) => fs.existsSync(candidate));
@@ -21,7 +21,7 @@ const { PredictionErrorCode, QuizErrorCode } = await import(
 const write = process.argv.includes("--write");
 
 const backendRootCandidates = [
-  path.join(workspaceRoot, "apps/api"),
+  path.join(workspaceRoot, "application/api"),
   "/usr/src/app",
 ];
 const backendRoot = backendRootCandidates.find((candidate) => fs.existsSync(path.join(candidate, "src/i18n")));
@@ -70,6 +70,6 @@ for (const locale of localeNames) {
 
 if (mismatches.length > 0) {
   throw new Error(
-    `Generated backend translations are stale: ${mismatches.join(", ")}. Regenerate from packages/contracts/i18n/index.ts.`,
+    `Generated backend translations are stale: ${mismatches.join(", ")}. Regenerate from application/contracts/i18n/index.ts.`,
   );
 }

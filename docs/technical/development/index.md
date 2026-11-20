@@ -53,7 +53,7 @@ Review dependency changes and run the affected project's checks after either com
 
 ## Shared domain package
 
-[`packages/contracts/`](../../../packages/contracts) is the private repository
+[`application/contracts/`](../../../application/contracts) is the private repository
 package `@pleey/contracts` for contracts and deterministic policies
 consumed by backend and frontend. [ADR 0022](../architecture/adr/0022-evaluate-a-shared-frontend-backend-library.md)
 owns the decision and eligibility scope.
@@ -85,7 +85,7 @@ Identifier parsing is shared through `@pleey/contracts/identifier`. Application
 adapters provide the local `DomainError` strategy so runtime-specific error
 construction and `instanceof` behavior remain owned by each application.
 
-[`@pleey/contracts/i18n`](../../../packages/contracts/i18n) owns localized
+[`@pleey/contracts/i18n`](../../../application/contracts/i18n) owns localized
 meaning only for exported public business error codes. Screen labels,
 accessibility copy, email content and application-local errors remain in their
 application catalogs. Add a shared message only when the same error code is
@@ -101,20 +101,20 @@ For package, lockfile, policy or API-surface changes, run:
 ```bash
 node scripts/check-shared-domain-package.mjs
 node scripts/check-shared-translations.mjs
-npm --prefix apps/api run lint:ci
-npm --prefix apps/web run lint:ci
-npm --prefix apps/api run test
-npm --prefix apps/web run test
+npm --prefix application/api run lint:ci
+npm --prefix application/web run lint:ci
+npm --prefix application/api run test
+npm --prefix application/web run test
 ```
 
-After changing `packages/contracts/i18n/index.ts`, regenerate generated
+After changing `application/contracts/i18n/index.ts`, regenerate generated
 backend namespaces with:
 
 ```bash
 node scripts/check-shared-translations.mjs --write
 ```
 
-Changes under `packages/contracts/` and to the shared guard take the full PR CI
+Changes under `application/contracts/` and to the shared guard take the full PR CI
 route. [P7 contract tests](../../../.github/actions/determine-pr-checks/shared-package-docker.spec.js)
 also verify Docker build, production, CI, Compose and lockfile wiring. Use a cold
 Docker build when changing package layout or Docker inputs, then verify a warm
@@ -127,8 +127,8 @@ docker compose --env-file /dev/null build backend frontend
 
 ## Application base images
 
-The [backend](../../../apps/api/Dockerfile) and
-[frontend](../../../apps/web/Dockerfile) use base-image tags pinned to
+The [backend](../../../application/api/Dockerfile) and
+[frontend](../../../application/web/Dockerfile) use base-image tags pinned to
 multi-platform index digests. Keep the two Node references aligned when updating
 them. Weekly Docker [Dependabot checks](../../../.github/dependabot.yml) cover both
 files; review digest updates to receive base-image fixes. Validate updates with
@@ -386,8 +386,8 @@ Process-startup, config, and tooling code outside the runtime application layers
 
 ### i18n
 
-- Backend: `apps/api/src/i18n/`
-- Frontend: `apps/web/src/presentation/**/i18n/`, assembled by `apps/web/src/i18n/translation-resource-composer.ts`
+- Backend: `application/api/src/i18n/`
+- Frontend: `application/web/src/presentation/**/i18n/`, assembled by `application/web/src/i18n/translation-resource-composer.ts`
 - Feature-specific keys stay in feature scope - no cross-feature key reads
 - Use the straight ASCII apostrophe (`'`, U+0027) in translation values for every locale. Curly apostrophes (U+2018 and U+2019) are forbidden. Use suitable string delimiters or escaping to preserve the straight apostrophe; keep language accents intact.
 
