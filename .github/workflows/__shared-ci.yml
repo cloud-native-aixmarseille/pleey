@@ -54,20 +54,14 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "26"
-          cache: npm
-          cache-dependency-path: |
-            application/frontend/package-lock.json
-            application/backend/package-lock.json
-            e2e/package-lock.json
+          node-version: "26.13.1"
+      - name: Enable pinned pnpm
+        run: corepack enable && corepack prepare pnpm@10.32.1 --activate
       - name: Install documentation and application dependencies
-        run: |
-          npm ci --prefix application/frontend
+        run: pnpm install --frozen-lockfile
       - name: Install browser runtime dependencies
         if: github.event_name != 'pull_request' || !inputs.documentation-only
-        run: |
-          npm ci --prefix application/backend
-          npm ci --prefix e2e
+        run: pnpm install --frozen-lockfile
       - name: Validate reference and screenshot freshness
         run: node scripts/check-user-docs.mjs
       - name: Build test runtime images
@@ -122,8 +116,8 @@ jobs:
           {
             "name": "backend-ci",
             "context": ".",
-            "dockerfile": "./application/backend/Dockerfile",
-            "build-args": { "APP_PATH": "./application/backend/" },
+            "dockerfile": "./apps/api/Dockerfile",
+            "build-args": { "APP_PATH": "./apps/api/" },
             "target": "ci",
             "platforms": ["linux/amd64"]
           }
@@ -153,9 +147,9 @@ jobs:
             "username": ${{ toJson(github.repository_owner) }}
           },
           "pathMapping": {
-            "/usr/src/app": "./application/backend",
-            "src/": "./application/backend/src/",
-            "scripts/": "./application/backend/scripts/"
+            "/usr/src/app": "./apps/api",
+            "src/": "./apps/api/src/",
+            "scripts/": "./apps/api/scripts/"
           }
         }
       code-ql: typescript
@@ -182,8 +176,8 @@ jobs:
           {
             "name": "frontend-ci",
             "context": ".",
-            "dockerfile": "./application/frontend/Dockerfile",
-            "build-args": { "APP_PATH": "./application/frontend/" },
+            "dockerfile": "./apps/web/Dockerfile",
+            "build-args": { "APP_PATH": "./apps/web/" },
             "target": "ci",
             "platforms": ["linux/amd64"]
           }
@@ -213,9 +207,9 @@ jobs:
             "username": ${{ toJson(github.repository_owner) }}
           },
           "pathMapping": {
-            "/usr/src/app": "./application/frontend",
-            "src/": "./application/frontend/src/",
-            "scripts/": "./application/frontend/scripts/"
+            "/usr/src/app": "./apps/web",
+            "src/": "./apps/web/src/",
+            "scripts/": "./apps/web/scripts/"
           }
         }
       code-ql: typescript
@@ -244,8 +238,8 @@ jobs:
             "name": "backend",
             "tag": "${{ inputs.production-image-tag }}",
             "context": ".",
-            "dockerfile": "./application/backend/Dockerfile",
-            "build-args": { "APP_PATH": "./application/backend/" },
+            "dockerfile": "./apps/api/Dockerfile",
+            "build-args": { "APP_PATH": "./apps/api/" },
             "target": "prod",
             "platforms": ["linux/amd64"]
           }
@@ -274,8 +268,8 @@ jobs:
             "name": "frontend",
             "tag": "${{ inputs.production-image-tag }}",
             "context": ".",
-            "dockerfile": "./application/frontend/Dockerfile",
-            "build-args": { "APP_PATH": "./application/frontend/" },
+            "dockerfile": "./apps/web/Dockerfile",
+            "build-args": { "APP_PATH": "./apps/web/" },
             "target": "prod",
             "platforms": ["linux/amd64"]
           }

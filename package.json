@@ -1,0 +1,19 @@
+{
+  "name": "pleey",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": "26.13.1",
+    "pnpm": "10.32.1"
+  },
+  "scripts": {
+    "verify": "node scripts/verification/verify.mjs",
+    "test:integration": "node scripts/verification/test-integration.mjs",
+    "test:e2e": "node scripts/verification/test-e2e.mjs",
+    "test:release": "node scripts/verification/test-release.mjs",
+    "test:upgrade": "node scripts/verification/test-upgrade.mjs",
+    "test:restore": "node scripts/verification/test-restore.mjs",
+    "deploy:render": "node scripts/operations/deploy-render.mjs"
+  }
+}

@@ -1,0 +1,72 @@
+import type { PaginationQuery } from '@pleey/contracts/shared/primitives';
+import type { ThemeDocument, ThemeId } from '@pleey/contracts/theme';
+import { inject, injectable } from 'inversify';
+import type { OrganizationId } from '../../../../domains/organization/entities/organization';
+import {
+  type SaveThemeCommand,
+  type ThemeRepository,
+  ThemeRepositoryToken,
+} from '../../../../domains/theme/ports/theme-repository';
+import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
+import { ThemePaletteGenerator } from '../../../../domains/theme/services/theme-palette-generator';
+import { type ThemeTemplateDownloadPort, ThemeTemplateDownloadPortToken } from '../ports/theme-document-transfer.port';
+import {
+  type ThemeDraft,
+  type ThemeDraftPort,
+  ThemeDraftPortToken,
+  type ThemeDraftScope,
+} from '../ports/theme-draft.port';
+import { ThemeDocumentImportService } from '../services/theme-document-import.service';
+import { ThemeDocumentTemplateFactory } from '../services/theme-document-template.factory';
+@injectable()
+export class ThemeManagementFacade {
+  constructor(
+    @inject(ThemeRepositoryToken) private readonly repository: ThemeRepository,
+    @inject(ThemeDocumentNormalizer) private readonly normalizer: ThemeDocumentNormalizer,
+    @inject(ThemePaletteGenerator) private readonly paletteGenerator: ThemePaletteGenerator,
+    @inject(ThemeDraftPortToken) private readonly drafts: ThemeDraftPort,
+    @inject(ThemeDocumentImportService) private readonly importer: ThemeDocumentImportService,
+    @inject(ThemeDocumentTemplateFactory) private readonly templateFactory: ThemeDocumentTemplateFactory,
+    @inject(ThemeTemplateDownloadPortToken) private readonly templateDownload: ThemeTemplateDownloadPort,
+  ) {}
+  normalize(value: unknown): ThemeDocument {
+    return this.normalizer.normalize(value);
+  }
+  applyColor(document: ThemeDocument, group: 'accent' | 'highlight', color: string): ThemeDocument {
+    return this.paletteGenerator.apply(document, group, color);
+  }
+  readDraft(scope: ThemeDraftScope) {
+    return this.drafts.read(scope);
+  }
+  writeDraft(scope: ThemeDraftScope, draft: ThemeDraft) {
+    return this.drafts.write(scope, draft);
+  }
+  removeDraft(scope: ThemeDraftScope) {
+    this.drafts.remove(scope);
+  }
+  list(organizationId: OrganizationId, query: PaginationQuery) {
+    return this.repository.list(organizationId, query);
+  }
+  permissions(organizationId: OrganizationId) {
+    return this.repository.permissions(organizationId);
+  }
+  get(organizationId: OrganizationId, themeId: ThemeId) {
+    return this.repository.get(organizationId, themeId);
+  }
+  save(command: SaveThemeCommand) {
+    return this.repository.save({ ...command, document: this.normalize(command.document) });
+  }
+  upload(organizationId: OrganizationId, file: File) {
+    return this.repository.upload(organizationId, file);
+  }
+  importDocument(
+    organizationId: OrganizationId,
+    file: File,
+    options: { readonly allowAssetUpload: boolean },
+  ): Promise<ThemeDocument> {
+    return this.importer.execute(organizationId, file, options);
+  }
+  downloadTemplate(): void {
+    this.templateDownload.download(this.templateFactory.create());
+  }
+}

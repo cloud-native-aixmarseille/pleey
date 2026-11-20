@@ -13,7 +13,7 @@
     "**/.docusaurus/**",
     "**/playwright-report/**",
     "**/test-results/**",
-    "**/package-lock.json",
+    "**/pnpm-lock.yaml",
     "**/charts/application/crds/**",
     "**/*.spec.ts",
     "**/*.spec.tsx",

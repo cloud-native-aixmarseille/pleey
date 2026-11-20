@@ -53,8 +53,8 @@ Review dependency changes and run the affected project's checks after either com
 
 ## Shared domain package
 
-[`application/shared/`](../../../application/shared) is the private repository
-package `@pleey/domain` for contracts and deterministic policies
+[`packages/contracts/`](../../../packages/contracts) is the private repository
+package `@pleey/contracts` for contracts and deterministic policies
 consumed by backend and frontend. [ADR 0022](../architecture/adr/0022-evaluate-a-shared-frontend-backend-library.md)
 owns the decision and eligibility scope.
 
@@ -68,8 +68,8 @@ them:
 - private or audience-incomplete runtime state;
 - translation copy and transport-specific client diagnostics.
 
-Use one explicit feature entry point such as `@pleey/domain/game`,
-`@pleey/domain/identifier` or `@pleey/domain/identity`. Do not add a catch-all package barrel or application
+Use one explicit feature entry point such as `@pleey/contracts/game`,
+`@pleey/contracts/identifier` or `@pleey/contracts/identity`. Do not add a catch-all package barrel or application
 reexport wrapper for a shared declaration. Preserve an application adapter only
 when its runtime representation or enum vocabulary intentionally differs from
 the shared public contract.
@@ -81,11 +81,11 @@ projection must be mapped at its infrastructure or presentation boundary;
 importing a shared type does not grant the frontend access and does not
 authorize the backend to expose a private field.
 
-Identifier parsing is shared through `@pleey/domain/identifier`. Application
+Identifier parsing is shared through `@pleey/contracts/identifier`. Application
 adapters provide the local `DomainError` strategy so runtime-specific error
 construction and `instanceof` behavior remain owned by each application.
 
-[`@pleey/domain/i18n`](../../../application/shared/i18n) owns localized
+[`@pleey/contracts/i18n`](../../../packages/contracts/i18n) owns localized
 meaning only for exported public business error codes. Screen labels,
 accessibility copy, email content and application-local errors remain in their
 application catalogs. Add a shared message only when the same error code is
@@ -101,20 +101,20 @@ For package, lockfile, policy or API-surface changes, run:
 ```bash
 node scripts/check-shared-domain-package.mjs
 node scripts/check-shared-translations.mjs
-npm --prefix application/backend run lint:ci
-npm --prefix application/frontend run lint:ci
-npm --prefix application/backend run test
-npm --prefix application/frontend run test
+npm --prefix apps/api run lint:ci
+npm --prefix apps/web run lint:ci
+npm --prefix apps/api run test
+npm --prefix apps/web run test
 ```
 
-After changing `application/shared/i18n/index.ts`, regenerate generated
+After changing `packages/contracts/i18n/index.ts`, regenerate generated
 backend namespaces with:
 
 ```bash
 node scripts/check-shared-translations.mjs --write
 ```
 
-Changes under `application/shared/` and to the shared guard take the full PR CI
+Changes under `packages/contracts/` and to the shared guard take the full PR CI
 route. [P7 contract tests](../../../.github/actions/determine-pr-checks/shared-package-docker.spec.js)
 also verify Docker build, production, CI, Compose and lockfile wiring. Use a cold
 Docker build when changing package layout or Docker inputs, then verify a warm
@@ -127,8 +127,8 @@ docker compose --env-file /dev/null build backend frontend
 
 ## Application base images
 
-The [backend](../../../application/backend/Dockerfile) and
-[frontend](../../../application/frontend/Dockerfile) use base-image tags pinned to
+The [backend](../../../apps/api/Dockerfile) and
+[frontend](../../../apps/web/Dockerfile) use base-image tags pinned to
 multi-platform index digests. Keep the two Node references aligned when updating
 them. Weekly Docker [Dependabot checks](../../../.github/dependabot.yml) cover both
 files; review digest updates to receive base-image fixes. Validate updates with
@@ -160,7 +160,7 @@ against this stable result when enforcing PR CI. The workflow does not configure
 those repository rules itself.
 
 The classification policy and its Vitest suite live beside the local action.
-Run `npm ci --ignore-scripts` and `npm run test:ci` from
+Run `pnpm install --frozen-lockfile --ignore-scripts` and `pnpm test:ci` from
 `.github/actions/determine-pr-checks` to produce JUnit and LCOV reports. On full CI,
 `Test CI routing` uses the shared Node workflow independently of application image
 builds, and must succeed before image promotion. Dependabot maintains the action's
@@ -301,7 +301,7 @@ Test frameworks: **Vitest** (backend + frontend), **Playwright** (end-to-end).
 
 Keep the Playwright image tag in [`compose.yaml`](../../../compose.yaml) aligned
 with the resolved `@playwright/test` version in
-[`e2e/package-lock.json`](../../../e2e/package-lock.json). The container supplies
+[`e2e/pnpm-lock.yaml`](../../../e2e/pnpm-lock.yaml). The container supplies
 the browser binaries required by that exact Playwright version.
 
 The end-to-end container uses the same host UID/GID as the application containers and a
@@ -386,8 +386,8 @@ Process-startup, config, and tooling code outside the runtime application layers
 
 ### i18n
 
-- Backend: `application/backend/src/i18n/`
-- Frontend: `application/frontend/src/presentation/**/i18n/`, assembled by `application/frontend/src/i18n/translation-resource-composer.ts`
+- Backend: `apps/api/src/i18n/`
+- Frontend: `apps/web/src/presentation/**/i18n/`, assembled by `apps/web/src/i18n/translation-resource-composer.ts`
 - Feature-specific keys stay in feature scope - no cross-feature key reads
 - Use the straight ASCII apostrophe (`'`, U+0027) in translation values for every locale. Curly apostrophes (U+2018 and U+2019) are forbidden. Use suitable string delimiters or escaping to preserve the straight apostrophe; keep language accents intact.
 

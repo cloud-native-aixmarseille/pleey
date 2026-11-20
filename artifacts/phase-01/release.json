@@ -1,0 +1,16 @@
+{
+  "phase": "01",
+  "sourceCommit": "c56c6fb888296064650f49b59e1b3b987c3423f7",
+  "releaseId": "c56c6fb88829-p01",
+  "profile": "compose",
+  "images": {
+    "api": "pleey-api@sha256:28c5936c35954873760f7ba2c260add19b2be54a168c7ec8d5d83eab4cdbe144",
+    "web": "pleey-web@sha256:541f762f9d147138198089fa6505eefc117573cb77f3b015df44a0851ac1c51a"
+  },
+  "chartSha256": "614836e6248939d4440c3e63d612ee8eebb0eb2a37c201b41486f80292dff462",
+  "protocolMajors": {
+    "identity": 1,
+    "http": 1,
+    "game": 1
+  }
+}

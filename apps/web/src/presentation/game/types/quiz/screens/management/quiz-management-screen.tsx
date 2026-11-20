@@ -1,0 +1,52 @@
+import type { QuizQuestionId, QuizQuestionKind } from '@pleey/contracts/game';
+import type { PlayableContentManagementGateway } from '../../../../../../application/game/types/shared/gateways/playable-management.gateway';
+import { PresentationRedirect, usePresentationParams } from '../../../../../shared/routing/router';
+import type {
+  ManagementGameTypeIdParser,
+  PlayableItemKindConfig,
+} from '../../../shared/management/playable-content-management-model';
+import { PlayableContentManagementScreen } from '../../../shared/management/playable-content-management-screen';
+
+const quizItemKindConfig: PlayableItemKindConfig<QuizQuestionKind> = {
+  defaultKind: 'multiple',
+  options: [
+    {
+      correctSelectionMode: 'multiple',
+      labelKey: 'game.types.quiz.management.kindMultiple',
+      value: 'multiple',
+    },
+    {
+      correctSelectionMode: 'single',
+      fixedOptions: [
+        { booleanValue: true, labelKey: 'game.types.quiz.management.true', text: null },
+        { booleanValue: false, labelKey: 'game.types.quiz.management.false', text: null },
+      ],
+      labelKey: 'game.types.quiz.management.kindTrueFalse',
+      value: 'truefalse',
+    },
+  ],
+};
+
+interface QuizManagementScreenProps {
+  readonly gateway: PlayableContentManagementGateway<QuizQuestionId>;
+  readonly gameTypeIdentifier: ManagementGameTypeIdParser;
+}
+
+export function QuizManagementScreen({ gameTypeIdentifier, gateway }: QuizManagementScreenProps) {
+  const params = usePresentationParams<'quizId'>();
+  const quizId = gameTypeIdentifier.parseOrNull(params.quizId);
+
+  if (quizId === null) {
+    return <PresentationRedirect to="/workspace/dashboard" />;
+  }
+
+  return (
+    <PlayableContentManagementScreen
+      allowMedia
+      gameTypeId={quizId}
+      gateway={gateway}
+      itemKindConfig={quizItemKindConfig}
+      translationRoot="game.types.quiz.management"
+    />
+  );
+}

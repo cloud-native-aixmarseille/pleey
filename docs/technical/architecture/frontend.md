@@ -1,6 +1,6 @@
 # Frontend Reference
 
-`application/frontend/` — React 19, Vite 7, Inversify DI, Mantine 8, Apollo Client.
+`apps/web/` — React 19, Vite 7, Inversify DI, Mantine 8, Apollo Client.
 
 ## Directory Structure
 
@@ -69,7 +69,7 @@ Facades in `application/*/facades/` aggregate multiple use-cases for coarse-grai
 
 ## Framework Abstractions
 
-All third-party UI/routing/form/i18n frameworks are hidden behind port interfaces in `application/shared/ports/`:
+All third-party UI/routing/form/i18n frameworks are hidden behind port interfaces in `packages/contracts/ports/`:
 
 | Port              | Adapter                          | Library              |
 | ----------------- | -------------------------------- | -------------------- |
@@ -151,7 +151,7 @@ Schema source: `../backend/src/schema.gql`. Operations defined as `.graphql` fil
 
 ## Key Biome Boundaries
 
-Biome enforcement is split between built-in `noRestrictedImports` rules and app-local GritQL plugins under `application/frontend/biome/plugins/` for relative-path architecture checks.
+Biome enforcement is split between built-in `noRestrictedImports` rules and app-local GritQL plugins under `apps/web/biome/plugins/` for relative-path architecture checks.
 
 | Scope                          | Restriction                                                                                            |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------ |

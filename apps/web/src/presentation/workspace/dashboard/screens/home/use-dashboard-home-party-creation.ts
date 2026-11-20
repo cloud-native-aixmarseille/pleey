@@ -1,0 +1,68 @@
+import type { GameId } from '@pleey/contracts/game';
+import type { PartySettings } from '@pleey/contracts/party';
+import type { ThemeId } from '@pleey/contracts/theme';
+import { useState } from 'react';
+import type { DashboardGameListItem } from '../../../../../domains/game/management/entities/dashboard-game-list-item';
+import type { Party } from '../../../../../domains/game/party/shared/entities/party';
+import { PartyManagementErrorCode } from '../../../../../domains/game/party/shared/errors/party-management-error-code';
+import { usePresentationNavigate } from '../../../../shared/routing/router';
+
+interface CreatePartyOptions {
+  readonly privatePartyPassword?: string;
+  readonly settingsOverride?: Partial<PartySettings>;
+  readonly themeIdOverride?: ThemeId | null;
+}
+
+interface UseDashboardHomePartyCreationOptions {
+  readonly createParty: (gameId: GameId, options?: CreatePartyOptions) => Promise<Party>;
+  readonly onPartyCreated: (party: Party) => void;
+  readonly resolvePartyRoute: (party: Party) => string;
+  readonly reloadGames: () => void;
+}
+
+interface UseDashboardHomePartyCreationResult {
+  readonly creatingPartyGameId: GameId | null;
+  readonly partyActionErrorMessage: string | null;
+  readonly handleCreateParty: (game: DashboardGameListItem, options?: CreatePartyOptions) => Promise<void>;
+}
+
+export function useDashboardHomePartyCreation({
+  createParty,
+  onPartyCreated,
+  resolvePartyRoute,
+  reloadGames,
+}: UseDashboardHomePartyCreationOptions): UseDashboardHomePartyCreationResult {
+  const navigate = usePresentationNavigate();
+  const [creatingPartyGameId, setCreatingPartyGameId] = useState<GameId | null>(null);
+  const [partyActionErrorMessage, setPartyActionErrorMessage] = useState<string | null>(null);
+
+  const handleCreateParty = async (game: DashboardGameListItem, options?: CreatePartyOptions) => {
+    setCreatingPartyGameId(game.gameId);
+    setPartyActionErrorMessage(null);
+
+    try {
+      const party = await createParty(game.gameId, options);
+      onPartyCreated(party);
+      reloadGames();
+      navigate(resolvePartyRoute(party));
+    } catch (error) {
+      setPartyActionErrorMessage(resolvePartyActionError(error));
+    } finally {
+      setCreatingPartyGameId((current) => (current === game.gameId ? null : current));
+    }
+  };
+
+  return {
+    creatingPartyGameId,
+    partyActionErrorMessage,
+    handleCreateParty,
+  };
+}
+
+function resolvePartyActionError(error: unknown): string {
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  return PartyManagementErrorCode.CREATE_FAILED;
+}
