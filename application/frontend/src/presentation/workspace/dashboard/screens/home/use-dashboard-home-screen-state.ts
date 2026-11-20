@@ -1,6 +1,5 @@
 import { PlayableContentImportErrorKind, resolvePlayableContentImportErrorKind } from '@pleey/domain/errors';
 import type { GameId } from '@pleey/domain/game';
-import { GameType } from '@pleey/domain/game';
 import { useEffect, useMemo, useState } from 'react';
 import type { DashboardHomeActionsFacade } from '../../../../../application/workspace/dashboard/facades/dashboard-home-actions.facade';
 import type { DashboardWorkspaceGateway } from '../../../../../application/workspace/dashboard/facades/dashboard-workspace.facade';
@@ -16,6 +15,7 @@ import { useDashboardWorkspace } from '../../hooks/use-dashboard-workspace';
 import { useGameListFilters } from '../../hooks/use-game-list-filters';
 import { usePartySync } from '../../hooks/use-party-sync';
 import { useProjectGames } from '../../hooks/use-project-games';
+import { createEmptyDashboardGameForm, type DashboardGameFormValues } from './components/dashboard-game-form-values';
 import { useDashboardHomeActions } from './use-dashboard-home-actions';
 import { useDashboardHomePartyCreation } from './use-dashboard-home-party-creation';
 
@@ -29,23 +29,6 @@ interface UseDashboardHomeScreenStateParams {
   readonly dashboardWorkspace: DashboardWorkspaceGateway;
   readonly gameTypes: readonly GameTypeDescriptor[];
   readonly resolvePartyRoute: (party: Party) => string;
-}
-
-interface DashboardCreateGameForm {
-  readonly description: string;
-  readonly title: string;
-  readonly type: GameType | null;
-}
-
-function createEmptyGameForm(gameTypes: readonly GameTypeDescriptor[]): DashboardCreateGameForm {
-  const firstSupportedGameType =
-    gameTypes.find((gameType) => gameType.key === GameType.Quiz)?.key ?? gameTypes[0]?.key ?? null;
-
-  return {
-    description: '',
-    title: '',
-    type: firstSupportedGameType,
-  };
 }
 
 function resolveImportErrorMessage(error: unknown): string {
@@ -137,12 +120,16 @@ export function useDashboardHomeScreenState({
   const actions = useDashboardHomeActions({
     actionsFacade: dashboardHomeActions,
   });
-  const [createGameForm, setCreateGameForm] = useState<DashboardCreateGameForm>(() => createEmptyGameForm(gameTypes));
+  const [createGameForm, setCreateGameForm] = useState<DashboardGameFormValues>(() =>
+    createEmptyDashboardGameForm(gameTypes),
+  );
   const [createGameErrorMessage, setCreateGameErrorMessage] = useState<string | null>(null);
   const [isCreateGameDialogOpen, setIsCreateGameDialogOpen] = useState(false);
   const [isCreatingGame, setIsCreatingGame] = useState(false);
 
-  const [importGameForm, setImportGameForm] = useState<DashboardCreateGameForm>(() => createEmptyGameForm(gameTypes));
+  const [importGameForm, setImportGameForm] = useState<DashboardGameFormValues>(() =>
+    createEmptyDashboardGameForm(gameTypes),
+  );
   const [importGameFile, setImportGameFile] = useState<File | null>(null);
   const [importGameErrorMessage, setImportGameErrorMessage] = useState<string | null>(null);
   const [isImportGameDialogOpen, setIsImportGameDialogOpen] = useState(false);
@@ -170,19 +157,19 @@ export function useDashboardHomeScreenState({
         return current;
       }
 
-      return createEmptyGameForm(gameTypes);
+      return createEmptyDashboardGameForm(gameTypes);
     });
     setImportGameForm((current) => {
       if (gameTypes.some((gameType) => gameType.key === current.type)) {
         return current;
       }
 
-      return createEmptyGameForm(gameTypes);
+      return createEmptyDashboardGameForm(gameTypes);
     });
   }, [gameTypes]);
 
   const handleOpenCreateGameDialog = () => {
-    setCreateGameForm(createEmptyGameForm(gameTypes));
+    setCreateGameForm(createEmptyDashboardGameForm(gameTypes));
     setCreateGameErrorMessage(null);
     setIsCreateGameDialogOpen(true);
   };
@@ -192,7 +179,7 @@ export function useDashboardHomeScreenState({
     setIsCreateGameDialogOpen(false);
   };
 
-  const handleCreateGameFormChange = (patch: Partial<DashboardCreateGameForm>) => {
+  const handleCreateGameFormChange = (patch: Partial<DashboardGameFormValues>) => {
     setCreateGameForm((current) => ({ ...current, ...patch }));
   };
 
@@ -226,7 +213,7 @@ export function useDashboardHomeScreenState({
   };
 
   const handleOpenImportGameDialog = () => {
-    setImportGameForm(createEmptyGameForm(gameTypes));
+    setImportGameForm(createEmptyDashboardGameForm(gameTypes));
     setImportGameFile(null);
     setImportGameErrorMessage(null);
     setIsImportGameDialogOpen(true);
@@ -237,7 +224,7 @@ export function useDashboardHomeScreenState({
     setIsImportGameDialogOpen(false);
   };
 
-  const handleImportGameFormChange = (patch: Partial<DashboardCreateGameForm>) => {
+  const handleImportGameFormChange = (patch: Partial<DashboardGameFormValues>) => {
     setImportGameForm((current) => ({ ...current, ...patch }));
   };
 

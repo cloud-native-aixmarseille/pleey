@@ -1,32 +1,47 @@
-import { DEFAULT_PARTY_SETTINGS, type PartySettings } from '@pleey/domain/party';
+import type { PartySettings } from '@pleey/domain/party';
 import type { ThemeId } from '@pleey/domain/theme';
 import { useState } from 'react';
 import type { Organization } from '../../../../../../domains/organization/entities/organization';
-import type { UpdateOrganizationCommand } from '../../../../../../domains/organization/ports/organization-repository';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { usePresentationFeedbackChannel } from '../../../../../shared/ui/feedback/use-presentation-feedback-channel';
 import { useWorkspaceDependencies } from '../../../../shared/contexts/workspace-dependencies-context';
+import type { OrganizationFormValues } from './organization-form-values';
 
-interface UseEditOrganizationFormStateParams {
-  readonly onSubmit: (command: UpdateOrganizationCommand) => Promise<Organization>;
-  readonly onUpdated: (organization: Organization) => void;
-  readonly organization: Organization;
+interface UseOrganizationFormDialogStateParams {
+  readonly getInitialValues: () => OrganizationFormValues;
+  readonly onSubmit: (values: OrganizationFormValues) => Promise<Organization>;
+  readonly onSubmitted: (organization: Organization) => void;
+  readonly successMessageKey: string;
+  readonly successNotificationId: string;
+  readonly fallbackErrorKey: string;
 }
 
-export function useEditOrganizationFormState({
+export function useOrganizationFormDialogState({
+  getInitialValues,
   onSubmit,
-  onUpdated,
-  organization,
-}: UseEditOrganizationFormStateParams) {
+  onSubmitted,
+  successMessageKey,
+  successNotificationId,
+  fallbackErrorKey,
+}: UseOrganizationFormDialogStateParams) {
   const { t } = usePresentationTranslation();
   const { organizationFormFacade } = useWorkspaceDependencies();
   const feedback = usePresentationFeedbackChannel();
-  const [description, setDescription] = useState('');
+  const initialValues = getInitialValues();
+  const [name, setName] = useState(initialValues.name);
+  const [defaultThemeId, setDefaultThemeId] = useState<ThemeId | null>(initialValues.defaultThemeId);
+  const [description, setDescription] = useState(initialValues.description);
+  const [defaultPartySettings, setDefaultPartySettings] = useState<PartySettings>(initialValues.defaultPartySettings);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [name, setName] = useState('');
-  const [defaultThemeId, setDefaultThemeId] = useState<ThemeId | null>(null);
-  const [defaultPartySettings, setDefaultPartySettings] = useState<PartySettings>(DEFAULT_PARTY_SETTINGS);
+
+  function applyInitialValues() {
+    const values = getInitialValues();
+    setName(values.name);
+    setDefaultThemeId(values.defaultThemeId);
+    setDescription(values.description);
+    setDefaultPartySettings(values.defaultPartySettings);
+  }
 
   function handleClose() {
     if (isSubmitting) {
@@ -35,13 +50,11 @@ export function useEditOrganizationFormState({
 
     setIsOpen(false);
     feedback.clearError();
+    applyInitialValues();
   }
 
   function handleOpen() {
-    setName(organization.name);
-    setDefaultThemeId(organization.defaultThemeId);
-    setDescription(organization.description ?? '');
-    setDefaultPartySettings(organization.defaultPartySettings ?? DEFAULT_PARTY_SETTINGS);
+    applyInitialValues();
     feedback.clearError();
     setIsOpen(true);
   }
@@ -58,20 +71,21 @@ export function useEditOrganizationFormState({
     setIsSubmitting(true);
 
     try {
-      const command = organizationFormFacade.createCommand(name, description, defaultPartySettings, defaultThemeId);
-      const updatedOrganization = await onSubmit({
-        organizationId: organization.id,
-        ...command,
+      const organization = await onSubmit({
+        name,
+        defaultThemeId,
+        description,
+        defaultPartySettings,
       });
 
       setIsOpen(false);
-      onUpdated(updatedOrganization);
-      feedback.notify('success', t('organization.management.edit.success'), {
-        id: 'organization-update-success-toast',
+      onSubmitted(organization);
+      feedback.notify('success', t(successMessageKey), {
+        id: successNotificationId,
       });
     } catch (error) {
       feedback.handleError(error, {
-        fallbackMessage: 'organization.errors.updateFailed',
+        fallbackMessage: fallbackErrorKey,
       });
     } finally {
       setIsSubmitting(false);

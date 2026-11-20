@@ -1,38 +1,29 @@
-import { GameType } from '@pleey/domain/game';
 import type { PlayableContentImportExampleProvider } from '../../../../../../application/game/types/shared/ports/playable-content-import-example-provider.port';
 import { PlayableContentImportExampleFormat as ImportExampleFormat } from '../../../../../../application/game/types/shared/ports/playable-content-import-example-provider.port';
 import type { GameTypeDescriptor } from '../../../../../../domains/game/types/shared/game-type-catalog';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
-import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { FileUploadDropzone } from '../../../../../shared/ui/forms/file-upload-dropzone';
-import { Input } from '../../../../../shared/ui/forms/input';
-import { Select } from '../../../../../shared/ui/forms/select';
-import { Textarea } from '../../../../../shared/ui/forms/textarea';
 import { AppIcon } from '../../../../../shared/ui/icons/app-icon';
 import { ContentStack, WrapRow } from '../../../../../shared/ui/layout/containers';
 import { SupportingText } from '../../../../../shared/ui/layout/typography';
 import { FormDialog } from '../../../../../shared/ui/overlay/form-dialog';
-
-interface DashboardImportGameForm {
-  readonly description: string;
-  readonly title: string;
-  readonly type: GameType | null;
-}
+import { DashboardGameFormFields } from './dashboard-game-form-fields';
+import type { DashboardGameFormValues } from './dashboard-game-form-values';
 
 interface DashboardImportGameDialogProps {
   readonly errorMessage: string | null;
   readonly exampleProvider: PlayableContentImportExampleProvider | null;
   readonly acceptedFileTypes: string;
   readonly file: File | null;
-  readonly form: DashboardImportGameForm;
+  readonly form: DashboardGameFormValues;
   readonly gameTypes: readonly GameTypeDescriptor[];
   readonly isImporting: boolean;
   readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly onFileChange: (file: File | null) => void;
-  readonly onFormChange: (value: Partial<DashboardImportGameForm>) => void;
+  readonly onFormChange: (value: Partial<DashboardGameFormValues>) => void;
   readonly onSubmit: () => void;
 }
 
@@ -58,8 +49,6 @@ export function DashboardImportGameDialog({
   onSubmit,
 }: DashboardImportGameDialogProps) {
   const { t } = usePresentationTranslation();
-  const selectedGameType = gameTypes.find((gameType) => gameType.key === form.type);
-  const gameTypeValue = form.type ?? '';
   const canSubmit = form.title.trim().length > 0 && file !== null;
 
   const handleDownloadExample = (format: ImportExampleFormat) => {
@@ -106,46 +95,13 @@ export function DashboardImportGameDialog({
     >
       <SupportingText>{t('dashboard.games.import.description')}</SupportingText>
 
-      <FieldShell id="import-game-type" label={t('dashboard.games.import.typeLabel')} required>
-        <Select
-          id="import-game-type"
-          onChange={(event) =>
-            onFormChange({
-              type:
-                event.target.value === GameType.Prediction
-                  ? GameType.Prediction
-                  : event.target.value === GameType.Quiz
-                    ? GameType.Quiz
-                    : null,
-            })
-          }
-          value={gameTypeValue}
-        >
-          {gameTypes.map((gameType) => (
-            <option key={gameType.key} value={gameType.key}>
-              {t(gameType.titleKey)}
-            </option>
-          ))}
-        </Select>
-      </FieldShell>
-      {selectedGameType ? <SupportingText>{t(selectedGameType.descriptionKey)}</SupportingText> : null}
-
-      <FieldShell id="import-game-title" label={t('dashboard.games.import.titleLabel')} required>
-        <Input
-          id="import-game-title"
-          onChange={(event) => onFormChange({ title: event.target.value })}
-          value={form.title}
-        />
-      </FieldShell>
-
-      <FieldShell id="import-game-description" label={t('dashboard.games.import.descriptionLabel')}>
-        <Textarea
-          id="import-game-description"
-          onChange={(event) => onFormChange({ description: event.target.value })}
-          rows={3}
-          value={form.description}
-        />
-      </FieldShell>
+      <DashboardGameFormFields
+        form={form}
+        gameTypes={gameTypes}
+        keyPrefix="dashboard.games.import"
+        idPrefix="import-game"
+        onFormChange={onFormChange}
+      />
 
       <FileUploadDropzone
         acceptedFileTypes={acceptedFileTypes}
