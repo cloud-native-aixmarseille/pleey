@@ -43,6 +43,7 @@ const prisma = new PrismaClient({
 });
 const partySettingsMapper = new PrismaPartySettingsMapper();
 const fixedSeedTime = new Date('2026-11-18T11:39:00.000Z');
+const fixedPredictionSeedTime = new Date('2026-11-18T11:39:10.000Z');
 
 async function main() {
   console.log('Seeding database...');
@@ -99,8 +100,10 @@ async function main() {
   if (!organization) {
     organization = await prisma.organization.create({
       data: {
+        id: '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c32',
         name: organizationName,
         description: 'Default organization for local development',
+        createdAt: fixedSeedTime,
       },
     });
   }
@@ -147,9 +150,11 @@ async function main() {
   if (!project) {
     project = await prisma.project.create({
       data: {
+        id: '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c33',
         name: projectName,
         description: 'Default project for local development',
         organizationId: organization.id,
+        createdAt: fixedSeedTime,
       },
     });
   }
@@ -168,6 +173,7 @@ async function main() {
   if (!quizGame) {
     quizGame = await prisma.game.create({
       data: {
+        id: '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c34',
         type: 'quiz',
         title: quizGameTitle,
         description: 'A short sample quiz for local development',
@@ -193,6 +199,8 @@ async function main() {
   if (!quiz) {
     quiz = await prisma.quiz.create({
       data: {
+        id: '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c35',
+        createdAt: fixedSeedTime,
         game: { connect: { id: quizGame.id } },
       },
     });
@@ -218,11 +226,12 @@ async function main() {
   if (!predictionGame) {
     predictionGame = await prisma.game.create({
       data: {
+        id: '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c36',
         type: 'prediction',
         title: predictionTitle,
         description: 'Sample prediction game for local development',
         projectId: project.id,
-        createdAt: fixedSeedTime,
+        createdAt: fixedPredictionSeedTime,
       },
     });
   } else {
@@ -231,7 +240,7 @@ async function main() {
       data: {
         description: 'Sample prediction game for local development',
         projectId: project.id,
-        createdAt: fixedSeedTime,
+        createdAt: fixedPredictionSeedTime,
       },
     });
   }
@@ -243,6 +252,8 @@ async function main() {
   if (!prediction) {
     prediction = await prisma.prediction.create({
       data: {
+        id: '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c37',
+        createdAt: fixedPredictionSeedTime,
         game: { connect: { id: predictionGame.id } },
       },
     });
@@ -277,23 +288,41 @@ async function main() {
     });
 
     if (!existingPrompt) {
+      const promptPosition = predictionPromptsData.findIndex((item) => item.promptText === prompt.promptText);
+      const promptCreatedAt = new Date(fixedPredictionSeedTime.getTime() + promptPosition * 1_000);
       const createdPrompt = await prisma.predictionPrompt.create({
         data: {
+          id: promptPosition === 0 ? '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c38' : '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c39',
           predictionId: prediction.id,
-          position: predictionPromptsData.findIndex((item) => item.promptText === prompt.promptText),
+          position: promptPosition,
           promptText: prompt.promptText,
           timeLimit: prompt.timeLimit,
           points: prompt.points,
+          createdAt: promptCreatedAt,
         },
       });
 
       await prisma.predictionOption.createMany({
-        data: prompt.options.map((option) => ({
-          promptId: createdPrompt.id,
-          text: option.text,
-          position: option.position,
-          isCorrect: option.isCorrect,
-        })),
+        data: prompt.options.map((option) => {
+          const fixedOptionId = `${promptPosition}-${option.position}`;
+          const optionIdByPosition: Record<string, string> = {
+            '0-0': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c3a',
+            '0-1': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c3b',
+            '0-2': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c3c',
+            '1-0': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c3d',
+            '1-1': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c3e',
+            '1-2': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c3f',
+          };
+
+          return {
+            id: optionIdByPosition[fixedOptionId],
+            promptId: createdPrompt.id,
+            text: option.text,
+            position: option.position,
+            isCorrect: option.isCorrect,
+            createdAt: new Date(promptCreatedAt.getTime() + option.position * 100),
+          };
+        }),
       });
     }
   }
@@ -329,24 +358,42 @@ async function main() {
     });
 
     if (!existing) {
+      const questionPosition = questionsData.findIndex((item) => item.questionText === q.questionText);
+      const questionCreatedAt = new Date(fixedSeedTime.getTime() + questionPosition * 1_000);
       const createdQuestion = await prisma.question.create({
         data: {
+          id: questionPosition === 0 ? '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c40' : '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c41',
           quizId: quiz.id,
-          position: questionsData.findIndex((item) => item.questionText === q.questionText),
+          position: questionPosition,
           questionText: q.questionText,
           type: q.type,
           timeLimit: q.timeLimit,
           points: q.points,
+          createdAt: questionCreatedAt,
         },
       });
 
       await prisma.questionAnswer.createMany({
-        data: q.answers.map((answer) => ({
-          questionId: createdQuestion.id,
-          text: answer.text,
-          position: answer.position,
-          isCorrect: answer.isCorrect,
-        })),
+        data: q.answers.map((answer) => {
+          const fixedAnswerId = `${questionPosition}-${answer.position}`;
+          const answerIdByPosition: Record<string, string> = {
+            '0-0': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c42',
+            '0-1': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c43',
+            '0-2': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c44',
+            '0-3': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c45',
+            '1-0': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c46',
+            '1-1': '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c47',
+          };
+
+          return {
+            id: answerIdByPosition[fixedAnswerId],
+            questionId: createdQuestion.id,
+            text: answer.text,
+            position: answer.position,
+            isCorrect: answer.isCorrect,
+            createdAt: new Date(questionCreatedAt.getTime() + answer.position * 100),
+          };
+        }),
       });
     }
   }
@@ -368,6 +415,7 @@ async function main() {
       context: Prisma.JsonNull,
     },
     create: {
+      id: '01974c4e-3e24-7c39-ae9f-5e0b8f7b2c48',
       gameId: quizGame.id,
       hostId: admin.id,
       pin: partyPin,

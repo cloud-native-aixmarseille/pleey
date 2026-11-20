@@ -11,19 +11,45 @@ const root = fs.existsSync("/repository/scripts") ? "/repository" : path.resolve
 
 const assets = path.join(root, "docs/usage/assets");
 const capture = process.env.USAGE_CAPTURE === "1";
-const fixedCaptureTime = new Date("2026-11-18T11:39:00.000Z");
+const fixedCaptureTimestamp = Date.parse("2026-11-18T11:39:00.000Z");
+const fixedCaptureTime = new Date(fixedCaptureTimestamp);
 const fixedGuestAvatarSeed = "01974c4e-3e24-7c39-ae9f-5e0b8f7b2c31";
+const fixedMathRandomSeed = 0x6d2b79f5;
 
 async function stabilizeCaptureContext(context: BrowserContext) {
   await context.addInitScript(
-    ({ fixedSeed }) => {
+    ({ fixedSeed, fixedNow, randomSeed }) => {
+      function defineStableGlobalValue(target: object, key: string, value: unknown) {
+        const descriptor = Reflect.getOwnPropertyDescriptor(target, key);
+        if (!descriptor || descriptor.configurable) {
+          Object.defineProperty(target, key, {
+            configurable: true,
+            value,
+          });
+        }
+      }
+
+      let state = randomSeed >>> 0;
+      function nextDeterministicRandom() {
+        state = (state + 0x6d2b79f5) >>> 0;
+        let value = Math.imul(state ^ (state >>> 15), 1 | state);
+        value ^= value + Math.imul(value ^ (value >>> 7), 61 | value);
+        return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+      }
+
+      defineStableGlobalValue(Math, "random", () => nextDeterministicRandom());
+      defineStableGlobalValue(Date, "now", () => fixedNow);
+
       Object.defineProperty(globalThis.crypto, "randomUUID", {
         configurable: true,
         value: () => fixedSeed,
       });
-      Math.random = () => 0.123456789;
     },
-    { fixedSeed: fixedGuestAvatarSeed },
+    {
+      fixedSeed: fixedGuestAvatarSeed,
+      fixedNow: fixedCaptureTimestamp,
+      randomSeed: fixedMathRandomSeed,
+    },
   );
 }
 
@@ -54,6 +80,9 @@ test("all user guides resolve real routes, localized copy and targets, with acce
       viewport: { width: 1280, height: 900 },
       locale,
       reducedMotion: "reduce",
+      timezoneId: "UTC",
+      colorScheme: "light",
+      deviceScaleFactor: 1,
     });
     await stabilizeCaptureContext(context);
     const page = await context.newPage();
@@ -107,6 +136,9 @@ test("all user guides resolve real routes, localized copy and targets, with acce
             viewport: { width: 1280, height: 900 },
             locale,
             reducedMotion: "reduce",
+            timezoneId: "UTC",
+            colorScheme: "light",
+            deviceScaleFactor: 1,
           });
           await stabilizeCaptureContext(playerContext);
           playerPage = await playerContext.newPage();
@@ -133,6 +165,14 @@ test("all user guides resolve real routes, localized copy and targets, with acce
       expect(launchBox?.width).toBeLessThanOrEqual(48);
       expect(launchBox?.height).toBeGreaterThanOrEqual(44);
       for (const step of guide.steps) {
+        if (step.anchor === 'authoring-editor') {
+          if (guide.id === 'quiz-authoring')
+            await targetPage.getByText('What is the capital of France?', { exact: true }).first().click();
+          if (guide.id === 'prediction-authoring')
+            await targetPage.getByText('Which team will win the opening match?', { exact: true }).first().click();
+        }
+        if (guide.id === 'dashboard-home' && ['workspace', 'create-party', 'launch'].includes(step.anchor))
+          await targetPage.getByText('General Knowledge - Sample').first().click();
         const target = targetPage.locator(`[data-tour="${step.anchor}"]`);
         await expect(target).toHaveCount(1);
         await expect(target).toBeVisible();

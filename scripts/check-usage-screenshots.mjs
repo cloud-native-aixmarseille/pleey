@@ -3,12 +3,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { filesUnder, readUsageModel, repositoryRoot } from "./usage-reference-model.mjs";
 
-export function usageScreenshotSourceHash(root = repositoryRoot) {
-  const hash = createHash("sha256");
-  const files = [
-    ...filesUnder(path.join(root, "application/frontend/src")).filter(
-      (file) => !file.includes("/test-utils/") && !/\.(test|spec)\./.test(file) && !file.includes("/generated/"),
-    ),
+function usageScreenshotSourceFiles(root) {
+  const presentationRoot = path.join(root, "application/frontend/src/presentation");
+  const i18nRoot = path.join(root, "application/frontend/src/i18n");
+
+  return [
+    ...filesUnder(presentationRoot).filter((file) => file.endsWith(".guide.ts")),
+    ...filesUnder(i18nRoot).filter((file) => file.endsWith(".ts")),
     path.join(root, "application/frontend/package-lock.json"),
     path.join(root, "e2e/package-lock.json"),
     path.join(root, "e2e/tests/usage/guides.spec.ts"),
@@ -16,6 +17,11 @@ export function usageScreenshotSourceHash(root = repositoryRoot) {
     path.join(root, "e2e/playwright.config.ts"),
     path.join(root, "application/backend/prisma/seed.ts"),
   ].sort();
+}
+
+export function usageScreenshotSourceHash(root = repositoryRoot) {
+  const hash = createHash("sha256");
+  const files = usageScreenshotSourceFiles(root);
   for (const file of files)
     hash.update(path.relative(root, file)).update("\0").update(fs.readFileSync(file)).update("\0");
   return hash.digest("hex");
