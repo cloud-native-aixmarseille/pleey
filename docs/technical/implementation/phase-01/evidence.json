@@ -1,6 +1,6 @@
 {
   "phase": "01",
-  "sourceCommit": "c56c6fb888296064650f49b59e1b3b987c3423f7",
+  "sourceCommit": "81c644412df075810b5d11a34c276cd1ad9c609f",
   "previousRelease": "89eba30755f53aced04b596bc1531854a15bc1d5",
   "candidateRelease": "artifacts/phase-01/release.json",
   "environment": "shared Linux Docker host, Node 24.22.3 local runner, Node 26.13.1-based production image build",
