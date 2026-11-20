@@ -287,6 +287,7 @@ after P1-P9 and found additional high-confidence candidates:
 - complete theme document/override contracts and theme asset upload policy;
 - playable option bounds and editor/server validation limits;
 - party player, join-receipt, action-state and host permission vocabulary;
+- shared player identity and party runtime leaf contracts;
 - shared public identity/game error codes;
 - public business-error translation keys and locale text under ADR 0025.
 - identifier parser behavior and parser error vocabulary;

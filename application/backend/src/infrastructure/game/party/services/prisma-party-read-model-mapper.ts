@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { GuestId } from '@pleey/domain/identity';
+import type { PartyPlayerIdentity } from '@pleey/domain/party';
 import { PARTY_PLAYER_ACTION_STATE_STATUS, PartyPlayerKind, PartyStatus } from '@pleey/domain/party';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyStageIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-stage-identifier';
@@ -8,7 +9,6 @@ import { UserIdentifier } from '../../../../application/identity/shared/services
 import { GameValidationFailedError } from '../../../../domain/game/errors';
 import type { PartyPlayer } from '../../../../domain/game/party/player/entities/party-player';
 import type { PartyPlayerActionState } from '../../../../domain/game/party/player/entities/party-player-action-state';
-import type { PartyPlayerIdentity } from '../../../../domain/game/party/player/entities/party-player-identity';
 import type { PlayerPartyObservationPlayer } from '../../../../domain/game/party/player/entities/player-party-observation';
 import {
   type PartyRuntimeContext,

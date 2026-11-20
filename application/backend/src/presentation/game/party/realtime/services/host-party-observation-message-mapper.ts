@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import type { GameType } from '@pleey/domain/game';
-import type { HostPartyPermissions } from '@pleey/domain/party';
+import type { HostPartyPermissions, PartyPlayerIdentity } from '@pleey/domain/party';
 import { PartyPlayerKind } from '@pleey/domain/party';
 import type { HostPartyObservation } from '../../../../../domain/game/party/host/entities/host-party-observation';
 import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
-import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import type { PlayerPartyObservationPlayer } from '../../../../../domain/game/party/player/entities/player-party-observation';
 import type { HostPartyObservationMessage, PartyObservationPlayerMessage } from './party-observation-message';
 

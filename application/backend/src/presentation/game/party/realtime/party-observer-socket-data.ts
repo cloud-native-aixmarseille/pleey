@@ -1,5 +1,4 @@
-import type { PartyId, PartyPin } from '@pleey/domain/party';
-import type { PartyPlayerIdentity } from '../../../../domain/game/party/player/entities/party-player-identity';
+import type { PartyId, PartyPin, PartyPlayerIdentity } from '@pleey/domain/party';
 import type { UserId } from '../../../../domain/identity/entities/user';
 
 interface JoinedPartyPlayerSocketData {

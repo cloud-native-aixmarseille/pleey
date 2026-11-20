@@ -1,11 +1,14 @@
 import type { GameId } from '@pleey/domain/game';
 import type { GuestId } from '@pleey/domain/identity';
-import type { PartyId, PartyPin, PartySettings, PartyStatus } from '@pleey/domain/party';
-import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
 import type {
   GuestPartyPlayerIdentity,
+  PartyId,
+  PartyPin,
   PartyPlayerIdentity,
-} from '../../../../../domain/game/party/player/entities/party-player-identity';
+  PartySettings,
+  PartyStatus,
+} from '@pleey/domain/party';
+import type { PartyPlayer } from '../../../../../domain/game/party/player/entities/party-player';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 
 export interface ActivePlayerPartySession {

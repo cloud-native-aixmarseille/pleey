@@ -1,5 +1,4 @@
-import type { PartyActionId, PartyId } from '@pleey/domain/party';
-import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
+import type { PartyActionId, PartyId, PartyPlayerIdentity } from '@pleey/domain/party';
 
 export interface SubmitPartyActionDto {
   readonly actionId: PartyActionId;

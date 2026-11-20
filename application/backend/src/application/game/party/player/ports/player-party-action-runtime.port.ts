@@ -1,7 +1,6 @@
 import type { GameId, GameType } from '@pleey/domain/game';
-import type { PartyActionId, PartyId, PartySettings, PartyStatus } from '@pleey/domain/party';
+import type { PartyActionId, PartyId, PartyPlayerIdentity, PartySettings, PartyStatus } from '@pleey/domain/party';
 import type { PartyPlayerActionState } from '../../../../../domain/game/party/player/entities/party-player-action-state';
-import type { PartyPlayerIdentity } from '../../../../../domain/game/party/player/entities/party-player-identity';
 import type { PartyRuntimeContext } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
 
 export interface FindPartyActionSubmissionTargetCommand {

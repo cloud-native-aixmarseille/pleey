@@ -8,8 +8,7 @@
  * Persistence is optional for now; the primary purpose is to prevent duplicate live sessions.
  */
 
-import type { PartyId } from '@pleey/domain/party';
-import type { PartyPlayerIdentity } from '../entities/party-player-identity';
+import type { PartyId, PartyPlayerIdentity } from '@pleey/domain/party';
 
 export const PartyPlayerSessionRegistryProvider = Symbol('PartyPlayerSessionRegistry');
 
