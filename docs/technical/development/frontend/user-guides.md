@@ -41,9 +41,9 @@ borders and focus states follow the active theme and color scheme.
 From the repository root:
 
 ```sh
-npm --prefix apps/web run docs:generate
+npm --prefix application/web run docs:generate
 ./scripts/run-usage-docs.sh capture
-npm --prefix apps/web run lint
+npm --prefix application/web run lint
 ./scripts/run-usage-docs.sh check
 ```
 

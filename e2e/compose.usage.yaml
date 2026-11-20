@@ -23,7 +23,7 @@ services:
         pnpm db:generate && pnpm db:migrate && pnpm seed &&
         pnpm exec tsc -p tsconfig.build.json --outDir /usr/src/repository/.cache/usage-docs/backend --incremental false &&
         cp -r src/i18n /usr/src/repository/.cache/usage-docs/backend/i18n &&
-        ln -sfn ../../../apps/api/node_modules /usr/src/repository/.cache/usage-docs/backend/node_modules &&
+        ln -sfn ../../../application/api/node_modules /usr/src/repository/.cache/usage-docs/backend/node_modules &&
         node /usr/src/repository/.cache/usage-docs/backend/app/main.js
     labels:
       traefik.enable: "false"

@@ -6,8 +6,8 @@ updates:
     open-pull-requests-limit: 20
     directories:
       - "/.github/actions/determine-pr-checks"
-      - "/apps/api"
-      - "/apps/web"
+      - "/application/api"
+      - "/application/web"
     versioning-strategy: increase
     cooldown:
       default-days: 7
@@ -70,8 +70,8 @@ updates:
     open-pull-requests-limit: 20
     directories:
       - "/"
-      - "/apps/api"
-      - "/apps/web"
+      - "/application/api"
+      - "/application/web"
     cooldown:
       default-days: 7
     schedule:

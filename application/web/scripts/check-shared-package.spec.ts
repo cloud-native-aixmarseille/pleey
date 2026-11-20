@@ -88,7 +88,7 @@ describe("shared domain package checker", () => {
   it("rejects restored shared-contract wrappers", () => {
     // Arrange
     const repositoryRoot = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-restored-contract-"));
-    const wrapperPath = path.join(repositoryRoot, "apps/api/src/domain/game/entities/game.ts");
+    const wrapperPath = path.join(repositoryRoot, "application/api/src/domain/game/entities/game.ts");
     fs.mkdirSync(path.dirname(wrapperPath), { recursive: true });
     fs.writeFileSync(wrapperPath, "export type GameId = string;");
 
@@ -105,7 +105,7 @@ describe("shared domain package checker", () => {
   it("rejects export surface drift", () => {
     // Arrange
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-shared-package-"));
-    const packageRoot = path.join(tempDirectory, "packages/contracts");
+    const packageRoot = path.join(tempDirectory, "application/contracts");
     fs.mkdirSync(packageRoot, { recursive: true });
     fs.writeFileSync(
       path.join(packageRoot, "package.json"),
@@ -130,7 +130,7 @@ describe("shared domain package checker", () => {
     // Arrange
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-shared-files-"));
     const sourcePackageRoot = [
-      path.resolve(import.meta.dirname, "../../../packages/contracts"),
+      path.resolve(import.meta.dirname, "../../../application/contracts"),
         "/usr/src/shared",
     ].find((candidate) => fs.existsSync(candidate));
     if (!sourcePackageRoot) throw new Error("Unable to locate the shared domain package for tests.");
@@ -152,7 +152,7 @@ describe("shared domain package checker", () => {
   it("rejects forbidden framework imports in shared sources", () => {
     // Arrange
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-shared-imports-"));
-    const packageRoot = path.join(tempDirectory, "packages/contracts");
+    const packageRoot = path.join(tempDirectory, "application/contracts");
     fs.mkdirSync(path.join(packageRoot, "src"), { recursive: true });
     fs.writeFileSync(path.join(packageRoot, "src", "policy.ts"), "import { useMemo } from 'react';");
 
@@ -176,17 +176,17 @@ describe("shared domain package checker", () => {
     };
     fs.writeFileSync(fixturePath, JSON.stringify(fixture));
     const backendEventsPath = [
-      path.resolve(import.meta.dirname, '../../../apps/api/src/presentation/game/party/realtime/party-socket-events.ts'),
+      path.resolve(import.meta.dirname, '../../../application/api/src/presentation/game/party/realtime/party-socket-events.ts'),
       '/usr/src/backend/src/presentation/game/party/realtime/party-socket-events.ts',
       '/usr/src/app/src/presentation/game/party/realtime/party-socket-events.ts',
-      '/usr/apps/api/src/presentation/game/party/realtime/party-socket-events.ts',
+      '/usr/application/api/src/presentation/game/party/realtime/party-socket-events.ts',
     ].find((candidate) => fs.existsSync(candidate));
     const frontendEventsPath = path.resolve(
       import.meta.dirname,
       "../src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts",
     );
     const sharedPartyEventsPath = [
-      path.resolve(import.meta.dirname, '../../../packages/contracts/party/index.ts'),
+      path.resolve(import.meta.dirname, '../../../application/contracts/party/index.ts'),
       '/usr/src/shared/party/index.ts',
     ].find((candidate) => {
       return fs.existsSync(candidate);

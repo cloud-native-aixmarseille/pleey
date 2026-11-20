@@ -1,7 +1,7 @@
 ---
 name: "Pleey Frontend Accessibility Rules"
-description: "Use when working on Pleey frontend UI, screens, forms, navigation, or other accessibility-sensitive files under apps/web."
-applyTo: "apps/web/**/*.{ts,tsx,js,jsx,mjs,cjs}"
+description: "Use when working on Pleey frontend UI, screens, forms, navigation, or other accessibility-sensitive files under application/web."
+applyTo: "application/web/**/*.{ts,tsx,js,jsx,mjs,cjs}"
 ---
 
 # Pleey frontend accessibility rules

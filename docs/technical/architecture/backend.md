@@ -1,6 +1,6 @@
 # Backend Reference
 
-`apps/api/` — NestJS 12, GraphQL code-first, Prisma 7, PostgreSQL.
+`application/api/` — NestJS 12, GraphQL code-first, Prisma 7, PostgreSQL.
 
 ## Directory Structure
 
@@ -116,7 +116,7 @@ Root `AppModule` imports all feature modules + `GraphQLModule` (Apollo, code-fir
 
 ## Key Biome Boundaries
 
-Biome enforcement is split between built-in `noRestrictedImports` rules and app-local GritQL plugins under `apps/api/biome/plugins/` for relative-path architecture checks.
+Biome enforcement is split between built-in `noRestrictedImports` rules and app-local GritQL plugins under `application/api/biome/plugins/` for relative-path architecture checks.
 
 | Scope              | Restriction                                                       |
 | ------------------ | ----------------------------------------------------------------- |

@@ -1,6 +1,6 @@
 ---
 name: "Pleey Unit Test Rules"
-description: "Use when working on Pleey unit or integration Vitest files under apps/api or apps/web."
+description: "Use when working on Pleey unit or integration Vitest files under application/api or application/web."
 applyTo: "application/**/*.{spec,test}.{ts,tsx,js,jsx,mts,cts}"
 ---
 

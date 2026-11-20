@@ -52,8 +52,7 @@ jobs:
         with:
           working-directory: ./charts
           skip-if-only-changed: |
-            apps/
-            packages/
+            application/
             docs/
             e2e/
             README.md

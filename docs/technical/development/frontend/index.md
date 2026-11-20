@@ -1,6 +1,6 @@
 # Frontend Development
 
-`apps/web/` - React 19, Vite 7, Inversify, Vitest.
+`application/web/` - React 19, Vite 7, Inversify, Vitest.
 
 This reference documents the current approved frontend state only. Update it in the same change as any frontend behavior, contract, tooling, or UI pattern change. Do not preserve superseded, transitional, or compatibility guidance here.
 
