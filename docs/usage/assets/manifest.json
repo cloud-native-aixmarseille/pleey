@@ -1,5 +1,5 @@
 {
-  "sourceHash": "f1892d8e58e60e1184bf9debf94e370ea6a1477c01817e4bc8c6eb007f05669b",
+  "sourceHash": "4b1667b4d6d6a1f4377faf7a28b7aef1401f98350453c44127cf638b154cc885",
   "screenshots": {
     "host-party-host-controls-en.png": "a9435045f795af129ae160a7eef2cb77df607172ca3c5409cb682c7d3a9870e0",
     "host-party-host-share-en.png": "175f4be23b1937b5c99c1e2a32809a11949104ff2648719b85b480ec08f33e3a",
@@ -10,10 +10,10 @@
     "player-play-player-scoring-en.png": "fce535c75682d49a09089c4d7b81f49571194158446a02de1a941e8f96c487de",
     "prediction-authoring-authoring-tabs-en.png": "4c09c1bdcda88d885e53f80b188cbc6a2dd837a78c2ba459af5235942ec19f52",
     "prediction-authoring-authoring-list-en.png": "8ab946aa194a230542a11f622e27ef4944d30215fbb45168bb8a62f73409db5e",
-    "prediction-authoring-authoring-editor-en.png": "882477ff0658c7673cf25d856a202c3dde1acd4e419e37a4ca638f5608232dc0",
+    "prediction-authoring-authoring-editor-en.png": "479d4941d5b586f4b4202a665bebd11c64b6af7895e6f784343f6478db6edcfb",
     "quiz-authoring-authoring-tabs-en.png": "ae6c19e10a46c86ff560e4c0d644dd68890bd5cc2924fca39f12e91a56d56374",
     "quiz-authoring-authoring-list-en.png": "485635243efcce9d92ff8df619802079706815b695ae341c6ae5897368d4ac53",
-    "quiz-authoring-authoring-editor-en.png": "5ec7562dc8823572a88541135940dee470e80d06e816f1b866227010a709234a",
+    "quiz-authoring-authoring-editor-en.png": "f92c89b90bbc933742dd4b2798d2f5e85963d5b80918b43941dae84e214105bd",
     "theme-studio-theme-toolbar-en.png": "212de30a5b779064d08140eeaa2515078030a79ad5750b3c6e4930ec99882e52",
     "theme-studio-theme-controls-en.png": "0f3fa6d388c2287fe69f3a10ca88d8b1f7049639a4d4ca24be24da57922a09f2",
     "dashboard-home-workspace-en.png": "b214ef69e002723105353ee6658270974b344668f1018db8137a35c7a2683260",
@@ -32,12 +32,12 @@
     "prediction-authoring-authoring-editor-fr.png": "98bb8cd699b2c3f8469b17d8fdf32a50dc3880a1a9d68a89f24cfe1d0fff8cf4",
     "quiz-authoring-authoring-tabs-fr.png": "962b597643d3e67a2f193494ca4cff1a33acd96d2402c3a246f6a11ed0ff1269",
     "quiz-authoring-authoring-list-fr.png": "57b39888c4dac4629f0125a50e5ae7ed5ca1c5384b4e99891fa828d2a5999fec",
-    "quiz-authoring-authoring-editor-fr.png": "b6fe372c5c742675194019b80955401bb9e175708bfd634cc5a42e51ad1caece",
+    "quiz-authoring-authoring-editor-fr.png": "a3ef7454b58f749fd98c93db44812f524d0d7a6a50c60cead3d10ac1ad3a4d96",
     "theme-studio-theme-toolbar-fr.png": "c04a5cb2ee4d511ebe47759e6e3d30ff80523265d0b7eeb96a59275a29eb46f9",
     "theme-studio-theme-controls-fr.png": "81b8f8cf7d92b4bb19443e6ca4b2dac421897dbc8b5f4a709ca6f8a2368fad96",
-    "dashboard-home-workspace-fr.png": "4fc5b42dcb83933de272ca2841032e3f2139b93199c70a6d43f619b56566c84a",
+    "dashboard-home-workspace-fr.png": "0694df7246984b9e5845cfa3faa1e209f05540a19f65b11a24f2b015a85ea733",
     "dashboard-home-create-game-fr.png": "12e7ae580a10b9cbd991f2e86c146ca2fc02f69225043baf927991a8030c59a2",
-    "dashboard-home-create-party-fr.png": "cd0684da5746321282599e7c0a75503b819d29c608aa36beed8e287d1e9a3416",
+    "dashboard-home-create-party-fr.png": "3a2d7e73cd72f8719ec85b87590d7a7a215ac5ec604217ed5b37ab450a6dbf63",
     "dashboard-home-launch-fr.png": "8b85a0ce06e4cae9662cc5d20002f112b873d6d9bfc0573e7be63eba0d8a8017"
   }
 }
