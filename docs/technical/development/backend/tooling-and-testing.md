@@ -25,7 +25,7 @@ repair the schema. Use `make migrate` for strict migration deployment.
 
 Lint pipeline runs targeted custom scripts before and after Biome, including naming, module exports, DI-instantiation, domain-error-context, and invariant-argument checks. Domain-error throw shape is enforced in Biome via a shared GritQL plugin, while the custom checker is kept for alias-based empty-context cases that the plugin cannot resolve. Path-boundary rules are enforced in `biome.json` via app-local GritQL plugins alongside `noRestrictedImports` overrides.
 
-`npm run _lint:resolvers` is part of the pre-Biome lint pipeline. It checks GraphQL operation delegation and prevents resolver dependencies on business services, repository ports, and infrastructure adapters. Identifier parsing and presentation helpers are allowed. Its Vitest fixtures cover both accepted and rejected code, including aliases and reexports.
+`pnpm _lint:resolvers` is part of the pre-Biome lint pipeline. It checks GraphQL operation delegation and prevents resolver dependencies on business services, repository ports, and infrastructure adapters. Identifier parsing and presentation helpers are allowed. Its Vitest fixtures cover both accepted and rejected code, including aliases and reexports.
 
 ## OpenTelemetry
 
@@ -56,4 +56,4 @@ Unit tests are colocated with source (`*.spec.ts`). Integration tests live in `t
 - For backend error assertions, prefer `await expect(...).rejects.toThrow(ERROR_CODE)` so the same logic is not executed twice.
 - Keep Arrange explicit inside each test when practical; avoid hidden setup that makes failures harder to trace.
 
-Run `npm run test:import-templates` from `application/backend` to check `scripts/quiz-import-templates.spec.ts`. This cross-application contract test imports the real frontend template factory and translation resources and validates every supported locale and format through the backend quiz mapper. It requires a full repository checkout with both applications' dependencies installed. Run it when changing import formats or template translations; the regular backend suite covers localized parser behavior independently and runs in the backend-only CI container.
+Run `pnpm test:import-templates` from `apps/api` to check `scripts/quiz-import-templates.spec.ts`. This cross-application contract test imports the real frontend template factory and translation resources and validates every supported locale and format through the backend quiz mapper. It requires a full repository checkout with both applications' dependencies installed. Run it when changing import formats or template translations; the regular backend suite covers localized parser behavior independently and runs in the backend-only CI container.

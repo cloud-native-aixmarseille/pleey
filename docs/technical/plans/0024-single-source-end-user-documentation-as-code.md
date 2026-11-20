@@ -15,9 +15,9 @@ the whole path before the rollout phase extends it. The phases are implemented t
 
 ## Conventions this plan reuses
 
-- i18n: per-module `application/frontend/src/presentation/<area>/i18n/{en,fr}.ts`, merged in `application/frontend/src/i18n/translation-resource-composer.ts`, consumed through `usePresentationTranslation` (`application/frontend/src/presentation/shared/i18n/use-presentation-translation.tsx`). Keys are dotted paths such as `dashboard.home.title`.
+- i18n: per-module `apps/web/src/presentation/<area>/i18n/{en,fr}.ts`, merged in `apps/web/src/i18n/translation-resource-composer.ts`, consumed through `usePresentationTranslation` (`apps/web/src/presentation/shared/i18n/use-presentation-translation.tsx`). Keys are dotted paths such as `dashboard.home.title`.
 - Clean Architecture ([ADR 0002](../architecture/adr/0002-use-clean-architecture-with-strict-boundaries.md)): `domains/` -> `application/` -> `infrastructure/` -> `presentation/`. The tour library is wrapped by an infrastructure adapter behind an application port; presentation never imports the library directly.
-- Guard scripts: shared implementation in root `scripts/*.mjs` with a per-app wrapper in `application/frontend/scripts/*.mjs`, wired into `_lint:pre` or `_lint:post` in `application/frontend/package.json`.
+- Guard scripts: shared implementation in root `scripts/*.mjs` with a per-app wrapper in `apps/web/scripts/*.mjs`, wired into `_lint:pre` or `_lint:post` in `apps/web/package.json`.
 - end-to-end: Playwright in `e2e/`, config `e2e/playwright.config.ts`, specs in `e2e/tests/features/*.spec.ts`, selecting by accessible role and name.
 
 ## P0: Foundations and decisions
@@ -25,15 +25,15 @@ the whole path before the rollout phase extends it. The phases are implemented t
 - [x] Create the `docs/usage/` tree with an `index.md`, and link it from the readme documentation section (add a "Usage" subsection in `README.md`) and from the docs area. Done when `docs/usage/index.md` exists and is reachable from `README.md`.
 - [x] Select the MIT-licensed tour library (shortlist: driver.js, Shepherd.js, React Joyride, Reactour; exclude AGPL Intro.js). Record the choice with React 19 compatibility, gzipped bundle size, and axe-core findings in this file. Done when one library is chosen and justified.
 - [x] Decide the step anchoring mechanism. Production components do not use `data-testid` today and end-to-end selects by accessible role and name, so choose between adding explicit `data-tour` attributes and anchoring by role and name. Record the decision. Done when the convention is written here and in the frontend development guide.
-- [x] Define the guide manifest TypeScript type: a step is `{ i18nKey: string; anchor: string; route: string; docAnchor: string }` and a guide is an ordered list of steps with an ID. Place the type under `application/frontend/src/presentation/shared/guide/guide-manifest.ts`. Done when the type and a short doc comment exist and typecheck.
+- [x] Define the guide manifest TypeScript type: a step is `{ i18nKey: string; anchor: string; route: string; docAnchor: string }` and a guide is an ordered list of steps with an ID. Place the type under `apps/web/src/presentation/shared/guide/guide-manifest.ts`. Done when the type and a short doc comment exist and typecheck.
 
 ## P1: Content model and tour renderer
 
-- [x] Add the tour port and facade: `application/frontend/src/domains/guide/ports/guide-tour.port.ts` and `application/frontend/src/application/guide/facades/guide-tour.facade.ts`, exposing `startTour(guideId)` and tracking completion. Done when the facade compiles and has a unit test for step resolution against i18n keys.
-- [x] Add the infrastructure adapter wrapping the chosen library: `application/frontend/src/infrastructure/ui/guide-tour.adapter.tsx`, following the `mantine-ui.adapter.tsx` pattern. The adapter resolves copy from i18n keys at render time and targets anchors from the manifest. Done when the adapter is registered in DI and presentation holds no direct library import (verified by `check-di-instantiation.mjs` and Biome boundary rules).
-- [x] Author the pilot manifest `application/frontend/src/presentation/workspace/dashboard/guide/dashboard-home.guide.ts` covering the dashboard home flow (workspace selector, create game, create party, launch), referencing existing i18n keys and anchors in `screens/home`. Done when the manifest typechecks and every `i18nKey` exists.
-- [x] Add the pilot tour copy keys to `application/frontend/src/presentation/workspace/dashboard/i18n/{en,fr}.ts` (step titles and bodies only; reuse existing labels where present). Done when `en` and `fr` have identical key sets.
-- [x] Add the chosen anchors to the pilot UI elements in `application/frontend/src/presentation/workspace/dashboard/screens/home/**`. Done when each manifest `anchor` resolves to exactly one rendered element.
+- [x] Add the tour port and facade: `apps/web/src/domains/guide/ports/guide-tour.port.ts` and `apps/web/src/application/guide/facades/guide-tour.facade.ts`, exposing `startTour(guideId)` and tracking completion. Done when the facade compiles and has a unit test for step resolution against i18n keys.
+- [x] Add the infrastructure adapter wrapping the chosen library: `apps/web/src/infrastructure/ui/guide-tour.adapter.tsx`, following the `mantine-ui.adapter.tsx` pattern. The adapter resolves copy from i18n keys at render time and targets anchors from the manifest. Done when the adapter is registered in DI and presentation holds no direct library import (verified by `check-di-instantiation.mjs` and Biome boundary rules).
+- [x] Author the pilot manifest `apps/web/src/presentation/workspace/dashboard/guide/dashboard-home.guide.ts` covering the dashboard home flow (workspace selector, create game, create party, launch), referencing existing i18n keys and anchors in `screens/home`. Done when the manifest typechecks and every `i18nKey` exists.
+- [x] Add the pilot tour copy keys to `apps/web/src/presentation/workspace/dashboard/i18n/{en,fr}.ts` (step titles and bodies only; reuse existing labels where present). Done when `en` and `fr` have identical key sets.
+- [x] Add the chosen anchors to the pilot UI elements in `apps/web/src/presentation/workspace/dashboard/screens/home/**`. Done when each manifest `anchor` resolves to exactly one rendered element.
 - [x] Add a tour launch control on the dashboard home screen and persist completion so it does not auto-replay. Done when a unit test covers launch and completion state.
 
 ## P2: Reference documentation for the pilot
@@ -44,7 +44,7 @@ the whole path before the rollout phase extends it. The phases are implemented t
 
 ## P3: Generated facts from code
 
-- [x] Enumerate the first facts to generate instead of hand-writing: party and game settings ranges and defaults (from the domain settings definitions under `application/backend/src/domain/game/party/**`), resource-scoped permissions ([ADR 0014](../architecture/adr/0014-unify-resource-scoped-permissions.md)), error codes (the domain error enums validated by `check-domain-errors.mjs`), and game types (`application/backend/src/domain/game/types/{quiz,prediction}`). Done when the source of each fact is identified here.
+- [x] Enumerate the first facts to generate instead of hand-writing: party and game settings ranges and defaults (from the domain settings definitions under `apps/api/src/domain/game/party/**`), resource-scoped permissions ([ADR 0014](../architecture/adr/0014-unify-resource-scoped-permissions.md)), error codes (the domain error enums validated by `check-domain-errors.mjs`), and game types (`apps/api/src/domain/game/types/{quiz,prediction}`). Done when the source of each fact is identified here.
 - [x] Add a generator `scripts/generate-usage-reference.mjs` (shared) with a frontend/backend wrapper that emits Markdown fragments into `docs/usage/generated/`. Done when running it produces the settings, permissions, error-code, and game-type fragments.
 - [x] Include the generated fragments in `docs/usage/dashboard.md` (and future pages) by reference rather than copy. Done when the settings table in the pilot page is generated output, not hand-typed values.
 
@@ -56,7 +56,7 @@ the whole path before the rollout phase extends it. The phases are implemented t
 
 ## P5: Sync enforcement in CI
 
-- [x] Add `scripts/check-user-docs.mjs` (shared) plus `application/frontend/scripts/check-user-docs.mjs` wrapper, validating: every Markdown link and heading anchor in `docs/usage/**` resolves; every manifest `docAnchor` matches a heading; every manifest `i18nKey` exists in `en` and `fr`. Wire it into `_lint:pre`. Done when the guard fails on a deliberately broken anchor, key, or link.
+- [x] Add `scripts/check-user-docs.mjs` (shared) plus `apps/web/scripts/check-user-docs.mjs` wrapper, validating: every Markdown link and heading anchor in `docs/usage/**` resolves; every manifest `docAnchor` matches a heading; every manifest `i18nKey` exists in `en` and `fr`. Wire it into `_lint:pre`. Done when the guard fails on a deliberately broken anchor, key, or link.
 - [x] Add a tour-anchor resolution check using Playwright that loads each guide and asserts every `anchor` resolves to one element; run it in the end-to-end job. Done when it fails on a removed anchor.
 - [x] Add a generated-fragment freshness check: regenerate `docs/usage/generated/` in CI and fail on diff, matching the Helm-docs generated-output pattern in `main-ci.yml`. Done when an out-of-date fragment fails CI.
 - [x] Create `.github/CODEOWNERS` with an entry for `docs/usage/`, add a pull request checklist item, and add a docs rule to the instruction files under `.github/instructions/` (and a note in `AGENTS.md`) requiring docs and tour updates alongside user-visible changes. Done when the files exist and CODEOWNERS is active.

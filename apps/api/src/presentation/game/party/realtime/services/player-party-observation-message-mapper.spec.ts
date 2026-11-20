@@ -1,0 +1,125 @@
+import { GameType } from '@pleey/contracts/game';
+import {
+  DEFAULT_PARTY_SETTINGS,
+  PARTY_PLAYER_ACTION_STATE_STATUS,
+  PartyPlayerKind,
+  PartyStatus,
+} from '@pleey/contracts/party';
+import { describe, expect, it } from 'vitest';
+import { PartyRuntimePhase } from '../../../../../domain/game/party/shared/entities/party-runtime-context';
+import { backendTestIdentifiers } from '../../../../../test-utils/branded-identifiers';
+import { ThemeFixtureFactory } from '../../../../../test-utils/fixtures/theme-fixture-factory';
+import { PlayerPartyObservationMessageMapper } from './player-party-observation-message-mapper';
+
+describe('PlayerPartyObservationMessageMapper', () => {
+  it('injects the current-player result outcome into the observer-specific payload', () => {
+    // Arrange
+    const mapper = new PlayerPartyObservationMessageMapper();
+
+    // Act
+    const message = mapper.toMessage(
+      {
+        partyId: backendTestIdentifiers.party(44),
+        pin: backendTestIdentifiers.partyPin('AB12CD'),
+        status: PartyStatus.ACTIVE,
+        settings: DEFAULT_PARTY_SETTINGS,
+        themeDocument: new ThemeFixtureFactory().createDocument({ baseThemeId: 'solar-grid' }),
+        context: {
+          lifecycle: {
+            phase: PartyRuntimePhase.RESULT,
+            stageId: backendTestIdentifiers.partyStage(202),
+            stagePosition: 1,
+            totalStages: 4,
+            stageEndsAtEpochMs: null,
+            stageRemainingDurationMs: null,
+            stageTimeLimitSeconds: null,
+          },
+          result: {
+            current: {
+              actions: [
+                {
+                  actionCount: 1,
+                  actionPercent: 33,
+                  earnedPoints: 0,
+                  id: backendTestIdentifiers.partyAction(5),
+                  isCorrect: false,
+                  text: 'A',
+                },
+                {
+                  actionCount: 2,
+                  actionPercent: 67,
+                  earnedPoints: 1000,
+                  id: backendTestIdentifiers.partyAction(7),
+                  isCorrect: true,
+                  text: 'B',
+                },
+              ],
+              text: 'Question 2',
+            },
+            currentPlayer: null,
+          },
+        },
+        host: {
+          avatarUri: null,
+          username: 'Host',
+        },
+        playerActionStates: [
+          {
+            identity: {
+              kind: PartyPlayerKind.USER,
+              userId: backendTestIdentifiers.user(42),
+            },
+            state: {
+              earnedPoints: 750,
+              selectedActionId: backendTestIdentifiers.partyAction(7),
+              stageId: backendTestIdentifiers.partyStage(202),
+              stagePosition: 1,
+              status: PARTY_PLAYER_ACTION_STATE_STATUS.ACKNOWLEDGED,
+            },
+          },
+        ],
+        players: [
+          {
+            avatarUri: null,
+            correctStages: 0,
+            identity: {
+              kind: PartyPlayerKind.USER,
+              userId: backendTestIdentifiers.user(42),
+            },
+            totalScore: 1200,
+            username: 'Neo',
+          },
+        ],
+      },
+      GameType.Quiz,
+      [
+        {
+          kind: PartyPlayerKind.USER,
+          userId: backendTestIdentifiers.user(42),
+        },
+      ],
+      {
+        kind: PartyPlayerKind.USER,
+        userId: backendTestIdentifiers.user(42),
+      },
+    );
+
+    // Assert
+    expect(message.themeDocument).toEqual(new ThemeFixtureFactory().createDocument({ baseThemeId: 'solar-grid' }));
+    expect(message.context?.result?.currentPlayer).toEqual({
+      earnedPoints: 750,
+      isCorrect: true,
+      selectedActionId: backendTestIdentifiers.partyAction(7),
+    });
+    expect(message.gameType).toBe('quiz');
+    expect(message.players[0]).toMatchObject({
+      identity: {
+        kind: PartyPlayerKind.USER,
+        userId: backendTestIdentifiers.user(42),
+      },
+      isCurrentPlayer: true,
+      isLive: true,
+      totalScore: 1200,
+    });
+  });
+});

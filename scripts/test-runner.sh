@@ -49,10 +49,10 @@ wait_for_http() {
 
 run_backend() {
 	local mode="${1:-}"
-	(cd "$ROOT_DIR/application/backend" && case "$mode" in
-	--watch) npm run test:watch ;;
-	--coverage | --cov) npm run test:cov ;;
-	'') npm test ;;
+	(cd "$ROOT_DIR/apps/api" && case "$mode" in
+	--watch) pnpm test:watch ;;
+	--coverage | --cov) pnpm test:cov ;;
+	'') pnpm test ;;
 	*)
 		echo "Unknown backend option: $mode" >&2
 		exit 1
@@ -62,10 +62,10 @@ run_backend() {
 
 run_frontend() {
 	local mode="${1:-}"
-	(cd "$ROOT_DIR/application/frontend" && case "$mode" in
-	--watch) npm run test:watch ;;
-	--coverage | --cov) npm run test:cov ;;
-	'') npm test ;;
+	(cd "$ROOT_DIR/apps/web" && case "$mode" in
+	--watch) ppnpm test:watch ;;
+	--coverage | --cov) ppnpm test:cov ;;
+	'') pnpm test ;;
 	*)
 		echo "Unknown frontend option: $mode" >&2
 		exit 1
@@ -78,14 +78,8 @@ run_e2e() {
 	ensure_stack
 	wait_for_http "http://backend:3001${BACKEND_HEALTH_PATH}" "backend"
 
-	log "Flushing Valkey session state..."
-	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null exec -T valkey valkey-cli FLUSHALL >/dev/null)
-
-	log "Resetting database + seed data..."
-	# E2E runs must start from the current Prisma schema so seeded fixtures stay
-	# deterministic even when the checked-in migration history lags schema-level
-	# refactors like UUID-backed identifiers.
-	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null exec -T backend sh -lc 'npx prisma db push --force-reset && npm run db:generate && NODE_NO_WARNINGS=1 npm run seed')
+	log "Applying checked-in migrations and seed data..."
+	(cd "$ROOT_DIR" && VITE_API_URL="$VITE_API_URL_E2E" docker compose --env-file /dev/null exec -T backend sh -lc 'pnpm db:migrate && pnpm db:generate && NODE_NO_WARNINGS=1 pnpm db:seed')
 
 	wait_for_http "http://backend:3001${BACKEND_HEALTH_PATH}" "backend"
 
@@ -111,7 +105,7 @@ run_e2e() {
 		-e E2E_ADMIN_PASSWORD="${E2E_ADMIN_PASSWORD:-admin123}" \
 		-e E2E_PLAYER_EMAIL="${E2E_PLAYER_EMAIL:-player@pleey.com}" \
 		-e E2E_PLAYER_PASSWORD="${E2E_PLAYER_PASSWORD:-player123}" \
-		e2e-tests bash -lc "NPM_CONFIG_LOGLEVEL=error NPM_CONFIG_UPDATE_NOTIFIER=false npm ci --no-audit --fund=false && NPM_CONFIG_LOGLEVEL=error NPM_CONFIG_UPDATE_NOTIFIER=false npm run '$script_cmd'")
+		e2e-tests bash -lc "cd /workspace && pnpm install --frozen-lockfile && pnpm --filter @pleey/e2e '$script_cmd'")
 }
 
 run_all() {

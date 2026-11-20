@@ -18,10 +18,10 @@ Read the docs **before** generating code. All architecture, coding standards, an
 
 Scoped instruction files are grouped by concern under `.github/instructions/` and add rules **not covered** by the docs above:
 
-- `.github/instructions/frontend/react.instructions.md` — frontend React and presentation-layer rules for `application/frontend/**`
-- `.github/instructions/frontend/accessibility.instructions.md` — frontend accessibility and WCAG-focused rules for `application/frontend/**`
-- `.github/instructions/frontend/player-mobile-ux.instructions.md` — player-facing mobile UX density and decluttering rules for player surfaces under `application/frontend/src/presentation/**`
-- `.github/instructions/backend/nestjs.instructions.md` — backend NestJS and transport-boundary rules for `application/backend/**`
+- `.github/instructions/frontend/react.instructions.md` — frontend React and presentation-layer rules for `apps/web/**`
+- `.github/instructions/frontend/accessibility.instructions.md` — frontend accessibility and WCAG-focused rules for `apps/web/**`
+- `.github/instructions/frontend/player-mobile-ux.instructions.md` — player-facing mobile UX density and decluttering rules for player surfaces under `apps/web/src/presentation/**`
+- `.github/instructions/backend/nestjs.instructions.md` — backend NestJS and transport-boundary rules for `apps/api/**`
 - `.github/instructions/testing/unit-tests.instructions.md` — Vitest unit and integration test conventions for `application/**/*.spec|test.*`
 
 Review and generation instruction files are configured from `.vscode/settings.json` and are used for Copilot features that still support settings-based custom instructions:
@@ -36,7 +36,7 @@ Review and generation instruction files are configured from `.vscode/settings.js
 - **Every architecture, technology, and design choice starts with an ADR** under `docs/technical/architecture/adr/` — do not start with a free-form proposal
 - **Module exports and runtime services**: follow [the development rules](docs/technical/development/index.md#module-exports-and-runtime-services); run the module export guard for both applications.
 - **Clean Architecture boundaries are enforced by Biome** — `domain/` → `application/` → `infrastructure/` → `presentation/` (see architecture docs)
-- **Backend GraphQL resolvers use use cases** — follow the [resolver boundary rules](docs/technical/development/backend/application-patterns.md#writing-resolvers), enforced by `npm run _lint:resolvers`.
+- **Backend GraphQL resolvers use use cases** — follow the [resolver boundary rules](docs/technical/development/backend/application-patterns.md#writing-resolvers), enforced by `pnpm _lint:resolvers`.
 - **All user-facing text uses i18n** — never hardcode strings
 - **Translation punctuation** — follow the [i18n authoring rules](docs/technical/development/index.md#i18n) when adding or editing any locale
 - **Error codes are domain enums** mapped to translations (see development docs)

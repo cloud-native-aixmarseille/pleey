@@ -1,6 +1,6 @@
 # Frontend Development
 
-`application/frontend/` - React 19, Vite 7, Inversify, Vitest.
+`apps/web/` - React 19, Vite 7, Inversify, Vitest.
 
 This reference documents the current approved frontend state only. Update it in the same change as any frontend behavior, contract, tooling, or UI pattern change. Do not preserve superseded, transitional, or compatibility guidance here.
 
@@ -13,7 +13,7 @@ This reference documents the current approved frontend state only. Update it in 
 ## Shared domain package
 
 Follow the canonical [shared domain package workflow](../index.md#shared-domain-package)
-for `@pleey/domain` extraction and validation. Import shared contracts directly
+for `@pleey/contracts` extraction and validation. Import shared contracts directly
 from their feature entry point and map generated GraphQL or Socket.IO values at
 the infrastructure boundary. Shared frontend types describe public data; they
 must not bypass authenticated access, signed media renewal or server-produced

@@ -11,13 +11,13 @@ describe("shared package Docker wiring", () => {
     const dockerfile = read(`application/${application}/Dockerfile`);
 
     // Act + Assert
-    expect(dockerfile).toContain("COPY ./application/shared /usr/src/shared");
+    expect(dockerfile).toContain("COPY ./packages/contracts /usr/src/shared");
     expect(dockerfile).toContain("COPY --chown=node:node --from=build /usr/src/shared /usr/src/shared");
   });
 
   it("keeps the shared package in the backend production image", () => {
     // Arrange
-    const dockerfile = read("application/backend/Dockerfile");
+    const dockerfile = read("apps/api/Dockerfile");
 
     // Act + Assert
     expect(dockerfile).toContain(
@@ -27,11 +27,11 @@ describe("shared package Docker wiring", () => {
 
   it("makes shared sources available to CI documentation checks", () => {
     // Arrange
-    const dockerfile = read("application/frontend/Dockerfile");
+    const dockerfile = read("apps/web/Dockerfile");
 
     // Act + Assert
     expect(dockerfile).toContain(
-      "COPY --chown=node:node ./application/shared /usr/src/repository/application/shared",
+      "COPY --chown=node:node ./packages/contracts /usr/src/repository/packages/contracts",
     );
   });
 
@@ -42,18 +42,18 @@ describe("shared package Docker wiring", () => {
 
     // Act + Assert
     expect(dockerignore).not.toMatch(/^application\/?$/mu);
-    expect(dockerignore).not.toContain("application/shared");
-    expect(compose).toContain("- ./application/shared:/usr/src/shared:ro");
+    expect(dockerignore).not.toContain("packages/contracts");
+    expect(compose).toContain("- ./packages/contracts:/usr/src/shared:ro");
   });
 
   it.each(["backend", "frontend"])("keeps the %s file dependency lock aligned with the package", (application) => {
     // Arrange
     const packageJson = JSON.parse(read(`application/${application}/package.json`));
-    const packageLock = JSON.parse(read(`application/${application}/package-lock.json`));
+    const packageLock = JSON.parse(read(`application/${application}/pnpm-lock.yaml`));
 
     // Act + Assert
-    expect(packageJson.dependencies["@pleey/domain"]).toBe("file:../shared");
-    expect(packageLock.packages["node_modules/@pleey/domain"].resolved).toBe("../shared");
-    expect(packageLock.packages["../shared"].name).toBe("@pleey/domain");
+    expect(packageJson.dependencies["@pleey/contracts"]).toBe("file:../shared");
+    expect(packageLock.packages["node_modules/@pleey/contracts"].resolved).toBe("../shared");
+    expect(packageLock.packages["../shared"].name).toBe("@pleey/contracts");
   });
 });

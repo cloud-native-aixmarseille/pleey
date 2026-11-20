@@ -1,0 +1,53 @@
+{
+  "phase": "01",
+  "sourceCommit": "c56c6fb888296064650f49b59e1b3b987c3423f7",
+  "previousRelease": "89eba30755f53aced04b596bc1531854a15bc1d5",
+  "candidateRelease": "artifacts/phase-01/release.json",
+  "environment": "shared Linux Docker host, Node 24.22.3 local runner, Node 26.13.1-based production image build",
+  "commands": [
+    "pnpm install --frozen-lockfile",
+    "pnpm --filter @pleey/contracts build",
+    "pnpm --filter @pleey/api build",
+    "pnpm --filter @pleey/web build",
+    "pnpm --filter @pleey/api test",
+    "pnpm --filter @pleey/web test",
+    "pnpm test:integration --phase 01",
+    "pnpm deploy:render --profile helm",
+    "pnpm deploy:render --profile compose",
+    "pnpm test:release --phase 01 --profile compose --output artifacts/phase-01/release.json"
+  ],
+  "acceptanceCases": [
+    {"caseId":"DEL-001","status":"not_executed","expected":"clean checkout install/verify leaves git diff clean","observed":"Frozen install and builds passed; full verify/diff gate was not executed","evidence":["pnpm install --frozen-lockfile"],"limitations":["Shared-runner Node mismatch: validation used Node 24.22.3 and Docker Node 26 image"]},
+    {"caseId":"DEL-002","status":"not_executed","expected":"production API/web images start from built artifacts","observed":"Both production image targets built successfully","evidence":["artifacts/phase-01/release.json"],"limitations":["Runtime boot smoke not executed"]},
+    {"caseId":"DEL-003","status":"not_executed","expected":"browser artifact contains no server secrets or server-only modules","observed":"No committed-log or bundle inspection automation executed","evidence":[],"limitations":["Bundle secret scan not available"]},
+    {"caseId":"DEL-004","status":"passed","expected":"product inventory covers journeys and ADR 0017 scoring","observed":"Machine-readable inventory and documentation record supported journeys and scoring","evidence":["e2e/contracts/product-behavior.json","docs/technical/testing/product-behavior-inventory.md"],"limitations":[]},
+    {"caseId":"DEL-005","status":"passed","expected":"empty database applies all checked-in migrations and becomes ready","observed":"All 6 migrations applied successfully in a fresh run-owned PostgreSQL 16 database","evidence":["pnpm test:integration --phase 01"],"limitations":[]},
+    {"caseId":"DEL-006","status":"not_executed","expected":"representative prior schema fixtures upgrade without loss","observed":"No previous-release approved fixture was available","evidence":[],"limitations":["Approved prior release fixture not supplied"]},
+    {"caseId":"DEL-007","status":"not_executed","expected":"broken migration stops deployment","observed":"Harness uses migrate deploy but injected broken-migration fixture was not run","evidence":["compose.integration.yaml"],"limitations":["No injected broken migration case executed"]},
+    {"caseId":"DEL-008","status":"passed","expected":"non-owned database/Valkey resources refuse destructive operations","observed":"Integration cleanup only targets the run-owned project name and volumes","evidence":["scripts/verification/test-integration.mjs"],"limitations":[]},
+    {"caseId":"DEL-009","status":"not_executed","expected":"Chromium, Firefox and WebKit journeys pass through HTTPS proxy","observed":"No Playwright/HTTPS proxy gate executed","evidence":[],"limitations":["Production proxy credentials and browser runtime unavailable"]},
+    {"caseId":"DEL-010","status":"not_executed","expected":"Compose starts complete product dependencies","observed":"Production Compose model rendered; runtime stack was not started","evidence":["compose.production.yaml","pnpm deploy:render --profile compose"],"limitations":["Deployment credentials and Caddy digest unavailable"]},
+    {"caseId":"DEL-011","status":"passed","expected":"Helm renders the same candidate image roles","observed":"Helm template rendering passed with explicit synthetic media/auth configuration","evidence":["pnpm deploy:render --profile helm"],"limitations":[]},
+    {"caseId":"DEL-012","status":"not_executed","expected":"database/media backup restore retains relationships and assets","observed":"Restore runbook and entrypoint exist; isolated restore rehearsal was not executed","evidence":["docs/technical/runbooks/backup-and-restore.md","scripts/operations/restore-rehearsal.mjs"],"limitations":["No database/media fixtures supplied"]},
+    {"caseId":"DEL-013","status":"not_executed","expected":"missing secrets fail startup with sanitized diagnostics","observed":"Compose required-variable syntax exists; startup failure was not exercised","evidence":["compose.production.yaml"],"limitations":["Missing-secret runtime smoke unavailable"]},
+    {"caseId":"DEL-014","status":"not_executed","expected":"CI rejects missing reports/stale metadata","observed":"CI updated to pnpm but full CI execution was unavailable","evidence":[".github/workflows/__shared-ci.yml"],"limitations":["GitHub Actions credentials unavailable"]},
+    {"caseId":"DEL-015","status":"not_executed","expected":"optional telemetry/LLM secrets are not required","observed":"Release script builds locally without an LLM or telemetry credential","evidence":["scripts/verification/test-release.mjs"],"limitations":["CI publication not executed"]},
+    {"caseId":"DEL-016","status":"not_executed","expected":"prior images roll back against unchanged business schema","observed":"Rollback runbook exists; prior image smoke was not run","evidence":["docs/technical/runbooks/production-delivery.md"],"limitations":["Approved prior image manifest unavailable"]},
+    {"caseId":"DEL-017","status":"not_executed","expected":"browser mismatches update-required and unavailable endpoint shows retry","observed":"Release boundary code and API endpoint exist; browser runtime assertion was not executed","evidence":["apps/api/src/presentation/health/http/health-controller.ts","apps/web/src/app/bootstrap/release-compatibility-boundary.tsx"],"limitations":["HTTPS browser environment unavailable"]}
+  ],
+  "migration": {
+    "changed": false,
+    "migrationsRetained": 6,
+    "strategy": "prisma migrate deploy",
+    "dryRun": "not_executed",
+    "rollbackRehearsal": "not_executed"
+  },
+  "rollbackRehearsal": "not_executed",
+  "deviceChecks": [],
+  "blockingFailures": [
+    "Real browser HTTPS smoke not executed",
+    "Approved previous-release upgrade fixture not supplied",
+    "DB/media restore rehearsal not executed",
+    "Physical release credentials and live deployment unavailable"
+  ]
+}

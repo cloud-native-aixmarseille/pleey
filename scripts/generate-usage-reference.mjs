@@ -23,7 +23,7 @@ const table = (headers, rows) => {
 const sourceFile = (file) => ts.createSourceFile(file, fs.readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true);
 
 function gameSettings(root) {
-  const modelPath = "application/shared/game/index.ts";
+  const modelPath = "packages/contracts/game/index.ts";
   const sharedGame = sourceFile(path.join(root, modelPath));
   const defaultsDeclaration = sharedGame.statements
     .flatMap((statement) => (ts.isVariableStatement(statement) ? [...statement.declarationList.declarations] : []))
@@ -42,7 +42,7 @@ function gameSettings(root) {
   );
   const rows = [];
   for (const kind of ["quiz", "prediction"]) {
-    const inputPath = `application/backend/src/presentation/game/types/${kind}/graphql/types/${kind}-inputs.ts`;
+    const inputPath = `apps/api/src/presentation/game/types/${kind}/graphql/types/${kind}-inputs.ts`;
     const source = sourceFile(path.join(root, inputPath));
     const input = source.statements.find(
       (node) =>
@@ -89,15 +89,15 @@ function permissionsFor(declaration, source) {
 export function generateUsageReference(root = repositoryRoot, check = false) {
   const { guides, resources } = readUsageModel(root);
   const output = new Map();
-  const domainPath = "application/backend/src/domain";
+  const domainPath = "apps/api/src/domain";
   const domain = path.join(root, domainPath);
-  const partyPath = "application/shared/party/index.ts";
+  const partyPath = "packages/contracts/party/index.ts";
   const party = loadDataModule(path.join(root, partyPath));
-  const gameTypePath = "application/shared/game/index.ts";
+  const gameTypePath = "packages/contracts/game/index.ts";
   const gameTypes = Object.entries(loadDataModule(path.join(root, gameTypePath)).GameType);
-  const sharedErrorsPath = "application/shared/errors/index.ts";
+  const sharedErrorsPath = "packages/contracts/errors/index.ts";
   const sharedErrors = loadDataModule(path.join(root, sharedErrorsPath));
-  const sharedPartyPath = "application/shared/party/index.ts";
+  const sharedPartyPath = "packages/contracts/party/index.ts";
   const sharedParty = loadDataModule(path.join(root, sharedPartyPath));
   const editor = gameSettings(root);
   const enums = [];
@@ -207,7 +207,7 @@ export function updateGeneratedUsage(usageRoot, output, check) {
     const destination = path.join(usageRoot, file);
     if (check) {
       if (!fs.existsSync(destination) || fs.readFileSync(destination, "utf8") !== contents)
-        throw new Error(`Stale generated documentation: ${file}. Run npm run docs:generate in application/frontend.`);
+        throw new Error(`Stale generated documentation: ${file}. Run pnpm docs:generate in apps/web.`);
     } else {
       fs.mkdirSync(path.dirname(destination), { recursive: true });
       fs.writeFileSync(destination, contents);

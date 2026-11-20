@@ -89,12 +89,12 @@ Done when:
 
 Primary touchpoints:
 
-- [application/backend/package.json](../../../application/backend/package.json)
-- [application/frontend/package.json](../../../application/frontend/package.json)
-- [application/backend/tsconfig.json](../../../application/backend/tsconfig.json)
-- [application/frontend/tsconfig.json](../../../application/frontend/tsconfig.json)
-- [application/backend/Dockerfile](../../../application/backend/Dockerfile)
-- [application/frontend/Dockerfile](../../../application/frontend/Dockerfile)
+- [apps/api/package.json](../../../apps/api/package.json)
+- [apps/web/package.json](../../../apps/web/package.json)
+- [apps/api/tsconfig.json](../../../apps/api/tsconfig.json)
+- [apps/web/tsconfig.json](../../../apps/web/tsconfig.json)
+- [apps/api/Dockerfile](../../../apps/api/Dockerfile)
+- [apps/web/Dockerfile](../../../apps/web/Dockerfile)
 - [.github/workflows/](../../../.github/workflows)
 
 Done when:
@@ -293,7 +293,7 @@ after P1-P9 and found additional high-confidence candidates:
 - identifier parser behavior and parser error vocabulary;
 - theme error vocabulary, asset identity/shape and permission vocabulary.
 
-These candidates are consumed through `@pleey/domain` and their superseded local
+These candidates are consumed through `@pleey/contracts` and their superseded local
 declarations are guarded against restoration.
 
 The remaining exact duplicates are deliberately local adapters or tests:
@@ -338,8 +338,8 @@ Run the smallest relevant checks per slice, then required repository checks.
 
 Per application:
 
-- [x] Backend lint/test: `npm run lint` and `npm run test` in [application/backend/](../../../application/backend)
-- [x] Frontend lint/test: `npm run lint` and `npm run test` in [application/frontend/](../../../application/frontend)
+- [x] Backend lint/test: `npm run lint` and `npm run test` in [apps/api/](../../../apps/api)
+- [x] Frontend lint/test: `npm run lint` and `npm run test` in [apps/web/](../../../apps/web)
 
 Cross-application:
 

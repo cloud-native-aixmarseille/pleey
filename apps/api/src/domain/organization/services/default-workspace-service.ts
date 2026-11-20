@@ -1,0 +1,52 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { OrganizationRole } from '@pleey/contracts/organization';
+import { DEFAULT_PARTY_SETTINGS } from '@pleey/contracts/party';
+import type { UserId } from '../../identity/entities/user';
+import type { ProjectRepository } from '../../project/ports/project.repository';
+import { ProjectRepositoryProvider } from '../../project/ports/project.repository';
+import type { OrganizationRepository } from '../ports/organization.repository';
+import { OrganizationRepositoryProvider } from '../ports/organization.repository';
+import type { OrganizationMemberRepository } from '../ports/organization-member.repository';
+import { OrganizationMemberRepositoryProvider } from '../ports/organization-member.repository';
+
+const DEFAULT_ORGANIZATION_NAME = 'Default';
+const DEFAULT_PROJECT_NAME = 'Default';
+
+@Injectable()
+export class DefaultWorkspaceService {
+  constructor(
+    @Inject(OrganizationRepositoryProvider)
+    private readonly organizationRepository: OrganizationRepository,
+    @Inject(OrganizationMemberRepositoryProvider)
+    private readonly memberRepository: OrganizationMemberRepository,
+    @Inject(ProjectRepositoryProvider)
+    private readonly projectRepository: ProjectRepository,
+  ) {}
+
+  async ensure(userId: UserId): Promise<void> {
+    const membership = await this.memberRepository.findLatestByUser(userId);
+
+    if (!membership) {
+      const organization = await this.organizationRepository.create(DEFAULT_ORGANIZATION_NAME, null, {
+        defaultPartySettings: DEFAULT_PARTY_SETTINGS,
+      });
+
+      await this.memberRepository.create(organization.id, userId, OrganizationRole.OWNER);
+
+      await this.projectRepository.create(organization.id, DEFAULT_PROJECT_NAME, null, {
+        defaultPartySettings: DEFAULT_PARTY_SETTINGS,
+      });
+
+      return;
+    }
+
+    const primaryOrganizationId = membership.organizationId;
+    const projectCount = await this.projectRepository.countByOrganization(primaryOrganizationId);
+
+    if (projectCount === 0) {
+      await this.projectRepository.create(primaryOrganizationId, DEFAULT_PROJECT_NAME, null, {
+        defaultPartySettings: DEFAULT_PARTY_SETTINGS,
+      });
+    }
+  }
+}

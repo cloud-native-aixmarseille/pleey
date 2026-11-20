@@ -1,0 +1,85 @@
+import { PartyRole } from '@pleey/contracts/party';
+import { describe, expect, it } from 'vitest';
+import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
+import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stage-identifier-mock-factory';
+import { PartyPinIdentifier } from './identifiers/party-pin-identifier';
+import { PartyRouteService } from './party-route.service';
+
+const partyIdentifier = new PartyIdentifierMockFactory().create();
+const partyPinIdentifier = new PartyPinIdentifier();
+const stageIdentifier = new StageIdentifierMockFactory().create();
+
+describe('PartyRouteService', () => {
+  const service = new PartyRouteService(partyIdentifier, partyPinIdentifier, stageIdentifier);
+
+  it('builds the host lobby route under /party/:partyId/lobby', () => {
+    // Arrange + Act + Assert
+    expect(
+      service.resolvePartyRoute({
+        partyId: partyIdentifier.parse(44),
+        role: PartyRole.HOST,
+        pin: partyPinIdentifier.parse('AB12CD'),
+      }),
+    ).toBe(`/party/${partyIdentifier.parse(44)}/lobby`);
+  });
+
+  it('builds the join route under /join/:pin for players', () => {
+    // Arrange + Act + Assert
+    expect(
+      service.resolvePartyRoute({
+        partyId: partyIdentifier.parse(44),
+        role: PartyRole.PLAYER,
+        pin: partyPinIdentifier.parse(' ab12cd '),
+      }),
+    ).toBe('/join/AB12CD');
+  });
+
+  it('exposes the frontend host lobby and join route patterns for route factories', () => {
+    // Arrange + Act + Assert
+    expect(service.resolvePartyJourneyRoutePattern()).toBe('party/:partyId/*');
+    expect(service.resolvePartyLobbyRoutePattern()).toBe('party/:partyId/lobby');
+    expect(service.resolvePartyLeaderboardRoutePattern()).toBe('party/:partyId/final');
+    expect(service.resolvePartyStageRoutePattern()).toBe('party/:partyId/stage/:stageId');
+    expect(service.resolvePartyResultRoutePattern()).toBe('party/:partyId/stage/:stageId/result');
+    expect(service.resolveJoinPartyRoutePattern()).toBe('join/:pin');
+  });
+
+  it('builds dedicated host runtime routes for leaderboard, stage, and result screens', () => {
+    // Arrange + Act + Assert
+    expect(service.resolvePartyLeaderboardRoute(partyIdentifier.parse(44))).toBe(
+      `/party/${partyIdentifier.parse(44)}/final`,
+    );
+    expect(service.resolvePartyStageRoute(partyIdentifier.parse(44), stageIdentifier.parse(2))).toBe(
+      `/party/${partyIdentifier.parse(44)}/stage/${stageIdentifier.parse(2)}`,
+    );
+    expect(service.resolvePartyResultRoute(partyIdentifier.parse(44), stageIdentifier.parse(2))).toBe(
+      `/party/${partyIdentifier.parse(44)}/stage/${stageIdentifier.parse(2)}/result`,
+    );
+  });
+
+  it('builds an absolute canonical join url for sharing', () => {
+    // Arrange + Act + Assert
+    expect(service.resolveJoinPartyAbsoluteUrl(partyPinIdentifier.parse(' ab12cd '), 'https://pleey.app/app/')).toBe(
+      'https://pleey.app/join/AB12CD',
+    );
+  });
+
+  it('normalizes blank pins to null', () => {
+    // Arrange + Act + Assert
+    expect(service.normalizePin('   ')).toBeNull();
+  });
+
+  it('normalizes blank or invalid party ids to null', () => {
+    // Arrange + Act + Assert
+    expect(service.normalizePartyId('   ')).toBeNull();
+    expect(service.normalizePartyId('0')).toBeNull();
+    expect(service.normalizePartyId(' 44 ')).toBe(partyIdentifier.parse(44));
+  });
+
+  it('normalizes blank or invalid stage ids to null', () => {
+    // Arrange + Act + Assert
+    expect(service.normalizePartyStageId('   ')).toBeNull();
+    expect(service.normalizePartyStageId('0')).toBeNull();
+    expect(service.normalizePartyStageId(' 4 ')).toBe(stageIdentifier.parse(4));
+  });
+});

@@ -1,7 +1,7 @@
 ---
 name: "Pleey Frontend React Rules"
-description: "Use when working on Pleey frontend React, Vite, routing, GraphQL UI, or Vitest files under application/frontend."
-applyTo: "application/frontend/**/*.{ts,tsx,js,jsx,mjs,cjs}"
+description: "Use when working on Pleey frontend React, Vite, routing, GraphQL UI, or Vitest files under apps/web."
+applyTo: "apps/web/**/*.{ts,tsx,js,jsx,mjs,cjs}"
 ---
 
 # Pleey frontend React rules

@@ -6,7 +6,7 @@ See `package.json` scripts and `make help` for available commands.
 
 ## GraphQL Codegen
 
-Schema source: `../backend/src/schema.gql`. Operations: `.graphql` files in `src/infrastructure/**/graphql/operations/`. Output: `src/infrastructure/graphql/generated/graphql.ts`. Run via `npm run graphql:codegen` or `make graphql-types`.
+Schema source: `apps/api/src/schema.gql`. Operations: `.graphql` files in `src/infrastructure/**/graphql/operations/`. Output: `src/infrastructure/graphql/generated/graphql.ts`. Run via `pnpm graphql:codegen` or `make graphql-types`.
 
 ## Lint Pipeline
 
@@ -18,11 +18,11 @@ Unit tests are colocated (`*.spec.ts` / `*.spec.tsx`). Screen tests require the 
 
 The Vitest setup wraps the real `MantineProvider` with `env="test"`, following [Mantine's Vitest guidance](https://mantine.dev/guides/vitest/). This applies to both shared render helpers and app-container providers, keeping dropdowns interactive without browser layout measurements and disabling Mantine transitions in jsdom.
 
-The [Vitest configuration](../../../../application/frontend/vitest.config.js) uses
+The [Vitest configuration](../../../../apps/web/vitest.config.js) uses
 jsdom with the shared browser setup and `maxWorkers: '100%'`, sizing the worker
 limit from Node's detected available CPU parallelism. On shared or
 memory-constrained machines, lower the limit with
-`npm run test:ci -- --maxWorkers=50%` or an explicit count. `npm run test:ci`
+`pnpm test:ci -- --maxWorkers=50%` or an explicit count. `pnpm test:ci`
 emits JUnit and LCOV reports, including coverage after test failures. Its JUnit
 output uses a reporter-specific path so additional reporters can coexist.
 When changing worker limits or test environments,

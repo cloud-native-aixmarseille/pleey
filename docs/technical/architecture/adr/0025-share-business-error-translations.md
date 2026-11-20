@@ -11,7 +11,7 @@ machine-readable business codes. That boundary remains useful for screen copy,
 accessibility labels, transport diagnostics and application-specific wording.
 
 Backend and frontend now consume the same quiz and prediction error codes from
-`@pleey/domain/errors`. The backend still owns both the code-to-key mapping and
+`@pleey/contracts/errors`. The backend still owns both the code-to-key mapping and
 the English/French message text for these public business failures. Without a
 shared source, a new shared error code can exist while one runtime lacks or
 misnames its translation. Keeping two generated descriptions would also repeat
@@ -42,7 +42,7 @@ framework-specific resource composition to the shared package.
 
 ### Option 3: Share only public business error translations
 
-Share locale text and keys for errors already published by `@pleey/domain/errors`.
+Share locale text and keys for errors already published by `@pleey/contracts/errors`.
 Keep all screen copy, local errors, email bodies and framework composition in
 their applications. Generate the backend JSON namespaces from the shared source
 and merge the same resources into the frontend catalog.
@@ -51,13 +51,13 @@ and merge the same resources into the frontend catalog.
 
 Choose option 3.
 
-`@pleey/domain/i18n` owns the English and French messages and translation keys for
+`@pleey/contracts/i18n` owns the English and French messages and translation keys for
 shared public business errors. The backend generates its selected `src/i18n`
 namespaces from this source; the frontend imports and merges the source resources.
 No display text unrelated to an exported shared error code may enter the package.
 
 The initial scope is quiz and prediction errors exported by
-`@pleey/domain/errors`. Other shared domains can add resources only after their
+`@pleey/contracts/errors`. Other shared domains can add resources only after their
 machine-readable public error code is shared and has a documented consumer in
 each application.
 
