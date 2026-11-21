@@ -95,7 +95,7 @@ jobs:
       working-directory: .
       build: ""
       lint: ""
-      test: '{"command":"pnpm --dir .github/actions/determine-pr-checks test:ci","report-file":".github/actions/determine-pr-checks/junit.xml,.github/actions/determine-pr-checks/coverage/lcov.info","comment":false}'
+      test: '{"command":"pnpm --filter @pleey/determine-pr-checks test:ci","report-file":".github/actions/determine-pr-checks/junit.xml,.github/actions/determine-pr-checks/coverage/lcov.info","comment":false}'
       code-ql: javascript
       dependency-review: true
 
