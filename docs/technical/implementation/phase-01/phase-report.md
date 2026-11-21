@@ -26,18 +26,18 @@ See [version matrix](../../development/version-matrix.md). Candidate release ima
 
 ## Executed verification
 
-| Command | Result |
-| --- | --- |
-| `pnpm install --frozen-lockfile` | Passed |
-| API production build | Passed |
-| Web production build | Passed |
-| Shared contracts build | Passed |
-| API unit suite | Passed: 1218 passed, 72 skipped |
-| Web unit suite | Passed: 1218 passed |
-| `pnpm test:integration --phase 01` | Passed migration of 6 checked-in migrations and API unit suite in a run-owned PostgreSQL/Valkey project |
-| `pnpm deploy:render --profile helm` | Passed with explicit synthetic required values |
-| `pnpm deploy:render --profile compose` | Passed manifest validation |
-| `pnpm test:release --phase 01 --profile compose --output artifacts/phase-01/release.json` | Passed API and web production image builds; manifest emitted |
+| Command                                                                                   | Result                                                                                                  |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `pnpm install --frozen-lockfile`                                                          | Passed                                                                                                  |
+| API production build                                                                      | Passed                                                                                                  |
+| Web production build                                                                      | Passed                                                                                                  |
+| Shared contracts build                                                                    | Passed                                                                                                  |
+| API unit suite                                                                            | Passed: 1218 passed, 72 skipped                                                                         |
+| Web unit suite                                                                            | Passed: 1218 passed                                                                                     |
+| `pnpm test:integration --phase 01`                                                        | Passed migration of 6 checked-in migrations and API unit suite in a run-owned PostgreSQL/Valkey project |
+| `pnpm deploy:render --profile helm`                                                       | Passed with explicit synthetic required values                                                          |
+| `pnpm deploy:render --profile compose`                                                    | Passed manifest validation                                                                              |
+| `pnpm test:release --phase 01 --profile compose --output artifacts/phase-01/release.json` | Passed API and web production image builds; manifest emitted                                            |
 
 ## Not executed
 

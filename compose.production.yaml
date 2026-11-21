@@ -92,7 +92,14 @@ services:
       NODE_ENV: production
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
       SHADOW_DATABASE_URL: ${SHADOW_DATABASE_URL:-}
-    command: ["./node_modules/.bin/prisma", "migrate", "deploy", "--config", "prisma.config.ts"]
+    command:
+      [
+        "./node_modules/.bin/prisma",
+        "migrate",
+        "deploy",
+        "--config",
+        "prisma.config.ts",
+      ]
     depends_on:
       postgres:
         condition: service_healthy
@@ -111,7 +118,11 @@ services:
     networks:
       - pleey
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pleey} -d ${POSTGRES_DB:-pleey}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-pleey} -d ${POSTGRES_DB:-pleey}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
