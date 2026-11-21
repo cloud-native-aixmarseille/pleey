@@ -31,7 +31,7 @@ const operationsRoot = path.join(frontendRoot, 'src', 'infrastructure');
 const schemaPathCandidates = [
   process.env.CODEGEN_SCHEMA,
   '../backend/src/schema.gql',
-  '../../application/api/src/schema.gql',
+  '../../application/backend/src/schema.gql',
   '/usr/src/backend/src/schema.gql',
 ]
   .filter((candidate) => typeof candidate === 'string' && candidate.length > 0)

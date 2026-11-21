@@ -1,6 +1,6 @@
 # Backend Development
 
-`application/api/` - NestJS 12, TypeScript, Vitest.
+`application/backend/` - NestJS 12, TypeScript, Vitest.
 
 This reference documents the current approved backend state only. Update it in the same change as any backend behavior, contract, tooling, or deployment change. Do not preserve superseded, transitional, or compatibility guidance here.
 

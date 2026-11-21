@@ -45,10 +45,10 @@ describe('screenshot freshness guard', () => {
     const { usageScreenshotSourceHash, checkUsageScreenshots } = await import(pathToFileURL(checker).href);
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'pleey-screenshots-'));
     const inputs = [
-      'application/web/src/presentation/example/guide/example.guide.ts',
-      'application/web/src/i18n/translation-resource-composer.ts',
-      'application/web/pnpm-lock.yaml', 'e2e/pnpm-lock.yaml',
-      'e2e/tests/usage/guides.spec.ts', 'e2e/usage.config.ts', 'e2e/playwright.config.ts', 'application/api/prisma/seed.ts',
+      'application/frontend/src/presentation/example/guide/example.guide.ts',
+      'application/frontend/src/i18n/translation-resource-composer.ts',
+      'application/frontend/pnpm-lock.yaml', 'e2e/pnpm-lock.yaml',
+      'e2e/tests/usage/guides.spec.ts', 'e2e/usage.config.ts', 'e2e/playwright.config.ts', 'application/backend/prisma/seed.ts',
     ];
     for (const file of inputs) { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), ''); }
     fs.writeFileSync(path.join(root, inputs[0]!), `export const guide = ${JSON.stringify(guide)};`);
