@@ -21,7 +21,7 @@ const { PredictionErrorCode, QuizErrorCode } = await import(
 const write = process.argv.includes("--write");
 
 const backendRootCandidates = [
-  path.join(workspaceRoot, "application/api"),
+  path.join(workspaceRoot, "application/backend"),
   "/usr/src/app",
 ];
 const backendRoot = backendRootCandidates.find((candidate) => fs.existsSync(path.join(candidate, "src/i18n")));

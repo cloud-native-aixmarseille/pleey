@@ -89,12 +89,12 @@ Done when:
 
 Primary touchpoints:
 
-- [application/api/package.json](../../../application/api/package.json)
-- [application/web/package.json](../../../application/web/package.json)
-- [application/api/tsconfig.json](../../../application/api/tsconfig.json)
-- [application/web/tsconfig.json](../../../application/web/tsconfig.json)
-- [application/api/Dockerfile](../../../application/api/Dockerfile)
-- [application/web/Dockerfile](../../../application/web/Dockerfile)
+- [application/backend/package.json](../../../application/backend/package.json)
+- [application/frontend/package.json](../../../application/frontend/package.json)
+- [application/backend/tsconfig.json](../../../application/backend/tsconfig.json)
+- [application/frontend/tsconfig.json](../../../application/frontend/tsconfig.json)
+- [application/backend/Dockerfile](../../../application/backend/Dockerfile)
+- [application/frontend/Dockerfile](../../../application/frontend/Dockerfile)
 - [.github/workflows/](../../../.github/workflows)
 
 Done when:
@@ -338,8 +338,8 @@ Run the smallest relevant checks per slice, then required repository checks.
 
 Per application:
 
-- [x] Backend lint/test: `npm run lint` and `npm run test` in [application/api/](../../../application/api)
-- [x] Frontend lint/test: `npm run lint` and `npm run test` in [application/web/](../../../application/web)
+- [x] Backend lint/test: `npm run lint` and `npm run test` in [application/backend/](../../../application/backend)
+- [x] Frontend lint/test: `npm run lint` and `npm run test` in [application/frontend/](../../../application/frontend)
 
 Cross-application:
 

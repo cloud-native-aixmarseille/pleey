@@ -9,7 +9,7 @@
 
 [Issue 393](https://github.com/cloud-native-aixmarseille/pleey/issues/393) requests proper end user documentation, with a reference under `docs/` and an in-app product tour (the issue cites [driver.js](https://driverjs.com/) as an example tool).
 
-Today `docs/` holds only contributor material under `docs/technical/`; there is no user-facing documentation area. All user-visible copy already lives in colocateed i18n resources (`application/web/src/presentation/**/i18n/` and `application/api/src/i18n/`), with CI guards that block orphan keys and missing error-enum mappings, and the repository already generates some docs (Helm) rather than hand-writing them.
+Today `docs/` holds only contributor material under `docs/technical/`; there is no user-facing documentation area. All user-visible copy already lives in colocateed i18n resources (`application/frontend/src/presentation/**/i18n/` and `application/backend/src/i18n/`), with CI guards that block orphan keys and missing error-enum mappings, and the repository already generates some docs (Helm) rather than hand-writing them.
 
 The risk in this issue is not which tour library to pick. A standalone user-docs tree and an independently authored in-app tour would each restate feature behavior, UI copy, and screen ordering. That duplicates the existing i18n strings and drifts from the product every time a feature changes. The decision we need is a documentation strategy that keeps each user-facing fact written once, lives in the repository as code, is validated in CI, and lets the product tour be one rendering surface over that content rather than a second source of truth. The tour library itself is an implementation detail chosen later.
 

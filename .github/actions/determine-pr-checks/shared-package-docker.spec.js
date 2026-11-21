@@ -17,7 +17,7 @@ describe("shared package Docker wiring", () => {
 
   it("keeps the shared package in the backend production image", () => {
     // Arrange
-    const dockerfile = read("application/api/Dockerfile");
+    const dockerfile = read("application/backend/Dockerfile");
 
     // Act + Assert
     expect(dockerfile).toContain(
@@ -27,7 +27,7 @@ describe("shared package Docker wiring", () => {
 
   it("makes shared sources available to CI documentation checks", () => {
     // Arrange
-    const dockerfile = read("application/web/Dockerfile");
+    const dockerfile = read("application/frontend/Dockerfile");
 
     // Act + Assert
     expect(dockerfile).toContain(

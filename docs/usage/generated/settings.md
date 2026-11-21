@@ -18,7 +18,7 @@
 
 | Domain     | Setting   | Default | Minimum (integer) | Source                                                                                                                         |
 | ---------- | --------- | ------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| quiz       | timeLimit | 20      | 5                 | [quiz-inputs.ts](../../../application/api/src/presentation/game/types/quiz/graphql/types/quiz-inputs.ts)                   |
-| quiz       | points    | 1000    | 0                 | [quiz-inputs.ts](../../../application/api/src/presentation/game/types/quiz/graphql/types/quiz-inputs.ts)                   |
-| prediction | timeLimit | 20      | 5                 | [prediction-inputs.ts](../../../application/api/src/presentation/game/types/prediction/graphql/types/prediction-inputs.ts) |
-| prediction | points    | 1000    | 0                 | [prediction-inputs.ts](../../../application/api/src/presentation/game/types/prediction/graphql/types/prediction-inputs.ts) |
+| quiz       | timeLimit | 20      | 5                 | [quiz-inputs.ts](../../../application/backend/src/presentation/game/types/quiz/graphql/types/quiz-inputs.ts)                   |
+| quiz       | points    | 1000    | 0                 | [quiz-inputs.ts](../../../application/backend/src/presentation/game/types/quiz/graphql/types/quiz-inputs.ts)                   |
+| prediction | timeLimit | 20      | 5                 | [prediction-inputs.ts](../../../application/backend/src/presentation/game/types/prediction/graphql/types/prediction-inputs.ts) |
+| prediction | points    | 1000    | 0                 | [prediction-inputs.ts](../../../application/backend/src/presentation/game/types/prediction/graphql/types/prediction-inputs.ts) |
