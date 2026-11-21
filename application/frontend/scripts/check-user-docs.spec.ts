@@ -47,7 +47,7 @@ describe('screenshot freshness guard', () => {
     const inputs = [
       'application/frontend/src/presentation/example/guide/example.guide.ts',
       'application/frontend/src/i18n/translation-resource-composer.ts',
-      'application/frontend/pnpm-lock.yaml', 'e2e/pnpm-lock.yaml',
+      'pnpm-lock.yaml',
       'e2e/tests/usage/guides.spec.ts', 'e2e/usage.config.ts', 'e2e/playwright.config.ts', 'application/backend/prisma/seed.ts',
     ];
     for (const file of inputs) { fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); fs.writeFileSync(path.join(root, file), ''); }

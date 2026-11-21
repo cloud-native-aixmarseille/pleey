@@ -10,8 +10,7 @@ function usageScreenshotSourceFiles(root) {
   return [
     ...filesUnder(presentationRoot).filter((file) => file.endsWith(".guide.ts")),
     ...filesUnder(i18nRoot).filter((file) => file.endsWith(".ts")),
-    path.join(root, "application/frontend/pnpm-lock.yaml"),
-    path.join(root, "e2e/pnpm-lock.yaml"),
+    path.join(root, "pnpm-lock.yaml"),
     path.join(root, "e2e/tests/usage/guides.spec.ts"),
     path.join(root, "e2e/usage.config.ts"),
     path.join(root, "e2e/playwright.config.ts"),
