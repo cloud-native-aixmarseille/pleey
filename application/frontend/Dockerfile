@@ -18,13 +18,13 @@ FROM base AS build
 USER root
 WORKDIR /usr/src/repository
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY application/api/package.json ./application/api/package.json
-COPY application/web/package.json ./application/web/package.json
+COPY application/backend/package.json ./application/backend/package.json
+COPY application/frontend/package.json ./application/frontend/package.json
 COPY application/contracts/package.json ./application/contracts/package.json
 COPY e2e/package.json ./e2e/package.json
 COPY .github/actions/determine-pr-checks/package.json ./.github/actions/determine-pr-checks/package.json
 COPY application/contracts ./application/contracts
-COPY application/web ./application/web
+COPY application/frontend ./application/frontend
 
 RUN npm install --global pnpm@10.32.1 --ignore-scripts && pnpm install --frozen-lockfile
 RUN pnpm --filter @pleey/contracts build
@@ -46,10 +46,10 @@ RUN rm -rf /usr/share/nginx/html/* && \
     rm /etc/nginx/conf.d/default.conf
 
 # Copy built application from builder
-COPY --from=build /usr/src/repository/application/web/dist /usr/share/nginx/html
+COPY --from=build /usr/src/repository/application/frontend/dist /usr/share/nginx/html
 
 # Copy custom Nginx configuration
-COPY ./application/web/nginx.prod.conf /etc/nginx/conf.d/default.conf
+COPY ./application/frontend/nginx.prod.conf /etc/nginx/conf.d/default.conf
 
 # Create non-root user for Nginx (high UID to satisfy security scanners)
 RUN set -eu; \

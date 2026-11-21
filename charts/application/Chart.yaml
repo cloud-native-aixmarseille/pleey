@@ -17,7 +17,7 @@ keywords:
 maintainers:
   - name: Pleey Maintainers
     url: https://github.com/cloud-native-aixmarseille/pleey
-icon: https://raw.githubusercontent.com/cloud-native-aixmarseille/pleey/main/application/web/public/favicon/favicon.svg
+icon: https://raw.githubusercontent.com/cloud-native-aixmarseille/pleey/main/application/frontend/public/favicon/favicon.svg
 dependencies:
   - name: frontend
     version: 1.1.0

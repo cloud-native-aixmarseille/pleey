@@ -4,18 +4,18 @@ import path from "node:path";
 import { filesUnder, readUsageModel, repositoryRoot } from "./usage-reference-model.mjs";
 
 function usageScreenshotSourceFiles(root) {
-  const presentationRoot = path.join(root, "application/web/src/presentation");
-  const i18nRoot = path.join(root, "application/web/src/i18n");
+  const presentationRoot = path.join(root, "application/frontend/src/presentation");
+  const i18nRoot = path.join(root, "application/frontend/src/i18n");
 
   return [
     ...filesUnder(presentationRoot).filter((file) => file.endsWith(".guide.ts")),
     ...filesUnder(i18nRoot).filter((file) => file.endsWith(".ts")),
-    path.join(root, "application/web/pnpm-lock.yaml"),
+    path.join(root, "application/frontend/pnpm-lock.yaml"),
     path.join(root, "e2e/pnpm-lock.yaml"),
     path.join(root, "e2e/tests/usage/guides.spec.ts"),
     path.join(root, "e2e/usage.config.ts"),
     path.join(root, "e2e/playwright.config.ts"),
-    path.join(root, "application/api/prisma/seed.ts"),
+    path.join(root, "application/backend/prisma/seed.ts"),
   ].sort();
 }
 

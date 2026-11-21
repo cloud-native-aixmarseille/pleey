@@ -88,7 +88,7 @@ describe("shared domain package checker", () => {
   it("rejects restored shared-contract wrappers", () => {
     // Arrange
     const repositoryRoot = fs.mkdtempSync(path.join(os.tmpdir(), "pleey-restored-contract-"));
-    const wrapperPath = path.join(repositoryRoot, "application/api/src/domain/game/entities/game.ts");
+    const wrapperPath = path.join(repositoryRoot, "application/backend/src/domain/game/entities/game.ts");
     fs.mkdirSync(path.dirname(wrapperPath), { recursive: true });
     fs.writeFileSync(wrapperPath, "export type GameId = string;");
 
@@ -176,10 +176,10 @@ describe("shared domain package checker", () => {
     };
     fs.writeFileSync(fixturePath, JSON.stringify(fixture));
     const backendEventsPath = [
-      path.resolve(import.meta.dirname, '../../../application/api/src/presentation/game/party/realtime/party-socket-events.ts'),
+      path.resolve(import.meta.dirname, '../../../application/backend/src/presentation/game/party/realtime/party-socket-events.ts'),
       '/usr/src/backend/src/presentation/game/party/realtime/party-socket-events.ts',
       '/usr/src/app/src/presentation/game/party/realtime/party-socket-events.ts',
-      '/usr/application/api/src/presentation/game/party/realtime/party-socket-events.ts',
+      '/usr/application/backend/src/presentation/game/party/realtime/party-socket-events.ts',
     ].find((candidate) => fs.existsSync(candidate));
     const frontendEventsPath = path.resolve(
       import.meta.dirname,
