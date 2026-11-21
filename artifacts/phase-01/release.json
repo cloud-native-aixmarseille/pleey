@@ -1,7 +1,7 @@
 {
   "phase": "01",
-  "sourceCommit": "bbe1451174c44887cc4d12126cc020d473e0ba74",
-  "releaseId": "bbe1451174c4-p01",
+  "sourceCommit": "0c27cc3776c72db20bcb55cb0b4d0cf8427b445a",
+  "releaseId": "0c27cc3776c7-p01",
   "profile": "compose",
   "images": {
     "api": "pleey-api@sha256:7e1bf134c1c0eb087e4a8424e293916d50ecc3dc2cf2b07744716d0e48bfe047",
