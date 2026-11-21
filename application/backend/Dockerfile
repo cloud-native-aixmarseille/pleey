@@ -69,9 +69,12 @@ RUN \
 USER 1000:1000
 
 FROM tools AS ci
-COPY --chown=node:node --from=build /usr/src/repository /usr/src/repository
-COPY --chown=node:node ./scripts /usr/src/repository/scripts
-WORKDIR /usr/src/repository
+USER root
+RUN npm install --global pnpm@10.32.1 --ignore-scripts
+COPY --chown=node:node --from=build /usr/src/repository /usr/src/app
+COPY --chown=node:node ./scripts /usr/src/app/scripts
+USER 1000:1000
+WORKDIR /usr/src/app
 
 CMD [ "tail", "-f", "/dev/null" ]
 
