@@ -21,6 +21,8 @@ service:
 config:
   apiUrl: ""
   feedbackUrl: ""
+nginx:
+  apiUpstreamHost: ""
 resources:
   limits:
     cpu: 200m
