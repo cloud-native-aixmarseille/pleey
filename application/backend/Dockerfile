@@ -31,7 +31,7 @@ COPY e2e ./e2e
 
 RUN npm install --global pnpm@10.32.1 --ignore-scripts && pnpm install --frozen-lockfile
 RUN pnpm --filter @pleey/contracts build
-RUN cd application/backend && pnpm db:generate && pnpm build
+RUN pnpm --filter @pleey/api db:generate && pnpm --filter @pleey/api build
 
 FROM build AS build-prod
 
@@ -42,13 +42,13 @@ LABEL org.opencontainers.image.source="https://github.com/cloud-native-aixmarsei
 
 COPY --from=build-prod /usr/bin/dumb-init /usr/bin/dumb-init
 
-COPY --chown=node:node --from=build-prod /usr/src/repository/node_modules /usr/src/repository/node_modules
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/contracts /usr/src/repository/application/contracts
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/backend/node_modules /usr/src/repository/application/backend/node_modules
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/backend/prisma /usr/src/repository/application/backend/prisma
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/backend/prisma.config.ts /usr/src/repository/application/backend/prisma.config.ts
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/backend/dist /usr/src/repository/application/backend/dist
-COPY --chown=node:node ./application/backend/scripts/wait-for-database.mjs /usr/src/repository/application/backend/scripts/wait-for-database.mjs
+COPY --chown=1000:1000 --from=build-prod /usr/src/repository/node_modules /usr/src/repository/node_modules
+COPY --chown=1000:1000 --from=build-prod /usr/src/repository/application/contracts /usr/src/repository/application/contracts
+COPY --chown=1000:1000 --from=build-prod /usr/src/repository/application/backend/node_modules /usr/src/repository/application/backend/node_modules
+COPY --chown=1000:1000 --from=build-prod /usr/src/repository/application/backend/prisma /usr/src/repository/application/backend/prisma
+COPY --chown=1000:1000 --from=build-prod /usr/src/repository/application/backend/prisma.config.ts /usr/src/repository/application/backend/prisma.config.ts
+COPY --chown=1000:1000 --from=build-prod /usr/src/repository/application/backend/dist /usr/src/repository/application/backend/dist
+COPY --chown=1000:1000 ./application/backend/scripts/wait-for-database.mjs /usr/src/repository/application/backend/scripts/wait-for-database.mjs
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD ["curl", "-fsS", "http://localhost:3001/ready"]
@@ -74,9 +74,9 @@ USER 1000:1000
 FROM tools AS ci
 USER root
 RUN npm install --global pnpm@10.32.1 --ignore-scripts
-COPY --chown=node:node --from=build /usr/src/repository /usr/src/app
-COPY --chown=node:node --from=build /usr/src/repository /usr/src/repository
-COPY --chown=node:node ./scripts /usr/src/app/scripts
+COPY --chown=1000:1000 --from=build /usr/src/repository /usr/src/app
+COPY --chown=1000:1000 --from=build /usr/src/repository /usr/src/repository
+COPY --chown=1000:1000 ./scripts /usr/src/app/scripts
 USER 1000:1000
 WORKDIR /usr/src/app
 
