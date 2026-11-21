@@ -46,8 +46,10 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- end }}
-          {{- with .Values.extraEnv }}
           env:
+            - name: API_UPSTREAM_HOST
+              value: {{ include "pleey.frontend.apiUpstreamHost" . | quote }}
+          {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
           ports:
