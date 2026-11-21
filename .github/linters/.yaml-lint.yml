@@ -3,6 +3,7 @@ extends: default
 
 ignore:
   - charts/
+  - pnpm-lock.yaml
 
 rules:
   line-length:

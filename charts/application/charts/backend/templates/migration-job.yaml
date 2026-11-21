@@ -42,7 +42,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           command:
             - node
-            - /usr/src/app/scripts/wait-for-database.mjs
+            - /usr/src/repository/application/backend/scripts/wait-for-database.mjs
           args:
             - --secret-file
             - {{ include "pleey.backend.databaseSecretFile" . | quote }}
@@ -75,7 +75,7 @@ spec:
             - -ec
             - |
               export DATABASE_URL="$(cat {{ include "pleey.backend.databaseSecretFile" . }})"
-              exec /usr/src/app/node_modules/.bin/prisma migrate deploy
+              exec /usr/src/repository/application/backend/node_modules/.bin/prisma migrate deploy
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
