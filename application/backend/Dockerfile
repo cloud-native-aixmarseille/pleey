@@ -15,6 +15,7 @@ WORKDIR /usr/src/app
 
 FROM base AS build
 
+# hadolint ignore=DL3002
 USER root
 WORKDIR /usr/src/repository
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
