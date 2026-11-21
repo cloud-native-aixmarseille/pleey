@@ -40,7 +40,7 @@ describe("pull request CI routing", () => {
 
   it.each([
     "application/backend/src/schema.gql",
-    "application/frontend/pnpm-lock.yaml",
+    "pnpm-lock.yaml",
     "scripts/check-pagination.mjs",
     "scripts/check-shared-domain-package.mjs",
     "application/contracts/game/index.ts",
