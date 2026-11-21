@@ -25,6 +25,8 @@ COPY e2e/package.json ./e2e/package.json
 COPY .github/actions/determine-pr-checks/package.json ./.github/actions/determine-pr-checks/package.json
 COPY application/contracts ./application/contracts
 COPY application/backend ./application/backend
+COPY application/frontend ./application/frontend
+COPY e2e ./e2e
 
 RUN npm install --global pnpm@10.32.1 --ignore-scripts && pnpm install --frozen-lockfile
 RUN pnpm --filter @pleey/contracts build
