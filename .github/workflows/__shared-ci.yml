@@ -56,7 +56,7 @@ jobs:
         with:
           node-version: "26.13.1"
       - name: Enable pinned pnpm
-        run: corepack enable && corepack prepare pnpm@10.32.1 --activate
+        run: npm install --global pnpm@10.32.1 --ignore-scripts
       - name: Install documentation and application dependencies
         run: pnpm install --frozen-lockfile
       - name: Install browser runtime dependencies
