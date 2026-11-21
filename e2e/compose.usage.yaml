@@ -6,7 +6,7 @@ services:
   media-storage:
     ports: !reset []
   backend:
-    image: "${USAGE_BACKEND_IMAGE:-pleey-backend}"
+    image: "${USAGE_BACKEND_IMAGE:-pleey-backend-ci}"
     user: "${USAGE_UID:-1000}:${USAGE_GID:-1000}"
     restart: "no"
     environment:
@@ -14,12 +14,13 @@ services:
       I18N_WATCH_ENABLED: "false"
       TMPDIR: /usr/src/repository/.cache/usage-docs/tmp
       NPM_CONFIG_CACHE: /usr/src/repository/.cache/usage-docs/npm
-    volumes:
+    volumes: !reset
       - ${USAGE_WORK_DIRECTORY:?Use scripts/run-usage-docs.sh}:/usr/src/repository/.cache/usage-docs
     command:
       - sh
       - -c
       - |
+        cd /usr/src/app/application/backend &&
         pnpm db:generate && pnpm db:migrate && pnpm seed &&
         pnpm exec tsc -p tsconfig.build.json --outDir /usr/src/repository/.cache/usage-docs/backend --incremental false &&
         cp -r src/i18n /usr/src/repository/.cache/usage-docs/backend/i18n &&
@@ -28,15 +29,15 @@ services:
     labels:
       traefik.enable: "false"
   frontend:
-    image: "${USAGE_FRONTEND_IMAGE:-@pleey/web}"
+    image: "${USAGE_FRONTEND_IMAGE:-pleey-frontend-ci}"
     user: "${USAGE_UID:-1000}:${USAGE_GID:-1000}"
     restart: "no"
     environment:
       VITE_CACHE_DIR: /usr/src/repository/.cache/usage-docs/vite
       TMPDIR: /usr/src/repository/.cache/usage-docs/tmp
-    volumes:
+    volumes: !reset
       - ${USAGE_WORK_DIRECTORY:?Use scripts/run-usage-docs.sh}:/usr/src/repository/.cache/usage-docs
-    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+    command: ["pnpm", "--dir", "/usr/src/app/application/frontend", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
     labels:
       traefik.enable: "false"
   media-delivery:
@@ -47,6 +48,13 @@ services:
       traefik.enable: "false"
   e2e-tests:
     user: "${USAGE_UID:-1000}:${USAGE_GID:-1000}"
+    command:
+      - bash
+      - -lc
+      - |
+        cd /repository &&
+        CI=true npx --yes pnpm@10.32.1 install --frozen-lockfile &&
+        CI=true npx --yes pnpm@10.32.1 --filter @pleey/e2e docs:screenshots
     environment:
       NPM_CONFIG_CACHE: /repository/.cache/usage-docs/npm
       TMPDIR: /repository/.cache/usage-docs/tmp
