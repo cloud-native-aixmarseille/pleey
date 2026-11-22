@@ -1,6 +1,6 @@
 {
   "phase": "02",
-  "sourceCommit": "f70fd5ef4ccf8e082ac1fb4b3070b1e3b3f34963",
+  "sourceCommit": "36e5648c436af1584843847406de76983a106618",
   "previousRelease": "phase 01 main baseline at b09912cd",
   "candidateRelease": "artifacts/phase-02/release.json",
   "environment": "Linux x86_64, Node 26.13.1, pnpm 10.32.1, PostgreSQL 16, Valkey 8, Chromium Playwright",
