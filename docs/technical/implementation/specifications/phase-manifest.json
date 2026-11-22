@@ -1,0 +1,316 @@
+{
+  "schemaVersion": 1,
+  "program": "Pleey session and realtime replacement",
+  "date": "2026-11-20",
+  "repository": "https://github.com/cloud-native-aixmarseille/pleey",
+  "inspectedCommit": "89eba30755f53aced04b596bc1531854a15bc1d5",
+  "phaseCount": 6,
+  "acceptanceCaseCount": 124,
+  "commonContracts": [
+    "README.md",
+    "EXECUTION-CONTRACT.md",
+    "DOMAIN-CONTRACTS.md",
+    "ACCEPTANCE-CATALOG.md",
+    "SOURCES.md"
+  ],
+  "dispatchPrompt": "AGENT-PROMPT.md",
+  "phases": [
+    {
+      "number": "01",
+      "title": "Reproducible production delivery",
+      "spec": "phases/01-reproducible-production-delivery.md",
+      "dependsOn": [],
+      "pullRequestCount": 1,
+      "deployableWithoutLaterPhases": true,
+      "requiredFuturePhases": [],
+      "productionImageRoles": [
+        "api",
+        "web"
+      ],
+      "activeTechnologies": [
+        "Custom identity",
+        "GraphQL",
+        "Socket.IO"
+      ],
+      "removedInThisPhase": [],
+      "acceptanceIds": [
+        "DEL-001",
+        "DEL-002",
+        "DEL-003",
+        "DEL-004",
+        "DEL-005",
+        "DEL-006",
+        "DEL-007",
+        "DEL-008",
+        "DEL-009",
+        "DEL-010",
+        "DEL-011",
+        "DEL-012",
+        "DEL-013",
+        "DEL-014",
+        "DEL-015",
+        "DEL-016",
+        "DEL-017"
+      ],
+      "evidenceDirectory": "docs/technical/implementation/phase-01/",
+      "implementationStatus": "specified_not_executed"
+    },
+    {
+      "number": "02",
+      "title": "Unified identity and sessions",
+      "spec": "phases/02-unified-identity-and-sessions.md",
+      "dependsOn": [
+        "01"
+      ],
+      "pullRequestCount": 1,
+      "deployableWithoutLaterPhases": true,
+      "requiredFuturePhases": [],
+      "productionImageRoles": [
+        "api",
+        "web"
+      ],
+      "activeTechnologies": [
+        "Better Auth",
+        "@nestjs/schedule (anonymous lifecycle)",
+        "GraphQL",
+        "Socket.IO"
+      ],
+      "removedInThisPhase": [
+        "custom JWT/refresh/guest credentials",
+        "parallel Guest authentication",
+        "browser credential persistence",
+        "permanent anonymous auth-history coupling"
+      ],
+      "acceptanceIds": [
+        "AUTH-01",
+        "AUTH-02",
+        "AUTH-03",
+        "AUTH-04",
+        "AUTH-05",
+        "AUTH-06",
+        "AUTH-07",
+        "AUTH-08",
+        "AUTH-09",
+        "AUTH-10",
+        "AUTH-11",
+        "AUTH-12",
+        "AUTH-13",
+        "AUTH-14",
+        "AUTH-15",
+        "AUTH-16",
+        "AUTH-17",
+        "AUTH-18",
+        "AUTH-19",
+        "AUTH-20",
+        "AUTH-21",
+        "AUTH-22",
+        "AUTH-23",
+        "AUTH-24",
+        "AUTH-25",
+        "AUTH-26"
+      ],
+      "evidenceDirectory": "docs/technical/implementation/phase-02/",
+      "implementationStatus": "specified_not_executed"
+    },
+    {
+      "number": "03",
+      "title": "REST management and frontend data",
+      "spec": "phases/03-rest-management-and-frontend-data.md",
+      "dependsOn": [
+        "02"
+      ],
+      "pullRequestCount": 1,
+      "deployableWithoutLaterPhases": true,
+      "requiredFuturePhases": [],
+      "productionImageRoles": [
+        "api",
+        "web"
+      ],
+      "activeTechnologies": [
+        "Better Auth",
+        "REST/OpenAPI",
+        "Socket.IO"
+      ],
+      "removedInThisPhase": [
+        "GraphQL server/client",
+        "Apollo cache",
+        "GraphQL-only upload/code-generation/proxy paths"
+      ],
+      "acceptanceIds": [
+        "HTTP-001",
+        "HTTP-002",
+        "HTTP-003",
+        "HTTP-004",
+        "HTTP-005",
+        "HTTP-006",
+        "HTTP-007",
+        "HTTP-008",
+        "HTTP-009",
+        "HTTP-010",
+        "HTTP-011",
+        "HTTP-012",
+        "HTTP-013",
+        "HTTP-014",
+        "HTTP-015",
+        "HTTP-016",
+        "HTTP-017"
+      ],
+      "evidenceDirectory": "docs/technical/implementation/phase-03/",
+      "implementationStatus": "specified_not_executed"
+    },
+    {
+      "number": "04",
+      "title": "Durable Colyseus gameplay",
+      "spec": "phases/04-durable-colyseus-gameplay.md",
+      "dependsOn": [
+        "03"
+      ],
+      "pullRequestCount": 1,
+      "deployableWithoutLaterPhases": true,
+      "requiredFuturePhases": [],
+      "productionImageRoles": [
+        "api",
+        "web",
+        "game"
+      ],
+      "activeTechnologies": [
+        "Better Auth",
+        "REST/OpenAPI",
+        "Colyseus"
+      ],
+      "removedInThisPhase": [
+        "Socket.IO runtime/client",
+        "custom room snapshots and recovery",
+        "alternate active-game writers"
+      ],
+      "acceptanceIds": [
+        "GAME-01",
+        "GAME-02",
+        "GAME-03",
+        "GAME-04",
+        "GAME-05",
+        "GAME-06",
+        "GAME-07",
+        "GAME-08",
+        "GAME-09",
+        "GAME-10",
+        "GAME-11",
+        "GAME-12",
+        "GAME-13",
+        "GAME-14",
+        "GAME-15",
+        "GAME-16",
+        "GAME-17",
+        "GAME-18",
+        "GAME-19",
+        "GAME-20",
+        "GAME-21",
+        "GAME-22",
+        "GAME-23",
+        "GAME-24",
+        "GAME-25",
+        "GAME-26",
+        "GAME-27",
+        "GAME-28",
+        "GAME-29"
+      ],
+      "evidenceDirectory": "docs/technical/implementation/phase-04/",
+      "implementationStatus": "specified_not_executed"
+    },
+    {
+      "number": "05",
+      "title": "Operational growth and recovery",
+      "spec": "phases/05-operational-growth-and-recovery.md",
+      "dependsOn": [
+        "04"
+      ],
+      "pullRequestCount": 1,
+      "deployableWithoutLaterPhases": true,
+      "requiredFuturePhases": [],
+      "productionImageRoles": [
+        "api",
+        "web",
+        "game"
+      ],
+      "activeTechnologies": [
+        "Better Auth",
+        "REST/OpenAPI",
+        "Colyseus"
+      ],
+      "removedInThisPhase": [
+        "duplicated manual operational automation superseded by canonical CLI"
+      ],
+      "acceptanceIds": [
+        "OPS-001",
+        "OPS-002",
+        "OPS-003",
+        "OPS-004",
+        "OPS-005",
+        "OPS-006",
+        "OPS-007",
+        "OPS-008",
+        "OPS-009",
+        "OPS-010",
+        "OPS-011",
+        "OPS-012",
+        "OPS-013",
+        "OPS-014",
+        "OPS-015",
+        "OPS-016",
+        "OPS-017",
+        "OPS-018",
+        "OPS-019"
+      ],
+      "evidenceDirectory": "docs/technical/implementation/phase-05/",
+      "implementationStatus": "specified_not_executed"
+    },
+    {
+      "number": "06",
+      "title": "Installable PWA and safe updates",
+      "spec": "phases/06-installable-pwa-and-safe-updates.md",
+      "dependsOn": [
+        "05"
+      ],
+      "pullRequestCount": 1,
+      "deployableWithoutLaterPhases": true,
+      "requiredFuturePhases": [],
+      "productionImageRoles": [
+        "api",
+        "web",
+        "game"
+      ],
+      "activeTechnologies": [
+        "Better Auth",
+        "REST/OpenAPI",
+        "Colyseus",
+        "PWA"
+      ],
+      "removedInThisPhase": [
+        "duplicate worker registration and unsafe cache/update defaults"
+      ],
+      "acceptanceIds": [
+        "PWA-001",
+        "PWA-002",
+        "PWA-003",
+        "PWA-004",
+        "PWA-005",
+        "PWA-006",
+        "PWA-007",
+        "PWA-008",
+        "PWA-009",
+        "PWA-010",
+        "PWA-011",
+        "PWA-012",
+        "PWA-013",
+        "PWA-014",
+        "PWA-015",
+        "PWA-016"
+      ],
+      "evidenceDirectory": "docs/technical/implementation/phase-06/",
+      "implementationStatus": "specified_not_executed"
+    }
+  ],
+  "revision": 2,
+  "revisedAt": "2026-11-22",
+  "revisionReason": "Bound anonymous identities independently of durable party history for predominantly guest participation"
+}
