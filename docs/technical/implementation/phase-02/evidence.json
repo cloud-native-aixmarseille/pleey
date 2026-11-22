@@ -9,9 +9,12 @@
     {"command": "pnpm --dir application/backend exec prisma validate", "status": "passed"},
     {"command": "pnpm --dir application/backend build", "status": "passed"},
     {"command": "pnpm --dir application/frontend build", "status": "passed"},
+    {"command": "pnpm --dir application/frontend typecheck", "status": "passed"},
+    {"command": "pnpm --dir application/backend exec vitest run src/app/config/app-configuration.spec.ts", "status": "passed"},
+    {"command": "pnpm --dir application/backend typecheck", "status": "failed", "limitations": ["pre-existing backend spec typing mismatches unrelated to phase 2 identity flow remain"]},
     {"command": "pnpm verify", "status": "failed", "limitations": ["verify.mjs cannot resolve the Biome executable through recursive pnpm exec in this environment"]},
-    {"command": "pnpm --dir application/backend typecheck", "status": "failed", "limitations": ["pre-existing and newly changed test/type compatibility blockers"]},
-    {"command": "pnpm --dir application/frontend typecheck", "status": "failed", "limitations": ["legacy test and adapter compatibility blockers"]}
+    {"command": "pnpm --dir application/frontend test -- src/app/bootstrap/modules/identity/app-auth-provider-factory.spec.tsx src/infrastructure/game/party/shared/socket-io-party-observation.adapter.spec.ts", "status": "failed", "limitations": ["existing frontend identity/session adapter assertions require a dedicated test migration to Better Auth actor behavior"]},
+    {"command": "pnpm --dir application/backend test -- src/app/config/app-configuration.spec.ts src/presentation/game/party/realtime/party-observer-message.validation.spec.ts src/presentation/game/party/realtime/services/host-party-observation-message-mapper.spec.ts", "status": "failed", "limitations": ["legacy Socket.IO media observation specs are currently incompatible with the Phase 2 admission path refactor"]}
   ],
   "acceptanceCases": [
     {"caseId": "AUTH-01", "status": "not_executed", "limitations": ["real Better Auth HTTP/browser environment unavailable"]},

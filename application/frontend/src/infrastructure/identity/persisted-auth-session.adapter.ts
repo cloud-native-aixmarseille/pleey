@@ -1,5 +1,6 @@
 import type { AuthSession } from '@pleey/contracts/identity';
 import { injectable } from 'inversify';
+import type { AuthSessionTransportHandlers } from '../../application/identity/ports/auth-session-transport.port';
 import { StorageKey } from '../../domains/shared/value-objects/storage-key';
 import { betterAuthClient } from './better-auth-client';
 
@@ -47,7 +48,7 @@ export class PersistedAuthSessionAdapter {
     // No browser-held secret is suspended.
   }
 
-  registerHandlers(_handlers?: unknown): void {
+  registerHandlers(_handlers: AuthSessionTransportHandlers = {}): void {
     // Session refresh and invalidation are owned by Better Auth and the auth actor.
   }
 

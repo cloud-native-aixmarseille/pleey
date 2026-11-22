@@ -44,7 +44,7 @@ describe('AppAuthProviderFactory', () => {
       await waitFor(() => expect(result.current.hasRestoredSession).toBe(true));
       // Assert
       expect(result.current.user).toEqual(accountB.user);
-      expect(fixture.sessions.restore()?.user).toEqual(accountB.user);
+      expect((await fixture.sessions.restore())?.user).toEqual(accountB.user);
       expect(fetchMock.mock.calls.map(([, options]) => options.headers.authorization)).toEqual([
         'Bearer account-A',
         'Bearer account-B',

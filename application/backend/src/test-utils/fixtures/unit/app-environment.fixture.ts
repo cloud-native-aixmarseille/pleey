@@ -5,6 +5,7 @@ export function createAppEnvironmentFixture(overrides: NodeJS.ProcessEnv = {}): 
     DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/pleey_test',
     JWT_SECRET: 'test_jwt_secret_only_for_tests',
     JWT_REFRESH_SECRET: 'test_refresh_secret_only_for_tests',
+    BETTER_AUTH_SECRET: 'test_better_auth_secret_only_for_tests_32_bytes',
     JWT_ACCESS_EXPIRES_IN_SECONDS: '3600',
     JWT_REFRESH_EXPIRES_IN_SECONDS: '1209600',
     CAP_SECRET: 'captcha_secret_at_least_32_bytes_for_tests',

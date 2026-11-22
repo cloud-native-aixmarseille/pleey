@@ -38,7 +38,6 @@ function createPayloadMapper() {
   return new SocketIoPartyPayloadMapper(
     new ThemeDocumentNormalizer(),
     partyActionIdentifier,
-    guestIdentifier,
     userIdentifier,
     partyIdentifier,
     partyPinIdentifier,

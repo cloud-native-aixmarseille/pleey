@@ -39,10 +39,17 @@ describe('AppConfiguration', () => {
     'uses NODE_ENV=%s only as telemetry metadata',
     (nodeEnvironment) => {
       // Arrange
+      const sharedEnvironmentOverrides =
+        nodeEnvironment === 'production' ? { FRONTEND_URL: 'https://pleey.example' } : {};
       const baseline = new AppConfiguration(
-        new AppEnvironment(createAppEnvironmentFixture()),
+        new AppEnvironment(createAppEnvironmentFixture({ NODE_ENV: 'test', ...sharedEnvironmentOverrides })),
       ).getRuntimeConfiguration();
-      const environment = new AppEnvironment(createAppEnvironmentFixture({ NODE_ENV: nodeEnvironment }));
+      const environment = new AppEnvironment(
+        createAppEnvironmentFixture({
+          NODE_ENV: nodeEnvironment,
+          ...sharedEnvironmentOverrides,
+        }),
+      );
       // Act
       const actual = new AppConfiguration(environment).getRuntimeConfiguration();
       // Assert
@@ -98,6 +105,7 @@ describe('AppConfiguration', () => {
         OTEL_EXPORTER_OTLP_ENDPOINT: 'https://otel.example',
         OTEL_EXPORTER_OTLP_HEADERS: '{"Authorization":"Bearer test"}',
         API_BASE_URL: 'https://api.example',
+        FRONTEND_URL: 'https://pleey.example',
       }),
     );
     // Act

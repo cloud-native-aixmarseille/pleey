@@ -17,6 +17,7 @@ describe('HostPartyObservationMessageMapper', () => {
         gameId: backendTestIdentifiers.game(17),
         pin: backendTestIdentifiers.partyPin('AB12CD'),
         status: PartyStatus.ACTIVE,
+        isPrivate: false,
         settings: DEFAULT_PARTY_SETTINGS,
         themeDocument: new ThemeFixtureFactory().createDocument({ baseThemeId: 'solar-grid' }),
         context: null,
@@ -97,6 +98,17 @@ describe('HostPartyObservationMessageMapper', () => {
           username: 'Trinity',
         },
       ],
+      {
+        startParty: { allowed: true },
+        endParty: { allowed: true },
+        advanceStage: { allowed: true },
+        restartStage: { allowed: true },
+        rewindStage: { allowed: true },
+        rewindParty: { allowed: true },
+        pauseParty: { allowed: true },
+        resumeParty: { allowed: true },
+        revealStageResult: { allowed: true },
+      },
     );
 
     // Assert
