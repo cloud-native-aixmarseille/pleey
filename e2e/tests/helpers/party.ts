@@ -31,20 +31,20 @@ function resolveSeededGameId(): number {
 
 async function executeGraphql<TData>(
   request: APIRequestContext,
-  accessToken: string,
+  sessionCookie: string,
   query: string,
   variables?: Record<string, unknown>,
 ): Promise<TData> {
   const response = await request.post(resolveGraphqlUrl() || DEFAULT_GRAPHQL_URL, {
     headers: {
-      authorization: `Bearer ${accessToken}`,
       "apollo-require-preflight": "true",
       "Content-Type": "application/json",
+      Cookie: sessionCookie,
     },
-    data: {
+    data: JSON.stringify({
       query,
       variables,
-    },
+    }),
   });
 
   if (!response.ok()) {
@@ -64,10 +64,10 @@ async function executeGraphql<TData>(
   return payload.data;
 }
 
-async function listParties(request: APIRequestContext, accessToken: string): Promise<readonly PartySummary[]> {
+async function listParties(request: APIRequestContext, sessionCookie: string): Promise<readonly PartySummary[]> {
   const data = await executeGraphql<{ listParties: { items: PartySummary[] } }>(
     request,
-    accessToken,
+    sessionCookie,
     `
       query ListParties {
         listParties {
@@ -87,10 +87,10 @@ async function listParties(request: APIRequestContext, accessToken: string): Pro
   return data.listParties.items;
 }
 
-async function createParty(request: APIRequestContext, accessToken: string, gameId: number): Promise<PartySummary> {
+async function createParty(request: APIRequestContext, sessionCookie: string, gameId: number): Promise<PartySummary> {
   const data = await executeGraphql<{ createParty: PartySummary }>(
     request,
-    accessToken,
+    sessionCookie,
     `
       mutation CreateParty($input: CreatePartyInput!) {
         createParty(input: $input) {
@@ -111,8 +111,8 @@ async function createParty(request: APIRequestContext, accessToken: string, game
   return data.createParty;
 }
 
-export async function ensureHostParty(request: APIRequestContext, accessToken: string): Promise<PartySummary> {
-  const existingHostParty = [...(await listParties(request, accessToken))]
+export async function ensureHostParty(request: APIRequestContext, sessionCookie: string): Promise<PartySummary> {
+  const existingHostParty = [...(await listParties(request, sessionCookie))]
     .filter((party) => party.role === "HOST")
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt))[0];
 
@@ -121,9 +121,9 @@ export async function ensureHostParty(request: APIRequestContext, accessToken: s
   }
 
   try {
-    return await createParty(request, accessToken, resolveSeededGameId());
+    return await createParty(request, sessionCookie, resolveSeededGameId());
   } catch {
-    const recoveredHostParty = [...(await listParties(request, accessToken))]
+    const recoveredHostParty = [...(await listParties(request, sessionCookie))]
       .filter((party) => party.role === "HOST")
       .sort((left, right) => right.createdAt.localeCompare(left.createdAt))[0];
 

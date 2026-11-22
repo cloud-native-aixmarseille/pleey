@@ -4,7 +4,7 @@ import { ListProjectGamesUseCase } from '../../../../application/game/management
 import { ProjectIdentifier } from '../../../../application/workspace/shared/services/identifiers/project-identifier';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
-import { GqlJwtAuthGuard } from '../../../identity/shared/guards/gql-jwt-auth-guard';
+import { GqlAuthGuard } from '../../../identity/shared/guards/gql-auth-guard';
 import { ProjectGamesInput } from './types/project-games-input';
 import { ProjectGamesType } from './types/project-games-type';
 
@@ -27,7 +27,7 @@ export class GameManagementResolver {
   ) {}
 
   @Query(() => ProjectGamesType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async projectGames(
     @Args('input') input: ProjectGamesInput,
     @Context() context: GraphqlAuthContext,

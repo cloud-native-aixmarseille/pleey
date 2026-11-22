@@ -8,12 +8,11 @@ const party = new PartyFixtureFactory().createParty();
 const guestId = new GuestIdentifierMockFactory().create().parse('guest-42');
 
 describe('PartyLobbyFacade', () => {
-  it('recovers a canonical party with stored proof and saves the renewed credential', async () => {
+  it('forwards a legacy party rejoin without adding a credential', async () => {
     // Arrange
     const sessions = {
       getGuestPin: vi.fn(() => party.pin),
       getGuestId: vi.fn(() => guestId),
-      getGuestCredential: vi.fn(() => 'stored-proof'),
       setGuestId: vi.fn(),
     };
     const players = {
@@ -22,7 +21,6 @@ describe('PartyLobbyFacade', () => {
         partyId: party.partyId,
         pin: party.pin,
         gameId: party.gameId,
-        guestCredential: 'renewed-proof',
         player: { identity: { kind: PartyPlayerKind.GUEST, guestId } },
       })),
     };
@@ -33,17 +31,15 @@ describe('PartyLobbyFacade', () => {
     expect(players.rejoinParty).toHaveBeenCalledWith({
       pin: party.pin,
       playerIdentity: { kind: PartyPlayerKind.GUEST, guestId },
-      guestCredential: 'stored-proof',
     });
-    expect(sessions.setGuestId).toHaveBeenCalledWith(party.pin, guestId, 'renewed-proof', party.partyId);
+    expect(sessions.setGuestId).toHaveBeenCalledWith(party.pin, guestId);
   });
 
-  it('discards rejected recovery proof instead of treating a stored id as a grant', async () => {
+  it('discards rejected legacy rejoin instead of treating an id as a grant', async () => {
     // Arrange
     const sessions = {
       getGuestPin: vi.fn(() => party.pin),
       getGuestId: vi.fn(() => guestId),
-      getGuestCredential: vi.fn(() => 'expired-proof'),
       clearGuestId: vi.fn(),
     };
     const players = {

@@ -81,11 +81,6 @@ export class SocketIoPartyRealtimeTransport {
     };
   }
 
-  setAuthSessionTokens(tokens: { accessToken: string | null; refreshToken: string | null }): void {
-    void tokens;
-    // Better Auth cookie credentials are sent by the browser on socket upgrade.
-  }
-
   async dispatchPartyJoinCommand(
     eventName: SocketIoPartyJoinEventName.JoinParty | SocketIoPartyJoinEventName.RejoinParty,
     payload: SocketPartyEntryPayload,

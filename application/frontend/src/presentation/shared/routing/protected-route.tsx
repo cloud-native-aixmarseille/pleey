@@ -9,7 +9,7 @@ export function ProtectedRoute({ children }: PropsWithChildren) {
     return null;
   }
 
-  if (user === null) {
+  if (user === null || user.isAnonymous === true) {
     return <PresentationRedirect to="/identity/sign-in" />;
   }
 

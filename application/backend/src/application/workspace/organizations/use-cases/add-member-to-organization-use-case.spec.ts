@@ -135,7 +135,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       findById: { id: 1 } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      create: createOrganizationMemberFixture({ id: 123 }),
+      create: createOrganizationMemberFixture({ id: backendTestIdentifiers.organizationMember(123) }),
     });
     const userRepository = createUserRepositoryMock({
       findByUsername: createUserFixture({
@@ -172,7 +172,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       2,
       OrganizationRole.MEMBER,
     );
-    expect(result).toMatchObject({ id: 123 });
+    expect(result).toMatchObject({ id: backendTestIdentifiers.organizationMember(123) });
   });
 
   it('adds member when allowed with an email address', async () => {
@@ -181,7 +181,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       findById: { id: 1 } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      create: createOrganizationMemberFixture({ id: 123 }),
+      create: createOrganizationMemberFixture({ id: backendTestIdentifiers.organizationMember(123) }),
     });
     const userRepository = createUserRepositoryMock({
       findByEmail: createUserFixture({
@@ -228,7 +228,7 @@ describe('AddMemberToOrganizationUseCase', () => {
       findById: { id: 1 } as never,
     });
     const memberRepository = createOrganizationMemberRepositoryMock({
-      create: createOrganizationMemberFixture({ id: 123 }),
+      create: createOrganizationMemberFixture({ id: backendTestIdentifiers.organizationMember(123) }),
     });
     const userRepository = createUserRepositoryMock({
       findByEmail: null,

@@ -24,16 +24,11 @@ export function createPartyMediaAccessFixture() {
   const hostUserId = backendTestIdentifiers.user(7);
   const hostSocketData = {
     authenticatedUserId: hostUserId,
-    authenticatedSession: {
-      id: hostUserId,
-      username: 'Host',
-      sessionId: 'host-session',
-      exp: 2_000_000_000,
-      tokenType: 'access' as const,
-    },
+    authenticatedSessionId: 'host-session',
+    authenticatedSessionExpiresAt: new Date('2033-05-18T03:33:20.000Z'),
   };
   const themeDocument = new ThemeFixtureFactory().createDocument();
-  const identity = { kind: PartyPlayerKind.GUEST, guestId: backendTestIdentifiers.guest(42) } as const;
+  const identity = { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(42) } as const;
   const player = {
     avatarUri: null,
     identity,
@@ -119,7 +114,7 @@ export function createPartyMediaAccessFixture() {
     expiresAt: '2026-09-28T10:05:00.000Z',
   };
   const issuer = { issue: vi.fn().mockResolvedValue(grant) };
-  const sessions = { validate: vi.fn().mockImplementation(async (claims) => claims) };
+  const sessions = { isSessionRevoked: vi.fn().mockResolvedValue(false) };
   const audienceResolver = new PartyObservationAudienceResolver(
     new PartyObservationAccessService(registry, new PartyObservationPolicy()),
     sessions as never,
@@ -138,6 +133,9 @@ export function createPartyMediaAccessFixture() {
   const client = {
     id: 'player-socket',
     data: {
+      authenticatedUserId: identity.userId,
+      authenticatedSessionId: 'player-session',
+      authenticatedSessionExpiresAt: new Date('2033-05-18T03:33:20.000Z'),
       joinedPartyPlayer: { identity, partyId, pin },
       partyObservationRoom: `party:${partyId}`,
       playerSessionId: 'player-socket',

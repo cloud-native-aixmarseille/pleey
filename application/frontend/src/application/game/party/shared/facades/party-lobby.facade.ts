@@ -127,25 +127,11 @@ export class PartyLobbyFacade implements PartyLobbyGateway {
   }
 
   private async enterParty(command: PartyJoinCommand, rejoin: boolean): Promise<PartyJoinReceipt> {
-    const guestCredential =
-      command.playerIdentity.kind === PartyPlayerKind.GUEST && command.playerIdentity.guestId
-        ? (this.partyGuestSessionPort.getGuestCredential(command.pin) ?? undefined)
-        : undefined;
-    const request = { ...command, guestCredential };
     const receipt = await (rejoin
-      ? this.partyPlayerPort.rejoinParty(request)
-      : this.partyPlayerPort.joinParty(request));
-    if (
-      receipt.status === PartyJoinReceiptStatus.ACCEPTED &&
-      receipt.player.identity.kind === PartyPlayerKind.GUEST &&
-      receipt.guestCredential
-    ) {
-      this.partyGuestSessionPort.setGuestId(
-        receipt.pin,
-        receipt.player.identity.guestId,
-        receipt.guestCredential,
-        receipt.partyId,
-      );
+      ? this.partyPlayerPort.rejoinParty(command)
+      : this.partyPlayerPort.joinParty(command));
+    if (receipt.status === PartyJoinReceiptStatus.ACCEPTED && receipt.player.identity.kind === PartyPlayerKind.GUEST) {
+      this.partyGuestSessionPort.setGuestId(receipt.pin, receipt.player.identity.guestId);
     }
     return receipt;
   }

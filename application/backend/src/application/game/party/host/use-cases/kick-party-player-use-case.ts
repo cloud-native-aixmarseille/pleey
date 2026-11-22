@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { PartyPlayerKind } from '@pleey/contracts/party';
 import {
   HostPartyControlForbiddenError,
   PartyCommandNotAvailableError,
@@ -33,6 +34,15 @@ export class KickPartyPlayerUseCase {
         hostUserId: input.hostUserId,
         partyId: input.partyId,
         playerIdentity: input.playerIdentity,
+      });
+    }
+
+    if (input.playerIdentity.kind === PartyPlayerKind.USER && input.playerIdentity.userId === input.hostUserId) {
+      throw new HostPartyControlForbiddenError({
+        hostUserId: input.hostUserId,
+        partyId: input.partyId,
+        playerIdentity: input.playerIdentity,
+        reason: 'hostSelfKickForbidden',
       });
     }
 

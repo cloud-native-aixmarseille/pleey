@@ -50,6 +50,6 @@ export function useSignInScreenState() {
     handleNavigateDashboard: () => navigate('/workspace/dashboard'),
     handleSignOut: async () => signOut(),
     hasRestoredSession,
-    user,
+    user: user?.isAnonymous === true ? null : user,
   };
 }

@@ -61,7 +61,7 @@ export function usePartyLobbyJoinSession({
       return;
     }
 
-    if (!user && guestName.trim().length === 0) {
+    if (!user) {
       setJoinErrorMessage(PartyManagementErrorCode.GUEST_NAME_REQUIRED);
       return;
     }
@@ -71,15 +71,10 @@ export function usePartyLobbyJoinSession({
     try {
       const normalizedPassword = partyPassword.trim();
       const receipt = await partyLobbyFacade.joinParty({
-        ...(user || guestAvatarSeed === null ? {} : { avatarSeed: guestAvatarSeed }),
         partyPassword: normalizedPassword || undefined,
         pin: normalizedPin,
-        playerIdentity: user
-          ? { kind: PartyPlayerKind.USER, userId: user.id }
-          : currentGuestId === null
-            ? { kind: PartyPlayerKind.GUEST }
-            : { kind: PartyPlayerKind.GUEST, guestId: currentGuestId },
-        username: user ? undefined : guestName.trim(),
+        playerIdentity: { kind: PartyPlayerKind.USER, userId: user.id },
+        username: undefined,
       });
 
       if (receipt.status === PartyJoinReceiptStatus.REJECTED) {

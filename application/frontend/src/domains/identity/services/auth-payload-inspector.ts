@@ -1,13 +1,5 @@
-import type { AuthSession } from '@pleey/contracts/identity';
 import { injectable } from 'inversify';
 import type { User } from '../entities/user';
-
-interface AuthSessionCandidate {
-  readonly accessToken?: string;
-  readonly refreshToken?: string;
-  readonly expiresIn?: number;
-  readonly user?: unknown;
-}
 
 @injectable()
 export class AuthPayloadInspector {
@@ -29,34 +21,5 @@ export class AuthPayloadInspector {
     }
 
     return value;
-  }
-
-  toAuthSession(value: unknown): AuthSession | null {
-    if (!value || typeof value !== 'object') {
-      return null;
-    }
-
-    const candidate = value as AuthSessionCandidate;
-
-    if (
-      typeof candidate.accessToken !== 'string' ||
-      typeof candidate.refreshToken !== 'string' ||
-      typeof candidate.expiresIn !== 'number'
-    ) {
-      return null;
-    }
-
-    const user = this.toUser(candidate.user);
-
-    if (!user) {
-      return null;
-    }
-
-    return {
-      accessToken: candidate.accessToken,
-      refreshToken: candidate.refreshToken,
-      expiresIn: candidate.expiresIn,
-      user,
-    };
   }
 }

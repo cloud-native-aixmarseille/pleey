@@ -18,7 +18,10 @@
   },
   "pnpm": {
     "overrides": {
-      "@graphql-tools/utils": "12.0.2",
+      "@graphql-tools/code-file-loader": "8.1.43",
+      "@graphql-tools/graphql-file-loader": "8.1.11",
+      "@graphql-tools/load": "8.1.8",
+      "@graphql-tools/utils": "12.1.0",
       "glob": "14.0.2",
       "minimatch": "11.0.1",
       "effect": "3.22.1"

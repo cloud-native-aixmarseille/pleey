@@ -2,7 +2,7 @@ import { DEFAULT_PARTY_SETTINGS } from '@pleey/contracts/party';
 import { DEFAULT_THEME_ID } from '@pleey/contracts/theme';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import { hashPassword } from 'better-auth/crypto';
 import { CURATED_THEME_DOCUMENTS } from '../src/domain/theme/entities/curated-theme-documents';
 import { PrismaPartySettingsMapper } from '../src/infrastructure/game/shared/prisma-party-settings.mapper';
 
@@ -48,49 +48,58 @@ const fixedPredictionSeedTime = new Date('2026-11-18T11:39:10.000Z');
 async function main() {
   console.log('Seeding database...');
 
-  const adminPassword = await bcrypt.hash('admin123', 10);
+  const adminPassword = await hashPassword('admin123');
   const admin = await prisma.user.upsert({
     where: { username: 'admin' },
     update: {
       createdAt: fixedSeedTime,
-      authentication: {
-        update: {
-          email: 'admin@pleey.com',
-          password: adminPassword,
-          sessions: { deleteMany: {} },
-          passwordResetTokenHash: null,
-          passwordResetExpiresAt: null,
-        },
-      },
+      email: 'admin@pleey.com',
+      name: 'admin',
     },
     create: {
       username: 'admin',
+      name: 'admin',
+      email: 'admin@pleey.com',
       createdAt: fixedSeedTime,
-      authentication: { create: { email: 'admin@pleey.com', password: adminPassword } },
+    },
+  });
+  await prisma.account.upsert({
+    where: { providerId_accountId: { providerId: 'credential', accountId: admin.id } },
+    update: { password: adminPassword },
+    create: {
+      accountId: admin.id,
+      password: adminPassword,
+      providerId: 'credential',
+      userId: admin.id,
     },
   });
 
-  const playerPassword = await bcrypt.hash('player123', 10);
+  const playerPassword = await hashPassword('player123');
   const player = await prisma.user.upsert({
     where: { username: 'player1' },
     update: {
       createdAt: fixedSeedTime,
-      authentication: {
-        update: {
-          email: 'player@pleey.com',
-          password: playerPassword,
-          sessions: { deleteMany: {} },
-          passwordResetTokenHash: null,
-          passwordResetExpiresAt: null,
-        },
-      },
+      email: 'player@pleey.com',
+      name: 'player1',
     },
     create: {
       username: 'player1',
+      name: 'player1',
+      email: 'player@pleey.com',
       createdAt: fixedSeedTime,
-      authentication: { create: { email: 'player@pleey.com', password: playerPassword } },
     },
   });
+  await prisma.account.upsert({
+    where: { providerId_accountId: { providerId: 'credential', accountId: player.id } },
+    update: { password: playerPassword },
+    create: {
+      accountId: player.id,
+      password: playerPassword,
+      providerId: 'credential',
+      userId: player.id,
+    },
+  });
+  await prisma.session.deleteMany({ where: { userId: { in: [admin.id, player.id] } } });
 
   const organizationName = 'Arcade Labs';
   let organization = await prisma.organization.findFirst({

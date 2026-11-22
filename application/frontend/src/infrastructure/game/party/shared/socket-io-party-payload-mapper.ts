@@ -27,6 +27,7 @@ import {
   type PartyRuntimeNotice,
   PartyRuntimeNoticeKind,
 } from '../../../../domains/game/party/shared/ports/party-observation.port';
+import { createDomainError } from '../../../../domains/shared/errors/domain-error';
 import { ThemeDocumentNormalizer } from '../../../../domains/theme/services/theme-document-normalizer';
 import type {
   PartyJoinMessage,
@@ -338,7 +339,14 @@ export class SocketIoPartyPayloadMapper {
 
   private toPlayerIdentity(identity: PartyPlayerIdentity): PartyPlayerIdentity {
     if (identity.kind !== PartyPlayerKind.USER) {
-      throw new Error('Guest identities are not valid in the unified identity transport');
+      throw createDomainError(
+        {
+          code: 'LEGACY_GUEST_IDENTITY_REJECTED',
+          message: 'Guest identities are not valid in the unified identity transport',
+          messageKey: 'LEGACY_GUEST_IDENTITY_REJECTED',
+        },
+        { identityKind: identity.kind },
+      );
     }
     return { kind: PartyPlayerKind.USER, userId: this.userIdentifier.parse(identity.userId) };
   }

@@ -1,64 +1,70 @@
 import type { AuthSession } from '@pleey/contracts/identity';
-import { injectable } from 'inversify';
-import type { AuthSessionTransportHandlers } from '../../application/identity/ports/auth-session-transport.port';
+import { inject, injectable } from 'inversify';
+import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
+import { type StoragePort, StoragePortToken } from '../../domains/shared/ports/storage.port';
 import { StorageKey } from '../../domains/shared/value-objects/storage-key';
 import { betterAuthClient } from './better-auth-client';
 
 @injectable()
 export class PersistedAuthSessionAdapter {
-  constructor(..._dependencies: unknown[]) {
-    // Dependencies are retained as constructor-compatible migration inputs only.
-  }
+  constructor(
+    @inject(StoragePortToken) private readonly storage: StoragePort,
+    @inject(UserIdentifier) private readonly userIdentifier: UserIdentifier,
+  ) {}
 
-  commit(session: AuthSession): void {
-    // Better Auth owns the session cookie; application state is not persisted.
-    void session;
-  }
+  commit(_session: AuthSession): void {}
 
-  updateUser(_user?: unknown): void {
-    // Profile state is revalidated from the Better Auth session.
-  }
+  updateUser(_user?: unknown): void {}
 
   async restore(): Promise<AuthSession | null> {
-    const result = await betterAuthClient.getSession();
-    if (result.error || !result.data) return null;
-    const { user, session } = result.data;
+    const restoreConfirmedSession = async () => {
+      const current = await betterAuthClient.getSession();
+      if (current.error) return null;
+      if (current.data) return current.data;
+      const anonymous = await betterAuthClient.signIn.anonymous();
+      if (anonymous.error) return null;
+      const confirmed = await betterAuthClient.getSession();
+      return confirmed.error ? null : confirmed.data;
+    };
+    const confirmed =
+      'locks' in globalThis.navigator
+        ? await globalThis.navigator.locks.request('pleey-auth-session-initialization', restoreConfirmedSession)
+        : await restoreConfirmedSession();
+    if (!confirmed) return null;
+    const { user, session } = confirmed;
     return {
-      accessToken: '',
-      refreshToken: '',
+      id: session.id,
+      isAnonymous: Boolean((user as { isAnonymous?: boolean }).isAnonymous),
       expiresIn: Math.max(0, Math.floor((new Date(session.expiresAt).getTime() - Date.now()) / 1000)),
       user: {
-        id: user.id,
-        username: user.name || user.email,
+        id: this.userIdentifier.parse(user.id),
+        isAnonymous: Boolean((user as { isAnonymous?: boolean }).isAnonymous),
+        username: (user as { username?: string }).username || user.name || user.email,
         email: user.email,
       },
-    } as AuthSession;
+    };
   }
 
   clear(): void {
-    localStorage.removeItem(StorageKey.AUTH_ACCESS_TOKEN);
-    localStorage.removeItem(StorageKey.AUTH_REFRESH_TOKEN);
-    localStorage.removeItem(StorageKey.AUTH_USER);
-    localStorage.removeItem(StorageKey.THEME_DRAFTS);
-    localStorage.removeItem('party.guest-session.v1');
-    localStorage.removeItem('guest-session');
+    this.storage.removeItem(StorageKey.AUTH_ACCESS_TOKEN);
+    this.storage.removeItem(StorageKey.AUTH_REFRESH_TOKEN);
+    this.storage.removeItem(StorageKey.AUTH_USER);
+    this.storage.removeItem(StorageKey.THEME_DRAFTS);
+    this.storage.removeItem('party.guest-session.v1');
+    this.storage.removeItem('guest-session');
   }
 
-  suspend(): void {
-    // No browser-held secret is suspended.
-  }
-
-  registerHandlers(_handlers: AuthSessionTransportHandlers = {}): void {
-    // Session refresh and invalidation are owned by Better Auth and the auth actor.
-  }
+  suspend(): void {}
 
   watch(listener: () => void): () => void {
-    const onStorage = (event: StorageEvent) => {
-      if (event.storageArea && event.storageArea !== window.localStorage) return;
-      if (event.key === null || event.key === StorageKey.AUTH_REFRESH_TOKEN || event.key === StorageKey.AUTH_USER)
-        listener();
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') listener();
     };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+    window.addEventListener('focus', listener);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      window.removeEventListener('focus', listener);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }
 }

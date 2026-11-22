@@ -9,8 +9,8 @@ test.describe("Party Routes - Nominal Use Case", () => {
   };
 
   test("should resolve host lobbies by party id and join links by pin", async ({ browser, page, request }) => {
-    const { accessToken } = await loginViaApi(page, adminCredentials);
-    const party = await ensureHostParty(request, accessToken);
+    const { sessionCookie } = await loginViaApi(page, adminCredentials);
+    const party = await ensureHostParty(request, sessionCookie);
 
     await page.goto(`/party/${party.partyId}/lobby`);
 

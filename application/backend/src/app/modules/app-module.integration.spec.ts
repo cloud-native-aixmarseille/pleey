@@ -8,7 +8,6 @@ import { firstValueFrom, isObservable, skip, timeout } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 
 function ensureModuleTestEnvironment() {
-  process.env.JWT_SECRET = process.env.JWT_SECRET ?? 'test_jwt_secret_only_for_tests';
   process.env.DATABASE_URL = process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/pleey_test';
 }
 

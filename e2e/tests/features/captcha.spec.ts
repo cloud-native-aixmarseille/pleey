@@ -1,46 +1,38 @@
 import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
-import { resolveGraphqlUrl } from "../helpers/auth";
 import { completeSecurityCheck } from "../helpers/captcha";
 
-const protectedMutations = [
+const protectedEndpoints = [
   {
+    endpoint: "/api/auth/sign-up/email",
+    input: { username: "captcha_check", name: "captcha_check", email: "captcha-check@example.com", password: "CaptchaTest123!" },
     name: "signup",
-    query: "mutation($input: RegisterInput!) { register(input: $input) { id } }",
-    input: { username: "captcha_check", email: "captcha-check@example.com", password: "CaptchaTest123!" },
   },
   {
+    endpoint: "/api/auth/request-password-reset",
+    input: {
+      email: "captcha-check@example.com",
+      redirectTo: "http://frontend:5173/identity/reset-password",
+    },
     name: "password recovery",
-    query: "mutation($input: ForgotPasswordInput!) { forgotPassword(input: $input) }",
-    input: { email: "captcha-check@example.com", locale: "en" },
   },
 ];
 
-for (const mutation of protectedMutations) {
-  test(`${mutation.name} rejects direct API requests without a security token`, async ({ request }) => {
-    const response = await request.post(resolveGraphqlUrl(), {
-      data: { query: mutation.query, variables: { input: mutation.input } },
-    });
-    const result = await response.json();
+for (const operation of protectedEndpoints) {
+  test(`${operation.name} rejects direct API requests without a security token`, async ({ request }) => {
+    const response = await request.post(operation.endpoint, { data: operation.input });
 
-    expect(result.data).toBeUndefined();
-    expect(result.errors).toEqual(
-      expect.arrayContaining([expect.objectContaining({ message: expect.stringContaining('"captchaToken"') })]),
-    );
+    expect(response.status()).toBe(400);
+    expect(await response.json()).toMatchObject({ code: "CAPTCHA_REQUIRED" });
   });
 
-  test(`${mutation.name} rejects forged security tokens`, async ({ request }) => {
-    const response = await request.post(resolveGraphqlUrl(), {
-      data: { query: mutation.query, variables: { input: { ...mutation.input, captchaToken: "forged-token" } } },
+  test(`${operation.name} rejects forged security tokens`, async ({ request }) => {
+    const response = await request.post(operation.endpoint, {
+      data: { ...operation.input, captchaToken: "forged-token" },
     });
-    const result = await response.json();
 
-    expect(result.data).toBeNull();
-    expect(result.errors).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ extensions: expect.objectContaining({ code: "CAPTCHA_INVALID" }) }),
-      ]),
-    );
+    expect(response.status()).toBe(400);
+    expect(await response.json()).toMatchObject({ code: "CAPTCHA_INVALID" });
   });
 }
 
@@ -48,43 +40,33 @@ test("a signup security token cannot authorize password recovery", async ({ page
   await page.goto("/identity/register");
   const captchaToken = await completeSecurityCheck(page);
 
-  const response = await request.post(resolveGraphqlUrl(), {
+  const response = await request.post("/api/auth/request-password-reset", {
     data: {
-      query: "mutation($input: ForgotPasswordInput!) { forgotPassword(input: $input) }",
-      variables: { input: { email: `captcha-${randomUUID()}@example.com`, locale: "en", captchaToken } },
+      captchaToken,
+      email: `captcha-${randomUUID()}@example.com`,
+      redirectTo: "http://frontend:5173/identity/reset-password",
     },
   });
-  const result = await response.json();
 
-  expect(result.data).toBeNull();
-  expect(result.errors).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({ extensions: expect.objectContaining({ code: "CAPTCHA_INVALID" }) }),
-    ]),
-  );
+  expect(response.status()).toBe(400);
+  expect(await response.json()).toMatchObject({ code: "CAPTCHA_INVALID" });
 });
 
 test("a password recovery security token can only be submitted once", async ({ page, request }) => {
   await page.goto("/identity/forgot-password");
   const captchaToken = await completeSecurityCheck(page);
   const data = {
-    query: "mutation($input: ForgotPasswordInput!) { forgotPassword(input: $input) }",
-    variables: { input: { email: `captcha-${randomUUID()}@example.com`, locale: "en", captchaToken } },
+    captchaToken,
+    email: `captcha-${randomUUID()}@example.com`,
+    redirectTo: "http://frontend:5173/identity/reset-password",
   };
 
-  const firstResponse = await request.post(resolveGraphqlUrl(), { data });
-  const secondResponse = await request.post(resolveGraphqlUrl(), { data });
-  const firstResult = await firstResponse.json();
-  const secondResult = await secondResponse.json();
+  const firstResponse = await request.post("/api/auth/request-password-reset", { data });
+  const secondResponse = await request.post("/api/auth/request-password-reset", { data });
 
-  expect(firstResult).toMatchObject({ data: { forgotPassword: true } });
-  expect(firstResult.errors).toBeUndefined();
-  expect(secondResult.data).toBeNull();
-  expect(secondResult.errors).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({ extensions: expect.objectContaining({ code: "CAPTCHA_INVALID" }) }),
-    ]),
-  );
+  expect(firstResponse.ok()).toBe(true);
+  expect(secondResponse.status()).toBe(400);
+  expect(await secondResponse.json()).toMatchObject({ code: "CAPTCHA_INVALID" });
 });
 
 for (const route of ["register", "forgot-password"]) {

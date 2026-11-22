@@ -8,6 +8,7 @@ const ACCOUNT_MENU_GLOBAL_SHORTCUT_SCOPE = 'global';
 
 export function useAccountMenuState() {
   const { user, signOut } = useAuth();
+  const accountUser = user?.isAnonymous === true ? null : user;
   const navigate = usePresentationNavigate();
   const [opened, setOpened] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -29,7 +30,7 @@ export function useAccountMenuState() {
   useKeyboardShortcut({
     combo: { key: 'u' },
     descriptionKey: 'shared.keyboard.toggleAccountMenu',
-    disabled: user === null,
+    disabled: accountUser === null,
     execute: toggleGlobalAccountMenu,
     id: 'toggle-account-menu',
     scope: ACCOUNT_MENU_GLOBAL_SHORTCUT_SCOPE,
@@ -79,7 +80,7 @@ export function useAccountMenuState() {
     },
     opened,
     toggle,
-    user,
+    user: accountUser,
     wrapperRef,
   };
 }

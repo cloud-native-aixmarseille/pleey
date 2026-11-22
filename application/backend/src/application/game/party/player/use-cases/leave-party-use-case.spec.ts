@@ -49,6 +49,7 @@ describe('LeavePartyUseCase', () => {
     expect(runtime.removePlayer).toHaveBeenCalledWith({
       partyId,
       playerIdentity: { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(7) },
+      status: 'LEFT',
     });
     expect(broadcastPartyObservationUseCase.broadcastIfPresent).toHaveBeenCalledWith({
       partyId,
@@ -82,6 +83,7 @@ describe('LeavePartyUseCase', () => {
         kind: PartyPlayerKind.GUEST,
         guestId: backendTestIdentifiers.guest('guest-7'),
       },
+      status: 'LEFT',
     });
   });
 });

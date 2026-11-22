@@ -1,7 +1,8 @@
 import type { INestApplicationContext } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import type { Request } from 'express';
 import { UnauthorizedError } from '../../domain/identity/errors';
-import { JwtSessionAuthenticator } from '../../infrastructure/identity/services/jwt-session-authenticator';
+import { BetterAuthSessionAdapter } from '../../infrastructure/identity/better-auth-session.adapter';
 import type { GameSocketCorsOptions } from './game-socket-cors-options.token';
 
 type IoServer = ReturnType<IoAdapter['createIOServer']>;
@@ -13,14 +14,14 @@ type IoSocket = Parameters<IoServerMiddleware>[0];
 type IoNext = Parameters<IoServerMiddleware>[1];
 
 export class ConfiguredIoAdapter extends IoAdapter {
-  private readonly sessions: JwtSessionAuthenticator;
+  private readonly sessions: BetterAuthSessionAdapter;
 
   constructor(
     app: INestApplicationContext,
     private readonly corsOptions: GameSocketCorsOptions,
   ) {
     super(app);
-    this.sessions = app.get(JwtSessionAuthenticator);
+    this.sessions = app.get(BetterAuthSessionAdapter);
   }
 
   override createIOServer(port: number, options?: IoServerOptions): IoServer {
@@ -43,36 +44,52 @@ export class ConfiguredIoAdapter extends IoAdapter {
 
   private async authenticateSocketConnection(socket: IoSocket, next: IoNext): Promise<void> {
     try {
-      const token = this.extractBearerToken(socket);
-
-      if (!token) {
+      if (socket.handshake.headers.authorization !== undefined || socket.handshake.auth?.authorization !== undefined) {
+        next(new UnauthorizedError({ reason: 'legacySocketAuthorizationRejected' }));
+        return;
+      }
+      const identity = await this.sessions.getSession(socket.request as Request);
+      if (identity.kind !== 'valid') {
         delete socket.data.authenticatedUserId;
-        delete socket.data.authenticatedSession;
+        delete socket.data.authenticatedSessionId;
+        delete socket.data.authenticatedSessionExpiresAt;
         next();
         return;
       }
 
-      const payload = await this.sessions.authenticate(token);
-      socket.data.authenticatedUserId = payload.id;
-      socket.data.authenticatedSession = { ...payload, tokenType: 'access' };
+      socket.data.authenticatedUserId = identity.userId;
+      socket.data.authenticatedSessionId = identity.sessionId;
+      socket.data.authenticatedSessionExpiresAt = identity.expiresAt;
       socket.use(async (_packet, nextPacket) => {
         try {
-          await this.sessions.authenticate(token);
+          const revoked = await this.sessions.isSessionRevoked(identity.sessionId, identity.expiresAt);
+          if (revoked) throw new UnauthorizedError({ reason: 'socketPacketSessionRevoked' });
           nextPacket();
         } catch {
           delete socket.data.authenticatedUserId;
-          delete socket.data.authenticatedSession;
+          delete socket.data.authenticatedSessionId;
+          delete socket.data.authenticatedSessionExpiresAt;
           nextPacket(new UnauthorizedError({ reason: 'socketPacketSessionRevoked' }));
           socket.disconnect(true);
         }
       });
 
       const checkSession = setInterval(() => {
-        void this.sessions.authenticate(token, false).catch(() => {
-          delete socket.data.authenticatedUserId;
-          delete socket.data.authenticatedSession;
-          socket.disconnect(true);
-        });
+        void this.sessions
+          .isSessionRevoked(identity.sessionId, identity.expiresAt)
+          .then((revoked) => {
+            if (!revoked) return;
+            delete socket.data.authenticatedUserId;
+            delete socket.data.authenticatedSessionId;
+            delete socket.data.authenticatedSessionExpiresAt;
+            socket.disconnect(true);
+          })
+          .catch(() => {
+            delete socket.data.authenticatedUserId;
+            delete socket.data.authenticatedSessionId;
+            delete socket.data.authenticatedSessionExpiresAt;
+            socket.disconnect(true);
+          });
       }, 15_000);
 
       checkSession.unref();
@@ -88,28 +105,5 @@ export class ConfiguredIoAdapter extends IoAdapter {
       ...this.corsOptions,
       origin: this.corsOptions.origin === '*' ? '*' : [...this.corsOptions.origin],
     };
-  }
-
-  private extractBearerToken(socket: IoSocket): string | null {
-    const authToken = this.parseAuthorizationValue(socket.handshake.auth?.authorization);
-
-    if (authToken) {
-      return authToken;
-    }
-
-    return this.parseAuthorizationValue(socket.handshake.headers.authorization);
-  }
-
-  private parseAuthorizationValue(value: unknown): string | null {
-    if (value === undefined) return null;
-    if (typeof value !== 'string') throw new UnauthorizedError({ reason: 'invalidSocketAuthorizationType' });
-
-    const [scheme, token, extra] = value.split(' ');
-
-    if (scheme?.toLowerCase() !== 'bearer' || !token || extra !== undefined) {
-      throw new UnauthorizedError({ reason: 'invalidSocketAuthorizationFormat' });
-    }
-
-    return token;
   }
 }

@@ -1,43 +1,74 @@
 {
   "phase": "02",
-  "sourceCommit": "e901dec3",
-  "previousRelease": "unavailable: predecessor Phase 1 release artifact not present",
-  "candidateRelease": "unavailable: OCI/release manifest not generated in this implementation environment",
-  "environment": "CI-capable Linux workspace, PostgreSQL required for integration/release",
+  "sourceCommit": "f70fd5ef4ccf8e082ac1fb4b3070b1e3b3f34963",
+  "previousRelease": "phase 01 main baseline at b09912cd",
+  "candidateRelease": "artifacts/phase-02/release.json",
+  "environment": "Linux x86_64, Node 26.13.1, pnpm 10.32.1, PostgreSQL 16, Valkey 8, Chromium Playwright",
   "commands": [
-    {"command": "pnpm --dir application/backend db:generate", "status": "passed"},
-    {"command": "pnpm --dir application/backend exec prisma validate", "status": "passed"},
-    {"command": "pnpm --dir application/backend build", "status": "passed"},
-    {"command": "pnpm --dir application/frontend build", "status": "passed"},
-    {"command": "pnpm --dir application/frontend typecheck", "status": "passed"},
-    {"command": "pnpm --dir application/backend exec vitest run src/app/config/app-configuration.spec.ts", "status": "passed"},
-    {"command": "pnpm --dir application/backend typecheck", "status": "failed", "limitations": ["pre-existing backend spec typing mismatches unrelated to phase 2 identity flow remain"]},
-    {"command": "pnpm verify", "status": "failed", "limitations": ["verify.mjs cannot resolve the Biome executable through recursive pnpm exec in this environment"]},
-    {"command": "pnpm --dir application/frontend test -- src/app/bootstrap/modules/identity/app-auth-provider-factory.spec.tsx src/infrastructure/game/party/shared/socket-io-party-observation.adapter.spec.ts", "status": "failed", "limitations": ["existing frontend identity/session adapter assertions require a dedicated test migration to Better Auth actor behavior"]},
-    {"command": "pnpm --dir application/backend test -- src/app/config/app-configuration.spec.ts src/presentation/game/party/realtime/party-observer-message.validation.spec.ts src/presentation/game/party/realtime/services/host-party-observation-message-mapper.spec.ts", "status": "failed", "limitations": ["legacy Socket.IO media observation specs are currently incompatible with the Phase 2 admission path refactor"]}
+    {"command": "pnpm verify", "status": "passed", "limitations": []},
+    {"command": "pnpm test:integration --phase 02", "status": "passed", "limitations": ["fresh Phase 2 schema, not a representative Phase 1 production import"]},
+    {"command": "pnpm test:release --phase 02 --profile compose --output artifacts/phase-02/release.json", "status": "passed", "limitations": ["builds and records candidate images; no live promotion"]},
+    {"command": "./scripts/run-usage-docs.sh capture", "status": "passed", "limitations": ["desktop Chromium guide environment only"]},
+    {"command": "helm lint charts/application with explicit isolated profile values", "status": "passed", "limitations": []},
+    {"command": "helm template phase02 charts/application with explicit isolated profile values", "status": "passed", "limitations": []},
+    {"command": "pnpm --dir application/backend exec prisma validate", "status": "passed", "limitations": []},
+    {"command": "pnpm test:e2e --phase 02", "status": "failed", "limitations": ["legacy browser flows were replaced, but captcha widget solving and remaining UI assertions still do not pass as a complete suite"]},
+    {"command": "pnpm test:e2e --phase 02 --grep \"signup rejects forged\"", "status": "passed", "limitations": ["focused native endpoint evidence only"]}
   ],
   "acceptanceCases": [
-    {"caseId": "AUTH-01", "status": "not_executed", "limitations": ["real Better Auth HTTP/browser environment unavailable"]},
-    {"caseId": "AUTH-02", "status": "not_executed", "limitations": ["browser Web Lock environment unavailable"]},
-    {"caseId": "AUTH-03", "status": "not_executed", "limitations": ["isolated PostgreSQL unavailable"]},
-    {"caseId": "AUTH-04", "status": "not_executed", "limitations": ["real GraphQL/media/Socket.IO server unavailable"]},
-    {"caseId": "AUTH-05", "status": "not_executed", "limitations": ["real authorization integration unavailable"]},
-    {"caseId": "AUTH-06", "status": "not_executed", "limitations": ["transactional controller integration unavailable"]},
-    {"caseId": "AUTH-07", "status": "not_executed", "limitations": ["isolated PostgreSQL unavailable"]},
-    {"caseId": "AUTH-08", "status": "not_executed", "limitations": ["real party integration unavailable"]},
-    {"caseId": "AUTH-09", "status": "not_executed", "limitations": ["real session revocation unavailable"]},
-    {"caseId": "AUTH-10", "status": "not_executed", "limitations": ["browser account-switch environment unavailable"]},
-    {"caseId": "AUTH-11", "status": "not_executed", "limitations": ["browser/private-party integration unavailable"]},
-    {"caseId": "AUTH-12", "status": "not_executed", "limitations": ["linking hook and crash fixtures unavailable"]},
-    {"caseId": "AUTH-13", "status": "not_executed", "limitations": ["isolated database transfer fixtures unavailable"]},
-    {"caseId": "AUTH-14", "status": "not_executed", "limitations": ["SMTP sink unavailable"]},
-    {"caseId": "AUTH-15", "status": "not_executed", "limitations": ["browser/i18n suite unavailable"]},
-    {"caseId": "AUTH-16", "status": "not_executed", "limitations": ["physical/mobile browser unavailable"]},
-    {"caseId": "AUTH-17", "status": "not_executed", "limitations": ["representative migration/release environment unavailable"]},
-    {"caseId": "AUTH-18", "status": "not_executed", "limitations": ["full package/storage scan pending"]}
+    {
+      "caseId": "AUTH-01",
+      "status": "passed",
+      "expected": "A fresh browser receives one confirmed anonymous cookie identity and joins as a durable user participant.",
+      "observed": "Usage capture creates an anonymous identity and completes player-join/player-play against an isolated stack.",
+      "evidence": ["docs/usage/assets/player-play-player-lobby-en.png", "docs/usage/assets/player-play-player-scoring-en.png"],
+      "limitations": []
+    },
+    {"caseId": "AUTH-02", "status": "not_executed", "expected": "Two delayed first tabs converge before join.", "observed": "Not executed.", "evidence": [], "limitations": ["no two-tab delayed-response barrier in the browser suite"]},
+    {"caseId": "AUTH-03", "status": "not_executed", "expected": "Concurrent joins preserve one SQL membership.", "observed": "Not executed.", "evidence": [], "limitations": ["participant uniqueness exists; race barrier coverage is missing"]},
+    {"caseId": "AUTH-04", "status": "not_executed", "expected": "One cookie works across GraphQL, media and Socket.IO while bearer/guest credentials fail.", "observed": "Unit and focused socket coverage exist, but the full real-transport matrix did not pass.", "evidence": [], "limitations": ["complete browser/server matrix is blocked by the E2E suite"]},
+    {"caseId": "AUTH-05", "status": "not_executed", "expected": "Anonymous cookies cannot perform account-only management actions.", "observed": "Guard rejection is implemented but lacks a complete real HTTP matrix.", "evidence": [], "limitations": ["add real anonymous GraphQL authorization cases"]},
+    {"caseId": "AUTH-06", "status": "not_executed", "expected": "Transactional controller generation and takeover have one winner and reject stale handlers.", "observed": "Not executed.", "evidence": [], "limitations": ["durable controller-generation API and race tests are incomplete"]},
+    {"caseId": "AUTH-07", "status": "not_executed", "expected": "One active PLAYER claim is enforced while HOST-only membership remains independent.", "observed": "Schema and runtime writes exist, but the racing database case is not executed.", "evidence": [], "limitations": ["requires isolated concurrent join fixture"]},
+    {"caseId": "AUTH-08", "status": "not_executed", "expected": "Kick/leave/rejoin state transitions are durable.", "observed": "Unit leave/kick behavior passes; full reconnect matrix is not executed.", "evidence": [], "limitations": ["real reconnect and state persistence cases are missing"]},
+    {"caseId": "AUTH-09", "status": "not_executed", "expected": "Logout, revocation and password reset revoke connected authority in ordering tests.", "observed": "Socket revocation unit behavior passes; full transactional ordering is not executed.", "evidence": [], "limitations": ["requires real Better Auth and paused mutation barrier"]},
+    {"caseId": "AUTH-10", "status": "not_executed", "expected": "Account switch clears private state and ignores delayed callbacks/raw sockets.", "observed": "Provider race tests pass, but the raw socket and browser cache case is not executed.", "evidence": [], "limitations": ["browser multi-account fixture missing"]},
+    {"caseId": "AUTH-11", "status": "not_executed", "expected": "Private party reload uses membership without a password or guest token.", "observed": "Use-case coverage confirms existing membership bypasses password input; reload is not executed.", "evidence": [], "limitations": ["real browser/private-party case missing"]},
+    {
+      "caseId": "AUTH-12",
+      "status": "passed",
+      "expected": "Verified anonymous linking transfers ownership atomically and remains idempotent on retry.",
+      "observed": "IdentityTransferService tests pass for transfer, collision rollback and completed-operation retry.",
+      "evidence": ["application/backend/src/infrastructure/identity/identity-transfer.service.spec.ts"],
+      "limitations": ["uses a transactional database double, not a crash-injected PostgreSQL run"]
+    },
+    {
+      "caseId": "AUTH-13",
+      "status": "passed",
+      "expected": "Active-party collisions reject rather than merge scores or create dual control.",
+      "observed": "The transfer collision unit case rejects before ownership, score or session mutation.",
+      "evidence": ["application/backend/src/infrastructure/identity/identity-transfer.service.spec.ts"],
+      "limitations": ["not yet crash-tested on real PostgreSQL"]
+    },
+    {"caseId": "AUTH-14", "status": "not_executed", "expected": "Native reset is generic, expiring, single-use and deliverable through SMTP.", "observed": "Native endpoint and localized SMTP delivery are implemented, but the complete sink flow did not pass.", "evidence": [], "limitations": ["complete browser/SMTP E2E failed in the current run"]},
+    {"caseId": "AUTH-15", "status": "not_executed", "expected": "Account UI and protection pass in English and French.", "observed": "Unit, translation and generated guide checks pass; full auth browser inventory does not.", "evidence": [], "limitations": ["full Playwright auth profile/session matrix failed"]},
+    {"caseId": "AUTH-16", "status": "not_executed", "expected": "Mobile/desktop reload and foreground recovery never mint replacement guests.", "observed": "Desktop guide capture passes; physical/mobile evidence is absent.", "evidence": [], "limitations": ["no physical device or complete mobile browser run"]},
+    {"caseId": "AUTH-17", "status": "not_executed", "expected": "Migration upgrade, repeat, interruption, backup and rollback preserve representative data.", "observed": "All migrations deploy to a fresh isolated PostgreSQL database.", "evidence": ["pnpm test:integration --phase 02"], "limitations": ["no prior-version synthetic dataset, interrupted repeat, restore or coordinated rollback"]},
+    {
+      "caseId": "AUTH-18",
+      "status": "passed",
+      "expected": "No live JWT/guest credential verifier or browser secret persistence remains.",
+      "observed": "Old auth verifiers, GraphQL token mutations, Passport/JWT packages, token claims parser, and browser credential writes were deleted; focused scans only retain negative test fixtures.",
+      "evidence": ["docs/technical/implementation/phase-02/deletion-inventory.json"],
+      "limitations": []
+    }
   ],
-  "migration": "dry-run/upgrade artifacts not generated",
+  "migration": "The seven checked-in migrations deploy successfully to fresh isolated PostgreSQL. Prior-version conversion, repeat/interruption and dry-run count reconciliation remain unexecuted.",
   "rollbackRehearsal": "not executed",
   "deviceChecks": [],
-  "blockingFailures": ["Phase 2 is not mergeable until AUTH-01 through AUTH-18 pass", "legacy implementation and test compatibility require completion"]
+  "blockingFailures": [
+    "AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, AUTH-07, AUTH-08, AUTH-09, AUTH-10, AUTH-11, AUTH-14, AUTH-15, AUTH-16 and AUTH-17 are not complete",
+    "The full Playwright E2E suite does not pass",
+    "The Phase 2 migration has no prior-release upgrade/restore rehearsal"
+  ]
 }

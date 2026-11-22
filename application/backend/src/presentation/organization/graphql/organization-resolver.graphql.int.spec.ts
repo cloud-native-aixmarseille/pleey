@@ -20,7 +20,7 @@ import { OrganizationIdentifier } from '../../../application/workspace/shared/se
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { OrganizationErrorCode } from '../../../domain/organization/enums/organization-error-code.enum';
 import { backendTestIdentifiers } from '../../../test-utils/branded-identifiers';
-import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';
+import { GqlAuthGuard } from '../../identity/shared/guards/gql-auth-guard';
 import { ErrorCodeHttpStatusService } from '../../shared/error-handling/error-code-http-status.service';
 import { ERROR_CODE_HTTP_STATUS_RESOLVERS } from '../../shared/error-handling/error-code-http-status-resolvers.token';
 import { ERROR_CODE_TRANSLATORS } from '../../shared/error-handling/error-code-translators.token';
@@ -159,7 +159,7 @@ describe('OrganizationResolver', () => {
       imports: [TestOrganizationGraphqlModule],
     });
 
-    moduleBuilder.overrideGuard(GqlJwtAuthGuard).useValue({
+    moduleBuilder.overrideGuard(GqlAuthGuard).useValue({
       canActivate: () => true,
     });
 

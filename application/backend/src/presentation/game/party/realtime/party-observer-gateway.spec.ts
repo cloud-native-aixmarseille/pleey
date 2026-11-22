@@ -354,7 +354,6 @@ describe('PartyObserverGateway', () => {
 
     // Assert
     expect(joinPartyUseCase.execute).toHaveBeenCalledWith({
-      avatarSeed: undefined,
       pin: PARTY_PIN,
       playerIdentity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
       username: '',
@@ -421,7 +420,7 @@ describe('PartyObserverGateway', () => {
     });
   });
 
-  it('forwards trimmed guest avatar seeds on guest joins', async () => {
+  it('joins through the authenticated cookie identity', async () => {
     // Arrange
     const joinPartyUseCase = {
       execute: vi.fn().mockResolvedValue({
@@ -429,9 +428,9 @@ describe('PartyObserverGateway', () => {
         gameId: GAME_ID,
         pin: PARTY_PIN,
         player: {
-          identity: { kind: PartyPlayerKind.GUEST, guestId: GUEST_ID },
+          identity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
           username: 'Nova Otter 418',
-          avatarUri: '/api/avatars/guests/guest-7',
+          avatarUri: '/api/avatars/users/7?v=1',
           totalScore: 0,
           joinedAt: new Date('2026-04-17T10:00:00.000Z'),
         },
@@ -460,12 +459,11 @@ describe('PartyObserverGateway', () => {
     // Act
     await gateway.joinParty(
       {
-        data: {},
+        data: { authenticatedUserId: HOST_USER_ID },
         join: vi.fn().mockResolvedValue(undefined),
         leave: vi.fn().mockResolvedValue(undefined),
       } as never,
       {
-        avatarSeed: '  neon-seed  ',
         pin: '123456',
         username: 'Nova Otter 418',
       },
@@ -473,10 +471,9 @@ describe('PartyObserverGateway', () => {
 
     // Assert
     expect(joinPartyUseCase.execute).toHaveBeenCalledWith({
-      avatarSeed: 'neon-seed',
       pin: PARTY_PIN,
-      playerIdentity: { kind: PartyPlayerKind.GUEST },
-      username: 'Nova Otter 418',
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: HOST_USER_ID },
+      username: '',
     });
   });
 

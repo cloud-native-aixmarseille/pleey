@@ -46,7 +46,6 @@ describe('partyDependenciesContext', () => {
         partyGuestSessionPort: {
           clearGuestId: vi.fn(),
           getGuestPin: vi.fn(() => null),
-          getGuestCredential: vi.fn(() => null),
           getGuestId: vi.fn(() => null),
           setGuestId: vi.fn(),
         },

@@ -1,14 +1,18 @@
 import type { ExecutionContext } from '@nestjs/common';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, SetMetadata, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import type { AuthenticatedRequest } from '../context/authenticated-request';
-import { BetterAuthSessionAdapter } from '../../../../infrastructure/identity/better-auth-session.adapter';
 import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
+import { BetterAuthSessionAdapter } from '../../../../infrastructure/identity/better-auth-session.adapter';
+import type { AuthenticatedRequest } from '../context/authenticated-request';
 
 @Injectable()
-export class GqlJwtAuthGuard {
-  constructor(private readonly sessions: BetterAuthSessionAdapter) {}
+export class GqlAuthGuard {
+  constructor(
+    private readonly sessions: BetterAuthSessionAdapter,
+    private readonly reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const graphqlContext = GqlExecutionContext.create(context).getContext<{
@@ -24,6 +28,13 @@ export class GqlJwtAuthGuard {
     if (session.kind !== 'valid') {
       throw new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED);
     }
+    const allowsAnonymous = this.reflector.getAllAndOverride<boolean>(ALLOW_ANONYMOUS_SESSION, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (session.isAnonymous && !allowsAnonymous) {
+      throw new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED);
+    }
     request.user = {
       id: session.userId as UserId,
       username: '',
@@ -34,3 +45,7 @@ export class GqlJwtAuthGuard {
     return true;
   }
 }
+
+const ALLOW_ANONYMOUS_SESSION = 'pleey:allowAnonymousSession';
+
+export const AllowAnonymousSession = () => SetMetadata(ALLOW_ANONYMOUS_SESSION, true);

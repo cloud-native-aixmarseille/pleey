@@ -10,7 +10,7 @@ import { SaveThemeUseCase } from '../../../application/workspace/themes/use-case
 import { UploadThemeAssetUseCase } from '../../../application/workspace/themes/use-cases/upload-theme-asset-use-case';
 import type { UserId } from '../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
-import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';
+import { GqlAuthGuard } from '../../identity/shared/guards/gql-auth-guard';
 import type { GraphqlUploadFile } from '../../shared/graphql/graphql-upload-reader';
 import { ThemeAssetUploadReader } from './theme-asset-upload-reader';
 import { ThemePermissionsType } from './theme-permissions-type';
@@ -21,7 +21,7 @@ type ThemeAuthContext = {
   readonly user?: { readonly id: UserId };
 };
 @Resolver()
-@UseGuards(GqlJwtAuthGuard)
+@UseGuards(GqlAuthGuard)
 export class ThemeResolver {
   constructor(
     @Inject(ListThemesUseCase) private readonly listThemesUseCase: ListThemesUseCase,

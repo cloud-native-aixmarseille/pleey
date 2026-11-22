@@ -18,7 +18,7 @@ import type { Prediction } from '../../../../../domain/game/types/prediction/ent
 import type { PredictionPrompt } from '../../../../../domain/game/types/prediction/entities/prediction-prompt';
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
-import { GqlJwtAuthGuard } from '../../../../identity/shared/guards/gql-jwt-auth-guard';
+import { GqlAuthGuard } from '../../../../identity/shared/guards/gql-auth-guard';
 import { PaginationInput } from '../../../../shared/graphql/types/pagination-input';
 import { PlayableContentUploadReader } from '../../shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInputMapper } from '../../shared/graphql/selectable-option-input-mapper';
@@ -58,7 +58,7 @@ export class PredictionManagementResolver {
   ) {}
 
   @Query(() => PredictionType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async prediction(
     @Args('predictionId', { type: () => ID }) predictionId: string,
     @Context() context: GraphqlAuthContext,
@@ -72,7 +72,7 @@ export class PredictionManagementResolver {
   }
 
   @Mutation(() => PredictionType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async createPrediction(
     @Args('input') input: CreatePredictionInput,
     @Context() context: GraphqlAuthContext,
@@ -90,7 +90,7 @@ export class PredictionManagementResolver {
   }
 
   @Mutation(() => PredictionType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async createPredictionFromImport(
     @Args('input') input: CreatePredictionFromImportInput,
     @Context() context: GraphqlAuthContext,
@@ -110,7 +110,7 @@ export class PredictionManagementResolver {
   }
 
   @Mutation(() => PredictionType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async updatePrediction(
     @Args('predictionId', { type: () => ID }) predictionId: string,
     @Args('input') input: UpdatePredictionInput,
@@ -129,7 +129,7 @@ export class PredictionManagementResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async deletePrediction(
     @Args('predictionId', { type: () => ID }) predictionId: string,
     @Context() context: GraphqlAuthContext,
@@ -141,7 +141,7 @@ export class PredictionManagementResolver {
   }
 
   @Query(() => PredictionPromptListType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async predictionPrompts(
     @Args('predictionId', { type: () => ID }) predictionId: string,
     @Context() context: GraphqlAuthContext,
@@ -157,7 +157,7 @@ export class PredictionManagementResolver {
   }
 
   @Mutation(() => PredictionPromptType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async createPredictionPrompt(
     @Args('input') input: CreatePredictionPromptInput,
     @Context() context: GraphqlAuthContext,
@@ -181,7 +181,7 @@ export class PredictionManagementResolver {
   }
 
   @Mutation(() => PredictionPromptType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async updatePredictionPrompt(
     @Args('promptId', { type: () => ID }) promptId: string,
     @Args('input') input: UpdatePredictionPromptInput,
@@ -206,7 +206,7 @@ export class PredictionManagementResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async deletePredictionPrompt(
     @Args('promptId', { type: () => ID }) promptId: string,
     @Context() context: GraphqlAuthContext,

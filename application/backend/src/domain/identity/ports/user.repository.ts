@@ -9,11 +9,6 @@ export const UserRepositoryProvider = Symbol('UserRepository');
  */
 export interface UserRepository {
   /**
-   * Creates a new user
-   */
-  create(username: string, email: string, password: string, avatar?: Media | null): Promise<User>;
-
-  /**
    * Finds a user by email
    */
   findByEmail(email: string): Promise<User | null>;
@@ -27,11 +22,6 @@ export interface UserRepository {
    * Finds a user by username
    */
   findByUsername(username: string): Promise<User | null>;
-
-  /**
-   * Checks if a user exists by email or username
-   */
-  exists(email: string, username: string): Promise<boolean>;
 
   /**
    * Updates a user profile and returns the updated entity

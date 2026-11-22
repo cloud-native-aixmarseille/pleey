@@ -21,6 +21,7 @@ export class LeavePartyUseCase {
     const hasLeft = await this.playerPartyRuntime.removePlayer({
       partyId: party.partyId,
       playerIdentity: input.playerIdentity,
+      status: 'LEFT',
     });
 
     if (!hasLeft) {

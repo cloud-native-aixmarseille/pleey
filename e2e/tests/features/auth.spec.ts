@@ -41,16 +41,7 @@ test.describe("Authentication Flow - Nominal Use Case", () => {
 
     expect(initiallyDisabled).toBe(true);
     expect([...solverOrigins]).toEqual([new URL(page.url()).origin]);
-    await expect(page.getByRole("heading", { name: /account created!/i })).toBeVisible();
-
-    const signInLink = page.getByRole("link", {
-      name: /sign in now/i,
-    });
-    await expect(signInLink).toBeVisible();
-
-    await Promise.all([page.waitForURL(/\/identity\/sign-in/), signInLink.click()]);
-
-    await expect(page.getByRole("heading", { name: /welcome back\./i })).toBeVisible();
+    await expect(page).toHaveURL(/\/workspace/);
   });
 
   test("should request password recovery after completing the security check", async ({ page }) => {

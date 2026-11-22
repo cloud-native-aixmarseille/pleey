@@ -1,11 +1,8 @@
-import { PartyGuestCredentialMockFactory } from '../../../../../test-utils/mock-factories/party-guest-credential-mock-factory';
 import 'reflect-metadata';
 import { PartyPlayerKind } from '@pleey/contracts/party';
 import { describe, expect, it, vi } from 'vitest';
 import { GameErrorCode } from '../../../../../domain/game/enums/game-error-code.enum';
 import {
-  GuestPlayerRejoinNotFoundError,
-  GuestUsernameRequiredError,
   InvalidPartyPasswordError,
   MissingPartyPasswordError,
 } from '../../../../../domain/game/party/errors/join-party.error';
@@ -19,492 +16,161 @@ import {
 import { JoinPartyUseCase } from './join-party-use-case';
 
 const partyPin = backendTestIdentifiers.partyPin('123456');
-const activePartyPin = backendTestIdentifiers.partyPin('654321');
 const partyId = backendTestIdentifiers.party(12);
-const otherPartyId = backendTestIdentifiers.party(99);
-const gameId = backendTestIdentifiers.game(21);
 const playerUserId = backendTestIdentifiers.user(42);
-const guestId = backendTestIdentifiers.guest('guest-42');
+
+function createPlayer(): PartyPlayer {
+  return {
+    identity: { kind: PartyPlayerKind.USER, userId: playerUserId },
+    username: 'Morgan',
+    avatarUri: '/api/avatars/users/42?v=1',
+    totalScore: 0,
+    joinedAt: new Date('2026-04-27T10:00:00.000Z'),
+  };
+}
 
 describe('JoinPartyUseCase', () => {
-  it('rejects a new authenticated join when the party has already started', async () => {
+  it('rejects a new authenticated join after the party starts when late join is disabled', async () => {
     // Arrange
     const runtime = createPlayerPartyRuntimeMock({
-      findActivePartyByUserId: { status: 'ACTIVE' },
+      findActivePartyByUserId: null,
       findPartyByPin: { status: 'ACTIVE' },
       findPartyPlayer: null,
     });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn(),
-    };
     const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
-      broadcastPartyObservationUseCase as never,
+      { execute: vi.fn() } as never,
       createPasswordServiceMock({ compare: true }) as never,
     );
 
     // Act + Assert
     await expect(
       useCase.execute({
-        guestCredential: 'verified-test-credential',
         pin: partyPin,
-        playerIdentity: {
-          kind: PartyPlayerKind.USER,
-          userId: playerUserId,
-        },
+        playerIdentity: { kind: PartyPlayerKind.USER, userId: playerUserId },
         username: '',
       }),
     ).rejects.toThrow(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
-
     expect(runtime.ensureAuthenticatedPlayer).not.toHaveBeenCalled();
-    expect(broadcastPartyObservationUseCase.execute).not.toHaveBeenCalled();
   });
 
-  it('rejects a new guest join when the party has already started', async () => {
+  it('rejects an identity that already has a different active player party', async () => {
     // Arrange
     const runtime = createPlayerPartyRuntimeMock({
-      findPartyByPin: { status: 'ACTIVE' },
-    });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn(),
-    };
-    const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-      createPasswordServiceMock({ compare: true }) as never,
-    );
-
-    // Act + Assert
-    await expect(
-      useCase.execute({
-        guestCredential: 'verified-test-credential',
-        pin: partyPin,
-        playerIdentity: {
-          kind: PartyPlayerKind.GUEST,
-        },
-        username: 'Morgan Guest',
-      }),
-    ).rejects.toThrow(GameErrorCode.PARTY_COMMAND_NOT_AVAILABLE);
-
-    expect(runtime.findPartyPlayer).not.toHaveBeenCalled();
-    expect(runtime.ensureGuestPlayer).not.toHaveBeenCalled();
-    expect(broadcastPartyObservationUseCase.execute).not.toHaveBeenCalled();
-  });
-
-  it('rejects authenticated joins when the user is active in another party', async () => {
-    // Arrange
-    const runtime = createPlayerPartyRuntimeMock({
-      findActivePartyByUserId: { partyId: otherPartyId, pin: activePartyPin },
-    });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn(),
-    };
-    const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-      createPasswordServiceMock({ compare: true }) as never,
-    );
-
-    // Act + Assert
-    await expect(
-      useCase.execute({
-        guestCredential: 'verified-test-credential',
-        pin: partyPin,
-        playerIdentity: {
-          kind: PartyPlayerKind.USER,
-          userId: playerUserId,
-        },
-        username: '',
-      }),
-    ).rejects.toMatchObject({
-      code: GameErrorCode.PLAYER_ALREADY_IN_ACTIVE_PARTY,
-      context: {
-        activePartyId: otherPartyId,
-        requestedPartyId: partyId,
-        userId: playerUserId,
-      },
-    });
-
-    expect(runtime.ensureAuthenticatedPlayer).not.toHaveBeenCalled();
-    expect(broadcastPartyObservationUseCase.execute).not.toHaveBeenCalled();
-  });
-
-  it('allows an authenticated player to rejoin the same active party', async () => {
-    // Arrange
-    const player = {
-      identity: { kind: PartyPlayerKind.USER, userId: playerUserId },
-      username: 'Morgan',
-      avatarUri: '/api/avatars/users/42?v=1',
-      totalScore: 0,
-      joinedAt: new Date('2026-04-27T10:00:00.000Z'),
-    } satisfies PartyPlayer;
-    const runtime = createPlayerPartyRuntimeMock({
-      findActivePartyByUserId: { status: 'ACTIVE' },
-      findPartyByPin: { status: 'ACTIVE' },
-      findPartyPlayer: player,
-    });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn().mockResolvedValue(undefined),
-    };
-    const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-      createPasswordServiceMock({ compare: true }) as never,
-    );
-
-    // Act
-    const result = await useCase.execute({
-      guestCredential: 'verified-test-credential',
-      pin: partyPin,
-      playerIdentity: {
-        kind: PartyPlayerKind.USER,
-        userId: playerUserId,
-      },
-      username: '',
-    });
-
-    // Assert
-    expect(runtime.ensureAuthenticatedPlayer).toHaveBeenCalledWith({
-      partyId,
-      userId: playerUserId,
-    });
-    expect(result.player).toEqual(player);
-  });
-
-  it('joins an authenticated player into the requested party and resolves the published player', async () => {
-    // Arrange
-    const player = {
-      identity: { kind: PartyPlayerKind.USER, userId: playerUserId },
-      username: 'Morgan',
-      avatarUri: '/api/avatars/users/42?v=1',
-      totalScore: 0,
-      joinedAt: new Date('2026-04-27T10:00:00.000Z'),
-    } satisfies PartyPlayer;
-    const runtime = createPlayerPartyRuntimeMock({
-      findActivePartyByUserId: {
-        partyId,
-        gameId,
-        pin: partyPin,
-        status: 'WAITING',
-      },
-      findPartyPlayer: player,
-    });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn().mockResolvedValue(undefined),
-    };
-    const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-      createPasswordServiceMock({ compare: true }) as never,
-    );
-
-    // Act
-    const result = await useCase.execute({
-      guestCredential: 'verified-test-credential',
-      pin: partyPin,
-      playerIdentity: {
-        kind: PartyPlayerKind.USER,
-        userId: playerUserId,
-      },
-      username: '',
-    });
-
-    // Assert
-    expect(runtime.ensureAuthenticatedPlayer).toHaveBeenCalledWith({
-      partyId,
-      userId: playerUserId,
-    });
-    expect(runtime.findPartyPlayer).toHaveBeenCalledWith({
-      partyId,
-      playerIdentity: {
-        kind: PartyPlayerKind.USER,
-        userId: playerUserId,
-      },
-    });
-    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({
-      partyId,
-    });
-    expect(result).toEqual({
-      partyId,
-      gameId,
-      pin: partyPin,
-      player,
-    });
-  });
-
-  it.each([undefined, 'forged-credential'])(
-    'rejects a guest id without valid proof before any write',
-    async (guestCredential) => {
-      // Arrange
-      const runtime = createPlayerPartyRuntimeMock({
-        findPartyPlayer: {
-          identity: { kind: PartyPlayerKind.GUEST, guestId },
-          username: 'Guest',
-          avatarUri: null,
-          totalScore: 0,
-          joinedAt: new Date(0),
-        },
-      });
-      const broadcast = { execute: vi.fn() };
-      const useCase = new JoinPartyUseCase(
-        new PartyGuestCredentialMockFactory().create(),
-        runtime as never,
-        broadcast as never,
-        createPasswordServiceMock({ compare: true }) as never,
-      );
-      // Act + Assert
-      await expect(
-        useCase.execute({
-          pin: partyPin,
-          guestCredential,
-          playerIdentity: { kind: PartyPlayerKind.GUEST, guestId },
-          username: 'Guest',
-        }),
-      ).rejects.toThrow(GuestPlayerRejoinNotFoundError);
-      expect(runtime.ensureGuestPlayer).not.toHaveBeenCalled();
-      expect(broadcast.execute).not.toHaveBeenCalled();
-    },
-  );
-
-  it('normalizes guest usernames and resolves a rejoined guest player by guest id', async () => {
-    // Arrange
-    const player = {
-      identity: { kind: PartyPlayerKind.GUEST, guestId },
-      username: 'Morgan Guest',
-      avatarUri: '/api/avatars/guests/guest-42',
-      totalScore: 0,
-      joinedAt: new Date('2026-04-27T10:00:00.000Z'),
-    } satisfies PartyPlayer;
-    const runtime = createPlayerPartyRuntimeMock({
-      findPartyPlayer: player,
-    });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn().mockResolvedValue(undefined),
-    };
-    const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-      createPasswordServiceMock({ compare: true }) as never,
-    );
-
-    // Act
-    const result = await useCase.execute({
-      guestCredential: 'verified-test-credential',
-      avatarSeed: 'neon-seed',
-      pin: partyPin,
-      playerIdentity: {
-        kind: PartyPlayerKind.GUEST,
-        guestId,
-      },
-      username: '  Morgan Guest  ',
-    });
-
-    // Assert
-    expect(runtime.ensureGuestPlayer).toHaveBeenCalledWith({
-      avatarSeed: 'neon-seed',
-      partyId,
-      guestId,
-      username: 'Morgan Guest',
-    });
-    expect(runtime.findPartyPlayer).toHaveBeenCalledWith({
-      partyId,
-      playerIdentity: {
-        kind: PartyPlayerKind.GUEST,
-        guestId,
-      },
-    });
-    expect(result.player).toEqual(player);
-  });
-
-  it('allows guest rejoin by guest id when the browser no longer has the username', async () => {
-    // Arrange
-    const player = {
-      identity: { kind: PartyPlayerKind.GUEST, guestId },
-      username: 'Morgan Guest',
-      avatarUri: '/api/avatars/guests/guest-42',
-      totalScore: 0,
-      joinedAt: new Date('2026-04-27T10:00:00.000Z'),
-    } satisfies PartyPlayer;
-    const runtime = createPlayerPartyRuntimeMock({
-      findPartyPlayer: player,
-    });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn().mockResolvedValue(undefined),
-    };
-    const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-      createPasswordServiceMock({ compare: true }) as never,
-    );
-
-    // Act
-    const result = await useCase.execute({
-      guestCredential: 'verified-test-credential',
-      avatarSeed: '  aurora-seed  ',
-      pin: partyPin,
-      playerIdentity: {
-        kind: PartyPlayerKind.GUEST,
-        guestId,
-      },
-      username: '   ',
-    });
-
-    // Assert
-    expect(runtime.ensureGuestPlayer).toHaveBeenCalledWith({
-      avatarSeed: 'aurora-seed',
-      partyId,
-      guestId,
-      username: '',
-    });
-    expect(runtime.findPartyPlayer).toHaveBeenCalledWith({
-      partyId,
-      playerIdentity: {
-        kind: PartyPlayerKind.GUEST,
-        guestId,
-      },
-    });
-    expect(result.player).toEqual(player);
-  });
-
-  it('rejects guest rejoin by guest id when the player is no longer in the party', async () => {
-    // Arrange
-    const runtime = createPlayerPartyRuntimeMock({
+      findActivePartyByUserId: { partyId: backendTestIdentifiers.party(99) },
+      findPartyByPin: { partyId },
       findPartyPlayer: null,
     });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn(),
-    };
     const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
-      broadcastPartyObservationUseCase as never,
+      { execute: vi.fn() } as never,
       createPasswordServiceMock({ compare: true }) as never,
     );
 
     // Act + Assert
     await expect(
       useCase.execute({
-        guestCredential: 'verified-test-credential',
         pin: partyPin,
-        playerIdentity: {
-          kind: PartyPlayerKind.GUEST,
-          guestId,
-        },
-        username: '   ',
+        playerIdentity: { kind: PartyPlayerKind.USER, userId: playerUserId },
+        username: '',
       }),
-    ).rejects.toBeInstanceOf(GuestPlayerRejoinNotFoundError);
-
-    expect(runtime.ensureGuestPlayer).not.toHaveBeenCalled();
-    expect(broadcastPartyObservationUseCase.execute).not.toHaveBeenCalled();
+    ).rejects.toThrow(GameErrorCode.PLAYER_ALREADY_IN_ACTIVE_PARTY);
+    expect(runtime.ensureAuthenticatedPlayer).not.toHaveBeenCalled();
   });
 
-  it('rejects guest joins with an empty username', async () => {
+  it('joins and publishes an authenticated participant', async () => {
     // Arrange
-    const runtime = createPlayerPartyRuntimeMock();
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn(),
-    };
-    const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-      createPasswordServiceMock({ compare: true }) as never,
-    );
-
-    // Act + Assert
-    await expect(
-      useCase.execute({
-        guestCredential: 'verified-test-credential',
-        pin: partyPin,
-        playerIdentity: {
-          kind: PartyPlayerKind.GUEST,
-        },
-        username: '   ',
-      }),
-    ).rejects.toBeInstanceOf(GuestUsernameRequiredError);
-
-    expect(runtime.ensureGuestPlayer).not.toHaveBeenCalled();
-  });
-
-  it('rejects private-party joins with missing password', async () => {
-    // Arrange
+    const player = createPlayer();
     const runtime = createPlayerPartyRuntimeMock({
-      findPartyByPin: { privatePartyPasswordHash: 'hashed-private-password' },
+      findActivePartyByUserId: null,
+      findPartyPlayer: player,
     });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn(),
-    };
-    const passwordService = createPasswordServiceMock({ compare: true });
+    const broadcast = { execute: vi.fn().mockResolvedValue(undefined) };
     const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
-      broadcastPartyObservationUseCase as never,
-      passwordService,
+      broadcast as never,
+      createPasswordServiceMock({ compare: true }) as never,
     );
 
-    // Act + Assert
-    await expect(
-      useCase.execute({
-        guestCredential: 'verified-test-credential',
-        pin: partyPin,
-        playerIdentity: {
-          kind: PartyPlayerKind.GUEST,
-        },
-        username: 'Morgan Guest',
-      }),
-    ).rejects.toBeInstanceOf(MissingPartyPasswordError);
+    // Act
+    const result = await useCase.execute({
+      pin: partyPin,
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: playerUserId },
+      username: '',
+    });
 
+    // Assert
+    expect(runtime.ensureAuthenticatedPlayer).toHaveBeenCalledWith({ partyId, userId: playerUserId });
+    expect(result).toMatchObject({ gameId: DEFAULT_PARTY_JOIN_TARGET.gameId, partyId, pin: partyPin, player });
+    expect(broadcast.execute).toHaveBeenCalledWith({ partyId });
+  });
+
+  it('rejoins the same active party through durable membership without a password', async () => {
+    // Arrange
+    const player = createPlayer();
+    const passwordService = createPasswordServiceMock({ compare: false });
+    const runtime = createPlayerPartyRuntimeMock({
+      findActivePartyByUserId: { partyId },
+      findPartyByPin: {
+        privatePartyPasswordHash: 'private-password-hash',
+        status: 'ACTIVE',
+      },
+      findPartyPlayer: player,
+    });
+    const useCase = new JoinPartyUseCase(runtime as never, { execute: vi.fn() } as never, passwordService);
+
+    // Act
+    const result = await useCase.execute({
+      pin: partyPin,
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: playerUserId },
+      username: '',
+    });
+
+    // Assert
+    expect(result.player).toEqual(player);
     expect(passwordService.compare).not.toHaveBeenCalled();
   });
 
-  it('rejects private-party joins with invalid password', async () => {
+  it('requires and verifies the private party password for a new membership', async () => {
     // Arrange
-    const runtime = createPlayerPartyRuntimeMock({
-      findPartyByPin: { privatePartyPasswordHash: 'hashed-private-password' },
+    const missingRuntime = createPlayerPartyRuntimeMock({
+      findActivePartyByUserId: null,
+      findPartyByPin: { privatePartyPasswordHash: 'private-password-hash' },
+      findPartyPlayer: null,
     });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn(),
-    };
+    const invalidRuntime = createPlayerPartyRuntimeMock({
+      findActivePartyByUserId: null,
+      findPartyByPin: { privatePartyPasswordHash: 'private-password-hash' },
+      findPartyPlayer: null,
+    });
     const passwordService = createPasswordServiceMock({ compare: false });
-    const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
+    const missingUseCase = new JoinPartyUseCase(
+      missingRuntime as never,
+      { execute: vi.fn() } as never,
       passwordService,
     );
+    const invalidUseCase = new JoinPartyUseCase(
+      invalidRuntime as never,
+      { execute: vi.fn() } as never,
+      passwordService,
+    );
+    const command = {
+      pin: partyPin,
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: playerUserId } as const,
+      username: '',
+    };
 
     // Act + Assert
-    await expect(
-      useCase.execute({
-        guestCredential: 'verified-test-credential',
-        partyPassword: 'wrong-secret',
-        pin: partyPin,
-        playerIdentity: {
-          kind: PartyPlayerKind.GUEST,
-        },
-        username: 'Morgan Guest',
-      }),
-    ).rejects.toBeInstanceOf(InvalidPartyPasswordError);
-
-    expect(passwordService.compare).toHaveBeenCalledWith('wrong-secret', 'hashed-private-password');
+    await expect(missingUseCase.execute(command)).rejects.toBeInstanceOf(MissingPartyPasswordError);
+    await expect(invalidUseCase.execute({ ...command, partyPassword: 'wrong-secret' })).rejects.toBeInstanceOf(
+      InvalidPartyPasswordError,
+    );
+    expect(passwordService.compare).toHaveBeenCalledWith('wrong-secret', 'private-password-hash');
   });
 
-  it('allows a new authenticated player to join a started party when allowJoiningAfterStart is enabled', async () => {
+  it('allows a new member to join an active party when late joining is enabled', async () => {
     // Arrange
-    const player = {
-      identity: { kind: PartyPlayerKind.USER, userId: playerUserId },
-      username: 'Morgan',
-      avatarUri: '/api/avatars/users/42?v=1',
-      totalScore: 0,
-      joinedAt: new Date('2026-04-27T10:00:00.000Z'),
-    } satisfies PartyPlayer;
+    const player = createPlayer();
     const runtime = createPlayerPartyRuntimeMock({
       findActivePartyByUserId: null,
       findPartyByPin: {
@@ -513,79 +179,20 @@ describe('JoinPartyUseCase', () => {
       },
       findPartyPlayer: player,
     });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn().mockResolvedValue(undefined),
-    };
     const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
       runtime as never,
-      broadcastPartyObservationUseCase as never,
+      { execute: vi.fn() } as never,
       createPasswordServiceMock({ compare: true }) as never,
     );
 
     // Act
     const result = await useCase.execute({
-      guestCredential: 'verified-test-credential',
       pin: partyPin,
-      playerIdentity: {
-        kind: PartyPlayerKind.USER,
-        userId: playerUserId,
-      },
+      playerIdentity: { kind: PartyPlayerKind.USER, userId: playerUserId },
       username: '',
     });
 
     // Assert
-    expect(runtime.ensureAuthenticatedPlayer).toHaveBeenCalledWith({
-      partyId,
-      userId: playerUserId,
-    });
     expect(result.player).toEqual(player);
-    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId });
-  });
-
-  it('allows a new guest player to join a started party when allowJoiningAfterStart is enabled', async () => {
-    // Arrange
-    const player = {
-      identity: { kind: PartyPlayerKind.GUEST, guestId },
-      username: 'Morgan Guest',
-      avatarUri: '/api/avatars/guests/guest-42',
-      totalScore: 0,
-      joinedAt: new Date('2026-04-27T10:00:00.000Z'),
-    } satisfies PartyPlayer;
-    const runtime = createPlayerPartyRuntimeMock({
-      findPartyByPin: {
-        status: 'ACTIVE',
-        settings: { ...DEFAULT_PARTY_JOIN_TARGET.settings, allowJoiningAfterStart: true },
-      },
-      findPartyPlayer: player,
-    });
-    const broadcastPartyObservationUseCase = {
-      execute: vi.fn().mockResolvedValue(undefined),
-    };
-    const useCase = new JoinPartyUseCase(
-      new PartyGuestCredentialMockFactory().create(),
-      runtime as never,
-      broadcastPartyObservationUseCase as never,
-      createPasswordServiceMock({ compare: true }) as never,
-    );
-
-    // Act
-    const result = await useCase.execute({
-      guestCredential: 'verified-test-credential',
-      pin: partyPin,
-      playerIdentity: {
-        kind: PartyPlayerKind.GUEST,
-      },
-      username: 'Morgan Guest',
-    });
-
-    // Assert
-    expect(runtime.ensureGuestPlayer).toHaveBeenCalledWith({
-      partyId,
-      guestId: null,
-      username: 'Morgan Guest',
-    });
-    expect(result.player).toEqual(player);
-    expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({ partyId });
   });
 });

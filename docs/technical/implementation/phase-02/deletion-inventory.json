@@ -5,11 +5,15 @@
     "frontend access/refresh token persistence",
     "party guest credential persistence",
     "legacy guest handshake fields",
-    "legacy refresh and reset-token token services"
+    "legacy refresh and reset-token token services",
+    "Passport and Nest JWT dependencies",
+    "GraphQL login/register/logout/refresh/reset operations",
+    "frontend XState auth session shell and JWT claims parser",
+    "old SMTP recovery worker and Prisma authentication repository"
   ],
   "database": [
-    "old refresh/session rows after reconciliation",
-    "legacy reset-token columns after reconciliation",
-    "guest-table live authority after guest-history conversion"
+    "user_authentications table",
+    "user_sessions table",
+    "legacy reset-token columns"
   ]
 }

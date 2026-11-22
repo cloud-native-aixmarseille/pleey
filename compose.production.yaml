@@ -45,16 +45,13 @@ services:
       NODE_ENV: production
       APP_VERSION: ${PLEEY_RELEASE_ID:?Set PLEEY_RELEASE_ID}
       FRONTEND_URL: https://${PLEEY_DOMAIN}
-      FRONTEND_REQUIRE_HTTPS: "true"
+      CORS_ORIGIN: https://${PLEEY_DOMAIN}
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
       VALKEY_URL: ${VALKEY_URL:?Set VALKEY_URL}
-      SMTP_HOST: ${SMTP_HOST:?Set SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_SECURE: ${SMTP_SECURE:-true}
-      SMTP_REQUIRE_TLS: ${SMTP_REQUIRE_TLS:-true}
+      SMTP_URL: ${SMTP_URL:?Set SMTP_URL}
       SMTP_FROM: ${SMTP_FROM:?Set SMTP_FROM}
-      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET}
+      CAP_SECRET: ${CAP_SECRET:?Set CAP_SECRET}
       MEDIA_STORAGE_ENDPOINT: ${MEDIA_STORAGE_ENDPOINT:?Set MEDIA_STORAGE_ENDPOINT}
       MEDIA_STORAGE_REGION: ${MEDIA_STORAGE_REGION:-us-east-1}
       MEDIA_STORAGE_BUCKET: ${MEDIA_STORAGE_BUCKET:-pleey-media}
@@ -63,6 +60,20 @@ services:
       MEDIA_STORAGE_FORCE_PATH_STYLE: ${MEDIA_STORAGE_FORCE_PATH_STYLE:-true}
       MEDIA_PUBLIC_BASE_URL: ${MEDIA_PUBLIC_BASE_URL:?Set MEDIA_PUBLIC_BASE_URL}
       MEDIA_REQUIRE_HTTPS: "true"
+      MEDIA_ACCESS_TTL_SECONDS: ${MEDIA_ACCESS_TTL_SECONDS:-300}
+      MEDIA_PROCESSING_TIMEOUT_MS: ${MEDIA_PROCESSING_TIMEOUT_MS:-120000}
+      MEDIA_PROCESSING_CONCURRENCY: ${MEDIA_PROCESSING_CONCURRENCY:-1}
+      MEDIA_PROCESSING_MEMORY_LIMIT_MB: ${MEDIA_PROCESSING_MEMORY_LIMIT_MB:-1024}
+      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
+      PORT: "3001"
+      PARTY_SESSION_RECOVERY_WINDOW_MS: ${PARTY_SESSION_RECOVERY_WINDOW_MS:-300000}
+      PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES: ${PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES:-5242880}
+      GRAPHQL_GRAPHIQL_ENABLED: "false"
+      GRAPHQL_INTROSPECTION_ENABLED: "false"
+      I18N_WATCH_ENABLED: "false"
+      OTEL_CONSOLE_DIAGNOSTICS_ENABLED: "false"
+      OTEL_CONSOLE_EXPORTERS_ENABLED: "false"
+      OTEL_CONSOLE_LOGS_ENABLED: "false"
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -92,14 +103,7 @@ services:
       NODE_ENV: production
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
       SHADOW_DATABASE_URL: ${SHADOW_DATABASE_URL:-}
-    command:
-      [
-        "./node_modules/.bin/prisma",
-        "migrate",
-        "deploy",
-        "--config",
-        "prisma.config.ts",
-      ]
+    command: ["./node_modules/.bin/prisma", "migrate", "deploy", "--config", "prisma.config.ts"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -118,11 +122,7 @@ services:
     networks:
       - pleey
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-pleey} -d ${POSTGRES_DB:-pleey}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pleey} -d ${POSTGRES_DB:-pleey}"]
       interval: 10s
       timeout: 5s
       retries: 10

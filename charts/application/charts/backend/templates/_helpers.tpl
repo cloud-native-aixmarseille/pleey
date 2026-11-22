@@ -83,21 +83,21 @@ imagePullSecrets:
 {{- end }}
 {{- end }}
 
-{{- define "pleey.backend.jwtSecretName" -}}
+{{- define "pleey.backend.betterAuthSecretName" -}}
 {{- default (include "pleey.backend.appSecretName" .) .Values.auth.existingSecret.name }}
 {{- end }}
 
-{{- define "pleey.backend.jwtSecretKey" -}}
-{{- default "JWT_SECRET" .Values.auth.existingSecret.jwtSecretKey }}
+{{- define "pleey.backend.betterAuthSecretKey" -}}
+{{- default "BETTER_AUTH_SECRET" .Values.auth.existingSecret.betterAuthSecretKey }}
 {{- end }}
 
-{{- define "pleey.backend.jwtSecret" -}}
+{{- define "pleey.backend.betterAuthSecret" -}}
 {{- $secretName := include "pleey.backend.appSecretName" . -}}
 {{- $secret := lookup "v1" "Secret" (include "pleey.backend.namespace" .) $secretName -}}
-{{- if and $secret (hasKey $secret.data "JWT_SECRET") -}}
-{{- index $secret.data "JWT_SECRET" | b64dec -}}
-{{- else if .Values.auth.jwtSecret -}}
-{{- .Values.auth.jwtSecret -}}
+{{- if and $secret (hasKey $secret.data "BETTER_AUTH_SECRET") -}}
+{{- index $secret.data "BETTER_AUTH_SECRET" | b64dec -}}
+{{- else if .Values.auth.betterAuthSecret -}}
+{{- .Values.auth.betterAuthSecret -}}
 {{- else -}}
 {{- randAlphaNum 48 -}}
 {{- end -}}
@@ -184,12 +184,12 @@ VALKEY_URL
 {{- end -}}
 {{- end }}
 
-{{- define "pleey.backend.jwtSecretMountPath" -}}
-/var/run/pleey-secrets/jwt
+{{- define "pleey.backend.betterAuthSecretMountPath" -}}
+/var/run/pleey-secrets/identity
 {{- end }}
 
-{{- define "pleey.backend.jwtSecretFile" -}}
-{{- printf "%s/%s" (include "pleey.backend.jwtSecretMountPath" .) (include "pleey.backend.jwtSecretKey" .) -}}
+{{- define "pleey.backend.betterAuthSecretFile" -}}
+{{- printf "%s/%s" (include "pleey.backend.betterAuthSecretMountPath" .) (include "pleey.backend.betterAuthSecretKey" .) -}}
 {{- end }}
 
 {{- define "pleey.backend.databaseSecretMountPath" -}}

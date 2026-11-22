@@ -53,12 +53,4 @@ export const IDENTITY_ERROR_DEFINITIONS: Readonly<Record<IdentityErrorCode, Doma
       code: IdentityErrorCode.AVATAR_NOT_FOUND,
       messageKey: 'auth.errors.avatarNotFound',
     },
-    [IdentityErrorCode.INVALID_REFRESH_TOKEN]: {
-      code: IdentityErrorCode.INVALID_REFRESH_TOKEN,
-      messageKey: 'auth.errors.invalidRefreshToken',
-    },
-    [IdentityErrorCode.REFRESH_TOKEN_EXPIRED]: {
-      code: IdentityErrorCode.REFRESH_TOKEN_EXPIRED,
-      messageKey: 'auth.errors.refreshTokenExpired',
-    },
   };

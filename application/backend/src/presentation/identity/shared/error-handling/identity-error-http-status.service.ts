@@ -16,8 +16,6 @@ const IDENTITY_ERROR_HTTP_STATUSES: Record<IdentityErrorCode, number> = {
   [IdentityErrorCode.UNAUTHORIZED]: 401,
   [IdentityErrorCode.AUTHENTICATION_REQUIRED]: 401,
   [IdentityErrorCode.AVATAR_NOT_FOUND]: 404,
-  [IdentityErrorCode.INVALID_REFRESH_TOKEN]: 401,
-  [IdentityErrorCode.REFRESH_TOKEN_EXPIRED]: 401,
 };
 
 @Injectable()

@@ -28,37 +28,4 @@ describe('AuthPayloadInspector', () => {
       expect(result).toBe(false);
     });
   });
-
-  describe('toAuthSession()', () => {
-    it('returns a normalized auth session when the payload is valid', () => {
-      // Arrange
-      const inspector = new AuthPayloadInspector();
-
-      // Act
-      const result = inspector.toAuthSession(
-        authFixtureFactory.createAuthSessionPayload({
-          user: { avatarUri: undefined },
-        }),
-      );
-
-      // Assert
-      expect(result).toEqual({
-        accessToken: 'access-token',
-        refreshToken: 'refresh-token',
-        expiresIn: 3600,
-        user: authFixtureFactory.createUserPayload({ avatarUri: undefined }),
-      });
-    });
-
-    it('returns null when the payload is incomplete', () => {
-      // Arrange
-      const inspector = new AuthPayloadInspector();
-
-      // Act
-      const result = inspector.toAuthSession({ accessToken: 'access-token' });
-
-      // Assert
-      expect(result).toBeNull();
-    });
-  });
 });

@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { GuestPartyPlayerIdentity, PartyPin } from '@pleey/contracts/party';
 import { PartyPlayerKind } from '@pleey/contracts/party';
+import { Prisma } from '@prisma/client';
 import { v7 as uuidv7 } from 'uuid';
 import {
   type ActivePlayerPartySession,
@@ -16,6 +17,7 @@ import { PartyPinIdentifier } from '../../../application/game/party/shared/servi
 import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
 import { GuestIdentifier } from '../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
+import { PartyCommandNotAvailableError } from '../../../domain/game/errors';
 import type { UserId } from '../../../domain/identity/entities/user';
 import type { GuestRepository } from '../../../domain/identity/ports/guest.repository';
 import { GuestRepositoryProvider } from '../../../domain/identity/ports/guest.repository';
@@ -77,34 +79,26 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
   }
 
   async findActivePartyByUserId(userId: UserId): Promise<ActivePlayerPartySession | null> {
-    const party = await this.prisma.party.findFirst({
-      where: {
-        deletedAt: null,
-        game: {
-          deletedAt: null,
-        },
-        scores: {
-          some: {
-            userId,
-            deletedAt: null,
+    const claim = await this.prisma.userParticipationClaim.findUnique({
+      where: { userId },
+      select: {
+        party: {
+          select: {
+            deletedAt: true,
+            gameId: true,
+            id: true,
+            pin: true,
+            status: true,
           },
         },
-        status: {
-          in: [...ACTIVE_PARTY_STATUSES],
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      select: {
-        id: true,
-        gameId: true,
-        pin: true,
-        status: true,
       },
     });
-
-    if (!party) {
+    const party = claim?.party;
+    if (
+      !party ||
+      party.deletedAt ||
+      !ACTIVE_PARTY_STATUSES.includes(party.status as (typeof ACTIVE_PARTY_STATUSES)[number])
+    ) {
       return null;
     }
 
@@ -235,42 +229,93 @@ export class PrismaPlayerPartyRuntimeAdapter extends PlayerPartyRuntimePort {
   }
 
   async ensureAuthenticatedPlayer(command: EnsureAuthenticatedPlayerCommand): Promise<void> {
-    const isHost = await this.prisma.party.findFirst({
-      where: {
-        id: command.partyId,
-        hostId: command.userId,
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-      },
-    });
+    try {
+      await this.prisma.$transaction(async (transaction) => {
+        const party = await transaction.party.findUnique({
+          where: { id: command.partyId },
+          select: { hostId: true },
+        });
+        if (!party) {
+          throw new PartyCommandNotAvailableError({ partyId: command.partyId });
+        }
+        const user = await transaction.user.findUnique({
+          where: { id: command.userId },
+          select: { username: true },
+        });
+        if (!user) {
+          throw new PartyCommandNotAvailableError({ partyId: command.partyId, userId: command.userId });
+        }
+        const existing = await transaction.partyParticipant.findUnique({
+          where: {
+            partyId_userId: { partyId: command.partyId, userId: command.userId },
+          },
+          select: { id: true, roles: true, status: true },
+        });
+        const isHost = party.hostId === command.userId;
+        if (existing?.status === 'KICKED') {
+          throw new PartyCommandNotAvailableError({ partyId: command.partyId, reason: 'kickedParticipant' });
+        }
+        const roles = isHost
+          ? [...new Set([...(existing?.roles ?? []), 'HOST'])]
+          : [...new Set([...(existing?.roles ?? []), 'PLAYER'])];
+        const participant = await transaction.partyParticipant.upsert({
+          where: {
+            partyId_userId: { partyId: command.partyId, userId: command.userId },
+          },
+          create: {
+            displayName: user.username,
+            partyId: command.partyId,
+            roles,
+            status: 'ACTIVE',
+            userId: command.userId,
+          },
+          update: {
+            displayName: user.username,
+            roles,
+            status: 'ACTIVE',
+          },
+        });
+        if (isHost) return;
 
-    if (isHost) {
-      return;
+        const otherClaim = await transaction.userParticipationClaim.findUnique({
+          where: { userId: command.userId },
+        });
+        if (otherClaim && otherClaim.partyId !== command.partyId) {
+          throw new PartyCommandNotAvailableError({
+            partyId: command.partyId,
+            reason: 'activeParticipantClaim',
+          });
+        }
+        if (!otherClaim) {
+          await transaction.userParticipationClaim.create({
+            data: { partyId: command.partyId, userId: command.userId },
+          });
+        }
+        const score = await transaction.score.findFirst({
+          where: { participantId: participant.id },
+          select: { id: true },
+        });
+        if (score) {
+          await transaction.score.update({ data: { deletedAt: null }, where: { id: score.id } });
+        } else {
+          await transaction.score.create({
+            data: {
+              participantId: participant.id,
+              partyId: command.partyId,
+              userId: command.userId,
+            },
+          });
+        }
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw new PartyCommandNotAvailableError({
+          partyId: command.partyId,
+          reason: 'activeParticipantClaim',
+        });
+      }
+      throw error;
     }
-
-    const existing = await this.prisma.score.findFirst({
-      where: {
-        partyId: command.partyId,
-        userId: command.userId,
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (existing) {
-      return;
-    }
-
-    await this.prisma.score.create({
-      data: {
-        partyId: command.partyId,
-        userId: command.userId,
-      },
-    });
   }
 
   async ensureGuestPlayer(command: EnsureGuestPlayerCommand): Promise<GuestPartyPlayerIdentity> {

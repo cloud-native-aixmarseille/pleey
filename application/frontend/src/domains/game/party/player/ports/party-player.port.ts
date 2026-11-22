@@ -4,7 +4,6 @@ import { PartyJoinReceiptStatus } from '@pleey/contracts/party';
 import type { PartyJoiningPlayerIdentity, PartyPlayerIdentity } from '../../shared/entities/party-player-identity';
 
 export interface PartyJoinCommand {
-  readonly guestCredential?: string;
   readonly avatarSeed?: string;
   readonly partyPassword?: string;
   readonly pin: PartyPin;
@@ -26,7 +25,6 @@ interface PartyJoinPlayerReceipt {
 export type PartyJoinReceipt =
   | {
       readonly gameId: GameId;
-      readonly guestCredential?: string;
       readonly player: PartyJoinPlayerReceipt;
       readonly partyId: PartyId;
       readonly pin: PartyPin;

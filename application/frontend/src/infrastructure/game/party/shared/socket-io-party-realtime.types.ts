@@ -36,11 +36,10 @@ export interface ObservePartyPayload {
   readonly partyId?: PartyId;
 }
 
-export type SocketPartyHostPlayerPayload =
-  {
-      readonly partyId: PartyId;
-      readonly userId: UserId;
-    };
+export type SocketPartyHostPlayerPayload = {
+  readonly partyId: PartyId;
+  readonly userId: UserId;
+};
 
 export interface SocketPartyEntryPayload {
   readonly partyPassword?: string;

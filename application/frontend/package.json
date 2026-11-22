@@ -47,7 +47,7 @@
     "apollo-upload-client": "^20.0.0",
     "better-auth": "1.7.27",
     "driver.js": "^1.14.0",
-    "graphql": "^17.1.0",
+    "graphql": "^16.15.0",
     "i18next": "^27.1.5",
     "inversify": "^8.3.0",
     "motion": "^14.14.0",
@@ -59,13 +59,12 @@
     "reflect-metadata": "^0.2.2",
     "socket.io-client": "^4.8.4",
     "unique-username-generator": "^1.5.1",
-    "uuid": "^14.0.3",
-    "xstate": "5.33.4"
+    "uuid": "^14.0.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.8",
-    "@graphql-codegen/cli": "^8.0.0",
-    "@graphql-codegen/typed-document-node": "^8.0.0",
+    "@graphql-codegen/cli": "7.0.0",
+    "@graphql-codegen/typed-document-node": "7.0.0",
     "@graphql-codegen/typescript-operations": "^7.0.1",
     "@graphql-typed-document-node/core": "3.2.0",
     "@testing-library/jest-dom": "^7.0.1",

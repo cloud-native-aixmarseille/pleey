@@ -1,10 +1,18 @@
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { DatabaseReadinessFixture } from '../src/test-utils/fixtures/unit/database-readiness.fixture';
 
-const readinessModule = pathToFileURL(resolve(import.meta.dirname, 'wait-for-database.mjs')).href;
-const { DatabaseReadiness } = await import(readinessModule);
+type Readiness = {
+  wait(input: { secretFile: string; timeoutMs: number; signal?: AbortSignal }): Promise<void>;
+};
+
+let DatabaseReadiness: new (dependencies: ReturnType<DatabaseReadinessFixture['dependencies']>) => Readiness;
+
+beforeAll(async () => {
+  const readinessModule = pathToFileURL(resolve(__dirname, 'wait-for-database.mjs')).href;
+  ({ DatabaseReadiness } = (await import(readinessModule)) as { DatabaseReadiness: typeof DatabaseReadiness });
+});
 
 describe('DatabaseReadiness', () => {
   it('waits for a late secret and authenticates with the complete URI', async () => {

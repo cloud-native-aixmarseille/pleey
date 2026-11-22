@@ -26,13 +26,11 @@ export interface PartyGuestSessionPort {
 
   getGuestPin(partyId: PartyId): PartyPin | null;
 
-  getGuestCredential(pin: PartyPin): string | null;
-
   /**
    * Store a guest ID for a party for recovery purposes.
    * Called after a successful join or rejoin.
    */
-  setGuestId(pin: PartyPin, guestId: GuestId, credential?: string, partyId?: PartyId): void;
+  setGuestId(pin: PartyPin, guestId: GuestId): void;
 }
 
 export const PartyGuestSessionPortToken = Symbol('PartyGuestSessionPort');

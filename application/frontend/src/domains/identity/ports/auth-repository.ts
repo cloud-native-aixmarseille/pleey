@@ -1,4 +1,3 @@
-import type { AuthSession } from '@pleey/contracts/identity';
 import type { PaginatedResult, PaginationQuery } from '@pleey/contracts/shared/primitives';
 import type { User } from '../entities/user';
 import type { UserSessionOverview } from '../entities/user-session-details';
@@ -20,17 +19,12 @@ export type UserGameHistoryPage = PaginatedResult<{
 
 export interface AuthRepository {
   currentUser(): Promise<User>;
-  requestPasswordReset(email: string, locale: string, captchaToken: string): Promise<void>;
-  resetPassword(token: string, password: string): Promise<void>;
   gameHistory(query: PaginationQuery): Promise<UserGameHistoryPage>;
   sessions(query: PaginationQuery): Promise<UserSessionOverview>;
   revokeSession(sessionId: string): Promise<void>;
   revokeOtherSessions(): Promise<void>;
-  login(email: string, password: string): Promise<AuthSession>;
-  register(username: string, email: string, password: string, captchaToken: string): Promise<User>;
   updateProfile(input: UpdateProfileInput): Promise<User>;
   regenerateAvatar(): Promise<User>;
-  logout(): Promise<void>;
 }
 
 export const AuthRepositoryToken = Symbol('AuthRepository');

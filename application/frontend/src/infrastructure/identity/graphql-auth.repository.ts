@@ -1,13 +1,12 @@
-import type { AuthSession } from '@pleey/contracts/identity';
 import type { PaginationQuery } from '@pleey/contracts/shared/primitives';
 import { inject, injectable } from 'inversify';
 import type { User } from '../../domains/identity/entities/user';
 import type { UserSessionOverview } from '../../domains/identity/entities/user-session-details';
 import { AUTH_ERROR_DEFINITIONS, AuthErrorCode } from '../../domains/identity/errors/auth-error-code';
+import { GenericAuthError } from '../../domains/identity/errors/generic-auth-error';
 import {
   InvalidLoginResponseError,
   InvalidRegenerateAvatarResponseError,
-  InvalidRegistrationResponseError,
   InvalidUpdateProfileResponseError,
 } from '../../domains/identity/errors/graphql-auth-repository.error';
 import type {
@@ -18,39 +17,18 @@ import type {
 import { AuthPayloadInspector } from '../../domains/identity/services/auth-payload-inspector';
 import { GraphqlClient } from '../graphql/client/graphql-client';
 import {
-  ForgotPasswordDocument,
-  type ForgotPasswordMutation,
-  type ForgotPasswordMutationVariables,
-  LoginDocument,
-  type LoginMutation,
-  type LoginMutationVariables,
-  LogoutDocument,
-  type LogoutMutation,
   MeDocument,
   type MeQuery,
   MyGameHistoryDocument,
   type MyGameHistoryQuery,
   type MyGameHistoryQueryVariables,
-  MySessionsDocument,
-  type MySessionsQuery,
-  type MySessionsQueryVariables,
   RegenerateAvatarDocument,
   type RegenerateAvatarMutation,
-  RegisterDocument,
-  type RegisterMutation,
-  type RegisterMutationVariables,
-  ResetPasswordDocument,
-  type ResetPasswordMutation,
-  type ResetPasswordMutationVariables,
-  RevokeOtherSessionsDocument,
-  type RevokeOtherSessionsMutation,
-  RevokeSessionDocument,
-  type RevokeSessionMutation,
-  type RevokeSessionMutationVariables,
   UpdateProfileDocument,
   type UpdateProfileMutation,
   type UpdateProfileMutationVariables,
 } from '../graphql/generated/graphql';
+import { betterAuthClient } from './better-auth-client';
 
 @injectable()
 export class GraphqlAuthRepository implements AuthRepository {
@@ -68,26 +46,6 @@ export class GraphqlAuthRepository implements AuthRepository {
     return user;
   }
 
-  async requestPasswordReset(email: string, locale: string, captchaToken: string): Promise<void> {
-    await this.graphqlClient.request<ForgotPasswordMutation, ForgotPasswordMutationVariables>(
-      ForgotPasswordDocument,
-      {
-        input: { email, locale, captchaToken },
-      },
-      { skipAuthRefresh: true },
-    );
-  }
-
-  async resetPassword(token: string, password: string): Promise<void> {
-    await this.graphqlClient.request<ResetPasswordMutation, ResetPasswordMutationVariables>(
-      ResetPasswordDocument,
-      {
-        input: { token, password },
-      },
-      { skipAuthRefresh: true },
-    );
-  }
-
   async gameHistory(query: PaginationQuery): Promise<UserGameHistoryPage> {
     const result = await this.graphqlClient.request<MyGameHistoryQuery, MyGameHistoryQueryVariables>(
       MyGameHistoryDocument,
@@ -97,66 +55,54 @@ export class GraphqlAuthRepository implements AuthRepository {
   }
 
   async sessions(query: PaginationQuery): Promise<UserSessionOverview> {
-    const result = await this.graphqlClient.request<MySessionsQuery, MySessionsQueryVariables>(MySessionsDocument, {
-      input: query,
-    });
-    return { currentSession: result.myCurrentSession, otherSessions: result.myOtherSessions };
+    const [sessionsResult, currentResult] = await Promise.all([
+      betterAuthClient.listSessions(),
+      betterAuthClient.getSession(),
+    ]);
+    if (sessionsResult.error || !sessionsResult.data || currentResult.error || !currentResult.data) {
+      throw new GenericAuthError({ operationName: 'sessions', operationType: 'query' });
+    }
+    const sessions = sessionsResult.data.map((session) => ({
+      id: session.id,
+      createdAt: session.createdAt?.toISOString() ?? null,
+      expiresAt: session.expiresAt.toISOString(),
+      ipAddress: session.ipAddress ?? null,
+      lastActiveAt: session.updatedAt?.toISOString() ?? null,
+      userAgent: session.userAgent ?? null,
+    }));
+    const currentSessionId = currentResult.data.session.id;
+    const currentSession = sessions.find(({ id }) => id === currentSessionId);
+    if (!currentSession) throw new GenericAuthError({ operationName: 'sessions', operationType: 'query' });
+    const otherSessions = sessions.filter(({ id }) => id !== currentSession.id);
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 25;
+    return {
+      currentSession,
+      otherSessions: {
+        items: otherSessions.slice((page - 1) * pageSize, page * pageSize),
+        overallCount: otherSessions.length,
+        page,
+        pageSize,
+        totalCount: otherSessions.length,
+        totalPages: Math.ceil(otherSessions.length / pageSize),
+      },
+    };
   }
 
   async revokeSession(sessionId: string): Promise<void> {
-    await this.graphqlClient.request<RevokeSessionMutation, RevokeSessionMutationVariables>(RevokeSessionDocument, {
-      input: { sessionId },
-    });
+    const sessions = await betterAuthClient.listSessions();
+    if (sessions.error || !sessions.data) {
+      throw new GenericAuthError({ operationName: 'revokeSession', operationType: 'mutation' });
+    }
+    const session = sessions.data.find(({ id }) => id === sessionId);
+    if (!session) throw new GenericAuthError({ operationName: 'revokeSession', operationType: 'mutation' });
+    const result = await betterAuthClient.revokeSession({ token: session.token });
+    if (result.error) throw new GenericAuthError({ operationName: 'revokeSession', operationType: 'mutation' });
   }
 
   async revokeOtherSessions(): Promise<void> {
-    await this.graphqlClient.request<RevokeOtherSessionsMutation>(RevokeOtherSessionsDocument);
-  }
-
-  async login(email: string, password: string): Promise<AuthSession> {
-    try {
-      const result = await this.graphqlClient.request<LoginMutation, LoginMutationVariables>(
-        LoginDocument,
-        {
-          input: { email, password },
-        },
-        { skipAuthRefresh: true },
-      );
-      const session = this.payloadInspector.toAuthSession(result.login);
-
-      if (!session) {
-        throw new InvalidLoginResponseError({ operationName: 'login' });
-      }
-
-      return session;
-    } catch (error) {
-      throw this.graphqlClient.resolveDomainError(error, AUTH_ERROR_DEFINITIONS[AuthErrorCode.INVALID_CREDENTIALS], {
-        operationName: 'login',
-      });
-    }
-  }
-
-  async register(username: string, email: string, password: string, captchaToken: string): Promise<User> {
-    try {
-      const result = await this.graphqlClient.request<RegisterMutation, RegisterMutationVariables>(
-        RegisterDocument,
-        {
-          input: { username, email, password, captchaToken },
-        },
-        { skipAuthRefresh: true },
-      );
-      const user = this.payloadInspector.toUser(result.register);
-
-      if (!user) {
-        throw new InvalidRegistrationResponseError({ operationName: 'register' });
-      }
-
-      return user;
-    } catch (error) {
-      throw this.graphqlClient.resolveDomainError(error, AUTH_ERROR_DEFINITIONS[AuthErrorCode.REGISTRATION_FAILED], {
-        operationName: 'register',
-      });
-    }
+    const result = await betterAuthClient.revokeOtherSessions();
+    if (result.error) throw new GenericAuthError({ operationName: 'revokeOtherSessions', operationType: 'mutation' });
   }
 
   async updateProfile(input: UpdateProfileInput): Promise<User> {
@@ -166,11 +112,7 @@ export class GraphqlAuthRepository implements AuthRepository {
         { input },
       );
       const user = this.payloadInspector.toUser(result.updateProfile);
-
-      if (!user) {
-        throw new InvalidUpdateProfileResponseError({ operationName: 'updateProfile' });
-      }
-
+      if (!user) throw new InvalidUpdateProfileResponseError({ operationName: 'updateProfile' });
       return user;
     } catch (error) {
       throw this.graphqlClient.resolveDomainError(error, AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC], {
@@ -183,26 +125,12 @@ export class GraphqlAuthRepository implements AuthRepository {
     try {
       const result = await this.graphqlClient.request<RegenerateAvatarMutation>(RegenerateAvatarDocument);
       const user = this.payloadInspector.toUser(result.regenerateAvatar);
-
-      if (!user) {
-        throw new InvalidRegenerateAvatarResponseError({
-          operationName: 'regenerateAvatar',
-        });
-      }
-
+      if (!user) throw new InvalidRegenerateAvatarResponseError({ operationName: 'regenerateAvatar' });
       return user;
     } catch (error) {
       throw this.graphqlClient.resolveDomainError(error, AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC], {
         operationName: 'regenerateAvatar',
       });
-    }
-  }
-
-  async logout(): Promise<void> {
-    try {
-      await this.graphqlClient.request<LogoutMutation>(LogoutDocument);
-    } catch {
-      // Client cleanup should still proceed even if logout transport fails.
     }
   }
 }

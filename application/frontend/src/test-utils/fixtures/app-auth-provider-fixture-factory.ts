@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 import { AppAuthProviderFactory } from '../../app/bootstrap/modules/identity/app-auth-provider-factory';
-import type { AuthSessionTransportHandlers } from '../../application/identity/ports/auth-session-transport.port';
+import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { AuthPayloadInspector } from '../../domains/identity/services/auth-payload-inspector';
 import { GraphqlClient } from '../../infrastructure/graphql/client/graphql-client';
 import { GraphqlAuthRepository } from '../../infrastructure/identity/graphql-auth.repository';
@@ -12,12 +12,11 @@ export class AppAuthProviderFixtureFactory {
   createConnected() {
     const fixture = this.create();
     const inspector = new AuthPayloadInspector();
-    const client = new GraphqlClient(inspector);
-    const sessions = new PersistedAuthSessionAdapter(new LocalStorageAdapter(), client);
+    const client = new GraphqlClient();
+    const sessions = new PersistedAuthSessionAdapter(new LocalStorageAdapter(), new UserIdentifier());
     const repository = new GraphqlAuthRepository(client, inspector);
     fixture.authSession.restore.mockImplementation(() => sessions.restore());
     fixture.authSession.updateUser.mockImplementation((user) => sessions.updateUser(user));
-    fixture.authSession.registerHandlers.mockImplementation((handlers) => sessions.registerHandlers(handlers));
     fixture.currentUser.execute.mockImplementation(() => repository.currentUser());
     return { ...fixture, sessions };
   }
@@ -32,23 +31,15 @@ export class AppAuthProviderFixtureFactory {
       updateUser: vi.fn(),
       clear: vi.fn(),
       suspend: vi.fn(),
-      registerHandlers: vi.fn<(handlers: AuthSessionTransportHandlers) => void>(),
     };
-    const login = { execute: vi.fn().mockResolvedValue(fixtures.createAuthSession()) };
-    const logout = { execute: vi.fn().mockResolvedValue(undefined) };
     const workspace = { clear: vi.fn() };
     const factory = new AppAuthProviderFactory(
       currentUser as never,
-      { execute: vi.fn() } as never,
-      { execute: vi.fn() } as never,
       authSession as never,
-      login as never,
-      { execute: vi.fn() } as never,
-      logout as never,
       { execute: vi.fn() } as never,
       { execute: vi.fn() } as never,
       workspace as never,
     );
-    return { factory, currentUser, authSession, login, logout, workspace };
+    return { factory, currentUser, authSession, workspace };
   }
 }

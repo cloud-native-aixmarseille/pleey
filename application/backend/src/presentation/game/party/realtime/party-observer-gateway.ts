@@ -2,8 +2,8 @@ import { Inject, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
-  OnGatewayDisconnect,
   OnGatewayConnection,
+  OnGatewayDisconnect,
   OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
@@ -46,6 +46,7 @@ import {
   PartyPlayerSessionRegistryProvider,
 } from '../../../../domain/game/party/player/services/party-player-session-registry';
 import type { UserId } from '../../../../domain/identity/entities/user';
+import { BetterAuthSessionAdapter } from '../../../../infrastructure/identity/better-auth-session.adapter';
 import { I18nWsExceptionFilter } from '../../../shared/error-handling/i18n-ws-exception-filter';
 import {
   PartyEntryMessageDto,
@@ -62,7 +63,6 @@ import {
   resolvePartyObservationRoom,
 } from './party-socket-events';
 import { SocketPartyObservationBroadcaster } from './services/socket-party-observation-broadcaster';
-import { BetterAuthSessionAdapter } from '../../../../infrastructure/identity/better-auth-session.adapter';
 
 interface PendingLobbyPlayerAbsencePrune {
   readonly identity: PartyPlayerIdentity;

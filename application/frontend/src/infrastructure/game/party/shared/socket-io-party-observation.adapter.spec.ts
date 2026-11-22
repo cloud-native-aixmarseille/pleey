@@ -11,7 +11,6 @@ import { PartyFixtureFactory } from '../../../../test-utils/fixtures/party-fixtu
 import { PartyStageFixtureFactory } from '../../../../test-utils/fixtures/party-stage-fixture-factory';
 import { ThemeFixtureFactory } from '../../../../test-utils/fixtures/theme-fixture-factory';
 import { GameIdentifierMockFactory } from '../../../../test-utils/mocks/game-identifier-mock-factory';
-import { GuestIdentifierMockFactory } from '../../../../test-utils/mocks/guest-identifier-mock-factory';
 import { PartyActionIdentifierMockFactory } from '../../../../test-utils/mocks/party-action-identifier-mock-factory';
 import { PartyIdentifierMockFactory } from '../../../../test-utils/mocks/party-identifier-mock-factory';
 import { StageIdentifierMockFactory } from '../../../../test-utils/mocks/stage-identifier-mock-factory';
@@ -22,7 +21,6 @@ import { SocketIoPartyObservationAdapter } from './socket-io-party-observation.a
 import { SocketIoPartyPayloadMapper } from './socket-io-party-payload-mapper';
 import { SocketIoPartyRealtimeTransport } from './socket-io-party-realtime-transport';
 
-const guestIdentifier = new GuestIdentifierMockFactory().create();
 const userIdentifier = new UserIdentifierMockFactory().create();
 const partyIdentifier = new PartyIdentifierMockFactory().create();
 const partyPinIdentifier = new PartyPinIdentifier();
@@ -31,7 +29,7 @@ const gameIdentifier = new GameIdentifierMockFactory().create();
 const gameTypeParser = new GameTypeParser();
 const PARTY_ID = partyIdentifier.parse(44);
 const GAME_ID = gameIdentifier.parse(17);
-const GUEST_ID = guestIdentifier.parse('guest-9');
+const USER_ID = userIdentifier.parse(9);
 const ACTION_ID = partyActionIdentifier.parse(100);
 
 function createPayloadMapper() {
@@ -72,8 +70,8 @@ function createAcceptedGuestJoinReceipt() {
   return {
     gameId: GAME_ID,
     player: {
-      avatarUri: '/avatars/guest-9.png',
-      identity: { kind: PartyPlayerKind.GUEST, guestId: GUEST_ID },
+      avatarUri: '/avatars/users/user-9.png',
+      identity: { kind: PartyPlayerKind.USER, userId: USER_ID },
       username: 'Neo',
     },
     partyId: PARTY_ID,
@@ -155,32 +153,27 @@ describe('SocketIoPartyObservationAdapter', () => {
     expect(disconnectMock).toHaveBeenCalledTimes(1);
   });
 
-  it('refreshes the socket auth payload when auth tokens change', () => {
+  it('connects with cookie credentials and no custom socket auth payload', () => {
     // Arrange
     resetSocketMocks();
 
-    const { adapter, transport } = createObservationAdapter();
+    const { adapter } = createObservationAdapter();
 
+    // Act
     adapter.observeParty(PARTY_ID, {
       onSnapshot: vi.fn(),
     });
-    // Act
-    transport.setAuthSessionTokens({ accessToken: 'token-1', refreshToken: 'refresh-1' });
-
     // Assert
-    expect(socket.auth).toEqual({ authorization: 'Bearer token-1' });
-    expect(disconnectMock).toHaveBeenCalledTimes(1);
-    expect(connectMock).toHaveBeenCalledTimes(2);
+    expect(socket.auth).toEqual({});
+    expect(disconnectMock).not.toHaveBeenCalled();
+    expect(connectMock).toHaveBeenCalledTimes(1);
   });
 
-  it('preserves an active connection when persistence replays the same access token', () => {
-    // Arrange
+  it('uses one active connection for repeated observations', () => {
+    // Arrange + Act
     resetSocketMocks();
-    const { adapter, transport } = createObservationAdapter();
-    transport.setAuthSessionTokens({ accessToken: 'token-1', refreshToken: 'refresh-1' });
+    const { adapter } = createObservationAdapter();
     adapter.observeParty(PARTY_ID, { onSnapshot: vi.fn() });
-    // Act
-    transport.setAuthSessionTokens({ accessToken: 'token-1', refreshToken: 'refresh-2' });
     // Assert
     expect(connectMock).toHaveBeenCalledTimes(1);
     expect(disconnectMock).not.toHaveBeenCalled();
@@ -306,8 +299,8 @@ describe('SocketIoPartyObservationAdapter', () => {
       },
       players: [
         {
-          avatarUri: '/avatars/guest-9.png',
-          identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-9' },
+          avatarUri: '/avatars/users/user-9.png',
+          identity: { kind: PartyPlayerKind.USER, userId: USER_ID },
           isCurrentPlayer: false,
           isLive: true,
           totalScore: 650,
@@ -326,8 +319,8 @@ describe('SocketIoPartyObservationAdapter', () => {
       isObserverHost: false,
       players: [
         {
-          avatarUri: '/avatars/guest-9.png',
-          identity: { kind: PartyPlayerKind.GUEST, guestId: GUEST_ID },
+          avatarUri: '/avatars/users/user-9.png',
+          identity: { kind: PartyPlayerKind.USER, userId: USER_ID },
           isCurrentPlayer: false,
           isLive: true,
           totalScore: 650,
@@ -482,7 +475,7 @@ describe('SocketIoPartyObservationAdapter', () => {
     // Assert
     emitMock.mockImplementationOnce((eventName, payload, callback) => {
       expect(eventName).toBe('join-party');
-      expect(payload).toEqual({ guestId: GUEST_ID, pin: 'AB12CD', username: 'Neo' });
+      expect(payload).toEqual({ partyPassword: undefined, pin: 'AB12CD', username: 'Neo' });
       callback(acceptedGuestJoinReceipt);
     });
 
@@ -492,8 +485,8 @@ describe('SocketIoPartyObservationAdapter', () => {
       adapter.joinParty({
         pin: partyPinIdentifier.parse('AB12CD'),
         playerIdentity: {
-          kind: PartyPlayerKind.GUEST,
-          guestId: GUEST_ID,
+          kind: PartyPlayerKind.USER,
+          userId: USER_ID,
         },
         username: 'Neo',
       }),

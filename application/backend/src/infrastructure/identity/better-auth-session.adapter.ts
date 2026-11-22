@@ -1,18 +1,18 @@
+import type { IncomingHttpHeaders } from 'node:http';
 import { Inject, Injectable } from '@nestjs/common';
 import { fromNodeHeaders } from 'better-auth/node';
-import type { IncomingHttpHeaders } from 'node:http';
 import type { Request } from 'express';
-import type { PrismaService } from '../database/prisma-service';
+import { PrismaService } from '../database/prisma-service';
 import { BETTER_AUTH } from './better-auth.token';
 
-export type SessionIdentity =
+type SessionIdentity =
   | { kind: 'valid'; userId: string; sessionId: string; expiresAt: Date; isAnonymous: boolean }
   | { kind: 'absent' }
   | { kind: 'expired' }
   | { kind: 'revoked' }
   | { kind: 'unavailable' };
 
-export type BetterAuthInstance = ReturnType<typeof import('./better-auth-config').createBetterAuth>;
+type BetterAuthInstance = ReturnType<typeof import('./better-auth-config').createBetterAuth>;
 
 @Injectable()
 export class BetterAuthSessionAdapter {
@@ -46,6 +46,8 @@ export class BetterAuthSessionAdapter {
       where: { id: sessionId },
       select: { expiresAt: true },
     });
-    return session === null || session.expiresAt <= new Date() || session.expiresAt.getTime() !== expectedExpiresAt.getTime();
+    return (
+      session === null || session.expiresAt <= new Date() || session.expiresAt.getTime() !== expectedExpiresAt.getTime()
+    );
   }
 }

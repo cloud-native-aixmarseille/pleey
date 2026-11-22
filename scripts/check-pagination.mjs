@@ -36,6 +36,7 @@ const completeReads = new Map([
     "PrismaPlayerPartyRuntimeAdapter.findPartyPlayer",
     "Reconciles duplicate identities and computes complete party standings.",
   ],
+  ["IdentityTransferService.transfer", "Transfers the complete source participant aggregate in one identity transaction."],
 ]);
 
 export function checkBackendPagination(projectRoot, exceptions = completeReads) {

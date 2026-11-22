@@ -75,7 +75,7 @@ spec:
             - sh
             - -ec
             - |
-              export JWT_SECRET="$(cat {{ include "pleey.backend.jwtSecretFile" . }})"
+              export BETTER_AUTH_SECRET="$(cat {{ include "pleey.backend.betterAuthSecretFile" . }})"
               export DATABASE_URL="$(cat {{ include "pleey.backend.databaseSecretFile" . }})"
               export VALKEY_URL="$(cat {{ include "pleey.backend.valkeySecretFile" . }})"
               exec /usr/bin/dumb-init -- node --max-old-space-size=384 /usr/src/repository/application/backend/dist/app/main.js
@@ -90,18 +90,14 @@ spec:
               value: /var/run/pleey-secrets/media/access-key-id
             - name: MEDIA_STORAGE_SECRET_ACCESS_KEY_FILE
               value: /var/run/pleey-secrets/media/secret-access-key
-            - name: JWT_REFRESH_SECRET_FILE
-              value: {{ include "pleey.backend.jwtSecretFile" . | quote }}
             - name: CAP_SECRET_FILE
               value: /var/run/pleey-secrets/captcha/CAP_SECRET
             {{- if .Values.smtp.enabled }}
             - name: NODE_EXTRA_CA_CERTS
               value: /var/run/pleey-secrets/smtp-ca/ca.crt
             {{- else if .Values.passwordRecovery.smtp.existingSecret.name }}
-            - name: SMTP_USER_FILE
-              value: /var/run/pleey-secrets/smtp/username
-            - name: SMTP_PASSWORD_FILE
-              value: /var/run/pleey-secrets/smtp/password
+            - name: SMTP_URL_FILE
+              value: /var/run/pleey-secrets/smtp/url
             {{- end }}
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
@@ -135,8 +131,8 @@ spec:
             - name: captcha-secret
               mountPath: /var/run/pleey-secrets/captcha
               readOnly: true
-            - name: jwt-secret
-              mountPath: {{ include "pleey.backend.jwtSecretMountPath" . }}
+            - name: better-auth-secret
+              mountPath: {{ include "pleey.backend.betterAuthSecretMountPath" . }}
               readOnly: true
             - name: database-secret
               mountPath: {{ include "pleey.backend.databaseSecretMountPath" . }}
@@ -173,12 +169,12 @@ spec:
             items:
               - key: {{ .Values.captcha.existingSecret.key | quote }}
                 path: CAP_SECRET
-        - name: jwt-secret
+        - name: better-auth-secret
           secret:
-            secretName: {{ include "pleey.backend.jwtSecretName" . }}
+            secretName: {{ include "pleey.backend.betterAuthSecretName" . }}
             items:
-              - key: {{ include "pleey.backend.jwtSecretKey" . }}
-                path: {{ include "pleey.backend.jwtSecretKey" . }}
+              - key: {{ include "pleey.backend.betterAuthSecretKey" . }}
+                path: {{ include "pleey.backend.betterAuthSecretKey" . }}
         - name: database-secret
           secret:
             secretName: {{ include "pleey.backend.databaseSecretName" . }}
@@ -206,10 +202,8 @@ spec:
           secret:
             secretName: {{ .name | quote }}
             items:
-              - key: {{ .userKey | quote }}
-                path: username
-              - key: {{ .passwordKey | quote }}
-                path: password
+              - key: {{ .urlKey | quote }}
+                path: url
         {{- end }}
         {{- end }}
         {{- end }}

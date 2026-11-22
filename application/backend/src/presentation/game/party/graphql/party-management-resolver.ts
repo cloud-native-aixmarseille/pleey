@@ -5,7 +5,7 @@ import { ListPartiesUseCase } from '../../../../application/game/party/shared/us
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
-import { GqlJwtAuthGuard } from '../../../identity/shared/guards/gql-jwt-auth-guard';
+import { GqlAuthGuard } from '../../../identity/shared/guards/gql-auth-guard';
 import { CreatePartyInput } from './types/create-party-input';
 import { ListPartiesInput } from './types/list-parties-input';
 import { PartyListType } from './types/party-list-type';
@@ -31,7 +31,7 @@ export class PartyManagementResolver {
   ) {}
 
   @Mutation(() => PartyType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async createParty(
     @Args('input') input: CreatePartyInput,
     @Context() context: GraphqlAuthContext,
@@ -48,7 +48,7 @@ export class PartyManagementResolver {
   }
 
   @Query(() => PartyListType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async listParties(
     @Args('input', { nullable: true, type: () => ListPartiesInput })
     input: ListPartiesInput | undefined,

@@ -34,21 +34,6 @@ function toAvatarMediaCreateInput(avatar: Media): Prisma.MediaCreateWithoutAvata
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(username: string, email: string, password: string, avatar: Media | null = null): Promise<User> {
-    const data: Prisma.UserCreateInput = {
-      username,
-      authentication: { create: { email, password } },
-      ...(avatar ? { avatar: { create: toAvatarMediaCreateInput(avatar) } } : {}),
-    };
-
-    const user = await this.prisma.user.create({
-      data,
-      include: USER_PROFILE_INCLUDE,
-    });
-
-    return toDomainUser(user);
-  }
-
   private async findRawById(
     id: UserId,
   ): Promise<Prisma.UserGetPayload<{ include: typeof USER_PROFILE_INCLUDE }> | null> {
@@ -60,7 +45,7 @@ export class PrismaUserRepository implements UserRepository {
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.prisma.user.findFirst({
-      where: { authentication: { email }, deletedAt: null },
+      where: { email, deletedAt: null },
       include: USER_PROFILE_INCLUDE,
     });
 
@@ -88,16 +73,6 @@ export class PrismaUserRepository implements UserRepository {
     return toDomainUser(user);
   }
 
-  async exists(email: string, username: string): Promise<boolean> {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        OR: [{ authentication: { email } }, { username }],
-      },
-    });
-
-    return user !== null;
-  }
-
   async updateProfile(
     id: UserId,
     updates: {
@@ -118,20 +93,7 @@ export class PrismaUserRepository implements UserRepository {
     }
 
     if (typeof updates.email !== 'undefined') {
-      data.authentication = {
-        update: {
-          email: updates.email,
-          ...(updates.email !== existingUser.authentication?.email
-            ? {
-                passwordResetTokenHash: null,
-                passwordResetExpiresAt: null,
-                resetRequestLocale: null,
-                resetRequestedAt: null,
-                resetAvailableAt: null,
-              }
-            : {}),
-        },
-      };
+      data.email = updates.email;
     }
 
     if (updates.avatar !== undefined) {

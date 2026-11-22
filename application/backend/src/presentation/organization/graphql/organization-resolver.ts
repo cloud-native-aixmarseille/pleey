@@ -14,7 +14,7 @@ import { OrganizationIdentifier } from '../../../application/workspace/shared/se
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import type { UserId } from '../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
-import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';
+import { GqlAuthGuard } from '../../identity/shared/guards/gql-auth-guard';
 import { AddOrganizationMemberInput } from './types/add-organization-member-input';
 import { CreateOrganizationInput } from './types/create-organization-input';
 import { ListOrganizationsInput } from './types/list-organizations-input';
@@ -54,7 +54,7 @@ export class OrganizationResolver {
   ) {}
 
   @Mutation(() => OrganizationType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async createOrganization(
     @Args('input') input: CreateOrganizationInput,
     @Context() context: GraphqlAuthContext,
@@ -71,7 +71,7 @@ export class OrganizationResolver {
   }
 
   @Mutation(() => OrganizationType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async updateOrganization(
     @Args('organizationId', { type: () => ID }) organizationId: string,
     @Args('input') input: UpdateOrganizationInput,
@@ -90,7 +90,7 @@ export class OrganizationResolver {
   }
 
   @Query(() => OrganizationListType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async myOrganizations(
     @Args('input', { nullable: true, type: () => ListOrganizationsInput })
     input: ListOrganizationsInput | undefined,
@@ -102,7 +102,7 @@ export class OrganizationResolver {
   }
 
   @Query(() => OrganizationDashboardType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async organizationDashboard(
     @Args('organizationId', { type: () => ID }) organizationId: string,
     @Context() context: GraphqlAuthContext,
@@ -112,7 +112,7 @@ export class OrganizationResolver {
   }
 
   @Query(() => OrganizationMemberListType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async organizationMembers(
     @Args('input') input: OrganizationMembersInput,
     @Context() context: GraphqlAuthContext,
@@ -129,7 +129,7 @@ export class OrganizationResolver {
   }
 
   @Mutation(() => OrganizationMemberType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async addOrganizationMember(
     @Args('organizationId', { type: () => ID }) organizationId: string,
     @Args('input') input: AddOrganizationMemberInput,
@@ -144,7 +144,7 @@ export class OrganizationResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async removeOrganizationMember(
     @Args('memberId', { type: () => ID }) memberId: string,
     @Context() context: GraphqlAuthContext,
@@ -155,7 +155,7 @@ export class OrganizationResolver {
   }
 
   @Mutation(() => OrganizationMemberType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async updateOrganizationMemberRole(
     @Args('memberId', { type: () => ID }) memberId: string,
     @Args('input') input: UpdateOrganizationMemberRoleInput,

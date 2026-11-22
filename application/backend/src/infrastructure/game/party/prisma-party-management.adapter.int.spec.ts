@@ -83,7 +83,8 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     const host = await harness.prisma.user.create({
       data: {
         username: `host_${unique}`,
-        authentication: { create: { email: `host_${unique}@example.com`, password: 'hashed' } },
+        email: `host_${unique}@example.com`,
+        name: `host_${unique}`,
       },
     });
     userIds.push(host.id);
@@ -91,7 +92,8 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     const player = await harness.prisma.user.create({
       data: {
         username: `player_${unique}`,
-        authentication: { create: { email: `player_${unique}@example.com`, password: 'hashed' } },
+        email: `player_${unique}@example.com`,
+        name: `player_${unique}`,
       },
     });
     userIds.push(player.id);
@@ -192,7 +194,8 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     const host = await harness.prisma.user.create({
       data: {
         username: `cross_host_${unique}`,
-        authentication: { create: { email: `cross_host_${unique}@example.com`, password: 'hashed' } },
+        email: `cross_host_${unique}@example.com`,
+        name: `cross_host_${unique}`,
       },
     });
     userIds.push(host.id);

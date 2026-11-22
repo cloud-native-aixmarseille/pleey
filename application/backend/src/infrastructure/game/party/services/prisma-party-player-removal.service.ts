@@ -18,6 +18,7 @@ type RemovablePartyPlayerIdentity =
 interface RemovePartyPlayerRecordCommand {
   readonly partyId: PartyId;
   readonly playerIdentity: RemovablePartyPlayerIdentity;
+  readonly status?: 'LEFT' | 'KICKED';
 }
 
 @Injectable()
@@ -26,14 +27,28 @@ export class PrismaPartyPlayerRemovalService {
 
   async removePlayer(command: RemovePartyPlayerRecordCommand): Promise<boolean> {
     if (command.playerIdentity.kind === PartyPlayerKind.USER) {
-      const result = await this.prisma.score.deleteMany({
-        where: {
-          partyId: command.partyId,
-          userId: command.playerIdentity.userId,
-        },
+      const userId = command.playerIdentity.userId;
+      return this.prisma.$transaction(async (transaction) => {
+        const participant = await transaction.partyParticipant.findUnique({
+          where: {
+            partyId_userId: { partyId: command.partyId, userId },
+          },
+          select: { id: true, status: true },
+        });
+        if (participant?.status !== 'ACTIVE') return false;
+        await transaction.score.updateMany({
+          data: { deletedAt: new Date() },
+          where: { participantId: participant.id, deletedAt: null },
+        });
+        await transaction.partyParticipant.update({
+          data: { status: command.status ?? 'KICKED' },
+          where: { id: participant.id },
+        });
+        await transaction.userParticipationClaim.deleteMany({
+          where: { partyId: command.partyId, userId },
+        });
+        return true;
       });
-
-      return result.count > 0;
     }
 
     const guestIdentity = command.playerIdentity;

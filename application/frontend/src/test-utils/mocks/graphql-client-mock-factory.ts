@@ -1,14 +1,10 @@
 import { vi } from 'vitest';
-import { AuthPayloadInspector } from '../../domains/identity/services/auth-payload-inspector';
 import { GraphqlClient } from '../../infrastructure/graphql/client/graphql-client';
 
 type GraphqlRequestMock = (
   operation: string,
   variables?: Record<string, unknown>,
-  options?: {
-    readonly authToken?: string;
-    readonly skipAuthRefresh?: boolean;
-  },
+  options?: undefined,
 ) => Promise<unknown>;
 
 interface GraphqlClientMockFactoryOptions {
@@ -23,18 +19,14 @@ interface GraphqlClientMock {
 
 class GraphqlClientDouble extends GraphqlClient {
   constructor(private readonly requestMockImpl: GraphqlRequestMock) {
-    super(new AuthPayloadInspector());
+    super();
   }
 
   override request<TData, TVariables extends Record<string, unknown> = Record<string, unknown>>(
     operation: string,
     variables?: TVariables,
-    options?: {
-      readonly authToken?: string;
-      readonly skipAuthRefresh?: boolean;
-    },
   ): Promise<TData> {
-    return this.requestMockImpl(operation, variables, options) as Promise<TData>;
+    return this.requestMockImpl(operation, variables, undefined) as Promise<TData>;
   }
 }
 

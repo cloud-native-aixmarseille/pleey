@@ -3,16 +3,32 @@ import { vi } from 'vitest';
 import { ConfiguredIoAdapter } from '../../../app/config/configured-io-adapter';
 import { backendTestIdentifiers } from '../../branded-identifiers';
 
+interface SocketAuthenticationFixtureOptions {
+  readonly authorization?: unknown;
+  readonly hasSession?: boolean;
+}
+
 export class SocketAuthenticationFixtureFactory {
-  create(authorization?: unknown) {
+  create({ authorization, hasSession = false }: SocketAuthenticationFixtureOptions = {}) {
     const server = { use: vi.fn() };
     const createServer = vi.spyOn(IoAdapter.prototype, 'createIOServer').mockReturnValue(server as never);
-    const sessions = { authenticate: vi.fn().mockResolvedValue({ id: backendTestIdentifiers.user(1) }) };
+    const identity = {
+      kind: 'valid' as const,
+      expiresAt: new Date('2033-05-18T03:33:20.000Z'),
+      isAnonymous: true,
+      sessionId: 'better-auth-session',
+      userId: backendTestIdentifiers.user(1),
+    };
+    const sessions = {
+      getSession: vi.fn().mockResolvedValue(hasSession ? identity : { kind: 'absent' }),
+      isSessionRevoked: vi.fn().mockResolvedValue(false),
+    };
     const app = { get: vi.fn().mockReturnValue(sessions) };
     const adapter = new ConfiguredIoAdapter(app as never, { origin: '*', credentials: false });
     adapter.createIOServer(0);
     const socket = {
       handshake: { auth: { authorization }, headers: {} },
+      request: { headers: { cookie: hasSession ? 'better-auth.session_token=session-cookie' : undefined } },
       data: {},
       use: vi.fn(),
       once: vi.fn(),

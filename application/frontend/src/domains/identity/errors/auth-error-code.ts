@@ -5,8 +5,6 @@ export enum AuthErrorCode {
   INVALID_CREDENTIALS = 'auth.errors.invalidCredentials',
   REGISTRATION_FAILED = 'auth.errors.registrationFailed',
   UNAUTHORIZED = 'auth.errors.unauthorized',
-  INVALID_REFRESH_TOKEN = 'auth.errors.invalidRefreshToken',
-  REFRESH_TOKEN_EXPIRED = 'auth.errors.refreshTokenExpired',
   GENERIC = 'auth.errors.generic',
 }
 
@@ -30,16 +28,6 @@ export const AUTH_ERROR_DEFINITIONS: Readonly<Record<AuthErrorCode, DomainErrorD
     code: AuthErrorCode.UNAUTHORIZED,
     message: 'auth.errors.unauthorized',
     messageKey: 'auth.errors.unauthorized',
-  },
-  [AuthErrorCode.INVALID_REFRESH_TOKEN]: {
-    code: AuthErrorCode.INVALID_REFRESH_TOKEN,
-    message: 'auth.errors.invalidRefreshToken',
-    messageKey: 'auth.errors.invalidRefreshToken',
-  },
-  [AuthErrorCode.REFRESH_TOKEN_EXPIRED]: {
-    code: AuthErrorCode.REFRESH_TOKEN_EXPIRED,
-    message: 'auth.errors.refreshTokenExpired',
-    messageKey: 'auth.errors.refreshTokenExpired',
   },
   [AuthErrorCode.GENERIC]: {
     code: AuthErrorCode.GENERIC,

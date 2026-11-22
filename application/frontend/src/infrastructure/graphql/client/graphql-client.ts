@@ -11,16 +11,10 @@ import {
 } from '@apollo/client';
 import { SetContextLink } from '@apollo/client/link/context';
 import { canonicalStringify, print } from '@apollo/client/utilities';
-import type { AuthSession } from '@pleey/contracts/identity';
 import UploadHttpLink from 'apollo-upload-client/UploadHttpLink.mjs';
-import { inject, injectable } from 'inversify';
-import type {
-  AuthSessionTransport,
-  AuthSessionTransportHandlers,
-} from '../../../application/identity/ports/auth-session-transport.port';
+import { injectable } from 'inversify';
 import { AUTH_ERROR_DEFINITIONS, AuthErrorCode } from '../../../domains/identity/errors/auth-error-code';
 import { GenericAuthError } from '../../../domains/identity/errors/generic-auth-error';
-import { AuthPayloadInspector } from '../../../domains/identity/services/auth-payload-inspector';
 import {
   createDomainError,
   type DomainError,
@@ -28,11 +22,6 @@ import {
   isDomainError,
 } from '../../../domains/shared/errors/domain-error';
 import { GRAPHQL_URL } from '../../config/api';
-
-interface GraphqlRequestOptions {
-  readonly authToken?: string;
-  readonly skipAuthRefresh?: boolean;
-}
 
 type GraphQLErrorPayload = {
   readonly message?: string;
@@ -55,36 +44,19 @@ const GRAPHQL_UPLOAD_PREFLIGHT_HEADERS = {
 } as const;
 
 @injectable()
-export class GraphqlClient implements AuthSessionTransport {
-  private handlers: AuthSessionTransportHandlers = {};
+export class GraphqlClient {
   private readonly client: ApolloClient;
   private readonly pendingQueries = new Map<string, Promise<unknown>>();
-  private accessToken: string | null = null;
-  private sessionRevision = 0;
-  private credentialsRevision = 0;
 
-  constructor(
-    @inject(AuthPayloadInspector)
-    private readonly payloadInspector: AuthPayloadInspector,
-  ) {
+  constructor() {
     this.client = this.createClient();
   }
 
   request<TData, TVariables extends OperationVariables = OperationVariables>(
     operation: GraphqlOperationDocument<TData, TVariables>,
     variables?: TVariables,
-    options?: GraphqlRequestOptions,
   ): Promise<TData> {
-    return this.executeRequest(operation, variables, options);
-  }
-
-  setAuthSessionTokens(tokens: { accessToken: string | null; refreshToken: string | null }): void {
-    void tokens;
-    // Better Auth cookie credentials are not mirrored here.
-  }
-
-  registerAuthSessionHandlers(handlers: AuthSessionTransportHandlers): void {
-    this.handlers = { ...handlers };
+    return this.executeRequest(operation, variables);
   }
 
   resolveDomainError<TCode extends string>(
@@ -124,7 +96,7 @@ export class GraphqlClient implements AuthSessionTransport {
       };
     });
 
-    const httpLink = new UploadHttpLink({ uri: GRAPHQL_URL });
+    const httpLink = new UploadHttpLink({ uri: GRAPHQL_URL, credentials: 'include' });
 
     return new ApolloClient({
       // Apollo's default key omits credentials. Queries are shared by session below.
@@ -137,22 +109,15 @@ export class GraphqlClient implements AuthSessionTransport {
   private async executeRequest<TData, TVariables extends OperationVariables>(
     operation: GraphqlOperationDocument<TData, TVariables>,
     variables?: TVariables,
-    options?: GraphqlRequestOptions,
   ): Promise<TData> {
     const parsedOperation = typeof operation === 'string' ? gql(operation) : operation;
     const operationName = this.resolveOperationName(parsedOperation);
     const operationType = this.resolveOperationType(parsedOperation);
 
-    const revision = this.sessionRevision;
-    const credentialsRevision = this.credentialsRevision;
-    const requestToken = options?.authToken ?? this.accessToken;
     try {
-      return await this.executeOperation<TData, TVariables>(parsedOperation, variables, options?.authToken);
+      return await this.executeOperation<TData, TVariables>(parsedOperation, variables);
     } catch (error) {
-      let normalizedError = this.normalizeApolloError(error);
-      if (this.isAuthError(normalizedError.code, normalizedError.message)) {
-        this.invalidateSession();
-      }
+      const normalizedError = this.normalizeApolloError(error);
 
       throw createDomainError(
         {
@@ -172,7 +137,6 @@ export class GraphqlClient implements AuthSessionTransport {
   private async executeOperation<TData, TVariables extends OperationVariables>(
     operation: DocumentNode | TypedDocumentNode<TData, TVariables>,
     variables?: TVariables,
-    authToken: string = this.accessToken ?? '',
   ): Promise<TData> {
     const operationDefinition = operation.definitions.find((definition) => definition.kind === 'OperationDefinition');
 
@@ -186,13 +150,11 @@ export class GraphqlClient implements AuthSessionTransport {
         ? await this.client.mutate({
             mutation: operation,
             variables: resolvedVariables,
-            context: { authToken },
             fetchPolicy: 'no-cache',
           })
         : await this.client.query({
             query: operation,
             variables: resolvedVariables,
-            context: { authToken },
             fetchPolicy: 'no-cache',
           });
 
@@ -207,7 +169,7 @@ export class GraphqlClient implements AuthSessionTransport {
     };
 
     if (isMutation) return execute();
-    const key = canonicalStringify([this.credentialsRevision, authToken, print(operation), resolvedVariables]);
+    const key = canonicalStringify([print(operation), resolvedVariables]);
     const pending = this.pendingQueries.get(key);
     if (pending) return pending as Promise<TData>;
     const request = execute();
@@ -229,43 +191,6 @@ export class GraphqlClient implements AuthSessionTransport {
     const operationDefinition = document.definitions.find((definition) => definition.kind === 'OperationDefinition');
 
     return operationDefinition?.kind === 'OperationDefinition' ? operationDefinition.operation : null;
-  }
-
-  private invalidateSession(): void {
-    this.handlers.onSessionInvalidated?.();
-  }
-
-  private isAuthError(code: string | undefined, message: string): boolean {
-    const normalizedMessage = message.toLowerCase();
-
-    if (typeof code === 'string') {
-      if (
-        [
-          '401',
-          IdentityErrorCode.UNAUTHORIZED,
-          'UNAUTHENTICATED',
-          IdentityErrorCode.INVALID_REFRESH_TOKEN,
-          IdentityErrorCode.REFRESH_TOKEN_EXPIRED,
-        ].includes(code)
-      ) {
-        return true;
-      }
-    }
-
-    if (
-      normalizedMessage.includes('unauthorized') ||
-      normalizedMessage.includes('unauthenticated') ||
-      normalizedMessage.includes('invalid refresh token') ||
-      normalizedMessage.includes('refresh token expired')
-    ) {
-      return true;
-    }
-
-    return [
-      AuthErrorCode.UNAUTHORIZED,
-      AuthErrorCode.INVALID_REFRESH_TOKEN,
-      AuthErrorCode.REFRESH_TOKEN_EXPIRED,
-    ].includes(message as AuthErrorCode);
   }
 
   private resolveGraphqlErrorMessage(error: GraphQLErrorPayload): string {
@@ -338,5 +263,3 @@ export class GraphqlClient implements AuthSessionTransport {
     return { message: AUTH_ERROR_DEFINITIONS[AuthErrorCode.GENERIC].message };
   }
 }
-
-import { IdentityErrorCode } from '@pleey/contracts/errors';

@@ -67,13 +67,11 @@ media:
     concurrency: 1
     memoryLimitMb: 1024
 auth:
-  # -- Signing key for both access and refresh tokens; empty generates and preserves a release-scoped key.
-  jwtSecret: ""
-  accessTokenLifetimeSeconds: 3600
-  refreshTokenLifetimeSeconds: 1209600
+  # -- Better Auth signing secret; empty generates and preserves a release-scoped key.
+  betterAuthSecret: ""
   existingSecret:
     name: ""
-    jwtSecretKey: JWT_SECRET
+    betterAuthSecretKey: BETTER_AUTH_SECRET
 captcha:
   existingSecret:
     # -- Existing signing Secret. Empty generates and preserves a release-scoped secret.
@@ -85,25 +83,16 @@ passwordRecovery:
   frontendUrl: ""
   # -- Require HTTPS for the public frontend origin, independently of NODE_ENV.
   requireHttps: true
-  # -- Password reset token lifetime in minutes.
-  tokenLifetimeMinutes: 30
   smtp:
-    # -- Required external SMTP hostname when smtp.enabled=false.
-    host: ""
-    port: 587
-    # -- External SMTP implicit TLS (usually port 465). The bundled relay always uses STARTTLS.
-    secure: false
-    # -- Require TLS for external SMTP. The bundled relay always requires STARTTLS.
-    requireTls: true
+    # -- SMTP URL including credentials and TLS parameters when smtp.enabled=false.
+    url: ""
     # -- Required sender mailbox, optionally including a display name.
     from: ""
     existingSecret:
       # -- External SMTP credentials Secret. Ignored when the bundled relay is enabled.
       name: ""
-      # -- Key mounted as SMTP_USER_FILE. Restart backend pods after rotating Secret contents.
-      userKey: SMTP_USER
-      # -- Key mounted as SMTP_PASSWORD_FILE.
-      passwordKey: SMTP_PASSWORD
+      # -- Key mounted as SMTP_URL_FILE.
+      urlKey: SMTP_URL
 smtp:
   # -- Deploy the bundled Postfix outgoing relay. Set false to use passwordRecovery.smtp externally.
   enabled: true

@@ -1,9 +1,7 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import type { Request } from 'express';
 import type { PublicUserProfile } from '../../../../application/identity/profile/dto/public-user-profile.dto';
-import type { AuthResponseDto } from '../../../../application/identity/session/dto/auth-response-dto';
 import type { UserId } from '../../../../domain/identity/entities/user';
-import type { AuthTokenResponse } from '../../../../domain/identity/ports/auth-token.service';
 import type { UserProfileSnapshot } from '../../../../domain/identity/types/user-profile-snapshot';
 import { AUTH_PUBLIC_API_BASE_URL } from '../auth-public-api-base-url.token';
 
@@ -23,18 +21,6 @@ export class AuthProfilePresenter {
     return {
       ...publicProfile,
       avatarUri: avatarVersion ? this.buildAvatarUrl(profile.id, avatarVersion, request) : null,
-    };
-  }
-
-  presentAuthResponse(response: AuthTokenResponse, request?: RequestLike): AuthResponseDto {
-    const { avatarVersion, ...publicUser } = response.user;
-
-    return {
-      ...response,
-      user: {
-        ...publicUser,
-        avatarUri: avatarVersion ? this.buildAvatarUrl(response.user.id, avatarVersion, request) : null,
-      },
     };
   }
 

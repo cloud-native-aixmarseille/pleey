@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
-import { expect, type BrowserContext, type Page, test } from "@playwright/test";
+import { type BrowserContext, expect, type Page, test } from "@playwright/test";
 import type { UiThemeSeed } from "../../../application/frontend/src/presentation/shared/ui/foundation/ui-theme-contract";
 import { loginViaApi, resolveGraphqlUrl } from "../helpers/auth";
 
@@ -53,10 +53,14 @@ async function stabilizeCaptureContext(context: BrowserContext) {
   );
 }
 
-async function graphql(page: Page, token: string, query: string, variables = {}) {
+async function graphql(page: Page, sessionCookie: string, query: string, variables = {}) {
   const response = await page.request.post(resolveGraphqlUrl(), {
-    headers: { authorization: `Bearer ${token}`, "apollo-require-preflight": "true" },
-    data: { query, variables },
+    headers: {
+      Cookie: sessionCookie,
+      "apollo-require-preflight": "true",
+      "Content-Type": "application/json",
+    },
+    data: JSON.stringify({ query, variables }),
   });
   const payload = await response.json();
   if (payload.errors || !payload.data) throw new Error(JSON.stringify(payload.errors ?? payload));
@@ -88,27 +92,27 @@ test("all user guides resolve real routes, localized copy and targets, with acce
     const page = await context.newPage();
     await page.clock.setFixedTime(fixedCaptureTime);
     await page.addStyleTag({ content: "textarea, input { caret-color: transparent !important; }" });
-    const { accessToken } = await loginViaApi(page, {
+    const { sessionCookie } = await loginViaApi(page, {
       email: process.env.E2E_ADMIN_EMAIL ?? "admin@pleey.com",
       password: process.env.E2E_ADMIN_PASSWORD ?? "admin123",
     });
-    const { myOrganizations } = await graphql(page, accessToken, "query { myOrganizations { items { id name } } }");
+    const { myOrganizations } = await graphql(page, sessionCookie, "query { myOrganizations { items { id name } } }");
     const organizationId = myOrganizations.items.find((item: { name: string }) => item.name === "Arcade Labs")?.id;
     if (!organizationId) throw new Error("Documentation checks require the isolated seeded stack.");
     const { organizationProjects } = await graphql(
       page,
-      accessToken,
+      sessionCookie,
       "query($id: ID!) { organizationProjects(input: { organizationId: $id }) { items { id } } }",
       { id: organizationId },
     );
     const projectId = organizationProjects.items[0].id;
     const { projectGames } = await graphql(
       page,
-      accessToken,
+      sessionCookie,
       "query($id: ID!) { projectGames(input: { projectId: $id }) { items { gameId type gameTypeId } } }",
       { id: projectId },
     );
-    const { listParties } = await graphql(page, accessToken, "query { listParties { items { partyId pin } } }");
+    const { listParties } = await graphql(page, sessionCookie, "query { listParties { items { partyId pin } } }");
     const party = listParties.items.find((item: { pin: string }) => item.pin === "123456");
     const parameters: Record<string, string> = {
       organizationId,
@@ -156,23 +160,21 @@ test("all user guides resolve real routes, localized copy and targets, with acce
       } else {
         await targetPage.goto(route);
       }
-      if (guide.id === "player-join") await targetPage.locator("#party-join-guest-name").fill("Alex");
       const launch = targetPage.locator(`[data-guide="${guide.id}"]`);
-      await expect(launch).toBeVisible();
+      await expect(launch).toBeVisible({ timeout: 15_000 });
       await expect(launch).toHaveAccessibleName(translate(resources, locale, "shared.guide.start"));
-      const launchBox = await launch.boundingBox();
-      expect(launchBox?.width).toBeGreaterThanOrEqual(44);
-      expect(launchBox?.width).toBeLessThanOrEqual(48);
-      expect(launchBox?.height).toBeGreaterThanOrEqual(44);
+      await expect.poll(async () => (await launch.boundingBox())?.width).toBeGreaterThanOrEqual(44);
+      await expect.poll(async () => (await launch.boundingBox())?.width).toBeLessThanOrEqual(48);
+      await expect.poll(async () => (await launch.boundingBox())?.height).toBeGreaterThanOrEqual(44);
       for (const step of guide.steps) {
-        if (step.anchor === 'authoring-editor') {
-          if (guide.id === 'quiz-authoring')
-            await targetPage.getByText('What is the capital of France?', { exact: true }).first().click();
-          if (guide.id === 'prediction-authoring')
-            await targetPage.getByText('Which team will win the opening match?', { exact: true }).first().click();
+        if (step.anchor === "authoring-editor") {
+          if (guide.id === "quiz-authoring")
+            await targetPage.getByText("What is the capital of France?", { exact: true }).first().click();
+          if (guide.id === "prediction-authoring")
+            await targetPage.getByText("Which team will win the opening match?", { exact: true }).first().click();
         }
-        if (guide.id === 'dashboard-home' && ['workspace', 'create-party', 'launch'].includes(step.anchor))
-          await targetPage.getByText('General Knowledge - Sample').first().click();
+        if (guide.id === "dashboard-home" && ["workspace", "create-party", "launch"].includes(step.anchor))
+          await targetPage.getByText("General Knowledge - Sample").first().click();
         const target = targetPage.locator(`[data-tour="${step.anchor}"]`);
         await expect(target).toHaveCount(1);
         await expect(target).toBeVisible();

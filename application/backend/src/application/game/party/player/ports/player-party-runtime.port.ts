@@ -48,6 +48,7 @@ export interface FindPartyPlayerCommand {
 export interface RemovePartyPlayerCommand {
   readonly partyId: PartyId;
   readonly playerIdentity: PartyPlayerIdentity;
+  readonly status: 'LEFT';
 }
 
 export abstract class PlayerPartyRuntimePort {

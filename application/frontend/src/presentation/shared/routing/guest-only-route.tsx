@@ -9,7 +9,7 @@ export function GuestOnlyRoute({ children }: PropsWithChildren) {
     return null;
   }
 
-  if (user !== null) {
+  if (user !== null && user.isAnonymous !== true) {
     return <PresentationRedirect to="/workspace/dashboard" />;
   }
 

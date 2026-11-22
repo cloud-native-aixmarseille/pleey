@@ -36,6 +36,9 @@ describe('SocketPartyObservationBroadcaster', () => {
       if (scenario === 'removed-member') fixture.runtime.findPartyPlayer.mockResolvedValue(null);
       if (scenario === 'unauthenticated-user') {
         const identity = { kind: PartyPlayerKind.USER, userId: backendTestIdentifiers.user(42) } as const;
+        fixture.client.data.authenticatedUserId = undefined;
+        fixture.client.data.authenticatedSessionId = undefined;
+        fixture.client.data.authenticatedSessionExpiresAt = undefined;
         fixture.registry.registerSession(fixture.partyId, identity, fixture.client.id);
         fixture.client.data.joinedPartyPlayer = {
           identity,
@@ -145,7 +148,7 @@ describe('SocketPartyObservationBroadcaster', () => {
     // Arrange
     const fixture = createPartyMediaAccessFixture();
     fixture.client.data = fixture.hostSocketData;
-    fixture.sessions.validate.mockRejectedValue(new Error('revoked'));
+    fixture.sessions.isSessionRevoked.mockResolvedValue(true);
     fixture.broadcaster.attachServer({
       in: vi.fn().mockReturnValue({ fetchSockets: vi.fn().mockResolvedValue([fixture.client]) }),
     } as never);
@@ -156,7 +159,10 @@ describe('SocketPartyObservationBroadcaster', () => {
     // Assert
     expect(fixture.client.emit).not.toHaveBeenCalled();
     expect(fixture.client.leave).toHaveBeenCalledWith(`party:${fixture.partyId}`);
-    expect(fixture.sessions.validate).toHaveBeenCalledWith(fixture.hostSocketData.authenticatedSession, false);
+    expect(fixture.sessions.isSessionRevoked).toHaveBeenCalledWith(
+      fixture.hostSocketData.authenticatedSessionId,
+      fixture.hostSocketData.authenticatedSessionExpiresAt,
+    );
     expect(fixture.issuer.issue).not.toHaveBeenCalled();
   });
 

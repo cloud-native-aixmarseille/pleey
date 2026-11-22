@@ -225,8 +225,6 @@ export const authEn = {
       invalidCredentials: 'Invalid email or password.',
       registrationFailed: 'Unable to create the account right now. Please try again.',
       unauthorized: 'Your session has expired. Please sign in again.',
-      invalidRefreshToken: 'Your session could not be renewed. Please sign in again.',
-      refreshTokenExpired: 'Your session has expired. Please sign in again.',
       generic: 'Something went wrong. Please try again.',
     },
   },

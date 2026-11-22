@@ -67,36 +67,6 @@ describe('AuthProfilePresenter', () => {
     // Assert
     expect(result.avatarUri).toBe(`/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`);
   });
-
-  it('applies the same transformation to auth responses', () => {
-    // Arrange
-    const presenter = new AuthProfilePresenter();
-
-    // Act
-    const result = presenter.presentAuthResponse(
-      {
-        accessToken: 'access-token',
-        refreshToken: 'refresh-token',
-        expiresIn: 3600,
-        user: {
-          id: backendTestIdentifiers.user(7),
-          username: 'captain',
-          email: 'captain@pleey.io',
-          avatarVersion: TEST_AVATAR_VERSION,
-        },
-      },
-      {
-        headers: { host: 'localhost:3000' },
-        protocol: 'http',
-        get: readHostHeader('localhost:3000'),
-      },
-    );
-
-    // Assert
-    expect(result.user.avatarUri).toBe(
-      `http://localhost:3000/api/avatars/users/${backendTestIdentifiers.user(7)}?v=${TEST_AVATAR_VERSION}`,
-    );
-  });
 });
 
 const TEST_AVATAR_VERSION = '42-1743465600000';

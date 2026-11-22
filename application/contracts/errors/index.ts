@@ -23,8 +23,6 @@ export const IdentityErrorCode = {
   UNAUTHORIZED: "UNAUTHORIZED",
   AUTHENTICATION_REQUIRED: "AUTHENTICATION_REQUIRED",
   AVATAR_NOT_FOUND: "AVATAR_NOT_FOUND",
-  INVALID_REFRESH_TOKEN: "INVALID_REFRESH_TOKEN",
-  REFRESH_TOKEN_EXPIRED: "REFRESH_TOKEN_EXPIRED",
 } as const;
 export type IdentityErrorCode = (typeof IdentityErrorCode)[keyof typeof IdentityErrorCode];
 

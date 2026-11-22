@@ -5,31 +5,19 @@
   "properties": {
     "passwordRecovery": {
       "type": "object",
-      "required": ["frontendUrl", "requireHttps", "tokenLifetimeMinutes", "smtp"],
+      "required": ["frontendUrl", "requireHttps", "smtp"],
       "properties": {
         "frontendUrl": {
           "type": "string",
           "description": "Required trusted frontend origin; HTTPS is controlled by requireHttps.",
           "pattern": "^https?://[^/?#@\\s]+/?$"
         },
-        "tokenLifetimeMinutes": {
-          "type": "integer",
-          "minimum": 1
-        },
         "smtp": {
           "type": "object",
-          "required": ["host", "port", "secure", "requireTls", "from", "existingSecret"],
+          "required": ["url", "from", "existingSecret"],
           "properties": {
-            "host": {
+            "url": {
               "type": "string"
-            },
-            "port": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 65535
-            },
-            "secure": {
-              "type": "boolean"
             },
             "from": {
               "type": "string",
@@ -37,23 +25,16 @@
             },
             "existingSecret": {
               "type": "object",
-              "required": ["name", "userKey", "passwordKey"],
+              "required": ["name", "urlKey"],
               "properties": {
                 "name": {
                   "type": "string"
                 },
-                "userKey": {
-                  "type": "string",
-                  "minLength": 1
-                },
-                "passwordKey": {
+                "urlKey": {
                   "type": "string",
                   "minLength": 1
                 }
               }
-            },
-            "requireTls": {
-              "type": "boolean"
             }
           }
         },
@@ -255,27 +236,19 @@
     },
     "auth": {
       "type": "object",
-      "required": ["jwtSecret", "accessTokenLifetimeSeconds", "refreshTokenLifetimeSeconds", "existingSecret"],
+      "required": ["betterAuthSecret", "existingSecret"],
       "properties": {
-        "jwtSecret": {
+        "betterAuthSecret": {
           "type": "string"
-        },
-        "accessTokenLifetimeSeconds": {
-          "type": "integer",
-          "minimum": 1
-        },
-        "refreshTokenLifetimeSeconds": {
-          "type": "integer",
-          "minimum": 1
         },
         "existingSecret": {
           "type": "object",
-          "required": ["name", "jwtSecretKey"],
+          "required": ["name", "betterAuthSecretKey"],
           "properties": {
             "name": {
               "type": "string"
             },
-            "jwtSecretKey": {
+            "betterAuthSecretKey": {
               "type": "string",
               "minLength": 1
             }
@@ -492,7 +465,7 @@
             "properties": {
               "smtp": {
                 "properties": {
-                  "host": {
+                  "url": {
                     "pattern": "\\S"
                   }
                 }

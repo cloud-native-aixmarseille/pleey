@@ -50,7 +50,6 @@ import { OrganizationMemberIdentifier } from '../../../application/workspace/sha
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import { GamePermissionPolicy } from '../../../domain/game/management/services/game-permission-policy';
 import { HostPartyLifecyclePolicy } from '../../../domain/game/party/host/services/host-party-lifecycle-policy';
-import { PartyGuestCredentialPort } from '../../../domain/game/party/player/ports/party-guest-credential.port';
 import {
   PartyPlayerSessionRegistry,
   PartyPlayerSessionRegistryProvider,
@@ -61,7 +60,6 @@ import { PartySettingsResolver } from '../../../domain/game/party/shared/service
 import { OrganizationMemberRepositoryProvider } from '../../../domain/organization/ports/organization-member.repository';
 import { ProjectRepositoryProvider } from '../../../domain/project/ports/project.repository';
 import { PrismaGameCatalogAdapter } from '../../../infrastructure/game/management/prisma-game-catalog.adapter';
-import { JwtPartyGuestCredential } from '../../../infrastructure/game/party/jwt-party-guest-credential';
 import { PrismaHostPartyObservationReader } from '../../../infrastructure/game/party/prisma-host-party-observation-reader';
 import { PrismaHostPartyRuntimeControlAdapter } from '../../../infrastructure/game/party/prisma-host-party-runtime-control.adapter';
 import { PrismaPartyGameTypeReader } from '../../../infrastructure/game/party/prisma-party-game-type-reader';
@@ -116,7 +114,6 @@ import { ThemeModule } from '../theme/theme-module';
   providers: [
     PartyObservationPolicy,
     PartyObservationAccessService,
-    { provide: PartyGuestCredentialPort, useClass: JwtPartyGuestCredential },
     PrismaGameCatalogAdapter,
     PrismaPlayerPartyActionRuntimeAdapter,
     PrismaPlayerPartyRuntimeAdapter,

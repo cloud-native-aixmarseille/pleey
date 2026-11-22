@@ -24,7 +24,7 @@ import {
 import type { UserId } from '../../../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../../../domain/identity/enums/identity-error-code.enum';
 import { createDomainError } from '../../../../../domain/shared/errors/domain-error';
-import { GqlJwtAuthGuard } from '../../../../identity/shared/guards/gql-jwt-auth-guard';
+import { GqlAuthGuard } from '../../../../identity/shared/guards/gql-auth-guard';
 import { PaginationInput } from '../../../../shared/graphql/types/pagination-input';
 import { PlayableContentUploadReader } from '../../shared/graphql/playable-content-upload-reader';
 import { SelectableOptionInputMapper } from '../../shared/graphql/selectable-option-input-mapper';
@@ -67,7 +67,7 @@ export class QuizManagementResolver {
   ) {}
 
   @Query(() => QuizType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async quiz(
     @Args('quizId', { type: () => ID }) quizId: string,
     @Context() context: GraphqlAuthContext,
@@ -78,7 +78,7 @@ export class QuizManagementResolver {
   }
 
   @Mutation(() => QuizType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async createQuiz(@Args('input') input: CreateQuizInput, @Context() context: GraphqlAuthContext): Promise<QuizType> {
     const quiz = await this.createQuizUseCase.execute(
       {
@@ -93,7 +93,7 @@ export class QuizManagementResolver {
   }
 
   @Mutation(() => QuizType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async createQuizFromImport(
     @Args('input') input: CreateQuizFromImportInput,
     @Context() context: GraphqlAuthContext,
@@ -113,7 +113,7 @@ export class QuizManagementResolver {
   }
 
   @Mutation(() => QuizType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async updateQuiz(
     @Args('quizId', { type: () => ID }) quizId: string,
     @Args('input') input: UpdateQuizInput,
@@ -132,7 +132,7 @@ export class QuizManagementResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async deleteQuiz(
     @Args('quizId', { type: () => ID }) quizId: string,
     @Context() context: GraphqlAuthContext,
@@ -141,7 +141,7 @@ export class QuizManagementResolver {
   }
 
   @Query(() => QuizQuestionListType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async quizQuestions(
     @Args('quizId', { type: () => ID }) quizId: string,
     @Context() context: GraphqlAuthContext,
@@ -157,7 +157,7 @@ export class QuizManagementResolver {
   }
 
   @Mutation(() => QuizQuestionTypeObject)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async createQuizQuestion(
     @Args('input') input: CreateQuizQuestionInput,
     @Context() context: GraphqlAuthContext,
@@ -181,7 +181,7 @@ export class QuizManagementResolver {
   }
 
   @Mutation(() => QuizQuestionTypeObject)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async updateQuizQuestion(
     @Args('questionId', { type: () => ID }) questionId: string,
     @Args('input') input: UpdateQuizQuestionInput,
@@ -206,7 +206,7 @@ export class QuizManagementResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async deleteQuizQuestion(
     @Args('questionId', { type: () => ID }) questionId: string,
     @Context() context: GraphqlAuthContext,
@@ -218,7 +218,7 @@ export class QuizManagementResolver {
   }
 
   @Query(() => QuizQuestionMediaType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async quizQuestionMediaAccess(
     @Args('assetId', { type: () => ID }, new ParseUUIDPipe()) assetId: string,
     @Context() context: GraphqlAuthContext,

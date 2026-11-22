@@ -9,13 +9,6 @@ interface JoinedPartyPlayerSocketData {
 
 export interface PartyObserverSocketData {
   authenticatedUserId?: UserId;
-  authenticatedSession?: {
-    readonly id: UserId;
-    readonly username: string;
-    readonly sessionId: string;
-    readonly exp: number;
-    readonly tokenType: 'access';
-  };
   authenticatedSessionId?: string;
   authenticatedSessionExpiresAt?: Date;
   joinedPartyPlayer?: JoinedPartyPlayerSocketData;

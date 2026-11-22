@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
-import { resolveGraphqlUrl } from "../helpers/auth";
 import { completeSecurityCheck } from "../helpers/captcha";
 
 test("audits and revokes another device from profile security", async ({ page, browser, request }, testInfo) => {
@@ -12,13 +11,10 @@ test("audits and revokes another device from profile security", async ({ page, b
   };
   await page.goto("/identity/register");
   const captchaToken = await completeSecurityCheck(page);
-  const registration = await request.post(resolveGraphqlUrl(), {
-    data: {
-      query: "mutation($input: RegisterInput!) { register(input: $input) { id } }",
-      variables: { input: { ...input, captchaToken } },
-    },
+  const registration = await request.post("/api/auth/sign-up/email", {
+    data: { ...input, name: input.username, captchaToken },
   });
-  expect((await registration.json()).data.register.id).toBeTruthy();
+  expect(registration.ok()).toBe(true);
   const otherContext = await browser.newContext({ baseURL: process.env.BASE_URL ?? "http://frontend:5173" });
   const other = await otherContext.newPage();
 

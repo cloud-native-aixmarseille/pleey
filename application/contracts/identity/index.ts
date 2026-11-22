@@ -1,9 +1,9 @@
-export type GuestId = string & { readonly __identifierBrand: 'GuestId' };
-export type UserId = string & { readonly __identifierBrand: 'UserId' };
-export type AuthToken = string;
+export type GuestId = string & { readonly __identifierBrand: "GuestId" };
+export type UserId = string & { readonly __identifierBrand: "UserId" };
 
 export interface PublicUserProfile {
   readonly id: UserId;
+  readonly isAnonymous?: boolean;
   readonly username: string;
   readonly email: string;
   readonly avatarUri?: string | null;
@@ -11,15 +11,15 @@ export interface PublicUserProfile {
 }
 
 export interface AuthSession {
-  readonly accessToken: AuthToken;
-  readonly refreshToken: AuthToken;
+  readonly id: string;
+  readonly isAnonymous: boolean;
   readonly expiresIn: number;
   readonly user: PublicUserProfile;
 }
 
 export const CaptchaAction = {
-  SIGNUP: 'signup',
-  PASSWORD_RECOVERY: 'password-recovery',
+  SIGNUP: "signup",
+  PASSWORD_RECOVERY: "password-recovery",
 } as const;
 export type CaptchaAction = (typeof CaptchaAction)[keyof typeof CaptchaAction];
 

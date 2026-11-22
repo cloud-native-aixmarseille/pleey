@@ -229,8 +229,6 @@ export const authFr = {
       invalidCredentials: 'Email ou mot de passe incorrect.',
       registrationFailed: 'Impossible de cr\u00e9er le compte pour le moment. Veuillez r\u00e9essayer.',
       unauthorized: 'Votre session a expir\u00e9. Veuillez vous reconnecter.',
-      invalidRefreshToken: "Votre session n'a pas pu \u00eatre renouvel\u00e9e. Veuillez vous reconnecter.",
-      refreshTokenExpired: 'Votre session a expir\u00e9. Veuillez vous reconnecter.',
       generic: 'Une erreur est survenue. Veuillez r\u00e9essayer.',
     },
   },

@@ -29,7 +29,7 @@ describe('Party observer realtime payload validation', () => {
     // Arrange + Act
     const result = await validationPipe.transform(
       {
-        guestId: backendTestIdentifiers.guest('guest-7'),
+        partyPassword: 'party-secret',
         pin: 'AB12CD',
         username: 'Neo',
       },
@@ -39,7 +39,7 @@ describe('Party observer realtime payload validation', () => {
     // Assert
     expect(result).toBeInstanceOf(PartyEntryMessageDto);
     expect(result).toMatchObject({
-      guestId: backendTestIdentifiers.guest('guest-7'),
+      partyPassword: 'party-secret',
       pin: 'AB12CD',
       username: 'Neo',
     });

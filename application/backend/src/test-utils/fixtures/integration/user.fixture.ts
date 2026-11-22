@@ -16,7 +16,8 @@ export const createPersistedUserFixture = async (prisma: PrismaService, params: 
   return prisma.user.create({
     data: {
       username: fixture.username,
-      authentication: { create: { email: fixture.email, password: 'hashed-password' } },
+      email: fixture.email,
+      name: fixture.username,
       ...(fixture.avatar
         ? {
             avatar: {

@@ -126,13 +126,8 @@ services:
       - "3001"
     environment:
       - FRONTEND_URL=http://pleey.localhost
-      - FRONTEND_REQUIRE_HTTPS=false
-      - SMTP_HOST=mailpit
-      - SMTP_PORT=1025
-      - SMTP_SECURE=false
-      - SMTP_REQUIRE_TLS=false
+      - SMTP_URL=smtp://mailpit:1025
       - SMTP_FROM=Pleey <noreply@pleey.localhost>
-      - PASSWORD_RESET_TOKEN_LIFETIME_MINUTES=30
       - NODE_ENV=development
       - APP_VERSION=${APP_VERSION:-dev}
       - PORT=3001
@@ -154,15 +149,12 @@ services:
       - MEDIA_PROCESSING_TIMEOUT_MS=120000
       - MEDIA_PROCESSING_CONCURRENCY=1
       - MEDIA_PROCESSING_MEMORY_LIMIT_MB=1024
-      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_change_me}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your_jwt_refresh_secret_change_me}
-      - JWT_ACCESS_EXPIRES_IN_SECONDS=3600
-      - JWT_REFRESH_EXPIRES_IN_SECONDS=1209600
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:-development-better-auth-secret-change-before-production}
       - CAP_SECRET=${CAP_SECRET:-pleey-development-cap-secret-change-before-production}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-pleeyapp}:${POSTGRES_PASSWORD:-pleeyapp_password}@postgres:5432/${POSTGRES_DB:-pleeydb}?schema=public
       - DATABASE_URL_TEST=postgresql://${POSTGRES_USER:-pleeyapp}:${POSTGRES_PASSWORD:-pleeyapp_password}@postgres:5432/${POSTGRES_TEST_DB:-pleeydb_test}?schema=public
       - VALKEY_URL=redis://valkey:6379
-      - CORS_ORIGIN=*
+      - CORS_ORIGIN=http://pleey.localhost
       - TRUSTED_PROXY_CIDRS=${TRUSTED_PROXY_CIDRS:-}
       - CHOKIDAR_USEPOLLING=1
       - CHOKIDAR_INTERVAL=500

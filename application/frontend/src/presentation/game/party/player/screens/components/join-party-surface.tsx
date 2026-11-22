@@ -53,7 +53,7 @@ export function JoinPartySurface({
   const toast = usePresentationToast();
   const isMobile = usePresentationMediaQuery();
   const trimmedGuestName = guestName.trim();
-  const isJoinDisabled = isJoinSubmitting || (!isAuthenticated && trimmedGuestName.length === 0);
+  const isJoinDisabled = isJoinSubmitting || !isAuthenticated;
   const guestAvatarAltLabel = t('game.party.player.route.guestAvatarAlt', {
     username: trimmedGuestName.length > 0 ? trimmedGuestName : t('game.party.player.route.guestAvatarFallbackName'),
   });

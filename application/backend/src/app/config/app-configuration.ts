@@ -1,6 +1,4 @@
-import type { TokenConfig } from '../../domain/identity/ports/auth-token.service';
 import type { CaptchaConfig } from '../../infrastructure/identity/captcha/captcha-config.token';
-import type { PasswordRecoveryConfig } from '../../infrastructure/identity/services/password-recovery-config.token';
 import type { MediaStorageConfig } from '../../infrastructure/media/media-config.token';
 import type { OpenTelemetryConfig } from '../../infrastructure/telemetry/otel.config';
 import { AppEnvironment } from './app-environment';
@@ -14,20 +12,9 @@ export class AppConfiguration {
 
   constructor(private readonly environment: AppEnvironment) {
     const nodeEnvironment = this.environment.getRequiredString('NODE_ENV');
-    const jwtSecret = this.environment.getRequiredString('JWT_SECRET');
 
     this.runtimeConfiguration = Object.freeze({
-      jwtSecret,
       applicationVersion: this.environment.getRequiredString('APP_VERSION'),
-      accessToken: {
-        secret: jwtSecret,
-        expiresInSeconds: this.readPositiveInteger('JWT_ACCESS_EXPIRES_IN_SECONDS'),
-      },
-      refreshToken: {
-        secret: this.environment.getRequiredString('JWT_REFRESH_SECRET'),
-        expiresInSeconds: this.readPositiveInteger('JWT_REFRESH_EXPIRES_IN_SECONDS'),
-      },
-      passwordRecovery: this.createPasswordRecoveryConfig(),
       captcha: this.createCaptchaConfig(),
       mediaStorage: this.createMediaStorageConfig(),
       mediaProcessing: {
@@ -64,20 +51,8 @@ export class AppConfiguration {
     return this.runtimeConfiguration;
   }
 
-  getJwtSecret(): string {
-    return this.runtimeConfiguration.jwtSecret;
-  }
-
   getApplicationVersion(): string {
     return this.runtimeConfiguration.applicationVersion;
-  }
-
-  getAccessTokenConfig(): TokenConfig {
-    return this.runtimeConfiguration.accessToken;
-  }
-
-  getRefreshTokenConfig(): TokenConfig {
-    return this.runtimeConfiguration.refreshToken;
   }
 
   getDatabaseConnectionString(): string {
@@ -127,7 +102,7 @@ export class AppConfiguration {
       secureCookies: origin.protocol === 'https:',
       secret,
       smtpFrom: this.environment.getRequiredString('SMTP_FROM'),
-      smtpUrl: this.environment.getOptionalString('SMTP_URL') ?? null,
+      smtpUrl: this.environment.getRequiredString('SMTP_URL'),
     };
   }
 
@@ -186,42 +161,6 @@ export class AppConfiguration {
       );
     }
     return url.toString().replace(/\/+$/, '');
-  }
-
-  private createPasswordRecoveryConfig(): PasswordRecoveryConfig {
-    const frontendUrl = this.environment.getRequiredString('FRONTEND_URL');
-    const requireHttps = this.readBoolean('FRONTEND_REQUIRE_HTTPS');
-    let url: URL;
-    try {
-      url = new URL(frontendUrl);
-    } catch {
-      throw new Error('FRONTEND_URL must be a valid HTTP(S) URL');
-    }
-    if (
-      !['http:', 'https:'].includes(url.protocol) ||
-      (requireHttps && url.protocol !== 'https:') ||
-      url.username ||
-      url.password
-    ) {
-      throw new Error(
-        'FRONTEND_URL must be an HTTP(S) URL without credentials and use HTTPS when FRONTEND_REQUIRE_HTTPS is true',
-      );
-    }
-    const smtpUser = this.environment.getOptionalString('SMTP_USER');
-    const smtpPassword = this.environment.getOptionalString('SMTP_PASSWORD');
-    if (Boolean(smtpUser) !== Boolean(smtpPassword))
-      throw new Error('SMTP_USER and SMTP_PASSWORD must be configured together');
-    return {
-      frontendUrl: url.origin,
-      smtpHost: this.environment.getRequiredString('SMTP_HOST'),
-      smtpPort: this.readPort('SMTP_PORT'),
-      smtpSecure: this.readBoolean('SMTP_SECURE'),
-      smtpRequireTls: this.readBoolean('SMTP_REQUIRE_TLS'),
-      smtpUser,
-      smtpPassword,
-      resetTokenLifetimeMinutes: this.readPositiveInteger('PASSWORD_RESET_TOKEN_LIFETIME_MINUTES'),
-      from: this.environment.getRequiredString('SMTP_FROM'),
-    };
   }
 
   private createGameSocketCorsOptions(): GameSocketCorsOptions {

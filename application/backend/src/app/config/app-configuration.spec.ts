@@ -8,11 +8,8 @@ import { AppEnvironment } from './app-environment';
 
 const requiredNames = Object.keys(createAppEnvironmentFixture());
 const booleanNames = [
-  'FRONTEND_REQUIRE_HTTPS',
   'MEDIA_REQUIRE_HTTPS',
   'MEDIA_STORAGE_FORCE_PATH_STYLE',
-  'SMTP_SECURE',
-  'SMTP_REQUIRE_TLS',
   'GRAPHQL_GRAPHIQL_ENABLED',
   'GRAPHQL_INTROSPECTION_ENABLED',
   'I18N_WATCH_ENABLED',
@@ -25,10 +22,6 @@ const integerNames = [
   'MEDIA_PROCESSING_TIMEOUT_MS',
   'MEDIA_PROCESSING_CONCURRENCY',
   'MEDIA_PROCESSING_MEMORY_LIMIT_MB',
-  'JWT_ACCESS_EXPIRES_IN_SECONDS',
-  'JWT_REFRESH_EXPIRES_IN_SECONDS',
-  'SMTP_PORT',
-  'PASSWORD_RESET_TOKEN_LIFETIME_MINUTES',
   'PORT',
   'PARTY_SESSION_RECOVERY_WINDOW_MS',
   'PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES',
@@ -84,17 +77,15 @@ describe('AppConfiguration', () => {
     expect(config.server.graphqlSchemaOutputPath).toBeUndefined();
     expect(config.telemetry.endpoint).toBeUndefined();
     expect(config.telemetry.headersJson).toBeUndefined();
-    expect(config.passwordRecovery.smtpUser).toBeUndefined();
-    expect(config.passwordRecovery.smtpPassword).toBeUndefined();
+    expect(config.betterAuth.smtpUrl).toBe('smtp://localhost:1025');
   });
 
-  it('honors explicit feature settings and distinct refresh credentials in production', () => {
+  it('honors explicit feature settings in production', () => {
     // Arrange
     const environment = new AppEnvironment(
       createAppEnvironmentFixture({
         NODE_ENV: 'production',
         APP_VERSION: '  1.2.3  ',
-        JWT_REFRESH_SECRET: 'explicit-refresh-signing-key',
         GRAPHQL_GRAPHIQL_ENABLED: 'true',
         GRAPHQL_INTROSPECTION_ENABLED: 'true',
         GRAPHQL_SCHEMA_OUTPUT_PATH: '/tmp/pleey-schema.gql',
@@ -112,7 +103,6 @@ describe('AppConfiguration', () => {
     const configuration = new AppConfiguration(environment);
     // Assert
     expect(configuration.getApplicationVersion()).toBe('1.2.3');
-    expect(configuration.getRefreshTokenConfig().secret).toBe('explicit-refresh-signing-key');
     expect(configuration.getServerConfig()).toMatchObject({
       graphiqlEnabled: true,
       graphqlIntrospectionEnabled: true,
@@ -149,7 +139,7 @@ describe('AppConfiguration', () => {
     expect(() => new AppConfiguration(environment)).toThrow(`${name} must be a positive safe integer`);
   });
 
-  it.each(['PORT', 'SMTP_PORT'])('bounds %s to valid network ports', (name) => {
+  it.each(['PORT'])('bounds %s to valid network ports', (name) => {
     // Arrange
     const environment = new AppEnvironment(createAppEnvironmentFixture({ [name]: '65536' }));
     // Act + Assert
@@ -161,10 +151,6 @@ describe('AppConfiguration', () => {
     const environment = new AppEnvironment(
       createAppEnvironmentFixture({
         PORT: '65535',
-        SMTP_PORT: '2525',
-        JWT_ACCESS_EXPIRES_IN_SECONDS: '1800',
-        JWT_REFRESH_EXPIRES_IN_SECONDS: '7200',
-        PASSWORD_RESET_TOKEN_LIFETIME_MINUTES: '45',
         PARTY_SESSION_RECOVERY_WINDOW_MS: '60000',
         PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES: '1048576',
       }),
@@ -173,51 +159,22 @@ describe('AppConfiguration', () => {
     const config = new AppConfiguration(environment).getRuntimeConfiguration();
     // Assert
     expect(config).toMatchObject({
-      accessToken: { expiresInSeconds: 1800 },
-      refreshToken: { expiresInSeconds: 7200 },
       server: { port: 65535 },
-      passwordRecovery: { smtpPort: 2525, resetTokenLifetimeMinutes: 45 },
       partySessionRecoveryWindowMs: 60000,
       playableContentImportMaxFileSizeBytes: 1048576,
     });
   });
 
-  it.each(['development', 'production'])('enforces HTTPS through its explicit flag for %s', (nodeEnvironment) => {
+  it('enforces HTTPS in production', () => {
     // Arrange
     const environment = new AppEnvironment(
       createAppEnvironmentFixture({
-        NODE_ENV: nodeEnvironment,
-        FRONTEND_REQUIRE_HTTPS: 'true',
+        NODE_ENV: 'production',
         FRONTEND_URL: 'http://play.example',
       }),
     );
     // Act + Assert
-    expect(() => new AppConfiguration(environment)).toThrow('FRONTEND_REQUIRE_HTTPS');
-  });
-
-  it('applies explicit recovery TLS settings independently', () => {
-    // Arrange
-    const environment = new AppEnvironment(
-      createAppEnvironmentFixture({
-        NODE_ENV: 'development',
-        FRONTEND_REQUIRE_HTTPS: 'true',
-        FRONTEND_URL: 'https://play.example/path',
-        SMTP_SECURE: 'true',
-        SMTP_REQUIRE_TLS: 'true',
-        SMTP_USER: 'smtp-user',
-        SMTP_PASSWORD: 'smtp-password',
-      }),
-    );
-    // Act
-    const recovery = new AppConfiguration(environment).getRuntimeConfiguration().passwordRecovery;
-    // Assert
-    expect(recovery).toMatchObject({
-      frontendUrl: 'https://play.example',
-      smtpSecure: true,
-      smtpRequireTls: true,
-      smtpUser: 'smtp-user',
-      smtpPassword: 'smtp-password',
-    });
+    expect(() => new AppConfiguration(environment)).toThrow('FRONTEND_URL must use HTTPS');
   });
 
   it.each(['https://user:password@play.example', 'javascript:alert(1)', 'malformed'])(
@@ -227,16 +184,6 @@ describe('AppConfiguration', () => {
       const environment = new AppEnvironment(createAppEnvironmentFixture({ FRONTEND_URL: frontendUrl }));
       // Act + Assert
       expect(() => new AppConfiguration(environment)).toThrow('FRONTEND_URL');
-    },
-  );
-
-  it.each([{ SMTP_USER: 'user' }, { SMTP_PASSWORD: 'password' }])(
-    'rejects incomplete SMTP credentials %#',
-    (credentials) => {
-      // Arrange
-      const environment = new AppEnvironment(createAppEnvironmentFixture(credentials));
-      // Act + Assert
-      expect(() => new AppConfiguration(environment)).toThrow('SMTP_USER and SMTP_PASSWORD');
     },
   );
 
@@ -388,9 +335,7 @@ describe('AppConfiguration', () => {
     const values: NodeJS.ProcessEnv = {
       CAP_SECRET: 'mounted_captcha_secret_at_least_32_bytes',
       VALKEY_URL: 'rediss://cache.example:6379',
-      JWT_REFRESH_SECRET: 'mounted-refresh-key',
-      SMTP_USER: 'smtp-user',
-      SMTP_PASSWORD: 'smtp-password',
+      SMTP_URL: 'smtp://mail.example:1025',
       MEDIA_STORAGE_ACCESS_KEY_ID: 'mounted-media-access-key',
       MEDIA_STORAGE_SECRET_ACCESS_KEY: 'mounted-media-secret-key',
       TRUSTED_PROXY_CIDRS: '',
@@ -408,8 +353,7 @@ describe('AppConfiguration', () => {
         new AppEnvironment(createAppEnvironmentFixture(overrides)),
       ).getRuntimeConfiguration();
       expect(config.captcha).toEqual({ secret: values.CAP_SECRET, valkeyUrl: values.VALKEY_URL });
-      expect(config.refreshToken.secret).toBe(values.JWT_REFRESH_SECRET);
-      expect(config.passwordRecovery).toMatchObject({ smtpUser: values.SMTP_USER, smtpPassword: values.SMTP_PASSWORD });
+      expect(config.betterAuth.smtpUrl).toBe(values.SMTP_URL);
       expect(config.server.trustedProxyCidrs).toEqual([]);
       expect(config.mediaStorage).toMatchObject({
         accessKeyId: values.MEDIA_STORAGE_ACCESS_KEY_ID,

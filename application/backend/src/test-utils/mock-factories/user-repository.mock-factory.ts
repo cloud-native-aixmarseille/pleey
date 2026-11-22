@@ -10,17 +10,15 @@ import {
 } from './mock-factory.utils';
 
 const USER_REPOSITORY_METHOD_KINDS: MockFactoryMethodKinds<UserRepository> = {
-  resolved: ['create', 'findByEmail', 'findById', 'findByUsername', 'exists', 'updateProfile'],
+  resolved: ['findByEmail', 'findById', 'findByUsername', 'updateProfile'],
   returned: [],
 };
 
 export const createUserRepositoryMock = (config: MockFactoryConfig<UserRepository> = {}): Mocked<UserRepository> => {
   const mock: Mocked<UserRepository> = {
-    create: mockFn<UserRepository['create']>(),
     findByEmail: mockFn<UserRepository['findByEmail']>(),
     findById: mockFn<UserRepository['findById']>(),
     findByUsername: mockFn<UserRepository['findByUsername']>(),
-    exists: mockFn<UserRepository['exists']>(),
     updateProfile: mockFn<UserRepository['updateProfile']>(),
   };
 

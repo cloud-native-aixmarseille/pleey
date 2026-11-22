@@ -9,7 +9,7 @@ import { OrganizationIdentifier } from '../../../application/workspace/shared/se
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import type { UserId } from '../../../domain/identity/entities/user';
 import { IdentityErrorCode } from '../../../domain/identity/enums/identity-error-code.enum';
-import { GqlJwtAuthGuard } from '../../identity/shared/guards/gql-jwt-auth-guard';
+import { GqlAuthGuard } from '../../identity/shared/guards/gql-auth-guard';
 import { CreateProjectInput } from './types/create-project-input';
 import { ListOrganizationProjectsInput } from './types/list-organization-projects-input';
 import { ProjectListType } from './types/project-list-type';
@@ -39,7 +39,7 @@ export class ProjectResolver {
   ) {}
 
   @Query(() => ProjectListType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async organizationProjects(
     @Args('input') input: ListOrganizationProjectsInput,
     @Context() context: GraphqlAuthContext,
@@ -56,7 +56,7 @@ export class ProjectResolver {
   }
 
   @Mutation(() => ProjectType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async createProject(
     @Args('organizationId', { type: () => ID }) organizationId: string,
     @Args('input') input: CreateProjectInput,
@@ -74,7 +74,7 @@ export class ProjectResolver {
   }
 
   @Mutation(() => ProjectType)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async updateProject(
     @Args('projectId', { type: () => ID }) projectId: string,
     @Args('input') input: UpdateProjectInput,
@@ -92,7 +92,7 @@ export class ProjectResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(GqlJwtAuthGuard)
+  @UseGuards(GqlAuthGuard)
   async deleteProject(
     @Args('projectId', { type: () => ID }) projectId: string,
     @Context() context: GraphqlAuthContext,

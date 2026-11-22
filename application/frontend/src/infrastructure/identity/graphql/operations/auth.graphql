@@ -6,23 +6,6 @@ fragment AuthUserFields on AuthUserProfileType {
   createdAt
 }
 
-mutation Login($input: LoginInput!) {
-  login(input: $input) {
-    accessToken
-    refreshToken
-    expiresIn
-    user {
-      ...AuthUserFields
-    }
-  }
-}
-
-mutation Register($input: RegisterInput!) {
-  register(input: $input) {
-    ...AuthUserFields
-  }
-}
-
 query Me {
   me {
     ...AuthUserFields
@@ -39,29 +22,6 @@ mutation RegenerateAvatar {
   regenerateAvatar {
     ...AuthUserFields
   }
-}
-
-mutation Logout {
-  logout
-}
-
-mutation Refresh($input: RefreshTokenInput!) {
-  refresh(input: $input) {
-    accessToken
-    refreshToken
-    expiresIn
-    user {
-      ...AuthUserFields
-    }
-  }
-}
-
-mutation ForgotPassword($input: ForgotPasswordInput!) {
-  forgotPassword(input: $input)
-}
-
-mutation ResetPassword($input: ResetPasswordInput!) {
-  resetPassword(input: $input)
 }
 
 query MyGameHistory($input: UserGameHistoryInput!) {
@@ -81,37 +41,4 @@ query MyGameHistory($input: UserGameHistoryInput!) {
       points
     }
   }
-}
-
-fragment UserSessionFields on UserSessionType {
-  id
-  createdAt
-  lastActiveAt
-  expiresAt
-  userAgent
-  ipAddress
-}
-
-query MySessions($input: UserSessionListInput!) {
-  myCurrentSession {
-    ...UserSessionFields
-  }
-  myOtherSessions(input: $input) {
-    items {
-      ...UserSessionFields
-    }
-    page
-    pageSize
-    totalCount
-    overallCount
-    totalPages
-  }
-}
-
-mutation RevokeSession($input: RevokeUserSessionInput!) {
-  revokeSession(input: $input)
-}
-
-mutation RevokeOtherSessions {
-  revokeOtherSessions
 }

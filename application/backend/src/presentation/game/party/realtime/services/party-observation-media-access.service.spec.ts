@@ -88,7 +88,7 @@ describe('PartyObservationMediaAccessService', () => {
     // Arrange
     const fixture = createPartyMediaAccessFixture();
     fixture.client.data = fixture.hostSocketData;
-    fixture.sessions.validate.mockRejectedValue(new Error('revoked'));
+    fixture.sessions.isSessionRevoked.mockResolvedValue(true);
 
     // Act + Assert
     await expect(fixture.mediaAccess.request(fixture.client, fixture.snapshot, fixture.stageMedia.id)).rejects.toThrow(

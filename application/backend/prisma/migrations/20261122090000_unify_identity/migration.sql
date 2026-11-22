@@ -56,11 +56,11 @@ CREATE INDEX IF NOT EXISTS "auth_accounts_user_id_idx" ON "auth_accounts"("user_
 INSERT INTO "auth_accounts"
   ("id", "account_id", "provider_id", "user_id", "password", "created_at", "updated_at")
 SELECT
-  gen_random_uuid(), a."email", 'credential', a."user_id", NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+  gen_random_uuid(), a."user_id"::text, 'credential', a."user_id", NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 FROM "user_authentications" AS a
 WHERE NOT EXISTS (
   SELECT 1 FROM "auth_accounts" AS ba
-  WHERE ba."provider_id" = 'credential' AND ba."account_id" = a."email"
+  WHERE ba."provider_id" = 'credential' AND ba."account_id" = a."user_id"::text
 )
 ON CONFLICT DO NOTHING;
 
@@ -177,3 +177,20 @@ SELECT pp."user_id", pp."party_id"
 FROM "party_participants" pp
 WHERE 'PLAYER' = ANY(pp."roles") AND pp."status" = 'ACTIVE'
 ON CONFLICT ("user_id") DO NOTHING;
+
+ALTER TABLE "auth_sessions"
+  ADD CONSTRAINT "auth_sessions_user_id_fkey"
+  FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE "auth_accounts"
+  ADD CONSTRAINT "auth_accounts_user_id_fkey"
+  FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE "party_participants"
+  ADD CONSTRAINT "party_participants_party_id_fkey"
+  FOREIGN KEY ("party_id") REFERENCES "parties"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT "party_participants_user_id_fkey"
+  FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+DROP TABLE "user_sessions";
+DROP TABLE "user_authentications";

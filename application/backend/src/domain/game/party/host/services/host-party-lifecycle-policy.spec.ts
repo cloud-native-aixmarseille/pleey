@@ -187,6 +187,7 @@ describe('HostPartyLifecyclePolicy', () => {
     // Arrange + Act
     const result = policy.advanceStage(
       {
+        playerCount: 1,
         status: PartyStatus.ACTIVE,
         runtime: {
           ...createResultRuntimeContext({
@@ -284,6 +285,7 @@ describe('HostPartyLifecyclePolicy', () => {
     // Assert
     try {
       const paused = policy.pause({
+        playerCount: 1,
         status: PartyStatus.ACTIVE,
         runtime: createRuntimeContext({
           phase: PartyRuntimePhase.STAGE,

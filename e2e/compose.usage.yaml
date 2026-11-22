@@ -10,6 +10,8 @@ services:
     user: "1000:1000"
     restart: "no"
     environment:
+      CORS_ORIGIN: http://frontend:5173
+      FRONTEND_URL: http://frontend:5173
       GRAPHQL_SCHEMA_OUTPUT_PATH: /usr/src/repository/.cache/usage-docs/schema.gql
       I18N_WATCH_ENABLED: "false"
       TMPDIR: /tmp

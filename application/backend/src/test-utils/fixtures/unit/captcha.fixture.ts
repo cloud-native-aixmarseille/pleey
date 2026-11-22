@@ -4,7 +4,7 @@ import type { CaptchaProof } from '../../../application/identity/captcha/ports/c
 import { CapCaptchaAdapter } from '../../../infrastructure/identity/captcha/cap-captcha-adapter';
 import type { CaptchaConfig } from '../../../infrastructure/identity/captcha/captcha-config.token';
 
-export class MemoryCaptchaStore {
+class MemoryCaptchaStore {
   readonly entries = new Map<string, { value: string; expires: number }>();
 
   async increment(key: string, ttlMs: number): Promise<number> {
