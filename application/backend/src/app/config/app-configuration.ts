@@ -37,6 +37,7 @@ export class AppConfiguration {
       },
       databaseConnectionString: this.environment.getRequiredString('DATABASE_URL'),
       authPublicApiBaseUrl: this.environment.getOptionalString('API_BASE_URL'),
+      betterAuth: this.createBetterAuthConfig(nodeEnvironment),
       gameSocketCorsOptions: this.createGameSocketCorsOptions(),
       partySessionRecoveryWindowMs: this.readPositiveInteger('PARTY_SESSION_RECOVERY_WINDOW_MS'),
       server: {
@@ -101,6 +102,33 @@ export class AppConfiguration {
 
   getPlayableContentImportMaxFileSizeBytes(): number {
     return this.runtimeConfiguration.playableContentImportMaxFileSizeBytes;
+  }
+
+  private createBetterAuthConfig(nodeEnvironment: string): AppRuntimeConfiguration['betterAuth'] {
+    const publicOrigin = this.environment.getRequiredString('FRONTEND_URL').replace(/\/+$/, '');
+    let origin: URL;
+    try {
+      origin = new URL(publicOrigin);
+    } catch {
+      throw new Error('FRONTEND_URL must be an absolute HTTP(S) URL');
+    }
+    if (!['http:', 'https:'].includes(origin.protocol) || origin.username || origin.password) {
+      throw new Error('FRONTEND_URL must be an absolute HTTP(S) URL without credentials');
+    }
+    if (nodeEnvironment === 'production' && origin.protocol !== 'https:') {
+      throw new Error('FRONTEND_URL must use HTTPS in production');
+    }
+    const secret = this.environment.getRequiredString('BETTER_AUTH_SECRET');
+    if (Buffer.byteLength(secret, 'utf8') < 32) {
+      throw new Error('BETTER_AUTH_SECRET must contain at least 32 bytes');
+    }
+    return {
+      publicOrigin,
+      secureCookies: origin.protocol === 'https:',
+      secret,
+      smtpFrom: this.environment.getRequiredString('SMTP_FROM'),
+      smtpUrl: this.environment.getOptionalString('SMTP_URL') ?? null,
+    };
   }
 
   private createCaptchaConfig(): CaptchaConfig {

@@ -9,6 +9,11 @@ datasource db {
 model User {
   id        String   @id @default(uuid(7)) @db.Uuid
   username  String   @unique
+  name      String   @default("")
+  email     String   @unique @default("")
+  emailVerified Boolean @default(false) @map("email_verified")
+  image     String?
+  isAnonymous Boolean @default(false) @map("is_anonymous")
   avatarMediaId String? @unique @map("avatar_media_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -16,11 +21,67 @@ model User {
 
   avatar              Media? @relation("UserAvatar", fields: [avatarMediaId], references: [id], onDelete: SetNull)
   authentication      UserAuthentication?
+  authSessions        Session[]
+  authAccounts        Account[]
   scores              Score[]
+  partyParticipants   PartyParticipant[]
+  participationClaim  UserParticipationClaim?
+  identityTransfersSource IdentityTransfer[] @relation("IdentityTransferSource")
+  identityTransfersTarget IdentityTransfer[] @relation("IdentityTransferTarget")
   hostedParties       Party[] @relation("HostedParties")
   organizationMembers OrganizationMember[]
   
   @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("auth_sessions")
+}
+
+model Account {
+  id                    String    @id @default(uuid(7)) @db.Uuid
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  userId                String    @map("user_id") @db.Uuid
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("auth_accounts")
+}
+
+model Verification {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  identifier String
+  value      String
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([identifier, value])
+  @@map("auth_verifications")
 }
 
 model UserAuthentication {
@@ -108,8 +169,71 @@ model Party {
   game   Game  @relation(fields: [gameId], references: [id])
   host   User  @relation("HostedParties", fields: [hostId], references: [id])
   scores Score[]
+  participants PartyParticipant[]
+  identityTransfers IdentityTransfer[]
+  participationClaims UserParticipationClaim[]
 
   @@map("parties")
+}
+
+model PartyParticipant {
+  id                 String   @id @default(uuid(7)) @db.Uuid
+  partyId            String   @map("party_id") @db.Uuid
+  userId             String   @map("user_id") @db.Uuid
+  roles              String[]
+  status             String   @default("ACTIVE")
+  displayName        String   @map("display_name")
+  controllerGeneration Int     @default(0) @map("controller_generation")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  party Party @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scores Score[]
+
+  @@unique([partyId, userId])
+  @@index([partyId, status])
+  @@index([userId, status])
+  @@map("party_participants")
+}
+
+model UserParticipationClaim {
+  userId    String   @id @map("user_id") @db.Uuid
+  partyId   String   @map("party_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  party Party @relation(fields: [partyId], references: [id], onDelete: Cascade)
+
+  @@unique([partyId, userId])
+  @@map("user_participation_claims")
+}
+
+model IdentityTransfer {
+  id              String   @id @default(uuid(7)) @db.Uuid
+  operationId     String   @unique @map("operation_id")
+  sourceUserId    String   @map("source_user_id") @db.Uuid
+  targetUserId    String?  @map("target_user_id") @db.Uuid
+  sourceSessionId String   @map("source_session_id") @db.Uuid
+  status          String
+  version         Int      @default(0)
+  preparedAt      DateTime @default(now()) @map("prepared_at")
+  verifiedAt      DateTime? @map("verified_at")
+  completedAt     DateTime? @map("completed_at")
+  failedAt        DateTime? @map("failed_at")
+  partyId         String?  @map("party_id") @db.Uuid
+  stepMarkers     Json     @default("{}") @map("step_markers")
+  failureReason   String?  @map("failure_reason")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  sourceUser  User   @relation("IdentityTransferSource", fields: [sourceUserId], references: [id], onDelete: Restrict)
+  targetUser  User?  @relation("IdentityTransferTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+  party       Party? @relation(fields: [partyId], references: [id], onDelete: Restrict)
+
+  @@index([sourceUserId, status])
+  @@index([targetUserId, status])
+  @@map("identity_transfers")
 }
 
 model Guest {
@@ -128,6 +252,7 @@ model Guest {
 model Score {
   id         String   @id @default(uuid(7)) @db.Uuid
   partyId    String   @map("party_id") @db.Uuid
+  participantId String? @map("participant_id") @db.Uuid
   userId     String?  @map("user_id") @db.Uuid
   guestId    String?  @map("guest_id") @db.Uuid
   context    Json?    @map("context")
@@ -137,6 +262,7 @@ model Score {
   deletedAt  DateTime? @map("deleted_at")
 
   party    Party  @relation(fields: [partyId], references: [id])
+  participant PartyParticipant? @relation(fields: [participantId], references: [id])
   user     User?  @relation(fields: [userId], references: [id])
   guest    Guest? @relation(fields: [guestId], references: [id], onDelete: SetNull)
 

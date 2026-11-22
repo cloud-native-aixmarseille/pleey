@@ -28,8 +28,6 @@ import {
   isDomainError,
 } from '../../../domains/shared/errors/domain-error';
 import { GRAPHQL_URL } from '../../config/api';
-import { isSameAccessTokenSession, readAccessTokenClaims } from '../../identity/access-token-claims';
-import { RefreshDocument, type RefreshMutation, type RefreshMutationVariables } from '../generated/graphql';
 
 interface GraphqlRequestOptions {
   readonly authToken?: string;
@@ -62,11 +60,8 @@ export class GraphqlClient implements AuthSessionTransport {
   private readonly client: ApolloClient;
   private readonly pendingQueries = new Map<string, Promise<unknown>>();
   private accessToken: string | null = null;
-  private refreshToken: string | null = null;
-  private refreshPromise: Promise<Pick<AuthSession, 'accessToken'> | null> | null = null;
   private sessionRevision = 0;
   private credentialsRevision = 0;
-  private renewalTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     @inject(AuthPayloadInspector)
@@ -84,10 +79,8 @@ export class GraphqlClient implements AuthSessionTransport {
   }
 
   setAuthSessionTokens(tokens: { accessToken: string | null; refreshToken: string | null }): void {
-    if (this.accessToken === tokens.accessToken && this.refreshToken === tokens.refreshToken) return;
-    if (!isSameAccessTokenSession(this.accessToken, tokens.accessToken)) this.sessionRevision++;
-    this.refreshPromise = null;
-    this.updateCredentials(tokens.accessToken, tokens.refreshToken);
+    void tokens;
+    // Better Auth cookie credentials are not mirrored here.
   }
 
   registerAuthSessionHandlers(handlers: AuthSessionTransportHandlers): void {
@@ -123,13 +116,10 @@ export class GraphqlClient implements AuthSessionTransport {
 
   private createClient(): ApolloClient {
     const authLink = new SetContextLink((context) => {
-      const resolvedAuthToken = typeof context.authToken === 'string' ? context.authToken : undefined;
-
       return {
         headers: {
           ...GRAPHQL_UPLOAD_PREFLIGHT_HEADERS,
           ...context.headers,
-          ...(resolvedAuthToken ? { Authorization: `Bearer ${resolvedAuthToken}` } : {}),
         },
       };
     });
@@ -160,32 +150,8 @@ export class GraphqlClient implements AuthSessionTransport {
       return await this.executeOperation<TData, TVariables>(parsedOperation, variables, options?.authToken);
     } catch (error) {
       let normalizedError = this.normalizeApolloError(error);
-      if (
-        !options?.skipAuthRefresh &&
-        revision === this.sessionRevision &&
-        this.isAuthError(normalizedError.code, normalizedError.message)
-      ) {
-        const refreshed =
-          requestToken !== this.accessToken && this.accessToken
-            ? { accessToken: this.accessToken }
-            : await this.refreshSession();
-        if (revision === this.sessionRevision) {
-          const retryToken = this.accessToken;
-          const retryCredentialsRevision = this.credentialsRevision;
-          if (retryToken && (refreshed || credentialsRevision !== retryCredentialsRevision)) {
-            try {
-              return await this.executeOperation<TData, TVariables>(parsedOperation, variables, retryToken);
-            } catch (retryError) {
-              normalizedError = this.normalizeApolloError(retryError);
-            }
-          }
-          if (
-            revision === this.sessionRevision &&
-            retryCredentialsRevision === this.credentialsRevision &&
-            this.isAuthError(normalizedError.code, normalizedError.message)
-          )
-            this.invalidateSession();
-        }
+      if (this.isAuthError(normalizedError.code, normalizedError.message)) {
+        this.invalidateSession();
       }
 
       throw createDomainError(
@@ -265,86 +231,7 @@ export class GraphqlClient implements AuthSessionTransport {
     return operationDefinition?.kind === 'OperationDefinition' ? operationDefinition.operation : null;
   }
 
-  private async refreshSession(): Promise<Pick<AuthSession, 'accessToken'> | null> {
-    if (!this.refreshToken) return null;
-    if (this.refreshPromise) return this.refreshPromise;
-
-    const revision = this.credentialsRevision;
-    const renew = async () => {
-      if (revision !== this.credentialsRevision) return null;
-      const stored = this.handlers.readSessionTokens?.();
-      if (stored && (stored.accessToken !== this.accessToken || stored.refreshToken !== this.refreshToken)) {
-        if (
-          isSameAccessTokenSession(this.accessToken, stored.accessToken) &&
-          stored.accessToken &&
-          stored.refreshToken
-        ) {
-          this.updateCredentials(stored.accessToken, stored.refreshToken);
-          return { accessToken: stored.accessToken };
-        }
-        this.setAuthSessionTokens(stored);
-        return null;
-      }
-      const refreshToken = this.refreshToken;
-      if (!refreshToken) return null;
-      try {
-        const result = await this.executeOperation<RefreshMutation, RefreshMutationVariables>(RefreshDocument, {
-          input: { refreshToken },
-        });
-        const session = this.payloadInspector.toAuthSession(result.refresh);
-        if (!session || revision !== this.credentialsRevision) return null;
-
-        this.updateCredentials(session.accessToken, session.refreshToken);
-        this.handlers.onSessionRefreshed?.(session);
-        return session;
-      } catch (error) {
-        const normalized = this.normalizeApolloError(error);
-        if (this.isAuthError(normalized.code, normalized.message)) return null;
-        throw error;
-      }
-    };
-    const promise =
-      typeof navigator !== 'undefined' && navigator.locks
-        ? navigator.locks.request('pleey-identity-refresh', renew)
-        : renew();
-    this.refreshPromise = promise;
-    try {
-      return await promise;
-    } finally {
-      if (this.refreshPromise === promise) this.refreshPromise = null;
-    }
-  }
-
-  private updateCredentials(accessToken: string | null, refreshToken: string | null): void {
-    this.credentialsRevision++;
-    this.accessToken = accessToken;
-    this.refreshToken = refreshToken;
-    this.scheduleRenewal();
-  }
-
-  private scheduleRenewal(): void {
-    clearTimeout(this.renewalTimer);
-    if (!this.accessToken || !this.refreshToken) return;
-    const payload = readAccessTokenClaims(this.accessToken);
-    if (typeof payload?.exp !== 'number' || !Number.isFinite(payload.exp)) return;
-    const expiresAt = payload.exp * 1000;
-    const revision = this.credentialsRevision;
-    const renew = async () => {
-      try {
-        const session = await this.refreshSession();
-        if (!session && revision === this.credentialsRevision) this.invalidateSession();
-      } catch {
-        if (revision === this.credentialsRevision) this.renewalTimer = setTimeout(() => void renew(), 30_000);
-      }
-    };
-    this.renewalTimer = setTimeout(
-      () => void renew(),
-      Math.max(1_000, Math.min(2_147_483_647, expiresAt - Date.now() - 30_000)),
-    );
-  }
-
   private invalidateSession(): void {
-    this.setAuthSessionTokens({ accessToken: null, refreshToken: null });
     this.handlers.onSessionInvalidated?.();
   }
 

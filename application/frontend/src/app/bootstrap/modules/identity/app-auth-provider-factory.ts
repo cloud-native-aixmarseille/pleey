@@ -22,6 +22,7 @@ import type { User } from '../../../../domains/identity/entities/user';
 import type { UpdateProfileInput } from '../../../../domains/identity/ports/auth-repository';
 import { isSameAccessTokenSession } from '../../../../infrastructure/identity/access-token-claims';
 import { PersistedAuthSessionAdapter } from '../../../../infrastructure/identity/persisted-auth-session.adapter';
+import { betterAuthClient } from '../../../../infrastructure/identity/better-auth-client';
 import { type AuthContextValue, AuthProvider } from '../../../../presentation/identity/contexts/auth-context';
 import { AppProviderOrder, BaseAppProviderFactory } from '../../app-provider-factory';
 
@@ -72,7 +73,7 @@ function AppAuthProvider({ children, dependencies }: AppAuthProviderProps) {
       let restorationRevision = revision.current;
       let preservesSession = false;
       try {
-        const restored = dependencies.authSessionService.restore();
+        const restored = await dependencies.authSessionService.restore();
         if (
           signingOut.current &&
           (!restored || isSameAccessTokenSession(signingOut.current.accessToken, restored.accessToken))
@@ -125,7 +126,13 @@ function AppAuthProvider({ children, dependencies }: AppAuthProviderProps) {
     dependencies.authSessionService.suspend();
     setHasRestoredSession(true);
     setUser(null);
-    const session = await dependencies.loginUseCase.execute(input);
+    const login = await betterAuthClient.signIn.email({
+      email: input.email,
+      password: input.password,
+    });
+    if (login.error) throw new Error(login.error.message || 'SIGN_IN_FAILED');
+    const session = await dependencies.authSessionService.restore();
+    if (!session) throw new Error('SESSION_CONFIRMATION_FAILED');
     if (loginRevision !== revision.current) return;
     dependencies.workspaceSelectionService.clear();
     dependencies.authSessionService.commit(session);
@@ -134,7 +141,17 @@ function AppAuthProvider({ children, dependencies }: AppAuthProviderProps) {
   }
 
   async function register(input: RegisterUserCommand): Promise<void> {
-    await dependencies.registerUseCase.execute(input);
+    const registration = await betterAuthClient.signUp.email({
+      email: input.email,
+      password: input.password,
+      name: input.username,
+    });
+    if (registration.error) throw new Error(registration.error.message || 'REGISTRATION_FAILED');
+    const session = await dependencies.authSessionService.restore();
+    if (!session) throw new Error('SESSION_CONFIRMATION_FAILED');
+    revision.current++;
+    dependencies.workspaceSelectionService.clear();
+    setUser(session.user);
   }
 
   async function signOut(): Promise<void> {
@@ -145,7 +162,7 @@ function AppAuthProvider({ children, dependencies }: AppAuthProviderProps) {
     setHasRestoredSession(true);
     setUser(null);
     try {
-      await dependencies.logoutUseCase.execute();
+      await betterAuthClient.signOut();
     } finally {
       if (logoutRevision === revision.current) {
         dependencies.authSessionService.clear();
@@ -173,10 +190,16 @@ function AppAuthProvider({ children, dependencies }: AppAuthProviderProps) {
   }
 
   const value: AuthContextValue = {
-    requestPasswordReset: (email, locale, captchaToken) =>
-      dependencies.requestPasswordReset.execute(email, locale, captchaToken),
+    requestPasswordReset: async (email, locale, captchaToken) => {
+      void locale;
+      void captchaToken;
+      await betterAuthClient.requestPasswordReset({
+        email,
+        redirectTo: `${globalThis.location.origin}/auth/reset-password`,
+      });
+    },
     resetPassword: async (token, password) => {
-      await dependencies.resetPassword.execute(token, password);
+      await betterAuthClient.resetPassword({ newPassword: password, token });
       // Any account session may have been revoked; validate on the next sign-in.
       revision.current++;
       validatedAccessToken.current = null;

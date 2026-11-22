@@ -22,6 +22,13 @@ export type AppRuntimeConfiguration = {
   readonly passwordRecovery: PasswordRecoveryConfig;
   readonly server: AppServerConfig;
   readonly telemetry: OpenTelemetryConfig;
+  readonly betterAuth: {
+    readonly publicOrigin: string;
+    readonly secureCookies: boolean;
+    readonly secret: string;
+    readonly smtpFrom: string;
+    readonly smtpUrl: string | null;
+  };
 };
 
 export const APP_RUNTIME_CONFIGURATION = Symbol('APP_RUNTIME_CONFIGURATION');

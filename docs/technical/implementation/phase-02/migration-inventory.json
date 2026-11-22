@@ -1,0 +1,9 @@
+{
+  "phase": "02",
+  "migration": "20261122090000_unify_identity",
+  "preserved": ["registered user IDs", "organization/project ownership", "party/history references"],
+  "converted": ["registered account email/name projection", "historical registered score attribution", "host and scored-player memberships"],
+  "invalidated": ["JWT access tokens", "JWT refresh tokens", "guest credentials", "legacy reset tokens"],
+  "retainedForReconciliation": ["legacy user_authentications", "legacy user_sessions", "guests", "guest score references"],
+  "destructiveFollowUp": "Execute only after migration reconciliation and backup restore rehearsal succeeds"
+}

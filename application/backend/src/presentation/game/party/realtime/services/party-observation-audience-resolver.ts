@@ -12,7 +12,7 @@ import {
   PartyPlayerSessionRegistry,
   PartyPlayerSessionRegistryProvider,
 } from '../../../../../domain/game/party/player/services/party-player-session-registry';
-import { JwtSessionAuthenticator } from '../../../../../infrastructure/identity/services/jwt-session-authenticator';
+import { BetterAuthSessionAdapter } from '../../../../../infrastructure/identity/better-auth-session.adapter';
 import type { PartyObserverSocketData } from '../party-observer-socket-data';
 import { resolvePartyObservationRoom } from '../party-socket-events';
 
@@ -25,7 +25,7 @@ type PartyObservationAudience =
 export class PartyObservationAudienceResolver {
   constructor(
     private readonly access: PartyObservationAccessService,
-    private readonly sessions: JwtSessionAuthenticator,
+    private readonly sessions: BetterAuthSessionAdapter,
     @Inject(PartyPlayerSessionRegistryProvider)
     private readonly sessionRegistry: PartyPlayerSessionRegistry,
     private readonly playerPartyRuntime: PlayerPartyRuntimePort,
@@ -38,8 +38,12 @@ export class PartyObservationAudienceResolver {
   async canObserve(data: PartyObserverSocketData, observation: HostPartyObservation): Promise<boolean> {
     if (data.authenticatedUserId !== undefined) {
       try {
-        const actor = await this.sessions.validate(data.authenticatedSession, false);
-        if (actor.id !== data.authenticatedUserId) return false;
+        if (!data.authenticatedSessionId || !data.authenticatedSessionExpiresAt) return false;
+        const revoked = await this.sessions.isSessionRevoked(
+          data.authenticatedSessionId,
+          data.authenticatedSessionExpiresAt,
+        );
+        if (revoked) return false;
       } catch {
         return false;
       }

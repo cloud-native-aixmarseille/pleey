@@ -16,8 +16,7 @@ export class AppAuthSessionTransportHub implements AuthSessionTransport {
   ) {}
 
   setAuthSessionTokens(tokens: { accessToken: string | null; refreshToken: string | null }): void {
-    this.graphqlClient.setAuthSessionTokens(tokens);
-    this.partyRealtimeTransport.setAuthSessionTokens(tokens);
+    void tokens;
   }
 
   registerAuthSessionHandlers(handlers: AuthSessionTransportHandlers): void {

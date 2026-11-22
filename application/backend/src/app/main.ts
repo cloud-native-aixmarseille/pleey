@@ -41,6 +41,10 @@ async function bootstrap() {
 
   const serverConfig = app.get<AppServerConfig>(APP_SERVER_CONFIG);
   const socketCorsOptions = app.get(GAME_SOCKET_CORS_OPTIONS);
+  const { BETTER_AUTH } = await import('../infrastructure/identity/better-auth.token.js');
+  const { toNodeHandler } = await import('better-auth/node');
+  const betterAuth = app.get(BETTER_AUTH);
+  app.use('/api/auth', toNodeHandler(betterAuth));
 
   app.set('trust proxy', serverConfig.trustedProxyCidrs);
   app.enableCors();

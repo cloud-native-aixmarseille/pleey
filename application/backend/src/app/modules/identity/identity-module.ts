@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
 import { PartyIdentifier } from '../../../application/game/party/shared/services/identifiers/party-identifier';
 import { GetGuestAvatarPreviewUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-preview-use-case';
 import { GetGuestAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-use-case';
@@ -49,7 +47,6 @@ import { ProjectRepositoryProvider } from '../../../domain/project/ports/project
 import { PrismaPartySettingsMapper } from '../../../infrastructure/game/shared/prisma-party-settings.mapper';
 import { CapCaptchaAdapter } from '../../../infrastructure/identity/captcha/cap-captcha-adapter';
 import { ValkeyCaptchaStore } from '../../../infrastructure/identity/captcha/valkey-captcha-store';
-import { JwtStrategy } from '../../../infrastructure/identity/jwt-strategy';
 import { PrismaGuestRepository } from '../../../infrastructure/identity/repositories/prisma-guest-repository';
 import { PrismaPasswordRecoveryAdapter } from '../../../infrastructure/identity/repositories/prisma-password-recovery-adapter';
 import { PrismaUserAuthenticationRepository } from '../../../infrastructure/identity/repositories/prisma-user-authentication-repository';
@@ -58,8 +55,6 @@ import { PrismaUserRepository } from '../../../infrastructure/identity/repositor
 import { PrismaUserSessionManagementAdapter } from '../../../infrastructure/identity/repositories/prisma-user-session-management-adapter';
 import { CryptoRecoveryToken } from '../../../infrastructure/identity/services/crypto-recovery-token';
 import { DicebearAvatarGeneratorAdapter } from '../../../infrastructure/identity/services/dicebear-avatar-generator-adapter';
-import { JwtAuthTokenService } from '../../../infrastructure/identity/services/jwt-auth-token-service';
-import { JwtSessionAuthenticator } from '../../../infrastructure/identity/services/jwt-session-authenticator';
 import { PasswordResetDeliveryWorker } from '../../../infrastructure/identity/services/password-reset-delivery-worker';
 import { SmtpPasswordResetMailer } from '../../../infrastructure/identity/services/smtp-password-reset-mailer';
 import { PrismaOrganizationMemberRepository } from '../../../infrastructure/organization/repositories/prisma-organization-member-repository';
@@ -73,24 +68,26 @@ import { AuthProfilePresenter } from '../../../presentation/identity/shared/pres
 import { AppConfigModule } from '../../config/app-config.module';
 import { DatabaseModule } from '../database/database-module';
 import { SharedServicesModule } from '../shared/shared-services.module';
+import { createBetterAuth, type BetterAuthRuntimeConfig } from '../../../infrastructure/identity/better-auth-config';
+import { BETTER_AUTH_CONFIG } from '../../../infrastructure/identity/better-auth-config.token';
+import { BETTER_AUTH } from '../../../infrastructure/identity/better-auth.token';
+import { BetterAuthSessionAdapter } from '../../../infrastructure/identity/better-auth-session.adapter';
+import { PrismaService } from '../../../infrastructure/database/prisma-service';
 
 @Module({
   imports: [
     AppConfigModule,
     DatabaseModule,
     SharedServicesModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.registerAsync({
-      imports: [AppConfigModule],
-      inject: [ACCESS_TOKEN_CONFIG],
-      useFactory: (accessTokenConfig: TokenConfig) => ({
-        secret: accessTokenConfig.secret,
-        signOptions: { expiresIn: accessTokenConfig.expiresInSeconds },
-      }),
-    }),
   ],
   controllers: [AvatarController, CaptchaController],
   providers: [
+    {
+      provide: BETTER_AUTH,
+      inject: [PrismaService, BETTER_AUTH_CONFIG],
+      useFactory: (prisma: PrismaService, config: BetterAuthRuntimeConfig) => createBetterAuth(prisma, config),
+    },
+    BetterAuthSessionAdapter,
     ThemeIdentifier,
     CapCaptchaAdapter,
     ValkeyCaptchaStore,
@@ -110,7 +107,6 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     CryptoRecoveryToken,
     SmtpPasswordResetMailer,
     PasswordResetDeliveryWorker,
-    JwtSessionAuthenticator,
     { provide: PasswordRecoveryPortProvider, useExisting: PrismaPasswordRecoveryAdapter },
     { provide: PasswordResetMailerProvider, useExisting: SmtpPasswordResetMailer },
     { provide: RecoveryTokenProvider, useExisting: CryptoRecoveryToken },
@@ -135,7 +131,6 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     AuthProfilePresenter,
     UserIdentifier,
     UserAvatarService,
-    JwtAuthTokenService,
     PrismaUserRepository,
     PrismaUserAuthenticationRepository,
     { provide: UserAuthenticationRepositoryProvider, useExisting: PrismaUserAuthenticationRepository },
@@ -165,22 +160,15 @@ import { SharedServicesModule } from '../shared/shared-services.module';
       useExisting: PrismaProjectRepository,
     },
     {
-      provide: AuthTokenServiceProvider,
-      useExisting: JwtAuthTokenService,
-    },
-    {
       provide: AvatarGeneratorAdapterProvider,
       useExisting: DicebearAvatarGeneratorAdapter,
     },
-    JwtStrategy,
     GqlJwtAuthGuard,
     AuthResolver,
   ],
   exports: [
-    JwtSessionAuthenticator,
-    JwtModule,
-    PassportModule,
-    JwtStrategy,
+    BETTER_AUTH,
+    BetterAuthSessionAdapter,
     GqlJwtAuthGuard,
     PasswordService,
     GuestRepositoryProvider,

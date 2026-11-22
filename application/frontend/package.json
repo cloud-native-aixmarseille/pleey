@@ -45,6 +45,7 @@
     "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-virtual": "^3.14.26",
     "apollo-upload-client": "^20.0.0",
+    "better-auth": "1.7.27",
     "driver.js": "^1.14.0",
     "graphql": "^17.1.0",
     "i18next": "^27.1.5",
@@ -58,7 +59,8 @@
     "reflect-metadata": "^0.2.2",
     "socket.io-client": "^4.8.4",
     "unique-username-generator": "^1.5.1",
-    "uuid": "^14.0.3"
+    "uuid": "^14.0.3",
+    "xstate": "5.33.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.8",

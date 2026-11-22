@@ -4,21 +4,6 @@ export class PartyEntryMessageDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  guestCredential?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  avatarSeed?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  guestId?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
   partyPassword?: string;
 
   @IsOptional()

@@ -16,6 +16,8 @@ export interface PartyObserverSocketData {
     readonly exp: number;
     readonly tokenType: 'access';
   };
+  authenticatedSessionId?: string;
+  authenticatedSessionExpiresAt?: Date;
   joinedPartyPlayer?: JoinedPartyPlayerSocketData;
   partyObservationRoom?: string;
   playerSessionId?: string;

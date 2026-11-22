@@ -35,10 +35,7 @@ export class SocketIoPartyHostControlAdapter implements PartyHostControlPort {
             partyId: command.partyId,
             userId: command.playerIdentity.userId,
           }
-        : {
-            guestId: command.playerIdentity.guestId,
-            partyId: command.partyId,
-          },
+        : { partyId: command.partyId },
     );
   }
 

@@ -5,7 +5,9 @@ import type { Media } from '../../../../domain/media/entities/media';
 export interface AuthenticatedRequest extends Request {
   user: {
     id: UserId;
-    username: string;
-    avatar: Media | null;
+    username?: string;
+    avatar?: Media | null;
+    sessionId?: string;
+    isAnonymous?: boolean;
   };
 }

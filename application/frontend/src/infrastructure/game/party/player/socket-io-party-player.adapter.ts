@@ -1,4 +1,3 @@
-import { PartyPlayerKind } from '@pleey/contracts/party';
 import { inject, injectable } from 'inversify';
 import type {
   PartyJoinCommand,
@@ -54,9 +53,6 @@ export class SocketIoPartyPlayerAdapter implements PartyPlayerPort {
 
   private toSocketPartyEntryPayload(command: PartyJoinCommand): SocketPartyEntryPayload {
     return {
-      guestCredential: command.guestCredential,
-      avatarSeed: command.avatarSeed,
-      guestId: command.playerIdentity.kind === PartyPlayerKind.GUEST ? command.playerIdentity.guestId : undefined,
       partyPassword: command.partyPassword,
       pin: command.pin,
       username: command.username,

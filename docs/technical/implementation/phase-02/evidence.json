@@ -1,0 +1,39 @@
+{
+  "phase": "02",
+  "sourceCommit": "b09912cd",
+  "previousRelease": "unavailable: predecessor Phase 1 release artifact not present",
+  "candidateRelease": "unavailable: OCI/release manifest not generated in this implementation environment",
+  "environment": "CI-capable Linux workspace, PostgreSQL required for integration/release",
+  "commands": [
+    {"command": "pnpm --dir application/backend db:generate", "status": "passed"},
+    {"command": "pnpm --dir application/backend exec prisma validate", "status": "passed"},
+    {"command": "pnpm --dir application/backend build", "status": "passed"},
+    {"command": "pnpm --dir application/frontend build", "status": "passed"},
+    {"command": "pnpm --dir application/backend typecheck", "status": "failed", "limitations": ["pre-existing and newly changed test/type compatibility blockers"]},
+    {"command": "pnpm --dir application/frontend typecheck", "status": "failed", "limitations": ["legacy test and adapter compatibility blockers"]}
+  ],
+  "acceptanceCases": [
+    {"caseId": "AUTH-01", "status": "not_executed", "limitations": ["real Better Auth HTTP/browser environment unavailable"]},
+    {"caseId": "AUTH-02", "status": "not_executed", "limitations": ["browser Web Lock environment unavailable"]},
+    {"caseId": "AUTH-03", "status": "not_executed", "limitations": ["isolated PostgreSQL unavailable"]},
+    {"caseId": "AUTH-04", "status": "not_executed", "limitations": ["real GraphQL/media/Socket.IO server unavailable"]},
+    {"caseId": "AUTH-05", "status": "not_executed", "limitations": ["real authorization integration unavailable"]},
+    {"caseId": "AUTH-06", "status": "not_executed", "limitations": ["transactional controller integration unavailable"]},
+    {"caseId": "AUTH-07", "status": "not_executed", "limitations": ["isolated PostgreSQL unavailable"]},
+    {"caseId": "AUTH-08", "status": "not_executed", "limitations": ["real party integration unavailable"]},
+    {"caseId": "AUTH-09", "status": "not_executed", "limitations": ["real session revocation unavailable"]},
+    {"caseId": "AUTH-10", "status": "not_executed", "limitations": ["browser account-switch environment unavailable"]},
+    {"caseId": "AUTH-11", "status": "not_executed", "limitations": ["browser/private-party integration unavailable"]},
+    {"caseId": "AUTH-12", "status": "not_executed", "limitations": ["linking hook and crash fixtures unavailable"]},
+    {"caseId": "AUTH-13", "status": "not_executed", "limitations": ["isolated database transfer fixtures unavailable"]},
+    {"caseId": "AUTH-14", "status": "not_executed", "limitations": ["SMTP sink unavailable"]},
+    {"caseId": "AUTH-15", "status": "not_executed", "limitations": ["browser/i18n suite unavailable"]},
+    {"caseId": "AUTH-16", "status": "not_executed", "limitations": ["physical/mobile browser unavailable"]},
+    {"caseId": "AUTH-17", "status": "not_executed", "limitations": ["representative migration/release environment unavailable"]},
+    {"caseId": "AUTH-18", "status": "not_executed", "limitations": ["full package/storage scan pending"]}
+  ],
+  "migration": "dry-run/upgrade artifacts not generated",
+  "rollbackRehearsal": "not executed",
+  "deviceChecks": [],
+  "blockingFailures": ["Phase 2 is not mergeable until AUTH-01 through AUTH-18 pass", "legacy implementation and test compatibility require completion"]
+}

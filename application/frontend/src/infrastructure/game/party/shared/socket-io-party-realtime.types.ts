@@ -1,5 +1,4 @@
 import type { GameType } from '@pleey/contracts/game';
-import type { GuestId } from '@pleey/contracts/identity';
 import type { PartyId, PartyPin } from '@pleey/contracts/party';
 import { PartyJoinReceiptStatus } from '@pleey/contracts/party';
 import type {
@@ -38,19 +37,12 @@ export interface ObservePartyPayload {
 }
 
 export type SocketPartyHostPlayerPayload =
-  | {
+  {
       readonly partyId: PartyId;
       readonly userId: UserId;
-    }
-  | {
-      readonly partyId: PartyId;
-      readonly guestId: GuestId;
     };
 
 export interface SocketPartyEntryPayload {
-  readonly guestCredential?: string;
-  readonly avatarSeed?: string;
-  readonly guestId?: GuestId;
   readonly partyPassword?: string;
   readonly pin: PartyPin;
   readonly username?: string;

@@ -7,7 +7,6 @@ import { PartyIdentifier } from '../../../../application/game/party/shared/servi
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { GameIdentifier } from '../../../../application/game/shared/services/identifiers/game-identifier';
 import { GameTypeParser } from '../../../../application/game/types/shared/services/game-type-parser';
-import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { HostPartyDisabledReason } from '../../../../domains/game/party/host/value-objects/host-party-permissions';
 import { type PartyJoinReceipt } from '../../../../domains/game/party/player/ports/party-player.port';
@@ -49,8 +48,6 @@ export class SocketIoPartyPayloadMapper {
     @inject(ThemeDocumentNormalizer) private readonly themeDocumentNormalizer: ThemeDocumentNormalizer,
     @inject(PartyActionIdentifier)
     private readonly partyActionIdentifier: PartyActionIdentifier,
-    @inject(GuestIdentifier)
-    private readonly guestIdentifier: GuestIdentifier,
     @inject(UserIdentifier)
     private readonly userIdentifier: UserIdentifier,
     @inject(PartyIdentifier)
@@ -81,7 +78,6 @@ export class SocketIoPartyPayloadMapper {
       partyId: this.partyIdentifier.parse(response.partyId),
       pin: this.normalizePin(response.pin),
       status: PartyJoinReceiptStatus.ACCEPTED,
-      guestCredential: response.guestCredential,
     };
   }
 
@@ -341,12 +337,10 @@ export class SocketIoPartyPayloadMapper {
   }
 
   private toPlayerIdentity(identity: PartyPlayerIdentity): PartyPlayerIdentity {
-    return identity.kind === PartyPlayerKind.USER
-      ? { kind: PartyPlayerKind.USER, userId: this.userIdentifier.parse(identity.userId) }
-      : {
-          kind: PartyPlayerKind.GUEST,
-          guestId: this.guestIdentifier.parse(identity.guestId),
-        };
+    if (identity.kind !== PartyPlayerKind.USER) {
+      throw new Error('Guest identities are not valid in the unified identity transport');
+    }
+    return { kind: PartyPlayerKind.USER, userId: this.userIdentifier.parse(identity.userId) };
   }
 
   private resolveJoinErrorMessage(errorCode: string): string {

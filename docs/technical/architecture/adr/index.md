@@ -65,3 +65,4 @@ If a change can alter how the system is structured, operated, or extended, it ne
 - 0025: [Share business error translations](./0025-share-business-error-translations.md) - Accepted - 2026-11-19
 - 0026: [Factorize create and update forms](./0026-factorize-create-and-update-forms.md) - Accepted - 2026-11-20
 - 0027: [Reproducible production workspace and delivery](./0027-reproducible-production-workspace-and-delivery.md) - Accepted - 2026-11-20
+- 0028: [Replace custom identity with Better Auth cookie sessions](./0028-replace-custom-identity-with-better-auth.md) - Accepted - 2026-11-22

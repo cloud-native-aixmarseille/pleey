@@ -3,6 +3,7 @@ import {
   ConnectedSocket,
   MessageBody,
   OnGatewayDisconnect,
+  OnGatewayConnection,
   OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
@@ -61,6 +62,7 @@ import {
   resolvePartyObservationRoom,
 } from './party-socket-events';
 import { SocketPartyObservationBroadcaster } from './services/socket-party-observation-broadcaster';
+import { BetterAuthSessionAdapter } from '../../../../infrastructure/identity/better-auth-session.adapter';
 
 interface PendingLobbyPlayerAbsencePrune {
   readonly identity: PartyPlayerIdentity;
@@ -71,7 +73,6 @@ interface PendingLobbyPlayerAbsencePrune {
 type PartyJoinAcknowledgement =
   | {
       readonly status: PartyJoinReceiptStatus.ACCEPTED;
-      readonly guestCredential?: string;
       readonly gameId: GameId;
       readonly player: {
         readonly avatarUri: string | null;
@@ -97,7 +98,7 @@ type PartyHostControlUseCase = Pick<StartPartyUseCase, 'execute'>;
   }),
 )
 @WebSocketGateway({ cors: true })
-export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit {
+export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   private server: Pick<Server, 'in'> | null = null;
   private readonly pendingLobbyPlayerAbsencePrunes = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -127,11 +128,25 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
     private readonly sessionRegistry: PartyPlayerSessionRegistry,
     @Inject(PARTY_SESSION_RECOVERY_WINDOW_MS)
     private readonly partySessionRecoveryWindowMs = 5 * 60 * 1000,
+    private readonly betterAuthSessions?: BetterAuthSessionAdapter,
   ) {}
 
   afterInit(server: Server): void {
     this.server = server;
     this.partyObservationBroadcaster.attachServer(server);
+  }
+
+  async handleConnection(client: Socket): Promise<void> {
+    if (!this.betterAuthSessions) return;
+    const identity = await this.betterAuthSessions.getSession({
+      headers: client.handshake.headers,
+    } as never);
+    if (identity.kind !== 'valid') return;
+    const socketData = client.data as PartyObserverSocketData;
+    const userId = this.userIdentifier.parseOrNull(identity.userId);
+    if (userId !== null) socketData.authenticatedUserId = userId;
+    socketData.authenticatedSessionId = identity.sessionId;
+    socketData.authenticatedSessionExpiresAt = identity.expiresAt;
   }
 
   handleDisconnect(client: Socket): void {
@@ -409,7 +424,6 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
 
       return {
         status: PartyJoinReceiptStatus.ACCEPTED,
-        guestCredential: result.guestCredential,
         gameId: result.gameId,
         player: {
           avatarUri: result.player.avatarUri,
@@ -463,16 +477,10 @@ export class PartyObserverGateway implements OnGatewayDisconnect, OnGatewayInit 
       };
     }
 
-    const guestId = this.guestIdentifier.parseOrNull(payload?.guestId);
-
-    return {
-      guestCredential: payload?.guestCredential,
-      avatarSeed: payload?.avatarSeed?.trim() || undefined,
-      partyPassword: payload?.partyPassword?.trim() || undefined,
-      pin: normalizedPin,
-      playerIdentity: guestId === null ? { kind: PartyPlayerKind.GUEST } : { kind: PartyPlayerKind.GUEST, guestId },
-      username: payload?.username?.trim() ?? '',
-    };
+    throw new HostPartyControlForbiddenError({
+      authenticatedUserId: null,
+      reason: 'missingAuthenticatedUser',
+    });
   }
 
   private toSubmitPartyActionDto(

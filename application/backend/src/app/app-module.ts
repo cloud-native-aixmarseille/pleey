@@ -5,7 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { GraphQLUpload, graphqlUploadExpress } from 'graphql-upload-minimal';
 import { AcceptLanguageResolver, I18nJsonLoader, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { THEME_ASSET_MAX_FILE_SIZE_BYTES } from '../domain/theme/entities/managed-theme';
-import { JwtSessionAuthenticator } from '../infrastructure/identity/services/jwt-session-authenticator';
+import { BetterAuthSessionAdapter } from '../infrastructure/identity/better-auth-session.adapter';
 import { GameErrorHttpStatusService } from '../presentation/game/shared/error-handling/game-error-http-status.service';
 import { GameErrorTranslationService } from '../presentation/game/shared/error-handling/game-error-translation.service';
 import { PredictionErrorHttpStatusService } from '../presentation/game/types/prediction/shared/error-handling/prediction-error-http-status.service';
@@ -37,20 +37,6 @@ import { IdentityModule } from './modules/identity/identity-module';
 import { OrganizationModule } from './modules/organization/organization-module';
 import { ThemeModule } from './modules/theme/theme-module';
 
-function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): string | null {
-  const authorizationValue = connectionParams?.authorization;
-
-  if (authorizationValue === undefined) return null;
-  if (typeof authorizationValue !== 'string') throw new Error('Unauthorized');
-
-  const [scheme, token, extra] = authorizationValue.split(' ');
-  if (scheme?.toLowerCase() !== 'bearer' || !token || extra !== undefined) {
-    throw new Error('Unauthorized');
-  }
-
-  return token;
-}
-
 @Module({
   imports: [
     ThemeModule,
@@ -58,7 +44,7 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       imports: [AppConfigModule, IdentityModule],
-      useFactory: (serverConfig: AppServerConfig, sessions: JwtSessionAuthenticator) => {
+      useFactory: (serverConfig: AppServerConfig, sessions: BetterAuthSessionAdapter) => {
         return {
           autoSchemaFile: serverConfig.graphqlSchemaOutputPath ?? true,
           sortSchema: true,
@@ -75,17 +61,13 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
                     ? (context.connectionParams as Record<string, unknown>)
                     : undefined;
 
-                const token = parseAuthorizationHeader(connectionParams);
-
-                if (!token) {
-                  return true;
-                }
-
-                const payload = await sessions.authenticate(token);
+                const headers = connectionParams?.headers;
+                if (!headers || typeof headers !== 'object') return true;
+                const payload = await sessions.getSession({ headers } as never);
+                if (payload.kind !== 'valid') return true;
                 const extra = context.extra;
                 if (extra && typeof extra === 'object') {
                   (extra as Record<string, unknown>).user = payload;
-                  (extra as Record<string, unknown>).authorization = `Bearer ${token}`;
                 }
 
                 return true;
@@ -93,12 +75,12 @@ function parseAuthorizationHeader(connectionParams?: Record<string, unknown>): s
             },
           },
           context: ({ req, extra }: { req?: unknown; extra?: Record<string, unknown> }) => ({
-            req: req ?? { headers: { authorization: extra?.authorization } },
+            req: req ?? null,
             user: extra?.user ?? null,
           }),
         };
       },
-      inject: [APP_SERVER_CONFIG, JwtSessionAuthenticator],
+      inject: [APP_SERVER_CONFIG, BetterAuthSessionAdapter],
     }),
     I18nModule.forRootAsync({
       imports: [AppConfigModule],

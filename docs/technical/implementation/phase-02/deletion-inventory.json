@@ -1,0 +1,15 @@
+{
+  "phase": "02",
+  "runtime": [
+    "JWT bearer parsing in GraphQL and Socket.IO",
+    "frontend access/refresh token persistence",
+    "party guest credential persistence",
+    "legacy guest handshake fields",
+    "legacy refresh and reset-token token services"
+  ],
+  "database": [
+    "old refresh/session rows after reconciliation",
+    "legacy reset-token columns after reconciliation",
+    "guest-table live authority after guest-history conversion"
+  ]
+}

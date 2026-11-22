@@ -1,13 +1,16 @@
 import type { ExecutionContext } from '@nestjs/common';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { AuthGuard } from '@nestjs/passport';
 import type { UserId } from '../../../../domain/identity/entities/user';
 import type { AuthenticatedRequest } from '../context/authenticated-request';
+import { BetterAuthSessionAdapter } from '../../../../infrastructure/identity/better-auth-session.adapter';
+import { IdentityErrorCode } from '../../../../domain/identity/enums/identity-error-code.enum';
 
 @Injectable()
-export class GqlJwtAuthGuard extends AuthGuard('jwt') {
-  getRequest(context: ExecutionContext): AuthenticatedRequest {
+export class GqlJwtAuthGuard {
+  constructor(private readonly sessions: BetterAuthSessionAdapter) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const graphqlContext = GqlExecutionContext.create(context).getContext<{
       req?: AuthenticatedRequest;
       user?: {
@@ -15,13 +18,19 @@ export class GqlJwtAuthGuard extends AuthGuard('jwt') {
         username: string;
       };
     }>();
-
-    if (graphqlContext.req) {
-      return graphqlContext.req;
+    const request = graphqlContext.req;
+    if (!request) throw new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED);
+    const session = await this.sessions.getSession(request);
+    if (session.kind !== 'valid') {
+      throw new UnauthorizedException(IdentityErrorCode.UNAUTHORIZED);
     }
-
-    return {
-      user: graphqlContext.user,
-    } as AuthenticatedRequest;
+    request.user = {
+      id: session.userId as UserId,
+      username: '',
+      avatar: null,
+      sessionId: session.sessionId,
+      isAnonymous: session.isAnonymous,
+    };
+    return true;
   }
 }

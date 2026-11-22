@@ -42,7 +42,6 @@ export class SocketIoPartyRealtimeTransport {
     private readonly partyIdentifier: PartyIdentifier,
   ) {}
 
-  private accessToken: string | null = null;
   private socket: Socket | null = null;
   private readonly activePartyObservationIds = new Set<PartyId>();
   private lastRequestedPartyId: PartyId | null = null;
@@ -83,16 +82,8 @@ export class SocketIoPartyRealtimeTransport {
   }
 
   setAuthSessionTokens(tokens: { accessToken: string | null; refreshToken: string | null }): void {
-    if (this.accessToken === tokens.accessToken) return;
-    this.accessToken = tokens.accessToken;
-
-    if (!this.socket || this.subscriptions.size === 0) {
-      return;
-    }
-
-    this.socket.auth = this.buildAuthPayload();
-    this.socket.disconnect();
-    this.socket.connect();
+    void tokens;
+    // Better Auth cookie credentials are sent by the browser on socket upgrade.
   }
 
   async dispatchPartyJoinCommand(
@@ -215,6 +206,7 @@ export class SocketIoPartyRealtimeTransport {
 
     const socket = io(SOCKET_URL, {
       autoConnect: false,
+      withCredentials: true,
       auth: this.buildAuthPayload(),
     });
 
@@ -422,8 +414,8 @@ export class SocketIoPartyRealtimeTransport {
     }
   }
 
-  private buildAuthPayload(): { authorization?: string } {
-    return this.accessToken ? { authorization: `Bearer ${this.accessToken}` } : {};
+  private buildAuthPayload(): Record<string, never> {
+    return {};
   }
 
   private toObservePartyPayload(partyId: PartyId): ObservePartyPayload {

@@ -1,99 +1,54 @@
 import type { AuthSession } from '@pleey/contracts/identity';
-import { inject, injectable } from 'inversify';
-import type {
-  AuthSessionTransport,
-  AuthSessionTransportHandlers,
-} from '../../application/identity/ports/auth-session-transport.port';
-import { AuthSessionTransportToken } from '../../application/identity/ports/auth-session-transport.port';
-import { createDomainError } from '../../domains/shared/errors/domain-error';
-import { type StoragePort, StoragePortToken } from '../../domains/shared/ports/storage.port';
+import { injectable } from 'inversify';
 import { StorageKey } from '../../domains/shared/value-objects/storage-key';
+import { betterAuthClient } from './better-auth-client';
 
 @injectable()
 export class PersistedAuthSessionAdapter {
-  constructor(
-    @inject(StoragePortToken)
-    private readonly storage: StoragePort,
-    @inject(AuthSessionTransportToken)
-    private readonly transport: AuthSessionTransport,
-  ) {}
+  constructor(..._dependencies: unknown[]) {
+    // Dependencies are retained as constructor-compatible migration inputs only.
+  }
 
   commit(session: AuthSession): void {
-    this.storage.setItem(StorageKey.AUTH_ACCESS_TOKEN, session.accessToken);
-    this.storage.setItem(StorageKey.AUTH_REFRESH_TOKEN, session.refreshToken);
-    this.storage.setItem(StorageKey.AUTH_USER, JSON.stringify(session.user));
-    this.transport.setAuthSessionTokens({
-      accessToken: session.accessToken,
-      refreshToken: session.refreshToken,
-    });
+    // Better Auth owns the session cookie; application state is not persisted.
+    void session;
   }
 
-  updateUser(user: AuthSession['user']): void {
-    const accessToken = this.storage.getItem(StorageKey.AUTH_ACCESS_TOKEN);
-    const refreshToken = this.storage.getItem(StorageKey.AUTH_REFRESH_TOKEN);
-
-    if (!accessToken || !refreshToken) {
-      return;
-    }
-
-    this.storage.setItem(StorageKey.AUTH_USER, JSON.stringify(user));
+  updateUser(_user?: unknown): void {
+    // Profile state is revalidated from the Better Auth session.
   }
 
-  restore(): AuthSession | null {
-    const accessToken = this.storage.getItem(StorageKey.AUTH_ACCESS_TOKEN);
-    const refreshToken = this.storage.getItem(StorageKey.AUTH_REFRESH_TOKEN);
-    const user = this.storage.getItem(StorageKey.AUTH_USER);
-
-    if (!accessToken || !refreshToken || !user) {
-      this.clear();
-      return null;
-    }
-
-    try {
-      const parsedUser = this.parseStoredUser(user);
-      const session = {
-        accessToken,
-        refreshToken,
-        expiresIn: 0,
-        user: parsedUser,
-      } satisfies AuthSession;
-
-      this.transport.setAuthSessionTokens({ accessToken, refreshToken });
-
-      return session;
-    } catch {
-      this.clear();
-      return null;
-    }
+  async restore(): Promise<AuthSession | null> {
+    const result = await betterAuthClient.getSession();
+    if (result.error || !result.data) return null;
+    const { user, session } = result.data;
+    return {
+      accessToken: '',
+      refreshToken: '',
+      expiresIn: Math.max(0, Math.floor((new Date(session.expiresAt).getTime() - Date.now()) / 1000)),
+      user: {
+        id: user.id,
+        username: user.name || user.email,
+        email: user.email,
+      },
+    } as AuthSession;
   }
 
   clear(): void {
-    this.storage.removeItem(StorageKey.AUTH_ACCESS_TOKEN);
-    this.storage.removeItem(StorageKey.AUTH_REFRESH_TOKEN);
-    this.storage.removeItem(StorageKey.AUTH_USER);
-    this.storage.removeItem(StorageKey.THEME_DRAFTS);
-    this.suspend();
+    localStorage.removeItem(StorageKey.AUTH_ACCESS_TOKEN);
+    localStorage.removeItem(StorageKey.AUTH_REFRESH_TOKEN);
+    localStorage.removeItem(StorageKey.AUTH_USER);
+    localStorage.removeItem(StorageKey.THEME_DRAFTS);
+    localStorage.removeItem('party.guest-session.v1');
+    localStorage.removeItem('guest-session');
   }
 
   suspend(): void {
-    this.transport.setAuthSessionTokens({ accessToken: null, refreshToken: null });
+    // No browser-held secret is suspended.
   }
 
-  registerHandlers(handlers: AuthSessionTransportHandlers): void {
-    this.transport.registerAuthSessionHandlers({
-      readSessionTokens: () => ({
-        accessToken: this.storage.getItem(StorageKey.AUTH_ACCESS_TOKEN),
-        refreshToken: this.storage.getItem(StorageKey.AUTH_REFRESH_TOKEN),
-      }),
-      onSessionRefreshed: (session) => {
-        this.commit(session);
-        handlers.onSessionRefreshed?.(session);
-      },
-      onSessionInvalidated: () => {
-        this.clear();
-        handlers.onSessionInvalidated?.();
-      },
-    });
+  registerHandlers(_handlers?: unknown): void {
+    // Session refresh and invalidation are owned by Better Auth and the auth actor.
   }
 
   watch(listener: () => void): () => void {
@@ -104,42 +59,5 @@ export class PersistedAuthSessionAdapter {
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
-  }
-
-  private parseStoredUser(rawUser: string): AuthSession['user'] {
-    const parsedUser = JSON.parse(rawUser) as unknown;
-
-    if (!this.isStoredUser(parsedUser)) {
-      throw createDomainError(
-        {
-          code: 'INVALID_STORED_AUTH_USER_PAYLOAD',
-          message: 'Invalid stored auth user payload',
-          messageKey: 'INVALID_STORED_AUTH_USER_PAYLOAD',
-        },
-        {
-          rawUser,
-        },
-      );
-    }
-
-    return parsedUser;
-  }
-
-  private isStoredUser(value: unknown): value is AuthSession['user'] {
-    if (!this.isRecord(value)) {
-      return false;
-    }
-
-    return (
-      typeof value.id === 'string' &&
-      typeof value.username === 'string' &&
-      typeof value.email === 'string' &&
-      (value.avatarUri === undefined || value.avatarUri === null || typeof value.avatarUri === 'string') &&
-      (value.createdAt === undefined || value.createdAt === null || typeof value.createdAt === 'string')
-    );
-  }
-
-  private isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null;
   }
 }
