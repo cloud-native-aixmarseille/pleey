@@ -1,0 +1,57 @@
+import { type GameType } from '@pleey/domain/game';
+import type { PartyActionId } from '@pleey/domain/party';
+import { createContext, createElement, type PropsWithChildren, type ReactElement, useContext } from 'react';
+import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
+import { PresentationRuntimeDependencyProviderRequiredError } from '../../../../../domains/shared/errors/presentation-context-error-code';
+
+interface PartyGameTypeHostRuntimePanelProps {
+  readonly party: PartyObservation;
+}
+
+interface PartyGameTypePlayerResultSurfaceProps {
+  readonly onLeaveParty: () => void;
+  readonly party: PartyObservation;
+}
+
+interface PartyGameTypePlayerStageSurfaceProps extends PartyGameTypePlayerResultSurfaceProps {
+  readonly onSubmitAction: (actionId: PartyActionId) => void;
+  readonly pendingActionId: PartyActionId | null;
+  readonly playerActionErrorMessage: string | null;
+}
+
+export interface PartyGameTypeRuntimeView {
+  renderHostResultPanel(props: PartyGameTypeHostRuntimePanelProps): ReactElement;
+  renderHostStagePanel(props: PartyGameTypeHostRuntimePanelProps): ReactElement;
+  renderPlayerResultSurface(props: PartyGameTypePlayerResultSurfaceProps): ReactElement;
+  renderPlayerStageSurface(props: PartyGameTypePlayerStageSurfaceProps): ReactElement;
+}
+
+export interface PartyGameTypeRuntimeRegistry {
+  resolve(gameType: GameType): PartyGameTypeRuntimeView;
+}
+
+const PartyGameTypeRuntimeRegistryContext = createContext<PartyGameTypeRuntimeRegistry | null>(null);
+
+interface PartyGameTypeRuntimeRegistryProviderProps extends PropsWithChildren {
+  readonly value: PartyGameTypeRuntimeRegistry;
+}
+
+export function PartyGameTypeRuntimeRegistryProvider({
+  children,
+  value,
+}: PartyGameTypeRuntimeRegistryProviderProps): ReactElement {
+  return createElement(PartyGameTypeRuntimeRegistryContext.Provider, { value }, children);
+}
+
+export function usePartyGameTypeRuntimeRegistry(): PartyGameTypeRuntimeRegistry {
+  const value = useContext(PartyGameTypeRuntimeRegistryContext);
+
+  if (!value) {
+    throw new PresentationRuntimeDependencyProviderRequiredError({
+      consumer: 'usePartyGameTypeRuntimeRegistry',
+      contextName: 'PartyGameTypeRuntimeRegistryContext',
+    });
+  }
+
+  return value;
+}

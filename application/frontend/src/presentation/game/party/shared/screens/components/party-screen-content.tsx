@@ -1,0 +1,291 @@
+import type { PartyPin } from '@pleey/domain/party';
+import { useEffect } from 'react';
+import type { PartyObservation } from '../../../../../../domains/game/party/shared/entities/party-observation';
+import { type PartyRuntimeNoticeKind } from '../../../../../../domains/game/party/shared/ports/party-observation.port';
+import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
+import { FeedbackState, FeedbackStateGate } from '../../../../../shared/ui/feedback/feedback-state-gate';
+import { usePresentationToast } from '../../../../../shared/ui/feedback/presentation-toast';
+import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
+import { ContentStack, SectionContainer } from '../../../../../shared/ui/layout/containers';
+import { usePresentationMediaQuery } from '../../../../../shared/ui/layout/use-presentation-media-query';
+import { MotionScreenTransition } from '../../../../../shared/ui/motion/motion-primitives';
+import { SecondaryActionLink } from '../../../../../shared/ui/navigation/links';
+import { HostLobbySurface } from '../../../host/screens/components/host-lobby-surface';
+import { HostPartyStatusBar } from '../../../host/screens/components/host-party-status-bar';
+import { HostRuntimeSurface } from '../../../host/screens/components/host-runtime-surface';
+import { JoinPartySurface } from '../../../player/screens/components/join-party-surface';
+import { PlayerFinalSurface } from '../../../player/screens/components/player-final-surface';
+import { PlayerLobbySurface } from '../../../player/screens/components/player-lobby-surface';
+import { usePartyDependencies } from '../../contexts/party-dependencies-context';
+import {
+  type PartyGameTypeRuntimeView,
+  usePartyGameTypeRuntimeRegistry,
+} from '../../contexts/party-game-type-runtime-registry-context';
+import { PartyLobbyRouteKind, type PartyLobbyScreenState, PartyScreenSection } from '../use-party-lobby-screen-state';
+import { usePartyScreenWakeLock } from '../use-party-screen-wake-lock';
+import { PartyFinalSummaryPanel } from './party-final-summary-panel';
+import { mobilePlayerSurfaceBackdropStyle } from './party-screen-content.styles';
+
+interface PartyScreenContentProps {
+  readonly resolvePartyAbsoluteUrl: (pin: PartyPin) => string;
+  readonly screenSection: PartyScreenSection;
+  readonly state: PartyLobbyScreenState;
+}
+
+export function PartyScreenContent({ resolvePartyAbsoluteUrl, screenSection, state }: PartyScreenContentProps) {
+  const { t } = usePresentationTranslation();
+  const toast = usePresentationToast();
+  const { hostPartyRuntimeControlsResolver, playerRuntimeNoticeMessageResolver } = usePartyDependencies();
+  const partyGameTypeRuntimeRegistry = usePartyGameTypeRuntimeRegistry();
+  const isMobile = usePresentationMediaQuery();
+  const {
+    advanceStage,
+    cancelHostRuntimeConfirmation,
+    clearJoinErrorMessage,
+    confirmHostRuntimeConfirmation,
+    errorMessage,
+    guestAvatarPreviewUri,
+    guestName,
+    hostRuntimeErrorMessage,
+    isAuthenticated,
+    isJoinSubmitting,
+    joinPin,
+    joinPartyRequiresPassword,
+    joinPartyPassword,
+    joinErrorMessage,
+    joinParty,
+    kickPlayer,
+    leaveParty,
+    pendingHostRuntimeConfirmationCommand,
+    pendingKickedPlayerKey,
+    pendingPlayerActionId,
+    pauseParty,
+    pendingHostRuntimeCommand,
+    party,
+    playerActionErrorMessage,
+    regenerateGuestAvatar,
+    regenerateGuestName,
+    requestEndParty,
+    restartStage,
+    routeKind,
+    resumeParty,
+    revealStageResult,
+    rewindParty,
+    rewindStage,
+    runtimeNoticeKind,
+    setGuestName,
+    setJoinPartyPassword,
+    startParty,
+    submitAction,
+  } = state;
+  usePartyScreenWakeLock(isMobile && !!party);
+  const hostRuntimeControls = party ? hostPartyRuntimeControlsResolver.resolveControls(party) : null;
+  const joinSurface = (
+    <JoinPartySurface
+      errorMessage={joinErrorMessage}
+      guestAvatarPreviewUri={guestAvatarPreviewUri}
+      guestName={guestName}
+      isAuthenticated={isAuthenticated}
+      isJoinSubmitting={isJoinSubmitting}
+      onDismissError={clearJoinErrorMessage}
+      onGenerateGuestName={regenerateGuestName}
+      onGuestNameChange={setGuestName}
+      onJoinParty={() => void joinParty()}
+      onJoinPasswordChange={setJoinPartyPassword}
+      onRegenerateGuestAvatar={regenerateGuestAvatar}
+      password={joinPartyPassword}
+      pin={joinPin}
+      showPasswordInput={joinPartyRequiresPassword}
+    />
+  );
+  const dashboardLink = (
+    <SecondaryActionLink to="/workspace/dashboard">{t('game.party.route.dashboardCta')}</SecondaryActionLink>
+  );
+
+  if (state.hasInvalidPinRoute) {
+    return (
+      <SectionContainer maxWidth="80rem">
+        <ContentStack gap="lg">
+          <StatusBanner tone="error">{t('game.party.route.invalidPin')}</StatusBanner>
+          {dashboardLink}
+        </ContentStack>
+      </SectionContainer>
+    );
+  }
+
+  if (routeKind === PartyLobbyRouteKind.PARTY_ID && state.normalizedPartyId === null) {
+    return (
+      <SectionContainer maxWidth="80rem">
+        <ContentStack gap="lg">{dashboardLink}</ContentStack>
+      </SectionContainer>
+    );
+  }
+
+  const hasCurrentPlayer = party?.players.some((player) => player.isCurrentPlayer) ?? false;
+  const isHostSurface = !!party && party.isObserverHost;
+  const isPlayerSurface = !!party && !isHostSurface && hasCurrentPlayer;
+  const pageErrorMessage = errorMessage === joinErrorMessage ? null : errorMessage;
+  const playerRuntimeNoticeMessage = resolvePlayerRuntimeNoticeMessage(
+    runtimeNoticeKind,
+    playerRuntimeNoticeMessageResolver,
+  );
+  const runtimeLoadingState = (
+    <FeedbackStateGate
+      loadingLabel={t('game.party.route.loading')}
+      loadingVariant="list"
+      state={FeedbackState.LOADING}
+    />
+  );
+
+  useEffect(() => {
+    if (!isPlayerSurface || !playerRuntimeNoticeMessage) {
+      return;
+    }
+
+    toast.warning({
+      durationMs: 4000,
+      id: 'party-runtime-notice-toast',
+      message: t(playerRuntimeNoticeMessage),
+    });
+  }, [isPlayerSurface, playerRuntimeNoticeMessage, t, toast]);
+
+  let surface = null;
+
+  if (!party) {
+    surface = pageErrorMessage ? null : routeKind === PartyLobbyRouteKind.PIN ? joinSurface : runtimeLoadingState;
+  } else if (isHostSurface && hostRuntimeControls) {
+    const runtimePanel = renderHostRuntimePanel(
+      party,
+      screenSection,
+      partyGameTypeRuntimeRegistry.resolve(party.gameType),
+    );
+
+    surface =
+      screenSection !== PartyScreenSection.LOBBY ? (
+        <HostRuntimeSurface
+          kickPlayer={kickPlayer}
+          onCancelHostRuntimeConfirmation={cancelHostRuntimeConfirmation}
+          onConfirmHostRuntimeConfirmation={() => void confirmHostRuntimeConfirmation()}
+          pendingHostRuntimeConfirmationCommand={pendingHostRuntimeConfirmationCommand}
+          pendingKickedPlayerKey={pendingKickedPlayerKey}
+          pendingHostRuntimeCommand={pendingHostRuntimeCommand}
+          party={party}
+          runtimePanel={runtimePanel ?? runtimeLoadingState}
+          showPlayersPanel={false}
+        />
+      ) : (
+        <HostLobbySurface
+          kickPlayer={kickPlayer}
+          onCancelHostRuntimeConfirmation={cancelHostRuntimeConfirmation}
+          onConfirmHostRuntimeConfirmation={() => void confirmHostRuntimeConfirmation()}
+          resolvePartyAbsoluteUrl={resolvePartyAbsoluteUrl}
+          pendingHostRuntimeConfirmationCommand={pendingHostRuntimeConfirmationCommand}
+          pendingKickedPlayerKey={pendingKickedPlayerKey}
+          pendingHostRuntimeCommand={pendingHostRuntimeCommand}
+          party={party}
+        />
+      );
+  } else if (isPlayerSurface) {
+    const partyGameTypeRuntimeView = partyGameTypeRuntimeRegistry.resolve(party.gameType);
+
+    if (screenSection === PartyScreenSection.LEADERBOARD) {
+      surface = <PlayerFinalSurface onLeaveParty={() => void leaveParty()} party={party} />;
+    } else if (screenSection === PartyScreenSection.RESULT) {
+      surface = party.context?.result?.current
+        ? partyGameTypeRuntimeView.renderPlayerResultSurface({
+            onLeaveParty: () => void leaveParty(),
+            party,
+          })
+        : runtimeLoadingState;
+    } else if (screenSection === PartyScreenSection.STAGE) {
+      surface = party.context?.stage?.current
+        ? partyGameTypeRuntimeView.renderPlayerStageSurface({
+            onLeaveParty: () => void leaveParty(),
+            onSubmitAction: (actionId) => void submitAction(actionId),
+            party,
+            pendingActionId: pendingPlayerActionId,
+            playerActionErrorMessage,
+          })
+        : runtimeLoadingState;
+    } else if (screenSection === PartyScreenSection.LOBBY) {
+      surface = <PlayerLobbySurface onLeaveParty={() => void leaveParty()} party={party} />;
+    }
+  }
+
+  if (surface === null) {
+    surface = joinSurface;
+  }
+
+  const stagePosition = party?.context?.lifecycle.stagePosition ?? null;
+  const surfaceTransitionKey = party
+    ? `${isHostSurface ? 'host' : 'player'}:${screenSection}:${stagePosition ?? 'idle'}`
+    : `gate:${routeKind}:${isAuthenticated ? 'auth' : 'guest'}`;
+  const showMobilePlayerSurfaceBackdrop =
+    isMobile &&
+    isPlayerSurface &&
+    (screenSection === PartyScreenSection.STAGE || screenSection === PartyScreenSection.RESULT);
+
+  return (
+    <SectionContainer maxWidth={isHostSurface || isPlayerSurface ? '100%' : '80rem'}>
+      {showMobilePlayerSurfaceBackdrop ? <div aria-hidden style={mobilePlayerSurfaceBackdropStyle} /> : null}
+      <ContentStack gap="lg">
+        {pageErrorMessage && !party ? <StatusBanner tone="error">{t(pageErrorMessage)}</StatusBanner> : null}
+
+        {hostRuntimeErrorMessage && isHostSurface ? (
+          <StatusBanner tone="error">{t(hostRuntimeErrorMessage)}</StatusBanner>
+        ) : null}
+
+        {isHostSurface && party && hostRuntimeControls ? (
+          <HostPartyStatusBar
+            pendingHostRuntimeCommand={pendingHostRuntimeCommand}
+            party={party}
+            onAdvanceStage={() => void advanceStage()}
+            onPauseParty={() => void pauseParty()}
+            onRequestEndParty={requestEndParty}
+            onRestartStage={() => void restartStage()}
+            onResumeParty={() => void resumeParty()}
+            onRevealStageResult={() => void revealStageResult()}
+            onRewindParty={() => void rewindParty()}
+            onRewindStage={() => void rewindStage()}
+            onStartParty={() => void startParty()}
+          />
+        ) : null}
+
+        <MotionScreenTransition duration={0.8} sectionKey={surfaceTransitionKey}>
+          {surface}
+        </MotionScreenTransition>
+      </ContentStack>
+    </SectionContainer>
+  );
+}
+
+function renderHostRuntimePanel(
+  party: PartyObservation,
+  screenSection: PartyScreenSection,
+  partyGameTypeRuntimeView: PartyGameTypeRuntimeView,
+) {
+  if (screenSection === PartyScreenSection.LEADERBOARD) {
+    return <PartyFinalSummaryPanel players={party.players} totalStages={party.context?.lifecycle.totalStages ?? 0} />;
+  }
+
+  if (screenSection === PartyScreenSection.RESULT && party.context?.result?.current) {
+    return partyGameTypeRuntimeView.renderHostResultPanel({ party });
+  }
+
+  if (screenSection === PartyScreenSection.STAGE && party.context?.stage?.current) {
+    return partyGameTypeRuntimeView.renderHostStagePanel({ party });
+  }
+
+  return null;
+}
+
+function resolvePlayerRuntimeNoticeMessage(
+  runtimeNoticeKind: PartyRuntimeNoticeKind | null,
+  playerRuntimeNoticeMessageResolver: ReturnType<typeof usePartyDependencies>['playerRuntimeNoticeMessageResolver'],
+): string | null {
+  if (runtimeNoticeKind === null) {
+    return null;
+  }
+
+  return playerRuntimeNoticeMessageResolver.resolve(runtimeNoticeKind);
+}

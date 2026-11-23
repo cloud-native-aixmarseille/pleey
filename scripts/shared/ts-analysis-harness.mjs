@@ -25,13 +25,13 @@ function defaultShouldCheckAppFile(relativePath) {
 
 const DEFAULT_APP_PROJECT_DEFINITIONS = {
   frontend: {
-    rootCandidates: [path.join(workspaceRoot, "apps/web"), "/usr/src/app"],
+    rootCandidates: [path.join(workspaceRoot, "application/frontend"), "/usr/src/app"],
     sourceRootRelativePath: "src",
     label: "Frontend",
     shouldCheckFile: defaultShouldCheckAppFile,
   },
   backend: {
-    rootCandidates: [path.join(workspaceRoot, "apps/api"), "/usr/src/app"],
+    rootCandidates: [path.join(workspaceRoot, "application/backend"), "/usr/src/app"],
     sourceRootRelativePath: "src",
     label: "Backend",
     shouldCheckFile: defaultShouldCheckAppFile,

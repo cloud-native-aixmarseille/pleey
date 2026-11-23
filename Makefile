@@ -13,7 +13,7 @@ CHART_TEST_NAMESPACE_PREFIX ?= test-chart
 CHART_TEST_KEEP_KIND ?= 0
 CHART_TEST_BACKEND_IMAGE_REPOSITORY ?= pleey-backend-chart-test
 CHART_TEST_BACKEND_IMAGE_TAG ?= chart-test
-CHART_TEST_FRONTEND_IMAGE_REPOSITORY ?= @pleey/web-chart-test
+CHART_TEST_FRONTEND_IMAGE_REPOSITORY ?= pleey-frontend-chart-test
 CHART_TEST_FRONTEND_IMAGE_TAG ?= chart-test
 
 # Colors for display
@@ -205,8 +205,8 @@ health: ## Check application health
 
 migrate: ## Apply database migrations
 	@echo "$(GREEN)Applying database migrations...$(NC)"
-	@$(APP_EXEC) backend pnpm db:migrate
-	@$(APP_EXEC) backend pnpm db:generate
+	@$(APP_EXEC) backend npm run db:migrate
+	@$(APP_EXEC) backend npm run db:generate
 	@echo "$(GREEN)✓ Migrations applied$(NC)"
 
 migrate-dev-recover: ## Apply database migrations with dev recovery for existing databases
@@ -217,7 +217,7 @@ migrate-dev-recover: ## Apply database migrations with dev recovery for existing
 	max_attempts=$$((migration_count * 2 + 2)); \
 	while true; do \
 		attempt=$$((attempt + 1)); \
-		if migrate_output="$$( $(APP_EXEC) backend pnpm db:migrate 2>&1 )"; then \
+		if migrate_output="$$( $(APP_EXEC) backend npm run db:migrate 2>&1 )"; then \
 			printf "%s\n" "$$migrate_output"; \
 			break; \
 		fi; \
@@ -257,12 +257,12 @@ migrate-dev-recover: ## Apply database migrations with dev recovery for existing
 			exit 1; \
 		fi; \
 	done
-	@$(APP_EXEC) backend pnpm db:generate
+	@$(APP_EXEC) backend npm run db:generate
 	@echo "$(GREEN)✓ Migrations applied$(NC)"
 
 seed: ## Seed the database
 	@echo "$(GREEN)Seeding database...$(NC)"
-	@$(APP_EXEC) backend pnpm db:seed
+	@$(APP_EXEC) backend npm run db:seed
 	@echo "$(GREEN)✓ Database seeded$(NC)"
 
 db-shell: ## Access PostgreSQL database shell
@@ -274,7 +274,7 @@ db-shell: ## Access PostgreSQL database shell
 
 graphql-types: ## Generate GraphQL types
 	@echo "$(GREEN)Generating GraphQL types...$(NC)"
-	@$(APP_EXEC) frontend pnpm graphql:codegen
+	@$(APP_EXEC) frontend npm run graphql:codegen
 	@echo "$(GREEN)✓ GraphQL types generated$(NC)"
 
 # ==========================================
@@ -329,13 +329,13 @@ ci: ## Prepare for CI
 	$(MAKE) test
 
 lint: ## Execute linting
-	@$(APP_EXEC) backend pnpm lint
-	@$(APP_EXEC) frontend pnpm lint
+	@$(APP_EXEC) backend npm run lint
+	@$(APP_EXEC) frontend npm run lint
 	$(call run_linter, )
 
 lint-fix: ## Execute linting and fix (alias for linter-fix)
-	@$(APP_EXEC) backend pnpm lint:fix
-	@$(APP_EXEC) frontend pnpm lint:fix
+	@$(APP_EXEC) backend npm run lint:fix
+	@$(APP_EXEC) frontend npm run lint:fix
 	@if command -v helm-docs >/dev/null 2>&1; then helm-docs; else echo "$(YELLOW)helm-docs not installed; skipping helm docs generation$(NC)"; fi
 	@$(MAKE) linter-fix
 
@@ -476,9 +476,9 @@ test-chart: ## Run Helm chart lint+install like CI, building app images locally 
 	HELM_SET_ARGS="backend.image.repository=$(CHART_TEST_BACKEND_IMAGE_REPOSITORY),backend.image.tag=$(CHART_TEST_BACKEND_IMAGE_TAG),backend.image.digest=,backend.image.pullPolicy=IfNotPresent,backend.cloudnativepgOperator.enabled=true,frontend.image.repository=$(CHART_TEST_FRONTEND_IMAGE_REPOSITORY),frontend.image.tag=$(CHART_TEST_FRONTEND_IMAGE_TAG),frontend.image.digest=,frontend.image.pullPolicy=IfNotPresent"; \
 	trap 'exit_code=$$?; if [ "$(CHART_TEST_KEEP_KIND)" != "1" ]; then echo "$(YELLOW)Deleting Kind cluster $$KIND_CLUSTER...$(NC)"; kind delete cluster --name "$$KIND_CLUSTER" >/dev/null 2>&1 || true; else echo "$(YELLOW)Keeping Kind cluster $$KIND_CLUSTER for debugging$(NC)"; fi; exit $$exit_code' EXIT; \
 	echo "$(GREEN)Building backend image $$BACKEND_IMAGE...$(NC)"; \
-	DOCKER_BUILDKIT=1 docker build --target prod --file apps/api/Dockerfile --tag "$$BACKEND_IMAGE" .; \
+	DOCKER_BUILDKIT=1 docker build --target prod --file application/backend/Dockerfile --tag "$$BACKEND_IMAGE" .; \
 	echo "$(GREEN)Building frontend image $$FRONTEND_IMAGE...$(NC)"; \
-	DOCKER_BUILDKIT=1 docker build --target prod --file apps/web/Dockerfile --tag "$$FRONTEND_IMAGE" .; \
+	DOCKER_BUILDKIT=1 docker build --target prod --file application/frontend/Dockerfile --tag "$$FRONTEND_IMAGE" .; \
 	echo "$(GREEN)Adding Helm repositories...$(NC)"; \
 	helm repo add cloudnative-pg https://cloudnative-pg.github.io/charts --force-update >/dev/null; \
 	helm repo add valkey https://valkey.io/valkey-helm/ --force-update >/dev/null; \
@@ -498,14 +498,14 @@ test-chart: ## Run Helm chart lint+install like CI, building app images locally 
 
 test-install: ## Install test dependencies for all projects
 	@echo "$(GREEN)Installing test dependencies...$(NC)"
-	@cd apps/api && npm install
-	@cd apps/web && npm install
+	@cd application/backend && npm install
+	@cd application/frontend && npm install
 	@cd e2e && npm install
 	@echo "$(GREEN)✓ Test dependencies installed$(NC)"
 
 e2e-report: ## Serve Playwright HTML report at http://localhost:9323
 	@echo "$(GREEN)Serving Playwright report at $(YELLOW)http://localhost:9323$(GREEN) (Ctrl+C to stop)$(NC)";
-	@$(COMPOSE) run --rm --service-ports -T e2e-tests bash -lc "pnpm install --frozen-lockfile --no-audit --fund=false && pnpm report"
+	@$(COMPOSE) run --rm --service-ports -T e2e-tests bash -lc "npm ci --no-audit --fund=false && npm run report"
 
 _run-node:
 	@TTY_FLAG="-T"; \
@@ -513,9 +513,9 @@ _run-node:
 		TTY_FLAG=""; \
 	fi; \
 	if [ -d "$(DIR)/node_modules" ]; then \
-		cd $(DIR) && pnpm $(SCRIPT); \
+		cd $(DIR) && npm run $(SCRIPT); \
 	elif $(COMPOSE) ps $(SERVICE) | grep -q "Up"; then \
-		$(COMPOSE) exec $$TTY_FLAG $(SERVICE) pnpm $(SCRIPT); \
+		$(COMPOSE) exec $$TTY_FLAG $(SERVICE) npm run $(SCRIPT); \
 	else \
 		echo "$(RED)Error: $(SERVICE) container not running and local dependencies not found$(NC)"; \
 		echo "$(YELLOW)Run 'make up' to start containers, or 'cd $(DIR) && npm install' for local testing$(NC)"; \
@@ -549,10 +549,10 @@ _test-scope:
 	fi; \
 	case "$$TARGET_SCOPE" in \
 		backend) \
-			$(MAKE) --no-print-directory _run-node-scope LABEL=Backend DIR=apps/api SERVICE=backend MODE=$$TARGET_MODE SCOPE_NAME=backend; \
+			$(MAKE) --no-print-directory _run-node-scope LABEL=Backend DIR=application/backend SERVICE=backend MODE=$$TARGET_MODE SCOPE_NAME=backend; \
 			;; \
 		frontend) \
-			$(MAKE) --no-print-directory _run-node-scope LABEL=Frontend DIR=apps/web SERVICE=frontend MODE=$$TARGET_MODE SCOPE_NAME=frontend; \
+			$(MAKE) --no-print-directory _run-node-scope LABEL=Frontend DIR=application/frontend SERVICE=frontend MODE=$$TARGET_MODE SCOPE_NAME=frontend; \
 			;; \
 		e2e) \
 			$(MAKE) --no-print-directory _run-e2e-scope MODE=$$TARGET_MODE; \

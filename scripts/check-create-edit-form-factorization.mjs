@@ -4,9 +4,9 @@ import path from "node:path";
 function resolveFrontendRoot() {
   const scriptWorkspaceRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
   const candidates = [
-    path.join(scriptWorkspaceRoot, "apps/web"),
+    path.join(scriptWorkspaceRoot, "application/frontend"),
     process.cwd(),
-    path.join(process.cwd(), "apps/web"),
+    path.join(process.cwd(), "application/frontend"),
   ];
 
   const frontendRoot = candidates.find((candidate) =>

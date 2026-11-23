@@ -21,7 +21,7 @@ const EXPECTED_EXPORT_ENTRIES = [
 
 const EXPECTED_PACKAGE_FILES = [
   "README.md",
-  "dist/",
+  "empty.ts",
   "errors/",
   "game/",
   "identifier/",
@@ -37,47 +37,47 @@ const EXPECTED_PACKAGE_FILES = [
 ].sort();
 
 const SUPERSEDED_APPLICATION_CONTRACTS = [
-  "apps/api/src/domain/game/entities/game.ts",
-  "apps/api/src/domain/game/party/enums/party-role.enum.ts",
-  "apps/api/src/domain/game/party/enums/party-status.enum.ts",
-  "apps/api/src/domain/game/party/enums/party-player-kind.enum.ts",
-  "apps/api/src/domain/game/party/player/entities/party-player-identity.ts",
-  "apps/api/src/domain/game/party/shared/entities/party-action.ts",
-  "apps/api/src/domain/game/party/shared/entities/party-settings.ts",
-  "apps/api/src/domain/game/party/shared/entities/party-stage.ts",
-  "apps/api/src/domain/game/party/shared/entities/party.ts",
-  "apps/api/src/domain/game/party/host/value-objects/host-party-permissions.ts",
-  "apps/api/src/domain/game/types/shared/entities/game-type.ts",
-  "apps/api/src/domain/identity/enums/captcha-action.enum.ts",
-  "apps/api/src/domain/identity/types/auth-token.ts",
-  "apps/api/src/domain/organization/enums/organization-role.enum.ts",
-  "apps/api/src/domain/shared/value-objects/pagination-limits.ts",
-  "apps/api/src/domain/theme/entities/theme-id.ts",
-  "apps/api/src/domain/theme/entities/theme-document.ts",
-  "apps/api/src/domain/theme/value-objects/theme-permissions.ts",
-  "apps/api/src/packages/contracts/services/identifier-parser/identifier-parser.ts",
-  "apps/api/src/domain/theme/services/curated-theme-palettes.ts",
-  "apps/api/src/domain/theme/services/cyber-arcade-theme-palette.ts",
-  "apps/api/src/domain/theme/services/solar-grid-theme-palette.ts",
-  "apps/web/src/domains/game/entities/game.ts",
-  "apps/web/src/domains/game/party/shared/entities/party-action.ts",
-  "apps/web/src/domains/game/party/shared/entities/party-role.ts",
-  "apps/web/src/domains/game/party/shared/entities/party-settings.ts",
-  "apps/web/src/domains/game/party/shared/entities/party-stage.ts",
-  "apps/web/src/domains/game/party/shared/entities/party-status.ts",
-  "apps/web/src/domains/game/types/shared/game-type.ts",
-  "apps/web/src/domains/identity/entities/auth-session.ts",
-  "apps/web/src/domains/identity/entities/guest.ts",
-  "apps/web/src/domains/organization/value-objects/organization-permissions.ts",
-  "apps/web/src/domains/project/value-objects/project-permissions.ts",
-  "apps/web/src/domains/shared/value-objects/pagination-limits.ts",
-  "apps/web/src/domains/theme/entities/theme-id.ts",
-  "apps/web/src/domains/theme/entities/theme-document.ts",
-  "apps/web/src/domains/theme/value-objects/theme-permissions.ts",
-  "apps/web/src/packages/contracts/services/identifier-parser/identifier-parser.ts",
-  "apps/web/src/domains/theme/services/curated-theme-palettes.ts",
-  "apps/web/src/domains/theme/services/cyber-arcade-theme-palette.ts",
-  "apps/web/src/domains/theme/services/solar-grid-theme-palette.ts",
+  "application/backend/src/domain/game/entities/game.ts",
+  "application/backend/src/domain/game/party/enums/party-role.enum.ts",
+  "application/backend/src/domain/game/party/enums/party-status.enum.ts",
+  "application/backend/src/domain/game/party/enums/party-player-kind.enum.ts",
+  "application/backend/src/domain/game/party/player/entities/party-player-identity.ts",
+  "application/backend/src/domain/game/party/shared/entities/party-action.ts",
+  "application/backend/src/domain/game/party/shared/entities/party-settings.ts",
+  "application/backend/src/domain/game/party/shared/entities/party-stage.ts",
+  "application/backend/src/domain/game/party/shared/entities/party.ts",
+  "application/backend/src/domain/game/party/host/value-objects/host-party-permissions.ts",
+  "application/backend/src/domain/game/types/shared/entities/game-type.ts",
+  "application/backend/src/domain/identity/enums/captcha-action.enum.ts",
+  "application/backend/src/domain/identity/types/auth-token.ts",
+  "application/backend/src/domain/organization/enums/organization-role.enum.ts",
+  "application/backend/src/domain/shared/value-objects/pagination-limits.ts",
+  "application/backend/src/domain/theme/entities/theme-id.ts",
+  "application/backend/src/domain/theme/entities/theme-document.ts",
+  "application/backend/src/domain/theme/value-objects/theme-permissions.ts",
+  "application/backend/src/application/shared/services/identifier-parser/identifier-parser.ts",
+  "application/backend/src/domain/theme/services/curated-theme-palettes.ts",
+  "application/backend/src/domain/theme/services/cyber-arcade-theme-palette.ts",
+  "application/backend/src/domain/theme/services/solar-grid-theme-palette.ts",
+  "application/frontend/src/domains/game/entities/game.ts",
+  "application/frontend/src/domains/game/party/shared/entities/party-action.ts",
+  "application/frontend/src/domains/game/party/shared/entities/party-role.ts",
+  "application/frontend/src/domains/game/party/shared/entities/party-settings.ts",
+  "application/frontend/src/domains/game/party/shared/entities/party-stage.ts",
+  "application/frontend/src/domains/game/party/shared/entities/party-status.ts",
+  "application/frontend/src/domains/game/types/shared/game-type.ts",
+  "application/frontend/src/domains/identity/entities/auth-session.ts",
+  "application/frontend/src/domains/identity/entities/guest.ts",
+  "application/frontend/src/domains/organization/value-objects/organization-permissions.ts",
+  "application/frontend/src/domains/project/value-objects/project-permissions.ts",
+  "application/frontend/src/domains/shared/value-objects/pagination-limits.ts",
+  "application/frontend/src/domains/theme/entities/theme-id.ts",
+  "application/frontend/src/domains/theme/entities/theme-document.ts",
+  "application/frontend/src/domains/theme/value-objects/theme-permissions.ts",
+  "application/frontend/src/application/shared/services/identifier-parser/identifier-parser.ts",
+  "application/frontend/src/domains/theme/services/curated-theme-palettes.ts",
+  "application/frontend/src/domains/theme/services/cyber-arcade-theme-palette.ts",
+  "application/frontend/src/domains/theme/services/solar-grid-theme-palette.ts",
 ];
 
 const FORBIDDEN_IMPORT_RULES = [
@@ -128,7 +128,7 @@ function isSameSortedValues(left, right) {
 
 function resolveSharedPackageRoot() {
   return resolveExistingPath(
-    [path.join(workspaceRoot, "packages/contracts"), "/usr/src/shared"],
+    [path.join(workspaceRoot, "application/shared"), "/usr/src/shared"],
     "shared domain package root",
   );
 }
@@ -137,7 +137,7 @@ function checkPackageApiSurface(packageRoot) {
   const packageJsonPath = path.join(packageRoot, "package.json");
   const packageJson = readJson(packageJsonPath);
 
-  if (packageJson.name !== "@pleey/contracts") {
+  if (packageJson.name !== "@pleey/domain") {
     fail(`Unexpected shared package name: ${packageJson.name}`);
   }
 
@@ -168,7 +168,13 @@ function checkPackageApiSurface(packageRoot) {
 }
 
 function checkSupersededApplicationContracts(root = workspaceRoot) {
-  const repositoryRoot = root;
+  const repositoryRoot =
+    fs.existsSync(path.join(root, "application"))
+      ? root
+      : fs.existsSync(path.join("/usr/src/repository", "application"))
+        ? "/usr/src/repository"
+        : null;
+  if (!repositoryRoot) return;
 
   const restoredContracts = SUPERSEDED_APPLICATION_CONTRACTS.filter((file) =>
     fs.existsSync(path.join(repositoryRoot, file)),
@@ -328,7 +334,7 @@ function resolveCrossApplicationContractPaths(packageRoot) {
   return {
     backendEventsPath: resolveExistingPath(
       [
-        path.join(workspaceRoot, "apps/api/src/presentation/game/party/realtime/party-socket-events.ts"),
+        path.join(workspaceRoot, "application/backend/src/presentation/game/party/realtime/party-socket-events.ts"),
         "/usr/src/backend/src/presentation/game/party/realtime/party-socket-events.ts",
         "/usr/src/app/src/presentation/game/party/realtime/party-socket-events.ts",
       ],
@@ -336,7 +342,7 @@ function resolveCrossApplicationContractPaths(packageRoot) {
     ),
     backendSchemaPath: resolveExistingPath(
       [
-        path.join(workspaceRoot, "apps/api/src/schema.gql"),
+        path.join(workspaceRoot, "application/backend/src/schema.gql"),
         "/usr/src/backend/src/schema.gql",
         "/usr/src/app/src/schema.gql",
       ],
@@ -346,7 +352,7 @@ function resolveCrossApplicationContractPaths(packageRoot) {
       [
         path.join(
           workspaceRoot,
-          "apps/web/src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts",
+          "application/frontend/src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts",
         ),
         "/usr/src/frontend/src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts",
         "/usr/src/app/src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts",
@@ -355,7 +361,7 @@ function resolveCrossApplicationContractPaths(packageRoot) {
     ),
     frontendCodegenPath: resolveExistingPath(
       [
-        path.join(workspaceRoot, "apps/web/codegen.ts"),
+        path.join(workspaceRoot, "application/frontend/codegen.ts"),
         "/usr/src/frontend/codegen.ts",
         "/usr/src/app/codegen.ts",
       ],
@@ -375,7 +381,7 @@ function checkPartyRealtimeFixtures(paths) {
     try {
       return parseConstObjectValues(backendEventsText, constName);
     } catch (error) {
-      if (!paths.sharedPartyEventsPath || !backendEventsText.includes("@pleey/contracts/party")) {
+      if (!paths.sharedPartyEventsPath || !backendEventsText.includes("@pleey/domain/party")) {
         throw error;
       }
 

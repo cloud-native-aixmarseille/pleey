@@ -1,0 +1,65 @@
+import { Field, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import type { ActionPermission } from '@pleey/domain/shared/primitives';
+import type {
+  GamePermissions,
+  LaunchReadinessDisabledReason,
+} from '../../../../../domain/game/management/value-objects/game-permissions';
+import {
+  CreatePartyDisabledReason,
+  LaunchReadinessDisabledReason as LaunchReadinessDisabledReasonEnum,
+} from '../../../../../domain/game/management/value-objects/game-permissions';
+import { createActionPermissionType } from '../../../../shared/graphql/types/action-permission-type';
+
+registerEnumType(CreatePartyDisabledReason, {
+  name: 'CreatePartyDisabledReason',
+});
+
+registerEnumType(LaunchReadinessDisabledReasonEnum, {
+  name: 'LaunchReadinessDisabledReason',
+});
+
+const ActionPermissionType = createActionPermissionType<CreatePartyDisabledReason>(
+  'ActionPermissionType',
+  CreatePartyDisabledReason,
+);
+
+const LaunchReadinessPermissionType = createActionPermissionType<LaunchReadinessDisabledReason>(
+  'LaunchReadinessPermissionType',
+  LaunchReadinessDisabledReasonEnum,
+);
+
+@ObjectType()
+class GamePermissionsType implements GamePermissions {
+  @Field(() => ActionPermissionType)
+  createParty!: ActionPermission<CreatePartyDisabledReason>;
+
+  @Field(() => LaunchReadinessPermissionType)
+  launchReadiness!: ActionPermission<LaunchReadinessDisabledReason>;
+}
+
+@ObjectType()
+export class ProjectGameListItemType {
+  @Field(() => ID)
+  gameId!: string;
+
+  @Field()
+  type!: string;
+
+  @Field()
+  title!: string;
+
+  @Field(() => String, { nullable: true })
+  description!: string | null;
+
+  @Field()
+  createdAt!: Date;
+
+  @Field(() => ID, { nullable: true })
+  gameTypeId!: string | null;
+
+  @Field(() => Int)
+  stageCount!: number;
+
+  @Field(() => GamePermissionsType)
+  permissions!: GamePermissionsType;
+}
