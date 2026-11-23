@@ -11,9 +11,8 @@ describe("shared package Docker wiring", () => {
     const dockerfile = read(`application/${application}/Dockerfile`);
 
     // Act + Assert
-    expect(dockerfile).toContain("COPY application/contracts ./application/contracts");
-    expect(dockerfile).toContain("COPY --chown=node:node --from=build /usr/src/repository /usr/src/app");
-    expect(dockerfile).toContain("pnpm@10.32.1");
+    expect(dockerfile).toContain("COPY ./application/contracts /usr/src/shared");
+    expect(dockerfile).toContain("COPY --chown=node:node --from=build /usr/src/shared /usr/src/shared");
   });
 
   it("keeps the shared package in the backend production image", () => {
@@ -21,7 +20,9 @@ describe("shared package Docker wiring", () => {
     const dockerfile = read("application/backend/Dockerfile");
 
     // Act + Assert
-    expect(dockerfile).toContain("/usr/src/repository/application/contracts");
+    expect(dockerfile).toContain(
+      "COPY --chown=node:node --from=build-prod /usr/src/shared /usr/src/shared",
+    );
   });
 
   it("makes shared sources available to CI documentation checks", () => {
@@ -29,7 +30,9 @@ describe("shared package Docker wiring", () => {
     const dockerfile = read("application/frontend/Dockerfile");
 
     // Act + Assert
-    expect(dockerfile).toContain("COPY application/contracts ./application/contracts");
+    expect(dockerfile).toContain(
+      "COPY --chown=node:node ./application/contracts /usr/src/repository/application/contracts",
+    );
   });
 
   it("keeps shared sources inside the Docker build context", () => {
@@ -43,11 +46,14 @@ describe("shared package Docker wiring", () => {
     expect(compose).toContain("- ./application/contracts:/usr/src/shared:ro");
   });
 
-  it.each(["backend", "frontend"])("uses workspace dependencies in the %s package", (application) => {
+  it.each(["backend", "frontend"])("keeps the %s file dependency lock aligned with the package", (application) => {
     // Arrange
     const packageJson = JSON.parse(read(`application/${application}/package.json`));
+    const packageLock = JSON.parse(read(`application/${application}/pnpm-lock.yaml`));
 
     // Act + Assert
-    expect(packageJson.dependencies["@pleey/contracts"]).toBe("workspace:*");
+    expect(packageJson.dependencies["@pleey/contracts"]).toBe("file:../shared");
+    expect(packageLock.packages["node_modules/@pleey/contracts"].resolved).toBe("../shared");
+    expect(packageLock.packages["../shared"].name).toBe("@pleey/contracts");
   });
 });
