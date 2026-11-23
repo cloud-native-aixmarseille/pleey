@@ -45,7 +45,6 @@ RUN apk update && \
     rm -rf /var/cache/apk/*
 
 # Remove default nginx config and content
-# hadolint ignore=DL3059
 RUN rm -rf /usr/share/nginx/html/* && \
     rm /etc/nginx/conf.d/default.conf
 
@@ -85,11 +84,11 @@ CMD ["nginx", "-g", "daemon off;"]
 FROM base AS ci
 USER root
 RUN npm install --global pnpm@10.32.1 --ignore-scripts
-COPY --chown=1000:1000 --from=build /usr/src/repository /usr/src/app
-COPY --chown=1000:1000 --from=build /usr/src/repository /usr/src/repository
-COPY --chown=1000:1000 ./scripts /usr/src/app/scripts
-COPY --chown=1000:1000 ./docs /usr/src/app/docs
-COPY --chown=1000:1000 ./README.md ./AGENTS.md ./CONTRIBUTING.md /usr/src/app/
+COPY --chown=node:node --from=build /usr/src/repository /usr/src/app
+COPY --chown=node:node --from=build /usr/src/repository /usr/src/repository
+COPY --chown=node:node ./scripts /usr/src/app/scripts
+COPY --chown=node:node ./docs /usr/src/app/docs
+COPY --chown=node:node ./README.md ./AGENTS.md ./CONTRIBUTING.md /usr/src/app/
 USER 1000:1000
 WORKDIR /usr/src/app
 
