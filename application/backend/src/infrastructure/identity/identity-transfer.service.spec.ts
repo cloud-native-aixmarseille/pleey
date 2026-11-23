@@ -17,10 +17,10 @@ function createTransaction() {
     },
     partyParticipant: {
       findMany: vi.fn().mockResolvedValue([{ id: 'participant-1', partyId: 'party-1' }]),
-      findUnique: vi.fn().mockResolvedValue(null),
+      findFirst: vi.fn().mockResolvedValue(null),
       updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
-    score: { updateMany: vi.fn().mockResolvedValue({ count: 2 }) },
+    anonymousRetirement: { upsert: vi.fn().mockResolvedValue({}) },
     session: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
     userParticipationClaim: {
       delete: vi.fn(),
@@ -34,7 +34,7 @@ function createTransaction() {
 }
 
 describe('IdentityTransferService', () => {
-  it('moves durable participants and scores before revoking the anonymous session', async () => {
+  it('moves durable participant ownership before revoking every source session', async () => {
     // Arrange
     const transaction = createTransaction();
     const prisma = {
@@ -50,11 +50,10 @@ describe('IdentityTransferService', () => {
       data: { userId: input.targetUserId },
       where: { userId: input.sourceUserId },
     });
-    expect(transaction.score.updateMany).toHaveBeenCalledWith({
-      data: { userId: input.targetUserId },
-      where: { userId: input.sourceUserId },
-    });
-    expect(transaction.session.deleteMany).toHaveBeenCalledWith({ where: { id: input.sourceSessionId } });
+    expect(transaction.session.deleteMany).toHaveBeenCalledWith({ where: { userId: input.sourceUserId } });
+    expect(transaction.anonymousRetirement.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ create: expect.objectContaining({ sourceUserId: input.sourceUserId }) }),
+    );
     expect(transaction.identityTransfer.update).toHaveBeenCalledWith({
       data: expect.objectContaining({ status: 'COMPLETED' }),
       where: { id: 'transfer-1' },

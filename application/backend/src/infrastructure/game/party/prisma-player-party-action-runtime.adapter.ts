@@ -8,10 +8,10 @@ import {
   type SavePartyActionSubmissionResultCommand,
 } from '../../../application/game/party/player/ports/player-party-action-runtime.port';
 import { PartyActionIdentifier } from '../../../application/game/party/shared/services/identifiers/party-action-identifier';
+import { PartyParticipantIdentifier } from '../../../application/game/party/shared/services/identifiers/party-participant-identifier';
 import { PartyStageIdentifier } from '../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
 import { GameTypeParser } from '../../../application/game/types/shared/services/game-type-parser';
-import { GuestIdentifier } from '../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import type { PartyPlayerActionState } from '../../../domain/game/party/player/entities/party-player-action-state';
 import type { PartyRuntimeContext } from '../../../domain/game/party/shared/entities/party-runtime-context';
@@ -40,7 +40,7 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
     private readonly partyStageIdentifier: PartyStageIdentifier,
     private readonly gameTypeParser: GameTypeParser,
     private readonly gameIdentifier: GameIdentifier,
-    private readonly guestIdentifier: GuestIdentifier,
+    private readonly participantIdentifier: PartyParticipantIdentifier,
     private readonly partyReadModelMapper: PrismaPartyReadModelMapper,
     private readonly userIdentifier: UserIdentifier,
     private readonly partySettingsMapper: PrismaPartySettingsMapper,
@@ -70,14 +70,19 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
         scores: {
           where: {
             deletedAt: null,
-            ...(command.playerIdentity.kind === PartyPlayerKind.USER
-              ? { userId: command.playerIdentity.userId }
-              : { guestId: command.playerIdentity.guestId }),
+            participant:
+              command.playerIdentity.kind === PartyPlayerKind.USER
+                ? { userId: command.playerIdentity.userId }
+                : { id: command.playerIdentity.participantId, userId: null },
           },
           select: {
             context: true,
-            guestId: true,
-            userId: true,
+            participant: {
+              select: {
+                id: true,
+                userId: true,
+              },
+            },
           },
           take: 1,
         },
@@ -91,14 +96,14 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
     }
 
     const playerIdentity: PartyPlayerIdentity =
-      score.userId !== null && score.userId !== undefined
+      score.participant.userId !== null
         ? {
             kind: PartyPlayerKind.USER,
-            userId: this.userIdentifier.parse(score.userId),
+            userId: this.userIdentifier.parse(score.participant.userId),
           }
         : {
-            kind: PartyPlayerKind.GUEST,
-            guestId: this.guestIdentifier.parse(String(score.guestId)),
+            kind: PartyPlayerKind.PARTICIPANT,
+            participantId: this.participantIdentifier.parse(score.participant.id),
           };
 
     return {
@@ -130,9 +135,10 @@ export class PrismaPlayerPartyActionRuntimeAdapter extends PlayerPartyActionRunt
       const score = await transaction.score.findFirst({
         where: {
           partyId: command.partyId,
-          ...(command.playerIdentity.kind === PartyPlayerKind.USER
-            ? { userId: command.playerIdentity.userId }
-            : { guestId: command.playerIdentity.guestId }),
+          participant:
+            command.playerIdentity.kind === PartyPlayerKind.USER
+              ? { userId: command.playerIdentity.userId }
+              : { id: command.playerIdentity.participantId, userId: null },
           deletedAt: null,
         },
         select: {

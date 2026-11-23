@@ -6,13 +6,7 @@ import { mockFn } from './mock-factory.utils';
 
 type PlayerPartyRuntimeLike = Pick<
   PlayerPartyRuntimePort,
-  | 'ensureAuthenticatedPlayer'
-  | 'ensureGuestPlayer'
-  | 'findActivePartyByUserId'
-  | 'findActivePartyByGuestId'
-  | 'findPartyByPin'
-  | 'findPartyPlayer'
-  | 'removePlayer'
+  'ensureAuthenticatedPlayer' | 'findActivePartyByUserId' | 'findPartyByPin' | 'findPartyPlayer' | 'removePlayer'
 >;
 
 type ActivePlayerPartySessionInput = {
@@ -35,9 +29,7 @@ type PartyJoinTargetInput = ActivePlayerPartySessionInput & {
 
 type CreatePlayerPartyRuntimeMockConfig = {
   readonly ensureAuthenticatedPlayer?: undefined;
-  readonly ensureGuestPlayer?: Awaited<ReturnType<PlayerPartyRuntimeLike['ensureGuestPlayer']>>;
   readonly findActivePartyByUserId?: Partial<ActivePlayerPartySessionInput> | null;
-  readonly findActivePartyByGuestId?: Partial<ActivePlayerPartySessionInput> | null;
   readonly findPartyByPin?: Partial<PartyJoinTargetInput> | null;
   readonly findPartyPlayer?: Awaited<ReturnType<PlayerPartyRuntimeLike['findPartyPlayer']>>;
   readonly removePlayer?: boolean;
@@ -60,11 +52,6 @@ const DEFAULT_ACTIVE_PARTY_SESSION: ActivePlayerPartySessionInput = {
   status: 'WAITING',
 };
 
-const DEFAULT_GUEST_PLAYER_IDENTITY = {
-  kind: PartyPlayerKind.GUEST,
-  guestId: backendTestIdentifiers.guest('guest-42'),
-};
-
 const DEFAULT_PARTY_PLAYER = {
   avatarUri: '/api/avatars/users/42?v=1',
   identity: {
@@ -81,20 +68,13 @@ export const createPlayerPartyRuntimeMock = (
 ): Mocked<PlayerPartyRuntimeLike> => {
   const mock: Mocked<PlayerPartyRuntimeLike> = {
     ensureAuthenticatedPlayer: mockFn<PlayerPartyRuntimeLike['ensureAuthenticatedPlayer']>(),
-    ensureGuestPlayer: mockFn<PlayerPartyRuntimeLike['ensureGuestPlayer']>(),
     findActivePartyByUserId: mockFn<PlayerPartyRuntimeLike['findActivePartyByUserId']>(),
-    findActivePartyByGuestId: mockFn<PlayerPartyRuntimeLike['findActivePartyByGuestId']>(),
     findPartyByPin: mockFn<PlayerPartyRuntimeLike['findPartyByPin']>(),
     findPartyPlayer: mockFn<PlayerPartyRuntimeLike['findPartyPlayer']>(),
     removePlayer: mockFn<PlayerPartyRuntimeLike['removePlayer']>(),
   };
 
   mock.ensureAuthenticatedPlayer.mockResolvedValue(config.ensureAuthenticatedPlayer);
-  mock.ensureGuestPlayer.mockResolvedValue(
-    (config.ensureGuestPlayer ?? DEFAULT_GUEST_PLAYER_IDENTITY) as Awaited<
-      ReturnType<PlayerPartyRuntimeLike['ensureGuestPlayer']>
-    >,
-  );
   mock.findActivePartyByUserId.mockResolvedValue(
     (config.findActivePartyByUserId === undefined
       ? null
@@ -102,15 +82,6 @@ export const createPlayerPartyRuntimeMock = (
         ? null
         : { ...DEFAULT_ACTIVE_PARTY_SESSION, ...config.findActivePartyByUserId }) as Awaited<
       ReturnType<PlayerPartyRuntimeLike['findActivePartyByUserId']>
-    >,
-  );
-  mock.findActivePartyByGuestId.mockResolvedValue(
-    (config.findActivePartyByGuestId === undefined
-      ? null
-      : config.findActivePartyByGuestId === null
-        ? null
-        : { ...DEFAULT_ACTIVE_PARTY_SESSION, ...config.findActivePartyByGuestId }) as Awaited<
-      ReturnType<PlayerPartyRuntimeLike['findActivePartyByGuestId']>
     >,
   );
   mock.findPartyByPin.mockResolvedValue(

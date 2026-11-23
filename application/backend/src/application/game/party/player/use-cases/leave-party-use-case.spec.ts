@@ -71,8 +71,8 @@ describe('LeavePartyUseCase', () => {
       useCase.execute({
         pin: backendTestIdentifiers.partyPin('123456'),
         playerIdentity: {
-          kind: PartyPlayerKind.GUEST,
-          guestId: backendTestIdentifiers.guest('guest-7'),
+          kind: PartyPlayerKind.PARTICIPANT,
+          participantId: backendTestIdentifiers.participant('guest-7'),
         },
       }),
     ).resolves.toBe(true);
@@ -80,8 +80,8 @@ describe('LeavePartyUseCase', () => {
     expect(runtime.removePlayer).toHaveBeenCalledWith({
       partyId,
       playerIdentity: {
-        kind: PartyPlayerKind.GUEST,
-        guestId: backendTestIdentifiers.guest('guest-7'),
+        kind: PartyPlayerKind.PARTICIPANT,
+        participantId: backendTestIdentifiers.participant('guest-7'),
       },
       status: 'LEFT',
     });

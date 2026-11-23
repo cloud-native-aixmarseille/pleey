@@ -1,15 +1,12 @@
 import { Controller, Get, Param, Res, StandardSchemaValidationPipe, UsePipes } from '@nestjs/common';
 import type { Response } from 'express';
 import { GetGuestAvatarPreviewUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-preview-use-case';
-import { GetGuestAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-use-case';
 import { GetUserAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-user-avatar-use-case';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import {
-  type AvatarGuestIdParam,
   type AvatarHttpResponse,
   type AvatarSeedParam,
   type AvatarUserIdParam,
-  avatarGuestIdParamSchema,
   avatarHttpResponseSchema,
   avatarSeedParamSchema,
   avatarUserIdParamSchema,
@@ -26,7 +23,6 @@ export class AvatarController {
   constructor(
     private readonly getUserAvatarUseCase: GetUserAvatarUseCase,
     private readonly getGuestAvatarPreviewUseCase: GetGuestAvatarPreviewUseCase,
-    private readonly getGuestAvatarUseCase: GetGuestAvatarUseCase,
     private readonly userIdentifier: UserIdentifier,
   ) {}
 
@@ -38,16 +34,6 @@ export class AvatarController {
     const avatar = await this.getUserAvatarUseCase.execute(this.userIdentifier.parse(userId));
 
     this.sendAvatarResponse(res, this.createUserAvatarResponse(avatar));
-  }
-
-  @Get('guests/:guestId')
-  async getGuestAvatar(
-    @Param('guestId', { schema: avatarGuestIdParamSchema }) encodedGuestId: AvatarGuestIdParam,
-    @Res() res: Response,
-  ): Promise<void> {
-    const avatar = await this.getGuestAvatarUseCase.execute(encodedGuestId);
-
-    this.sendAvatarResponse(res, this.createCachedAvatarResponse(avatar));
   }
 
   @Get('guests/preview/:avatarSeed')

@@ -22,11 +22,8 @@ model User {
   avatar              Media? @relation("UserAvatar", fields: [avatarMediaId], references: [id], onDelete: SetNull)
   authSessions        Session[]
   authAccounts        Account[]
-  scores              Score[]
   partyParticipants   PartyParticipant[]
   participationClaim  UserParticipationClaim?
-  identityTransfersSource IdentityTransfer[] @relation("IdentityTransferSource")
-  identityTransfersTarget IdentityTransfer[] @relation("IdentityTransferTarget")
   hostedParties       Party[] @relation("HostedParties")
   organizationMembers OrganizationMember[]
   
@@ -143,19 +140,19 @@ model Party {
 model PartyParticipant {
   id                 String   @id @default(uuid(7)) @db.Uuid
   partyId            String   @map("party_id") @db.Uuid
-  userId             String   @map("user_id") @db.Uuid
+  userId             String?  @map("user_id") @db.Uuid
   roles              String[]
   status             String   @default("ACTIVE")
   displayName        String   @map("display_name")
+  departureReason    String?  @map("departure_reason")
   controllerGeneration Int     @default(0) @map("controller_generation")
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
 
   party Party @relation(fields: [partyId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user  User? @relation(fields: [userId], references: [id], onDelete: Restrict)
   scores Score[]
 
-  @@unique([partyId, userId])
   @@index([partyId, status])
   @@index([userId, status])
   @@map("party_participants")
@@ -191,34 +188,38 @@ model IdentityTransfer {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
-  sourceUser  User   @relation("IdentityTransferSource", fields: [sourceUserId], references: [id], onDelete: Restrict)
-  targetUser  User?  @relation("IdentityTransferTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
-  party       Party? @relation(fields: [partyId], references: [id], onDelete: Restrict)
+  party Party? @relation(fields: [partyId], references: [id], onDelete: Restrict)
 
   @@index([sourceUserId, status])
   @@index([targetUserId, status])
   @@map("identity_transfers")
 }
 
-model Guest {
-  id         String   @id @default(uuid(7)) @db.Uuid
-  username   String
-  avatarSeed String   @map("avatar_seed")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-  deletedAt  DateTime? @map("deleted_at")
+model AnonymousRetirement {
+  id              String   @id @default(uuid(7)) @db.Uuid
+  operationId     String   @unique @map("operation_id")
+  sourceUserId    String   @map("source_user_id") @db.Uuid
+  generation      Int      @default(0)
+  status          String
+  requestedAt     DateTime @default(now()) @map("requested_at")
+  claimedAt       DateTime? @map("claimed_at")
+  claimUntil      DateTime? @map("claim_until")
+  completedAt     DateTime? @map("completed_at")
+  completedSteps  Json     @default("{}") @map("completed_steps")
+  attemptCount    Int      @default(0) @map("attempt_count")
+  failureReason   String?  @map("failure_reason")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
-  scores Score[]
-
-  @@map("guests")
+  @@index([status, claimUntil, requestedAt])
+  @@index([sourceUserId, status])
+  @@map("anonymous_retirements")
 }
 
 model Score {
   id         String   @id @default(uuid(7)) @db.Uuid
   partyId    String   @map("party_id") @db.Uuid
-  participantId String? @map("participant_id") @db.Uuid
-  userId     String?  @map("user_id") @db.Uuid
-  guestId    String?  @map("guest_id") @db.Uuid
+  participantId String @map("participant_id") @db.Uuid
   context    Json?    @map("context")
   points     Int      @default(0)
   createdAt  DateTime @default(now()) @map("created_at")
@@ -226,10 +227,9 @@ model Score {
   deletedAt  DateTime? @map("deleted_at")
 
   party    Party  @relation(fields: [partyId], references: [id])
-  participant PartyParticipant? @relation(fields: [participantId], references: [id])
-  user     User?  @relation(fields: [userId], references: [id])
-  guest    Guest? @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  participant PartyParticipant @relation(fields: [participantId], references: [id], onDelete: Restrict)
 
+  @@index([participantId])
   @@map("scores")
 }
 

@@ -1,9 +1,9 @@
-import { type FormEvent, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import { GuideLaunch } from '../../../../../shared/guide/guide-launch';
 import { usePresentationTranslation } from '../../../../../shared/i18n/use-presentation-translation';
 import { Button } from '../../../../../shared/ui/actions/button';
 import { UserAvatar } from '../../../../../shared/ui/data/user-avatar';
-import { usePresentationToast } from '../../../../../shared/ui/feedback/presentation-toast';
+import { StatusBanner } from '../../../../../shared/ui/feedback/status-banner';
 import { FieldShell } from '../../../../../shared/ui/forms/field-shell';
 import { Input } from '../../../../../shared/ui/forms/input';
 import { AccentIconBadge } from '../../../../../shared/ui/icons/accent-icon-badge';
@@ -20,7 +20,6 @@ interface JoinPartySurfaceProps {
   readonly guestName: string;
   readonly isAuthenticated: boolean;
   readonly isJoinSubmitting: boolean;
-  readonly onDismissError: () => void;
   readonly onGenerateGuestName: () => void;
   readonly onGuestNameChange: (value: string) => void;
   readonly onJoinParty: () => void;
@@ -39,7 +38,6 @@ export function JoinPartySurface({
   guestName,
   isAuthenticated,
   isJoinSubmitting,
-  onDismissError,
   onGenerateGuestName,
   onGuestNameChange,
   onJoinParty,
@@ -50,26 +48,12 @@ export function JoinPartySurface({
   showPasswordInput,
 }: JoinPartySurfaceProps) {
   const { t } = usePresentationTranslation();
-  const toast = usePresentationToast();
   const isMobile = usePresentationMediaQuery();
   const trimmedGuestName = guestName.trim();
-  const isJoinDisabled = isJoinSubmitting || !isAuthenticated;
+  const isJoinDisabled = isJoinSubmitting;
   const guestAvatarAltLabel = t('game.party.player.route.guestAvatarAlt', {
     username: trimmedGuestName.length > 0 ? trimmedGuestName : t('game.party.player.route.guestAvatarFallbackName'),
   });
-
-  useEffect(() => {
-    if (!errorMessage) {
-      return;
-    }
-
-    toast.error({
-      durationMs: 4000,
-      id: 'join-party-error-toast',
-      message: t(errorMessage),
-    });
-    onDismissError();
-  }, [errorMessage, onDismissError, t, toast]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -141,16 +125,21 @@ export function JoinPartySurface({
   ) : null;
 
   const submitButton = (
-    <Button
-      data-tour="join-submit"
-      disabled={isJoinDisabled}
-      intent="primary"
-      rightSection={<AppIcon name="arrow-right" size={18} />}
-      type="submit"
-      width="full"
-    >
-      {isAuthenticated ? t('game.party.player.route.joinWithAccountCta') : t('game.party.player.route.joinAsGuestCta')}
-    </Button>
+    <ContentStack gap="sm">
+      {errorMessage ? <StatusBanner tone="error">{t(errorMessage)}</StatusBanner> : null}
+      <Button
+        data-tour="join-submit"
+        disabled={isJoinDisabled}
+        intent="primary"
+        rightSection={<AppIcon name="arrow-right" size={18} />}
+        type="submit"
+        width="full"
+      >
+        {isAuthenticated
+          ? t('game.party.player.route.joinWithAccountCta')
+          : t('game.party.player.route.joinAsGuestCta')}
+      </Button>
+    </ContentStack>
   );
 
   if (isMobile) {

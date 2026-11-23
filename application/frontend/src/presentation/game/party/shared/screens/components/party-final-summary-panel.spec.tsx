@@ -54,7 +54,7 @@ describe('PartyFinalSummaryPanel', () => {
             }),
             partyFixtureFactory.createObservationPlayer({
               avatarUri: null,
-              identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-1' },
+              identity: { kind: PartyPlayerKind.PARTICIPANT, participantId: 'guest-1' },
               correctStages: 6,
               totalScore: 1200,
               username: 'Winner',
@@ -126,7 +126,7 @@ describe('PartyFinalSummaryPanel', () => {
             }),
             partyFixtureFactory.createObservationPlayer({
               avatarUri: null,
-              identity: { kind: PartyPlayerKind.GUEST, guestId: 'guest-1' },
+              identity: { kind: PartyPlayerKind.PARTICIPANT, participantId: 'guest-1' },
               correctStages: 6,
               totalScore: 1200,
               username: 'Winner',

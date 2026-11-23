@@ -37,6 +37,9 @@ try {
     DATABASE_URL_TEST: databaseUrl,
     VALKEY_URL: "redis://127.0.0.1:6380",
   };
+  if (phase === "02") {
+    runPnpm(["--filter", "@pleey/api", "exec", "node", "scripts/verify-phase-02-upgrade.mjs"], testEnvironment);
+  }
   runPnpm(["--filter", "@pleey/api", "db:migrate"], testEnvironment);
   runPnpm(["--filter", "@pleey/api", "test"], testEnvironment);
 } catch (error) {

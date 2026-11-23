@@ -22,7 +22,7 @@ export function PlayerFinalSurface({ onLeaveParty, party }: PlayerFinalSurfacePr
   const { t } = usePresentationTranslation();
   const isMobile = usePresentationMediaQuery();
   const { currentPlayer, currentPlayerRank } = createPartyFinalSummaryModel(party.players);
-  const shouldPromptGuestSignIn = currentPlayer?.identity.kind === PartyPlayerKind.GUEST;
+  const shouldPromptGuestSignIn = currentPlayer?.identity.kind === PartyPlayerKind.PARTICIPANT;
 
   return (
     <div data-testid="player-final-surface">

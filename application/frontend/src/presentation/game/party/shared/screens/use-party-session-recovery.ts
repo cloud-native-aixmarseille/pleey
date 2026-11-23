@@ -1,4 +1,4 @@
-import type { GuestId } from '@pleey/contracts/identity';
+import type { ParticipantId } from '@pleey/contracts/identity';
 import type { PartyId, PartyPin } from '@pleey/contracts/party';
 import { PartyJoinReceiptStatus, PartyPlayerKind } from '@pleey/contracts/party';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
@@ -14,7 +14,7 @@ const sessionRecoverySignalWindowMs = 15_000;
 
 interface UsePartySessionRecoveryParams {
   readonly connectionState: PartyObservationConnectionState | null;
-  readonly currentGuestId: GuestId | null;
+  readonly currentParticipantId: ParticipantId | null;
   readonly currentPartyPin: PartyPin | null;
   readonly currentPlayer: PartyObservationPlayer | null;
   readonly hasObservedCurrentPlayer: boolean;
@@ -29,7 +29,7 @@ interface UsePartySessionRecoveryParams {
 
 export function usePartySessionRecovery({
   connectionState,
-  currentGuestId,
+  currentParticipantId: _legacyParticipantId,
   currentPartyPin,
   currentPlayer,
   hasObservedCurrentPlayer,
@@ -43,13 +43,11 @@ export function usePartySessionRecovery({
 }: UsePartySessionRecoveryParams): { readonly shouldPreserveJoinedPartyId: boolean } {
   const lifecycleRecoveryEpoch = usePartySessionRecoveryEpoch();
   const hasRecoverableObservedIdentity = hasPartyIdentityMatch({
-    currentGuestId,
     party,
     userId,
   });
   const shouldPreserveJoinedPartyId = shouldRecoverPartySession({
     connectionState,
-    currentGuestId,
     currentPartyPin,
     currentPlayer,
     hasObservedCurrentPlayer,
@@ -66,11 +64,7 @@ export function usePartySessionRecovery({
     }
 
     const playerIdentity: PartyJoiningPlayerIdentity | null =
-      userId !== null
-        ? { kind: PartyPlayerKind.USER, userId }
-        : currentGuestId !== null
-          ? { kind: PartyPlayerKind.GUEST, guestId: currentGuestId }
-          : null;
+      userId !== null ? { kind: PartyPlayerKind.USER, userId } : null;
 
     if (playerIdentity === null) {
       return;
@@ -84,23 +78,11 @@ export function usePartySessionRecovery({
       });
 
       if (receipt.status !== PartyJoinReceiptStatus.ACCEPTED) {
-        if (currentGuestId !== null) {
-          partyLobbyFacade.clearGuestId(currentPartyPin);
-        }
-
         if (lastAttemptKeyRef.current === attemptKey) {
           setJoinedPartyId(null);
         }
 
         return;
-      }
-
-      if (receipt.player.identity.kind === PartyPlayerKind.GUEST) {
-        partyLobbyFacade.setGuestId(currentPartyPin, receipt.player.identity.guestId);
-      }
-
-      if (receipt.player.identity.kind === PartyPlayerKind.USER && currentGuestId !== null) {
-        partyLobbyFacade.clearGuestId(currentPartyPin);
       }
 
       setJoinedPartyId(receipt.partyId);
@@ -113,7 +95,6 @@ export function usePartySessionRecovery({
   useEffect(() => {
     const shouldAttempt = shouldRecoverPartySession({
       connectionState,
-      currentGuestId,
       currentPartyPin,
       currentPlayer,
       hasObservedCurrentPlayer,
@@ -128,7 +109,7 @@ export function usePartySessionRecovery({
       return;
     }
 
-    const identityKey = userId !== null ? `user:${userId}` : currentGuestId !== null ? `guest:${currentGuestId}` : null;
+    const identityKey = userId !== null ? `user:${userId}` : null;
 
     if (currentPartyPin === null || identityKey === null) {
       return;
@@ -150,7 +131,6 @@ export function usePartySessionRecovery({
     void tryRecoverPartySession(attemptKey);
   }, [
     connectionState,
-    currentGuestId,
     currentPartyPin,
     currentPlayer,
     hasObservedCurrentPlayer,
@@ -198,11 +178,9 @@ function usePartySessionRecoveryEpoch(): number {
 }
 
 function hasPartyIdentityMatch({
-  currentGuestId,
   party,
   userId,
 }: {
-  readonly currentGuestId: GuestId | null;
   readonly party: PartyObservation | undefined;
   readonly userId: UserId | null;
 }): boolean {
@@ -215,13 +193,12 @@ function hasPartyIdentityMatch({
       return userId !== null && player.identity.userId === userId;
     }
 
-    return currentGuestId !== null && player.identity.guestId === currentGuestId;
+    return false;
   });
 }
 
 function shouldRecoverPartySession({
   connectionState,
-  currentGuestId,
   currentPartyPin,
   currentPlayer,
   hasObservedCurrentPlayer,
@@ -232,7 +209,6 @@ function shouldRecoverPartySession({
   userId,
 }: {
   readonly connectionState: PartyObservationConnectionState | null;
-  readonly currentGuestId: GuestId | null;
   readonly currentPartyPin: PartyPin | null;
   readonly currentPlayer: PartyObservationPlayer | null;
   readonly hasObservedCurrentPlayer: boolean;
@@ -246,7 +222,7 @@ function shouldRecoverPartySession({
     return false;
   }
 
-  if (userId === null && currentGuestId === null) {
+  if (userId === null) {
     return false;
   }
 

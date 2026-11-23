@@ -28,6 +28,7 @@ import { PartyManagementPort } from '../../../application/game/party/shared/port
 import { PartyObservationBroadcasterPort } from '../../../application/game/party/shared/ports/party-observation-broadcaster.port';
 import { PartyActionIdentifier } from '../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyIdentifier } from '../../../application/game/party/shared/services/identifiers/party-identifier';
+import { PartyParticipantIdentifier } from '../../../application/game/party/shared/services/identifiers/party-participant-identifier';
 import { PartyPinIdentifier } from '../../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { PartyStageIdentifier } from '../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import { PartyObservationAccessService } from '../../../application/game/party/shared/services/party-observation-access-service';
@@ -43,7 +44,6 @@ import { PartyStageConfigurationPort } from '../../../application/game/types/sha
 import { ChoiceSubmissionPartyActionPolicy } from '../../../application/game/types/shared/services/choice-submission-party-action-policy';
 import { GameTypeIdentifier } from '../../../application/game/types/shared/services/game-type-identifier';
 import { GameTypeParser } from '../../../application/game/types/shared/services/game-type-parser';
-import { GuestIdentifier } from '../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
@@ -213,6 +213,7 @@ import { ThemeModule } from '../theme/theme-module';
     SubmitPartyActionUseCase,
     PartyActionIdentifier,
     PartyIdentifier,
+    PartyParticipantIdentifier,
     PartyPinIdentifier,
     PartyStageIdentifier,
     CreatePartyUseCase,
@@ -220,7 +221,6 @@ import { ThemeModule } from '../theme/theme-module';
     GameErrorTranslationService,
     GameTypeIdentifier,
     GameTypeParser,
-    GuestIdentifier,
     GamePermissionPolicy,
     GamePermissionResolver,
     ListProjectGamesUseCase,

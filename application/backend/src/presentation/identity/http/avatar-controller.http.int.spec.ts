@@ -4,7 +4,6 @@ import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { GetGuestAvatarPreviewUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-preview-use-case';
-import { GetGuestAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-use-case';
 import { GetUserAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-user-avatar-use-case';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import { Media } from '../../../domain/media/entities/media';
@@ -16,10 +15,6 @@ const getUserAvatarUseCase = {
 };
 
 const getGuestAvatarPreviewUseCase = {
-  execute: vi.fn(),
-};
-
-const getGuestAvatarUseCase = {
   execute: vi.fn(),
 };
 
@@ -37,10 +32,6 @@ const userIdentifier = {
     {
       provide: GetGuestAvatarPreviewUseCase,
       useValue: getGuestAvatarPreviewUseCase,
-    },
-    {
-      provide: GetGuestAvatarUseCase,
-      useValue: getGuestAvatarUseCase,
     },
     {
       provide: UserIdentifier,

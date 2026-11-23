@@ -1,9 +1,9 @@
 import { PartyActionIdentifier } from '../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyIdentifier } from '../../../application/game/party/shared/services/identifiers/party-identifier';
+import { PartyParticipantIdentifier } from '../../../application/game/party/shared/services/identifiers/party-participant-identifier';
 import { PartyPinIdentifier } from '../../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { PartyStageIdentifier } from '../../../application/game/party/shared/services/identifiers/party-stage-identifier';
 import { GameIdentifier } from '../../../application/game/shared/services/identifiers/game-identifier';
-import { GuestIdentifier } from '../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
@@ -31,7 +31,7 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     PartyStageIdentifier,
     GameIdentifier,
     UserIdentifier,
-    GuestIdentifier,
+    PartyParticipantIdentifier,
     OrganizationIdentifier,
     ProjectIdentifier,
     PrismaPartyReadModelMapper,
@@ -139,10 +139,18 @@ describeIfDatabase('PrismaPartyManagementAdapter', () => {
     partyIds.push(created.partyId);
     const storedParty = await harness.prisma.party.findUniqueOrThrow({ where: { id: created.partyId } });
 
+    const participant = await harness.prisma.partyParticipant.create({
+      data: {
+        displayName: player.username,
+        partyId: created.partyId,
+        roles: ['PLAYER'],
+        userId: player.id,
+      },
+    });
     const score = await harness.prisma.score.create({
       data: {
+        participantId: participant.id,
         partyId: created.partyId,
-        userId: player.id,
       },
     });
     scoreIds.push(score.id);

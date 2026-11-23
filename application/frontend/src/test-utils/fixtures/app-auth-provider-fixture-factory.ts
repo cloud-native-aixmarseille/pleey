@@ -3,6 +3,7 @@ import { AppAuthProviderFactory } from '../../app/bootstrap/modules/identity/app
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import { AuthPayloadInspector } from '../../domains/identity/services/auth-payload-inspector';
 import { GraphqlClient } from '../../infrastructure/graphql/client/graphql-client';
+import { AuthSessionActor } from '../../infrastructure/identity/auth-session.actor';
 import { GraphqlAuthRepository } from '../../infrastructure/identity/graphql-auth.repository';
 import { PersistedAuthSessionAdapter } from '../../infrastructure/identity/persisted-auth-session.adapter';
 import { LocalStorageAdapter } from '../../infrastructure/storage/local-storage.adapter';
@@ -13,7 +14,11 @@ export class AppAuthProviderFixtureFactory {
     const fixture = this.create();
     const inspector = new AuthPayloadInspector();
     const client = new GraphqlClient();
-    const sessions = new PersistedAuthSessionAdapter(new LocalStorageAdapter(), new UserIdentifier());
+    const sessions = new PersistedAuthSessionAdapter(
+      new LocalStorageAdapter(),
+      new UserIdentifier(),
+      new AuthSessionActor(),
+    );
     const repository = new GraphqlAuthRepository(client, inspector);
     fixture.authSession.restore.mockImplementation(() => sessions.restore());
     fixture.authSession.updateUser.mockImplementation((user) => sessions.updateUser(user));

@@ -1,4 +1,4 @@
-import type { GuestId } from '@pleey/contracts/identity';
+import type { ParticipantId } from '@pleey/contracts/identity';
 import type { PartyId, PartyPin } from '@pleey/contracts/party';
 import { PartyPlayerKind } from '@pleey/contracts/party';
 import type { Party } from '../../../../../domains/game/party/shared/entities/party';
@@ -15,7 +15,7 @@ interface PartyLobbyRouteState {
 interface PartyLobbyScreenViewModel {
   readonly errorMessage: string | null;
   readonly joinPin: string;
-  readonly persistedGuestJoinGuestId: GuestId | null;
+  readonly persistedGuestJoinParticipantId: ParticipantId | null;
   readonly redirectTo: string | null;
 }
 
@@ -53,7 +53,7 @@ export function resolvePartyLobbyRouteState({
 export function resolvePartyLobbyScreenViewModel({
   bootstrapErrorMessage,
   bootstrapPartyByPin,
-  currentGuestId,
+  currentParticipantId,
   isJoinSubmitting,
   joinErrorMessage,
   joinedPartyId,
@@ -69,7 +69,7 @@ export function resolvePartyLobbyScreenViewModel({
 }: {
   readonly bootstrapErrorMessage: string | null;
   readonly bootstrapPartyByPin: Party | null;
-  readonly currentGuestId: GuestId | null;
+  readonly currentParticipantId: ParticipantId | null;
   readonly isJoinSubmitting: boolean;
   readonly joinErrorMessage: string | null;
   readonly joinedPartyId: PartyId | null;
@@ -96,11 +96,13 @@ export function resolvePartyLobbyScreenViewModel({
     routeKind === PartyLobbyRouteKind.PARTY_ID &&
     party !== undefined &&
     currentPartyPin !== null &&
-    currentGuestId !== null &&
+    currentParticipantId !== null &&
     currentPlayer === null;
+  const joinedOrObservedPartyId =
+    joinedPartyId ?? (party && (isCurrentUserHost || currentPlayer !== null) ? party.partyId : null);
   const pinRouteRedirectTo =
-    routeKind === PartyLobbyRouteKind.PIN && party && (isCurrentUserHost || currentPlayer !== null)
-      ? resolveHostedPartyRoute(party.partyId)
+    routeKind === PartyLobbyRouteKind.PIN && joinedOrObservedPartyId !== null
+      ? resolveHostedPartyRoute(joinedOrObservedPartyId)
       : null;
   const partyIdRouteRedirectTo =
     routeKind === PartyLobbyRouteKind.PARTY_ID &&
@@ -111,10 +113,10 @@ export function resolvePartyLobbyScreenViewModel({
     !isAuthenticatedUserObservedInParty
       ? resolveJoinPartyRoute(party.pin)
       : null;
-  const canReusePersistedGuestIdentity =
+  const canReusePersistedParticipantIdentity =
     userId === null &&
     currentPartyPin !== null &&
-    currentGuestId !== null &&
+    currentParticipantId !== null &&
     joinedPartyId === null &&
     leaveRedirectTo === null &&
     !isJoinSubmitting &&
@@ -124,7 +126,7 @@ export function resolvePartyLobbyScreenViewModel({
   return {
     errorMessage: joinErrorMessage ?? partyIdErrorMessage ?? bootstrapErrorMessage,
     joinPin: bootstrapPartyByPin?.pin ?? normalizedPin ?? '',
-    persistedGuestJoinGuestId: canReusePersistedGuestIdentity ? currentGuestId : null,
+    persistedGuestJoinParticipantId: canReusePersistedParticipantIdentity ? currentParticipantId : null,
     redirectTo: leaveRedirectTo ?? routeState.bootstrapRedirectTo ?? pinRouteRedirectTo ?? partyIdRouteRedirectTo,
   };
 }

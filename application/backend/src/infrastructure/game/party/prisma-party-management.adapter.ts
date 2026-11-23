@@ -214,8 +214,8 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
         {
           scores: {
             some: {
-              userId: query.userId,
               deletedAt: null,
+              participant: { userId: query.userId },
             },
           },
         },
@@ -231,8 +231,8 @@ export class PrismaPartyManagementAdapter extends PartyManagementPort {
           include: {
             scores: {
               where: {
-                userId: query.userId,
                 deletedAt: null,
+                participant: { userId: query.userId },
               },
               select: {
                 id: true,

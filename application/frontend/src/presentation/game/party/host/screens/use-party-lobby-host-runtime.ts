@@ -32,7 +32,7 @@ interface UsePartyLobbyHostRuntimeResult {
 function toPlayerKey(player: PartyObservationPlayer): string {
   return player.identity.kind === PartyPlayerKind.USER
     ? `user:${player.identity.userId}`
-    : `guest:${player.identity.guestId}`;
+    : `guest:${player.identity.participantId}`;
 }
 
 function resolveHostRuntimeObservationKey(party: PartyObservation | undefined): string {

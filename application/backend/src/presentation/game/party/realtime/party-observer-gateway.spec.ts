@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
-import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { PartyPlayerSessionRegistry } from '../../../../domain/game/party/player/services/party-player-session-registry';
@@ -12,7 +11,6 @@ import { backendTestIdentifiers } from '../../../../test-utils/branded-identifie
 import { createPartyPlayerSessionRegistryMock } from '../../../../test-utils/mock-factories/party-player-session-registry.mock-factory';
 import { PartyObserverGateway } from './party-observer-gateway';
 
-const guestIdentifier = new GuestIdentifier();
 const partyActionIdentifier = new PartyActionIdentifier();
 const partyIdentifier = new PartyIdentifier();
 const partyPinIdentifier = new PartyPinIdentifier();
@@ -21,7 +19,6 @@ const PARTY_ID = backendTestIdentifiers.party(44);
 const GAME_ID = backendTestIdentifiers.game(17);
 const HOST_USER_ID = backendTestIdentifiers.user(7);
 const PLAYER_USER_ID = backendTestIdentifiers.user(11);
-const GUEST_ID = backendTestIdentifiers.guest('guest-7');
 const PARTY_PIN = partyPinIdentifier.parse('123456');
 const PARTY_ROOM = `party:${PARTY_ID}`;
 
@@ -69,7 +66,6 @@ function createHostControlGateway() {
       snapshotLoader as never,
       { execute: vi.fn() } as never,
       partyObservationBroadcaster as never,
-      guestIdentifier,
       partyActionIdentifier,
       partyIdentifier,
       partyPinIdentifier,
@@ -192,7 +188,6 @@ describe('PartyObserverGateway', () => {
       loadPartyObservationSnapshotUseCase as never,
       broadcastPartyObservationUseCase as never,
       partyObservationBroadcaster as never,
-      guestIdentifier,
       partyActionIdentifier,
       partyIdentifier,
       partyPinIdentifier,
@@ -238,7 +233,6 @@ describe('PartyObserverGateway', () => {
       loadPartyObservationSnapshotUseCase as never,
       broadcastPartyObservationUseCase as never,
       partyObservationBroadcaster as never,
-      guestIdentifier,
       partyActionIdentifier,
       partyIdentifier,
       partyPinIdentifier,
@@ -281,7 +275,6 @@ describe('PartyObserverGateway', () => {
         assertCanObserve: vi.fn(),
         emitSnapshot: vi.fn().mockResolvedValue(undefined),
       } as never,
-      guestIdentifier,
       partyActionIdentifier,
       partyIdentifier,
       partyPinIdentifier,
@@ -332,7 +325,6 @@ describe('PartyObserverGateway', () => {
       loadPartyObservationSnapshotUseCase as never,
       broadcastPartyObservationUseCase as never,
       partyObservationBroadcaster as never,
-      guestIdentifier,
       partyActionIdentifier,
       partyIdentifier,
       partyPinIdentifier,
@@ -395,7 +387,6 @@ describe('PartyObserverGateway', () => {
         assertCanObserve: vi.fn(),
         emitSnapshot: vi.fn().mockResolvedValue(undefined),
       } as never,
-      guestIdentifier,
       partyActionIdentifier,
       partyIdentifier,
       partyPinIdentifier,
@@ -447,7 +438,6 @@ describe('PartyObserverGateway', () => {
         assertCanObserve: vi.fn(),
         emitSnapshot: vi.fn().mockResolvedValue(undefined),
       } as never,
-      guestIdentifier,
       partyActionIdentifier,
       partyIdentifier,
       partyPinIdentifier,
@@ -500,7 +490,6 @@ describe('PartyObserverGateway', () => {
       loadPartyObservationSnapshotUseCase as never,
       broadcastPartyObservationUseCase as never,
       partyObservationBroadcaster as never,
-      guestIdentifier,
       partyActionIdentifier,
       partyIdentifier,
       partyPinIdentifier,
@@ -559,7 +548,6 @@ describe('PartyObserverGateway', () => {
       loadPartyObservationSnapshotUseCase as never,
       broadcastPartyObservationUseCase as never,
       partyObservationBroadcaster as never,
-      guestIdentifier,
       partyActionIdentifier,
       partyIdentifier,
       partyPinIdentifier,
@@ -607,7 +595,7 @@ describe('PartyObserverGateway', () => {
       data: {
         joinedPartyPlayer: {
           partyId: PARTY_ID,
-          identity: { kind: PartyPlayerKind.GUEST, guestId: GUEST_ID },
+          identity: { kind: PartyPlayerKind.USER, userId: PLAYER_USER_ID },
           pin: PARTY_PIN,
         },
       },
@@ -627,7 +615,7 @@ describe('PartyObserverGateway', () => {
         },
       } as never,
       {
-        guestId: backendTestIdentifiers.guest('guest-7'),
+        userId: PLAYER_USER_ID,
         partyId: backendTestIdentifiers.party(44),
       },
     );
@@ -637,8 +625,8 @@ describe('PartyObserverGateway', () => {
       hostUserId: backendTestIdentifiers.user(7),
       partyId: backendTestIdentifiers.party(44),
       playerIdentity: {
-        kind: PartyPlayerKind.GUEST,
-        guestId: backendTestIdentifiers.guest('guest-7'),
+        kind: PartyPlayerKind.USER,
+        userId: PLAYER_USER_ID,
       },
     });
     expect(removedPlayerSocket.data.joinedPartyPlayer).toBeUndefined();
@@ -667,7 +655,6 @@ describe('PartyObserverGateway', () => {
           assertCanObserve: vi.fn(),
           emitSnapshot: vi.fn().mockResolvedValue(undefined),
         } as never,
-        guestIdentifier,
         partyActionIdentifier,
         partyIdentifier,
         partyPinIdentifier,
@@ -729,7 +716,6 @@ describe('PartyObserverGateway', () => {
           assertCanObserve: vi.fn(),
           emitSnapshot: vi.fn().mockResolvedValue(undefined),
         } as never,
-        guestIdentifier,
         partyActionIdentifier,
         partyIdentifier,
         partyPinIdentifier,
@@ -797,7 +783,6 @@ describe('PartyObserverGateway', () => {
           assertCanObserve: vi.fn(),
           emitSnapshot: vi.fn().mockResolvedValue(undefined),
         } as never,
-        guestIdentifier,
         partyActionIdentifier,
         partyIdentifier,
         partyPinIdentifier,
@@ -1003,7 +988,6 @@ describe('PartyObserverGateway', () => {
       { execute: vi.fn() } as never,
       { execute: vi.fn() } as never,
       { attachServer: vi.fn(), assertCanObserve: vi.fn(), emitSnapshot: vi.fn() } as never,
-      guestIdentifier,
       partyActionIdentifier,
       partyIdentifier,
       partyPinIdentifier,
@@ -1062,7 +1046,6 @@ describe('PartyObserverGateway', () => {
       { execute: vi.fn() } as never,
       { execute: vi.fn() } as never,
       { attachServer: vi.fn(), assertCanObserve: vi.fn(), emitSnapshot: vi.fn() } as never,
-      guestIdentifier,
       partyActionIdentifier,
       partyIdentifier,
       partyPinIdentifier,

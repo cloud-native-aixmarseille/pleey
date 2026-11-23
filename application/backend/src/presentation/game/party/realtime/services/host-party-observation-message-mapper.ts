@@ -70,6 +70,6 @@ export class HostPartyObservationMessageMapper {
       return `user:${identity.userId}`;
     }
 
-    return `guest:${identity.guestId}`;
+    return `participant:${identity.participantId}`;
   }
 }

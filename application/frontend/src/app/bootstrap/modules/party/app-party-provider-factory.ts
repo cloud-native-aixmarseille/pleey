@@ -11,8 +11,6 @@ import type { PartyHostRuntimeControlsPort } from '../../../../domains/game/part
 import { PartyHostRuntimeControlsPortToken } from '../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import type { PartyManagementPort } from '../../../../domains/game/party/host/ports/party-management.port';
 import { PartyManagementPortToken } from '../../../../domains/game/party/host/ports/party-management.port';
-import type { PartyGuestSessionPort } from '../../../../domains/game/party/player/ports/party-guest-session.port';
-import { PartyGuestSessionPortToken } from '../../../../domains/game/party/player/ports/party-guest-session.port';
 import type { PartyPlayerPort } from '../../../../domains/game/party/player/ports/party-player.port';
 import { PartyPlayerPortToken } from '../../../../domains/game/party/player/ports/party-player.port';
 import type { PartyObservationPort } from '../../../../domains/game/party/shared/ports/party-observation.port';
@@ -58,8 +56,6 @@ export class AppPartyProviderFactory extends BaseAppProviderFactory {
     private readonly guestPartyEntryDraftFactory: GuestPartyEntryDraftFactory,
     @inject(PartyIdentifier)
     private readonly partyIdentifier: PartyIdentifier,
-    @inject(PartyGuestSessionPortToken)
-    private readonly partyGuestSessionPort: PartyGuestSessionPort,
     @inject(PartyHostRuntimeControlsPortToken)
     private readonly hostPartyRuntimeControlsResolver: PartyHostRuntimeControlsPort,
     @inject(PartyHostControlPortToken)
@@ -95,7 +91,6 @@ export class AppPartyProviderFactory extends BaseAppProviderFactory {
       partyIdentifier: this.partyIdentifier,
       partyLobbyFacade: this.partyLobbyFacade,
       partyLobbyRuntimeRedirectResolver: this.partyLobbyRuntimeRedirectResolver,
-      partyGuestSessionPort: this.partyGuestSessionPort,
       partyHostControlPort: this.partyHostControlPort,
       partyManagementPort: this.partyManagementPort,
       partyPlayerPort: this.partyPlayerPort,

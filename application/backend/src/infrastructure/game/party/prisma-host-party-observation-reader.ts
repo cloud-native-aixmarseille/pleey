@@ -82,22 +82,21 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
             context: true,
             points: true,
             createdAt: true,
-            user: {
+            participant: {
               select: {
                 id: true,
-                username: true,
-                avatar: {
+                displayName: true,
+                user: {
                   select: {
-                    updatedAt: true,
+                    id: true,
+                    username: true,
+                    avatar: {
+                      select: {
+                        updatedAt: true,
+                      },
+                    },
                   },
                 },
-              },
-            },
-            guest: {
-              select: {
-                id: true,
-                username: true,
-                createdAt: true,
               },
             },
           },
@@ -126,7 +125,7 @@ export class PrismaHostPartyObservationReader implements HostPartyObservationRea
     const normalizedScores = this.partyReadModelMapper.normalizePlayerScores(party.scores);
     const players = this.partyReadModelMapper.collectPlayers(normalizedScores, {
       excludedUserId,
-      resolveGuestJoinedAt: (score) => score.guest?.createdAt ?? score.createdAt,
+      resolveJoinedAt: (score) => score.createdAt,
     });
     const playerActionStates = this.partyReadModelMapper.collectPlayerActionStates(normalizedScores, {
       excludedUserId,

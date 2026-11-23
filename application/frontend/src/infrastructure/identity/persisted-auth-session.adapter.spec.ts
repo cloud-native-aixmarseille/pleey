@@ -3,6 +3,7 @@ import { UserIdentifier } from '../../application/identity/shared/services/ident
 import { StorageKey } from '../../domains/shared/value-objects/storage-key';
 import { AuthFixtureFactory } from '../../test-utils/fixtures/auth-fixture-factory';
 import { StoragePortMockFactory } from '../../test-utils/mocks/storage-port-mock-factory';
+import { AuthSessionActor } from './auth-session.actor';
 import { PersistedAuthSessionAdapter } from './persisted-auth-session.adapter';
 
 const { anonymousSignInMock, getSessionMock } = vi.hoisted(() => ({
@@ -30,7 +31,7 @@ describe('PersistedAuthSessionAdapter', () => {
       [StorageKey.THEME_DRAFTS]: 'drafts',
       'party.guest-session.v1': '{}',
     });
-    const service = new PersistedAuthSessionAdapter(storage, userIdentifier);
+    const service = new PersistedAuthSessionAdapter(storage, userIdentifier, new AuthSessionActor());
 
     // Act
     service.clear();
@@ -46,7 +47,7 @@ describe('PersistedAuthSessionAdapter', () => {
   it('does not persist or suspend application-held session secrets', () => {
     // Arrange
     const storage = storagePortMockFactory.create();
-    const service = new PersistedAuthSessionAdapter(storage, userIdentifier);
+    const service = new PersistedAuthSessionAdapter(storage, userIdentifier, new AuthSessionActor());
 
     // Act
     service.commit(new AuthFixtureFactory().createAuthSession());
@@ -73,7 +74,11 @@ describe('PersistedAuthSessionAdapter', () => {
       },
       error: null,
     });
-    const service = new PersistedAuthSessionAdapter(storagePortMockFactory.create(), userIdentifier);
+    const service = new PersistedAuthSessionAdapter(
+      storagePortMockFactory.create(),
+      userIdentifier,
+      new AuthSessionActor(),
+    );
 
     // Act
     const restored = await service.restore();
@@ -91,25 +96,118 @@ describe('PersistedAuthSessionAdapter', () => {
     expect(restored?.expiresIn).toBeGreaterThan(0);
   });
 
+  it('creates an anonymous session only after explicit play intent and under a Web Lock', async () => {
+    // Arrange
+    const expiresAt = new Date(Date.now() + 60_000);
+    getSessionMock.mockResolvedValueOnce({ data: null, error: null }).mockResolvedValueOnce({
+      data: {
+        session: { id: 'session-anonymous', expiresAt },
+        user: {
+          email: 'anonymous@invalid.local',
+          id: '00000000-0000-7000-8000-000000000005',
+          isAnonymous: true,
+          name: 'anonymous',
+        },
+      },
+      error: null,
+    });
+    anonymousSignInMock.mockResolvedValueOnce({ data: {}, error: null });
+    const request = vi.fn(async (_name, callback) => callback());
+    vi.stubGlobal('navigator', { locks: { request } });
+    const service = new PersistedAuthSessionAdapter(
+      storagePortMockFactory.create(),
+      userIdentifier,
+      new AuthSessionActor(),
+    );
+
+    // Act
+    const created = await service.ensureAnonymous();
+
+    // Assert
+    expect(request).toHaveBeenCalledWith('pleey-auth-session-initialization', expect.any(Function));
+    expect(anonymousSignInMock).toHaveBeenCalledOnce();
+    expect(created.isAnonymous).toBe(true);
+    vi.unstubAllGlobals();
+  });
+
+  it('serializes two tab intents and creates only one anonymous identity', async () => {
+    // Arrange
+    const expiresAt = new Date(Date.now() + 60_000);
+    const nativeSession = {
+      data: {
+        session: { id: 'session-shared', expiresAt },
+        user: {
+          email: 'shared@invalid.local',
+          id: '00000000-0000-7000-8000-000000000006',
+          isAnonymous: true,
+          name: 'shared',
+        },
+      },
+      error: null,
+    };
+    getSessionMock
+      .mockResolvedValueOnce({ data: null, error: null })
+      .mockResolvedValueOnce(nativeSession)
+      .mockResolvedValueOnce(nativeSession);
+    anonymousSignInMock.mockResolvedValueOnce({ data: {}, error: null });
+    let lockTail = Promise.resolve();
+    const request = vi.fn(async (_name, callback) => {
+      const current = lockTail.then(callback);
+      lockTail = current.then(
+        () => undefined,
+        () => undefined,
+      );
+      return current;
+    });
+    vi.stubGlobal('navigator', { locks: { request } });
+    const firstTab = new PersistedAuthSessionAdapter(
+      storagePortMockFactory.create(),
+      userIdentifier,
+      new AuthSessionActor(),
+    );
+    const secondTab = new PersistedAuthSessionAdapter(
+      storagePortMockFactory.create(),
+      userIdentifier,
+      new AuthSessionActor(),
+    );
+
+    // Act
+    const [first, second] = await Promise.all([firstTab.ensureAnonymous(), secondTab.ensureAnonymous()]);
+
+    // Assert
+    expect(first.id).toBe('session-shared');
+    expect(second.id).toBe('session-shared');
+    expect(anonymousSignInMock).toHaveBeenCalledOnce();
+    vi.unstubAllGlobals();
+  });
+
   it.each([
     { error: new Error('unavailable'), data: null },
     { error: null, data: null },
-  ])('returns no application session for an unconfirmed cookie response', async (response) => {
+  ])('does not create an anonymous replacement for an unconfirmed cookie response', async (response) => {
     // Arrange
     getSessionMock.mockResolvedValueOnce(response);
-    anonymousSignInMock.mockResolvedValueOnce({ data: null, error: new Error('anonymous unavailable') });
-    const service = new PersistedAuthSessionAdapter(storagePortMockFactory.create(), userIdentifier);
+    const service = new PersistedAuthSessionAdapter(
+      storagePortMockFactory.create(),
+      userIdentifier,
+      new AuthSessionActor(),
+    );
 
     // Act
-    const restored = await service.restore();
+    const restored = response.error === null ? await service.restore() : await service.restore().catch(() => null);
 
     // Assert
     expect(restored).toBeNull();
+    expect(anonymousSignInMock).not.toHaveBeenCalled();
   });
 
   it('revalidates cookie authority when the browser regains focus', () => {
     // Arrange
-    const service = new PersistedAuthSessionAdapter(storagePortMockFactory.create(), userIdentifier);
+    const service = new PersistedAuthSessionAdapter(
+      storagePortMockFactory.create(),
+      userIdentifier,
+      new AuthSessionActor(),
+    );
     const listener = vi.fn();
     const unwatch = service.watch(listener);
 

@@ -104,8 +104,8 @@ export class PlayerPartyObservationMessageMapper {
       return left.userId === right.userId;
     }
 
-    if (left.kind === PartyPlayerKind.GUEST && right.kind === PartyPlayerKind.GUEST) {
-      return left.guestId === right.guestId;
+    if (left.kind === PartyPlayerKind.PARTICIPANT && right.kind === PartyPlayerKind.PARTICIPANT) {
+      return left.participantId === right.participantId;
     }
 
     return false;

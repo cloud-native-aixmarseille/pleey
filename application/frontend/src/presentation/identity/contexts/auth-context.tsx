@@ -18,6 +18,7 @@ interface RegisterFormState {
 export interface AuthContextValue {
   readonly user: User | null;
   readonly hasRestoredSession: boolean;
+  ensureAnonymousSession(): Promise<User>;
   requestPasswordReset(email: string, locale: string, captchaToken: string): Promise<void>;
   resetPassword(token: string, password: string): Promise<void>;
   signIn(input: SignInFormState): Promise<void>;

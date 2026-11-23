@@ -31,31 +31,26 @@ describe('PartyObservationAccessService', () => {
     expect(service.canObserve(observation, {})).toBe(false);
   });
 
-  it('rejects forged, replaced, cross-party, and removed guest sessions', () => {
+  it('rejects detached participant identities as live socket authority', () => {
     // Arrange
     const sessions = new PartyPlayerSessionRegistry();
     const service = new PartyObservationAccessService(sessions, new PartyObservationPolicy());
-    const identity = { kind: PartyPlayerKind.GUEST, guestId: backendTestIdentifiers.guest('guest-1') } as const;
+    const identity = {
+      kind: PartyPlayerKind.PARTICIPANT,
+      participantId: backendTestIdentifiers.participant('guest-1'),
+    } as const;
     const observation = fixtures.createHost({
       players: [{ identity, username: 'Guest', avatarUri: null, totalScore: 0, joinedAt: new Date(0) }],
     });
     const participant = { partyId: observation.partyId, identity, sessionId: 'verified-socket' };
     sessions.registerSession(observation.partyId, identity, participant.sessionId);
     // Act + Assert
-    expect(service.canObserve(observation, { participant })).toBe(true);
-    expect(service.canObserve(observation, { participant: { ...participant, sessionId: 'forged' } })).toBe(false);
+    expect(service.canObserve(observation, { participant })).toBe(false);
+    expect(service.verifiedPlayerIdentity(observation, { participant })).toBeNull();
     expect(
       service.canObserve(observation, { participant: { ...participant, partyId: backendTestIdentifiers.party(2) } }),
     ).toBe(false);
-    sessions.registerSession(observation.partyId, identity, 'replacement');
-    expect(service.canObserve(observation, { participant })).toBe(false);
-    expect(service.verifiedPlayerIdentity({ ...observation, isPrivate: false }, { participant })).toBeNull();
-    expect(
-      service.canObserve(
-        { ...observation, players: [] },
-        { participant: { ...participant, sessionId: 'replacement' } },
-      ),
-    ).toBe(false);
+    expect(service.canObserve({ ...observation, isPrivate: false }, { participant })).toBe(true);
   });
 
   it('keeps public observation available without membership', () => {

@@ -37,6 +37,10 @@ const completeReads = new Map([
     "Reconciles duplicate identities and computes complete party standings.",
   ],
   ["IdentityTransferService.transfer", "Transfers the complete source participant aggregate in one identity transaction."],
+  [
+    "AnonymousRetirementWorker.expireTransfers",
+    "Claims at most 100 expired transfer workflows for bounded identity-maintenance terminalization.",
+  ],
 ]);
 
 export function checkBackendPagination(projectRoot, exceptions = completeReads) {

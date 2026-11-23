@@ -16,6 +16,7 @@ export class AuthContextMockFactory {
     return {
       user: resolvedUser,
       hasRestoredSession: true,
+      ensureAnonymousSession: vi.fn(),
       requestPasswordReset: vi.fn().mockResolvedValue(undefined),
       resetPassword: vi.fn().mockResolvedValue(undefined),
       signIn: vi.fn().mockResolvedValue(undefined),

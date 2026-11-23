@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { HostPartyRuntimeCommand } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import type { PartyObservation } from '../../../../../domains/game/party/shared/entities/party-observation';
 import type { PartyRuntimeNoticeKind } from '../../../../../domains/game/party/shared/ports/party-observation.port';
+import { usePresentationNavigate } from '../../../../shared/routing/router';
 import { usePartyLobbyHostRuntime } from '../../host/screens/use-party-lobby-host-runtime';
 import { usePartyLobbyJoinSession } from '../../player/screens/use-party-lobby-join-session';
 import { usePartyLobbyPlayerSession } from '../../player/screens/use-party-lobby-player-session';
@@ -101,6 +102,7 @@ export function usePartyLobbyScreenState({
 }: PartyLobbyScreenProps): PartyLobbyScreenState {
   const { partyIdentifier, partyLobbyFacade, partyLobbyRuntimeRedirectResolver, partyPinIdentifier, stageIdentifier } =
     usePartyDependencies();
+  const navigate = usePresentationNavigate();
   const [joinErrorMessage, setJoinErrorMessage] = useState<string | null>(null);
   const [isJoinSubmitting, setIsJoinSubmitting] = useState(false);
   const [, setIsLeaveSubmitting] = useState(false);
@@ -110,7 +112,7 @@ export function usePartyLobbyScreenState({
   const {
     consumeRuntimeNotice,
     connectionState,
-    currentGuestId,
+    currentParticipantId,
     currentPartyPin,
     currentPlayer,
     isAuthenticated,
@@ -140,7 +142,7 @@ export function usePartyLobbyScreenState({
   const hasObservedCurrentPlayerRef = useRef(currentPlayer !== null);
   const { shouldPreserveJoinedPartyId } = usePartySessionRecovery({
     connectionState,
-    currentGuestId,
+    currentParticipantId,
     currentPartyPin,
     currentPlayer,
     hasObservedCurrentPlayer: hasObservedCurrentPlayerRef.current,
@@ -163,19 +165,22 @@ export function usePartyLobbyScreenState({
     setGuestName,
     setPartyPassword,
   } = usePartyLobbyJoinSession({
-    currentGuestId,
+    currentParticipantId,
     currentPlayer,
     normalizedPin,
-    onPartyJoined: setJoinedPartyId,
+    onPartyJoined: (partyId) => {
+      setJoinedPartyId(partyId);
+      navigate(resolvePartyLobbyRoute(partyId));
+    },
     partyLobbyFacade,
     partyObservation: party,
-    persistedGuestJoinGuestId: viewModel.persistedGuestJoinGuestId,
+    persistedGuestJoinParticipantId: viewModel.persistedGuestJoinParticipantId,
     setIsJoinSubmitting,
     setJoinErrorMessage,
     user,
   });
   const { leaveParty, pendingPlayerActionId, playerActionErrorMessage, submitAction } = usePartyLobbyPlayerSession({
-    currentGuestId,
+    currentParticipantId,
     onPartyLeft: () => setLeaveRedirectTo(resolveHomeRoute()),
     party,
     partyLobbyFacade,

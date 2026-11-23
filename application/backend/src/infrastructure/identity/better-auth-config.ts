@@ -4,6 +4,7 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { anonymous } from 'better-auth/plugins';
 import { I18nService } from 'nestjs-i18n';
 import type { PrismaService } from '../database/prisma-service';
+import { AnonymousIdentityLifecycleGuard } from './anonymous-identity-lifecycle.guard';
 import { IdentityTransferService } from './identity-transfer.service';
 
 export interface BetterAuthRuntimeConfig {
@@ -18,6 +19,7 @@ export function createBetterAuth(
   prisma: PrismaService,
   config: BetterAuthRuntimeConfig,
   identityTransfers: IdentityTransferService,
+  anonymousLifecycle: AnonymousIdentityLifecycleGuard,
   i18n: I18nService,
 ) {
   return betterAuth({
@@ -37,6 +39,17 @@ export function createBetterAuth(
           required: true,
           type: 'string',
           unique: true,
+        },
+      },
+      session: {
+        create: {
+          before: async (session: { readonly userId: string }) =>
+            anonymousLifecycle.assertSessionWriteAllowed(session.userId),
+        },
+        update: {
+          before: async (session: { readonly userId?: unknown }) => {
+            if (session.userId) await anonymousLifecycle.assertSessionWriteAllowed(String(session.userId));
+          },
         },
       },
     },

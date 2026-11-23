@@ -129,8 +129,8 @@ export class SocketPartyObservationBroadcaster implements PartyObservationBroadc
     switch (identity.kind) {
       case PartyPlayerKind.USER:
         return `user:${identity.userId}`;
-      case PartyPlayerKind.GUEST:
-        return `guest:${identity.guestId}`;
+      case PartyPlayerKind.PARTICIPANT:
+        return `participant:${identity.participantId}`;
     }
   }
 

@@ -438,11 +438,22 @@ async function main() {
 
   const firstQuestion = questions[0];
   if (firstQuestion) {
+    const playerParticipant =
+      (await prisma.partyParticipant.findFirst({ where: { partyId: party.id, userId: player.id } })) ??
+      (await prisma.partyParticipant.create({
+        data: {
+          displayName: player.username,
+          partyId: party.id,
+          roles: ['PLAYER'],
+          status: 'ACTIVE',
+          userId: player.id,
+        },
+      }));
     await prisma.score.createMany({
       data: [
         {
+          participantId: playerParticipant.id,
           partyId: party.id,
-          userId: player.id,
           createdAt: fixedSeedTime,
           context: {
             questionId: firstQuestion.id,

@@ -1,4 +1,4 @@
-import type { GuestId } from '@pleey/contracts/identity';
+import type { ParticipantId } from '@pleey/contracts/identity';
 import { PartyPlayerKind } from '@pleey/contracts/party';
 import { useState } from 'react';
 import type { PartyObservationPlayer } from '../../../domains/game/party/shared/entities/party-observation-player';
@@ -26,8 +26,8 @@ export function ThemePreviewScenes({
   // Inert sample identities only; these players never reach a game command or transport.
   const players: PartyObservationPlayer[] = [2450, 2180, 1920].map((score, index) => ({
     identity: {
-      kind: PartyPlayerKind.GUEST,
-      guestId: `01900000-0000-7000-8000-00000000000${index + 1}` as GuestId,
+      kind: PartyPlayerKind.PARTICIPANT,
+      participantId: `01900000-0000-7000-8000-00000000000${index + 1}` as ParticipantId,
     },
     username: t(`theme.studio.preview.players.${index}`),
     avatarUri: null,

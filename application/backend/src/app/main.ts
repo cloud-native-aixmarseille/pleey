@@ -3,6 +3,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { CaptchaAction } from '@pleey/contracts/identity';
 import { json } from 'express';
 import { initializeOpenTelemetry, OtelLoggerService } from '../infrastructure/telemetry';
+import { createAnonymousAdmissionMiddleware } from './config/anonymous-admission.middleware';
 import { APP_SERVER_CONFIG, type AppServerConfig } from './config/app-server-config.token';
 import { createBetterAuthCaptchaMiddleware } from './config/better-auth-captcha.middleware';
 import { ConfiguredIoAdapter } from './config/configured-io-adapter';
@@ -46,9 +47,11 @@ async function bootstrap() {
   const socketCorsOptions = app.get(GAME_SOCKET_CORS_OPTIONS);
   const { BETTER_AUTH } = await import('../infrastructure/identity/better-auth.token.js');
   const { CapCaptchaAdapter } = await import('../infrastructure/identity/captcha/cap-captcha-adapter.js');
+  const { ValkeyCaptchaStore } = await import('../infrastructure/identity/captcha/valkey-captcha-store.js');
   const { toNodeHandler } = await import('better-auth/node');
   const betterAuth = app.get(BETTER_AUTH);
   const captcha = app.get(CapCaptchaAdapter);
+  const admissionStore = app.get(ValkeyCaptchaStore);
   app.set('trust proxy', serverConfig.trustedProxyCidrs);
   app.use(json());
   app.use('/api/auth/sign-up/email', createBetterAuthCaptchaMiddleware(captcha, CaptchaAction.SIGNUP));
@@ -56,6 +59,7 @@ async function bootstrap() {
     '/api/auth/request-password-reset',
     createBetterAuthCaptchaMiddleware(captcha, CaptchaAction.PASSWORD_RECOVERY),
   );
+  app.use('/api/auth/sign-in/anonymous', createAnonymousAdmissionMiddleware(admissionStore));
   app.use('/api/auth', toNodeHandler(betterAuth));
 
   app.enableCors();

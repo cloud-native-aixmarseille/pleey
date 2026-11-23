@@ -32,11 +32,6 @@ export class PartyHostPlayerMessageDto extends PartyObservationMessageDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  guestId?: string;
-
-  @IsOptional()
-  @IsString()
-  @IsNotEmpty()
   userId?: string;
 }
 

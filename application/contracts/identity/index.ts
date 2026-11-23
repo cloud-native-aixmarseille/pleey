@@ -1,4 +1,4 @@
-export type GuestId = string & { readonly __identifierBrand: "GuestId" };
+export type ParticipantId = string & { readonly __identifierBrand: "ParticipantId" };
 export type UserId = string & { readonly __identifierBrand: "UserId" };
 
 export interface PublicUserProfile {

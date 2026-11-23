@@ -1,4 +1,4 @@
-import type { GuestId } from '@pleey/contracts/identity';
+import type { ParticipantId } from '@pleey/contracts/identity';
 import type { PartyActionId } from '@pleey/contracts/party';
 import { PartyStatus } from '@pleey/contracts/party';
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
@@ -8,7 +8,7 @@ import { PartyManagementErrorCode } from '../../../../../domains/game/party/shar
 import { usePresentationFeedbackChannel } from '../../../../shared/ui/feedback/use-presentation-feedback-channel';
 
 interface UsePartyLobbyPlayerSessionParams {
-  readonly currentGuestId: GuestId | null;
+  readonly currentParticipantId: ParticipantId | null;
   readonly onPartyLeft: () => void;
   readonly party: PartyObservation | undefined;
   readonly partyLobbyFacade: PartyLobbyGateway;
@@ -24,7 +24,7 @@ interface UsePartyLobbyPlayerSessionResult {
 }
 
 export function usePartyLobbyPlayerSession({
-  currentGuestId,
+  currentParticipantId,
   onPartyLeft,
   party,
   partyLobbyFacade,
@@ -53,8 +53,7 @@ export function usePartyLobbyPlayerSession({
       return;
     }
 
-    if (currentGuestId !== null && currentPartyPin !== null) {
-      partyLobbyFacade.clearGuestId(currentPartyPin);
+    if (currentParticipantId !== null && currentPartyPin !== null) {
     }
 
     setJoinErrorMessage(null);
@@ -122,14 +121,13 @@ export function usePartyLobbyPlayerSession({
     if (
       previousCurrentPlayer !== null &&
       currentPlayer === null &&
-      currentGuestId !== null &&
+      currentParticipantId !== null &&
       currentPartyPin !== null
     ) {
-      partyLobbyFacade.clearGuestId(currentPartyPin);
     }
 
     previousCurrentPlayerRef.current = currentPlayer;
-  }, [currentGuestId, currentPartyPin, currentPlayer, partyLobbyFacade]);
+  }, [currentParticipantId, currentPartyPin, currentPlayer, partyLobbyFacade]);
 
   return {
     leaveParty,

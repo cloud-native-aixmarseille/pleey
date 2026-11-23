@@ -1,6 +1,6 @@
 # ADR 0028: Replace custom identity with Better Auth cookie sessions
 
-- Status: Accepted
+- Status: Superseded by [ADR 0029](./0029-bound-anonymous-identity-lifetime.md)
 - Proposed date: 2026-11-22
 - Accepted date: 2026-11-22
 
@@ -32,7 +32,7 @@ Use Better Auth 1.7.27 with the Prisma 7 adapter and native anonymous, email/pas
 
 Better Auth owns `User`, `Session`, `Account` and `Verification`. Pleey keeps stable application IDs and introduces `PartyParticipant`, `UserParticipationClaim`, `IdentityTransfer` and controller generations. GraphQL, media and Socket.IO resolve identity only from the validated Better Auth session.
 
-The server identity adapter is the sole transport-independent session boundary. Legacy JWT, refresh-token, guest credentials and reset-token verifiers are removed in the migration release.
+The server identity adapter is the sole transport-independent session boundary. Legacy JWT, refresh-token, guest credentials and reset-token verifiers are removed in the migration release. ADR 0029 defines the bounded lifetime of temporary anonymous identities.
 
 ## Consequences
 

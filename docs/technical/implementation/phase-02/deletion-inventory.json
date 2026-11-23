@@ -4,6 +4,8 @@
     "JWT bearer parsing in GraphQL and Socket.IO",
     "frontend access/refresh token persistence",
     "party guest credential persistence",
+    "global Guest Prisma model, repository, entity and avatar endpoint",
+    "browser participant-ID recovery storage and automatic detached-participant reclaim",
     "legacy guest handshake fields",
     "legacy refresh and reset-token token services",
     "Passport and Nest JWT dependencies",
@@ -14,6 +16,9 @@
   "database": [
     "user_authentications table",
     "user_sessions table",
-    "legacy reset-token columns"
+    "legacy reset-token columns",
+    "guests table",
+    "score guest_id and score user_id authority columns",
+    "identity-transfer auth-user foreign-key pins"
   ]
 }

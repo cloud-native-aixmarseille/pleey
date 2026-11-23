@@ -78,7 +78,7 @@ describe('PartyStandingsList', () => {
       username: 'Remaining',
     });
     const newcomer = players.createObservationPlayer({
-      identity: { kind: PartyPlayerKind.GUEST, guestId: 'new' },
+      identity: { kind: PartyPlayerKind.PARTICIPANT, participantId: 'new' },
       totalScore: 800,
       username: 'Newcomer',
     });

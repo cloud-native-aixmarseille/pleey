@@ -1,4 +1,5 @@
 import { inject, injectable } from 'inversify';
+import { v4 as uuidv4 } from 'uuid';
 import {
   type GuestUsernameGeneratorPort,
   GuestUsernameGeneratorPortToken,
@@ -24,7 +25,7 @@ export class GuestPartyEntryDraftFactory {
   }
 
   createAvatarSeed(): string {
-    return crypto.randomUUID();
+    return uuidv4();
   }
 
   createGuestName(): string {

@@ -47,16 +47,14 @@ export class PartyObservationAccessService {
     )
       return null;
     return (
-      observation.players.find(({ identity }) => {
-        if (identity.kind === PartyPlayerKind.USER)
-          return (
-            actor.userId !== undefined &&
-            identity.userId === actor.userId &&
-            participant.identity.kind === PartyPlayerKind.USER &&
-            participant.identity.userId === identity.userId
-          );
-        return participant.identity.kind === PartyPlayerKind.GUEST && participant.identity.guestId === identity.guestId;
-      })?.identity ?? null
+      observation.players.find(
+        ({ identity }) =>
+          identity.kind === PartyPlayerKind.USER &&
+          actor.userId !== undefined &&
+          identity.userId === actor.userId &&
+          participant.identity.kind === PartyPlayerKind.USER &&
+          participant.identity.userId === identity.userId,
+      )?.identity ?? null
     );
   }
 

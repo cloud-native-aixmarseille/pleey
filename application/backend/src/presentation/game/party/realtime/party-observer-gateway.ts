@@ -33,7 +33,6 @@ import { PartyIdentifier } from '../../../../application/game/party/shared/servi
 import { PartyPinIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { BroadcastPartyObservationUseCase } from '../../../../application/game/party/shared/use-cases/broadcast-party-observation-use-case';
 import { LoadPartyObservationSnapshotUseCase } from '../../../../application/game/party/shared/use-cases/load-party-observation-snapshot-use-case';
-import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import {
@@ -109,7 +108,6 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
     private readonly loadPartyObservationSnapshotUseCase: LoadPartyObservationSnapshotUseCase,
     private readonly broadcastPartyObservationUseCase: BroadcastPartyObservationUseCase,
     private readonly partyObservationBroadcaster: SocketPartyObservationBroadcaster,
-    private readonly guestIdentifier: GuestIdentifier,
     private readonly partyActionIdentifier: PartyActionIdentifier,
     private readonly partyIdentifier: PartyIdentifier,
     private readonly partyPinIdentifier: PartyPinIdentifier,
@@ -137,12 +135,19 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
   }
 
   async handleConnection(client: Socket): Promise<void> {
+    await this.refreshClientAuthentication(client);
+  }
+
+  private async refreshClientAuthentication(client: Socket): Promise<void> {
     if (!this.betterAuthSessions) return;
+    const socketData = client.data as PartyObserverSocketData;
+    delete socketData.authenticatedUserId;
+    delete socketData.authenticatedSessionId;
+    delete socketData.authenticatedSessionExpiresAt;
     const identity = await this.betterAuthSessions.getSession({
       headers: client.handshake.headers,
     } as never);
     if (identity.kind !== 'valid') return;
-    const socketData = client.data as PartyObserverSocketData;
     const userId = this.userIdentifier.parseOrNull(identity.userId);
     if (userId !== null) socketData.authenticatedUserId = userId;
     socketData.authenticatedSessionId = identity.sessionId;
@@ -175,6 +180,7 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
     @MessageBody() payload: PartyObservationMessageDto | undefined,
   ): Promise<void> {
     try {
+      await this.refreshClientAuthentication(client);
       const snapshot = await this.loadPartyObservationSnapshotUseCase.execute({
         partyId: this.normalizePartyId(payload?.partyId),
       });
@@ -204,6 +210,7 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
     @MessageBody() payload: RequestPartyMediaMessageDto | undefined,
   ) {
     try {
+      await this.refreshClientAuthentication(client);
       const partyId = this.normalizePartyId(payload?.partyId);
       const assetId = payload?.assetId?.trim();
       if (!assetId) {
@@ -231,6 +238,7 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
     @MessageBody() payload: SubmitPartyActionMessageDto | undefined,
   ): Promise<void> {
     try {
+      await this.refreshClientAuthentication(client);
       await this.submitPartyActionUseCase.execute(this.toSubmitPartyActionDto(client, payload));
     } catch (error) {
       throw this.toWsException(error);
@@ -306,6 +314,7 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: PartyObservationMessageDto | undefined,
   ): Promise<void> {
+    await this.refreshClientAuthentication(client);
     const partyId = this.normalizePartyId(payload?.partyId);
     const hostUserId = this.resolveAuthenticatedHostUserId(client);
 
@@ -326,6 +335,7 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: PartyHostPlayerMessageDto | undefined,
   ): Promise<void> {
+    await this.refreshClientAuthentication(client);
     const partyId = this.normalizePartyId(payload?.partyId);
     const playerIdentity = this.toTargetPlayerIdentity(payload);
 
@@ -347,6 +357,7 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
 
   @SubscribeMessage(PARTY_SOCKET_INBOUND_EVENTS.LEAVE_PARTY)
   async leaveParty(@ConnectedSocket() client: Socket): Promise<{ readonly left: boolean }> {
+    await this.refreshClientAuthentication(client);
     const socketData = client.data as PartyObserverSocketData;
     const partyObservationId =
       socketData.partyObservationRoom === undefined
@@ -408,6 +419,7 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
     payload: PartyEntryMessageDto | undefined,
   ): Promise<PartyJoinAcknowledgement> {
     try {
+      await this.refreshClientAuthentication(client);
       const result = await this.joinPartyUseCase.execute(this.toJoinPartyDto(client, payload));
 
       this.clearPendingLobbyPlayerAbsencePrune(result.partyId, result.player.identity);
@@ -447,6 +459,7 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
     useCase: PartyHostControlUseCase,
     runtimeNoticeKind?: PartyRuntimeNoticeKind,
   ): Promise<void> {
+    await this.refreshClientAuthentication(client);
     const partyId = this.normalizePartyId(payload?.partyId);
     const hostUserId = this.resolveAuthenticatedHostUserId(client);
 
@@ -720,8 +733,8 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
     switch (playerIdentity.kind) {
       case PartyPlayerKind.USER:
         return `user:${playerIdentity.userId}`;
-      case PartyPlayerKind.GUEST:
-        return `guest:${playerIdentity.guestId}`;
+      case PartyPlayerKind.PARTICIPANT:
+        return `participant:${playerIdentity.participantId}`;
     }
   }
 
@@ -734,8 +747,8 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
       return left.userId === right.userId;
     }
 
-    if (left.kind === PartyPlayerKind.GUEST && right.kind === PartyPlayerKind.GUEST) {
-      return left.guestId === right.guestId;
+    if (left.kind === PartyPlayerKind.PARTICIPANT && right.kind === PartyPlayerKind.PARTICIPANT) {
+      return left.participantId === right.participantId;
     }
 
     return false;
@@ -767,35 +780,19 @@ export class PartyObserverGateway implements OnGatewayConnection, OnGatewayDisco
     return normalizedPartyId;
   }
 
-  private toTargetPlayerIdentity(payload: PartyHostPlayerMessageDto | undefined): PartyPlayerIdentity {
-    const guestId = this.guestIdentifier.parseOrNull(payload?.guestId);
+  private toTargetPlayerIdentity(payload: PartyHostPlayerMessageDto | undefined): AuthenticatedPartyPlayerIdentity {
     const userId = this.userIdentifier.parseOrNull(payload?.userId);
 
-    if ((guestId === null && userId === null) || (guestId !== null && userId !== null)) {
+    if (userId === null) {
       throw new GameValidationFailedError({
-        guestId: payload?.guestId ?? null,
-        reason: 'ambiguousPlayerIdentity',
         userId: payload?.userId ?? null,
-      });
-    }
-
-    if (userId !== null) {
-      return {
-        kind: PartyPlayerKind.USER,
-        userId,
-      };
-    }
-
-    if (guestId === null) {
-      throw new GameValidationFailedError({
-        guestId: payload?.guestId ?? null,
-        reason: 'missingGuestIdentityAfterValidation',
+        reason: 'missingPlayerIdentity',
       });
     }
 
     return {
-      kind: PartyPlayerKind.GUEST,
-      guestId,
+      kind: PartyPlayerKind.USER,
+      userId,
     };
   }
 

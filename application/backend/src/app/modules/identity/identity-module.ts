@@ -1,22 +1,23 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { I18nService } from 'nestjs-i18n';
 import { PartyIdentifier } from '../../../application/game/party/shared/services/identifiers/party-identifier';
+import { PartyParticipantIdentifier } from '../../../application/game/party/shared/services/identifiers/party-participant-identifier';
 import { GetGuestAvatarPreviewUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-preview-use-case';
-import { GetGuestAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-guest-avatar-use-case';
 import { GetUserAvatarUseCase } from '../../../application/identity/avatar/use-cases/get-user-avatar-use-case';
 import { RegenerateUserAvatarUseCase } from '../../../application/identity/avatar/use-cases/regenerate-user-avatar-use-case';
 import { CaptchaPortProvider } from '../../../application/identity/captcha/ports/captcha.port';
 import { GetCurrentUserUseCase } from '../../../application/identity/profile/use-cases/get-current-user-use-case';
 import { GetUserGameHistoryUseCase } from '../../../application/identity/profile/use-cases/get-user-game-history-use-case';
 import { UpdateUserProfileUseCase } from '../../../application/identity/profile/use-cases/update-user-profile-use-case';
-import { GuestIdentifier } from '../../../application/identity/shared/services/identifiers/guest-identifier';
+import { AnonymousParticipantRetirementPort } from '../../../application/identity/retirement/ports/anonymous-participant-retirement.port';
+import { ExpireAnonymousParticipantUseCase } from '../../../application/identity/retirement/use-cases/expire-anonymous-participant-use-case';
 import { UserIdentifier } from '../../../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../../../application/workspace/shared/services/identifiers/organization-member-identifier';
 import { ProjectIdentifier } from '../../../application/workspace/shared/services/identifiers/project-identifier';
 import { ThemeIdentifier } from '../../../application/workspace/themes/services/theme-identifier';
 import { AvatarGeneratorAdapterProvider } from '../../../domain/identity/ports/avatar-generator.adapter';
-import { GuestRepositoryProvider } from '../../../domain/identity/ports/guest.repository';
 import { UserRepositoryProvider } from '../../../domain/identity/ports/user.repository';
 import { UserGameHistoryPortProvider } from '../../../domain/identity/ports/user-game-history.port';
 import { PasswordService } from '../../../domain/identity/services/password-service';
@@ -27,6 +28,8 @@ import { DefaultWorkspaceService } from '../../../domain/organization/services/d
 import { ProjectRepositoryProvider } from '../../../domain/project/ports/project.repository';
 import { PrismaService } from '../../../infrastructure/database/prisma-service';
 import { PrismaPartySettingsMapper } from '../../../infrastructure/game/shared/prisma-party-settings.mapper';
+import { AnonymousIdentityLifecycleGuard } from '../../../infrastructure/identity/anonymous-identity-lifecycle.guard';
+import { AnonymousRetirementWorker } from '../../../infrastructure/identity/anonymous-retirement-worker';
 import { BETTER_AUTH } from '../../../infrastructure/identity/better-auth.token';
 import { type BetterAuthRuntimeConfig, createBetterAuth } from '../../../infrastructure/identity/better-auth-config';
 import { BETTER_AUTH_CONFIG } from '../../../infrastructure/identity/better-auth-config.token';
@@ -34,7 +37,7 @@ import { BetterAuthSessionAdapter } from '../../../infrastructure/identity/bette
 import { CapCaptchaAdapter } from '../../../infrastructure/identity/captcha/cap-captcha-adapter';
 import { ValkeyCaptchaStore } from '../../../infrastructure/identity/captcha/valkey-captcha-store';
 import { IdentityTransferService } from '../../../infrastructure/identity/identity-transfer.service';
-import { PrismaGuestRepository } from '../../../infrastructure/identity/repositories/prisma-guest-repository';
+import { PrismaAnonymousParticipantRetirementAdapter } from '../../../infrastructure/identity/prisma-anonymous-participant-retirement.adapter';
 import { PrismaUserGameHistoryAdapter } from '../../../infrastructure/identity/repositories/prisma-user-game-history-adapter';
 import { PrismaUserRepository } from '../../../infrastructure/identity/repositories/prisma-user-repository';
 import { DicebearAvatarGeneratorAdapter } from '../../../infrastructure/identity/services/dicebear-avatar-generator-adapter';
@@ -51,21 +54,36 @@ import { DatabaseModule } from '../database/database-module';
 import { SharedServicesModule } from '../shared/shared-services.module';
 
 @Module({
-  imports: [AppConfigModule, DatabaseModule, SharedServicesModule],
+  imports: [AppConfigModule, DatabaseModule, ScheduleModule.forRoot(), SharedServicesModule],
   controllers: [AvatarController, CaptchaController],
   providers: [
     {
       provide: BETTER_AUTH,
-      inject: [PrismaService, BETTER_AUTH_CONFIG, IdentityTransferService, I18nService],
+      inject: [
+        PrismaService,
+        BETTER_AUTH_CONFIG,
+        IdentityTransferService,
+        AnonymousIdentityLifecycleGuard,
+        I18nService,
+      ],
       useFactory: (
         prisma: PrismaService,
         config: BetterAuthRuntimeConfig,
         identityTransfers: IdentityTransferService,
+        anonymousLifecycle: AnonymousIdentityLifecycleGuard,
         i18n: I18nService,
-      ) => createBetterAuth(prisma, config, identityTransfers, i18n),
+      ) => createBetterAuth(prisma, config, identityTransfers, anonymousLifecycle, i18n),
     },
     BetterAuthSessionAdapter,
     IdentityTransferService,
+    AnonymousIdentityLifecycleGuard,
+    AnonymousRetirementWorker,
+    ExpireAnonymousParticipantUseCase,
+    PrismaAnonymousParticipantRetirementAdapter,
+    {
+      provide: AnonymousParticipantRetirementPort,
+      useExisting: PrismaAnonymousParticipantRetirementAdapter,
+    },
     ThemeIdentifier,
     CapCaptchaAdapter,
     ValkeyCaptchaStore,
@@ -78,12 +96,11 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     RegenerateUserAvatarUseCase,
     GetUserAvatarUseCase,
     GetGuestAvatarPreviewUseCase,
-    GetGuestAvatarUseCase,
-    GuestIdentifier,
     OrganizationIdentifier,
     OrganizationMemberIdentifier,
     PasswordService,
     PartyIdentifier,
+    PartyParticipantIdentifier,
     DefaultWorkspaceService,
     ProjectIdentifier,
     DicebearAvatarGeneratorAdapter,
@@ -91,7 +108,6 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     UserIdentifier,
     UserAvatarService,
     PrismaUserRepository,
-    PrismaGuestRepository,
     PrismaPartySettingsMapper,
     PrismaOrganizationRepository,
     PrismaOrganizationMemberRepository,
@@ -99,10 +115,6 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     {
       provide: UserRepositoryProvider,
       useExisting: PrismaUserRepository,
-    },
-    {
-      provide: GuestRepositoryProvider,
-      useExisting: PrismaGuestRepository,
     },
     {
       provide: OrganizationRepositoryProvider,
@@ -123,13 +135,6 @@ import { SharedServicesModule } from '../shared/shared-services.module';
     GqlAuthGuard,
     AuthResolver,
   ],
-  exports: [
-    BETTER_AUTH,
-    BetterAuthSessionAdapter,
-    GqlAuthGuard,
-    PasswordService,
-    GuestRepositoryProvider,
-    UserRepositoryProvider,
-  ],
+  exports: [BETTER_AUTH, BetterAuthSessionAdapter, GqlAuthGuard, PasswordService, UserRepositoryProvider],
 })
 export class IdentityModule {}

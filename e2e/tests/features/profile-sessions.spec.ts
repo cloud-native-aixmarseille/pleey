@@ -15,6 +15,15 @@ test("audits and revokes another device from profile security", async ({ page, b
     data: { ...input, name: input.username, captchaToken },
   });
   expect(registration.ok()).toBe(true);
+  const registrationCookie = registration.headers()["set-cookie"]?.split(";")[0];
+  expect(registrationCookie).toBeTruthy();
+  const registrationSignOut = await request.post("/api/auth/sign-out", {
+    headers: {
+      cookie: registrationCookie ?? "",
+      origin: process.env.BASE_URL ?? "http://frontend:5173",
+    },
+  });
+  expect(registrationSignOut.ok()).toBe(true);
   const otherContext = await browser.newContext({ baseURL: process.env.BASE_URL ?? "http://frontend:5173" });
   const other = await otherContext.newPage();
 

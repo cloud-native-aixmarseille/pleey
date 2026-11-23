@@ -18,6 +18,8 @@ SET "email" = 'migrated-' || "id"::text || '@invalid.local'
 WHERE "email" = '';
 
 CREATE UNIQUE INDEX IF NOT EXISTS "users_email_key" ON "users"("email");
+CREATE INDEX IF NOT EXISTS "users_anonymous_created_at_id_idx"
+  ON "users"("created_at", "id") WHERE "is_anonymous" = TRUE;
 
 CREATE TABLE IF NOT EXISTS "auth_sessions" (
   "id" UUID NOT NULL,
@@ -79,17 +81,18 @@ CREATE UNIQUE INDEX IF NOT EXISTS "auth_verifications_identifier_value_key"
 CREATE TABLE IF NOT EXISTS "party_participants" (
   "id" UUID NOT NULL,
   "party_id" UUID NOT NULL,
-  "user_id" UUID NOT NULL,
+  "user_id" UUID,
   "roles" TEXT[] NOT NULL,
   "status" TEXT NOT NULL DEFAULT 'ACTIVE',
   "display_name" TEXT NOT NULL,
+  "departure_reason" TEXT,
   "controller_generation" INTEGER NOT NULL DEFAULT 0,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TIMESTAMP(3) NOT NULL,
   CONSTRAINT "party_participants_pkey" PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "party_participants_party_id_user_id_key"
-  ON "party_participants"("party_id", "user_id");
+  ON "party_participants"("party_id", "user_id") WHERE "user_id" IS NOT NULL;
 CREATE INDEX IF NOT EXISTS "party_participants_party_id_status_idx"
   ON "party_participants"("party_id", "status");
 CREATE INDEX IF NOT EXISTS "party_participants_user_id_status_idx"
@@ -129,6 +132,32 @@ CREATE INDEX IF NOT EXISTS "identity_transfers_source_user_id_status_idx"
   ON "identity_transfers"("source_user_id", "status");
 CREATE INDEX IF NOT EXISTS "identity_transfers_target_user_id_status_idx"
   ON "identity_transfers"("target_user_id", "status");
+CREATE INDEX IF NOT EXISTS "identity_transfers_status_prepared_at_verified_at_idx"
+  ON "identity_transfers"("status", "prepared_at", "verified_at");
+
+CREATE TABLE IF NOT EXISTS "anonymous_retirements" (
+  "id" UUID NOT NULL,
+  "operation_id" TEXT NOT NULL,
+  "source_user_id" UUID NOT NULL,
+  "generation" INTEGER NOT NULL DEFAULT 0,
+  "status" TEXT NOT NULL,
+  "requested_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "claimed_at" TIMESTAMP(3),
+  "claim_until" TIMESTAMP(3),
+  "completed_at" TIMESTAMP(3),
+  "completed_steps" JSONB NOT NULL DEFAULT '{}'::jsonb,
+  "attempt_count" INTEGER NOT NULL DEFAULT 0,
+  "failure_reason" TEXT,
+  "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" TIMESTAMP(3) NOT NULL,
+  CONSTRAINT "anonymous_retirements_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "anonymous_retirements_operation_id_key"
+  ON "anonymous_retirements"("operation_id");
+CREATE INDEX IF NOT EXISTS "anonymous_retirements_status_claim_until_requested_at_idx"
+  ON "anonymous_retirements"("status", "claim_until", "requested_at");
+CREATE INDEX IF NOT EXISTS "anonymous_retirements_source_user_id_status_idx"
+  ON "anonymous_retirements"("source_user_id", "status");
 
 ALTER TABLE "scores" ADD COLUMN IF NOT EXISTS "participant_id" UUID;
 
@@ -157,6 +186,38 @@ WHERE s."user_id" IS NOT NULL
   )
 ON CONFLICT DO NOTHING;
 
+CREATE TEMPORARY TABLE "legacy_guest_participants" (
+  "party_id" UUID NOT NULL,
+  "guest_id" UUID NOT NULL,
+  "participant_id" UUID NOT NULL,
+  PRIMARY KEY ("party_id", "guest_id")
+);
+
+INSERT INTO "legacy_guest_participants" ("party_id", "guest_id", "participant_id")
+SELECT s."party_id", s."guest_id", md5(s."party_id"::text || ':' || s."guest_id"::text)::uuid
+FROM "scores" s
+WHERE s."guest_id" IS NOT NULL
+GROUP BY s."party_id", s."guest_id";
+
+INSERT INTO "party_participants"
+  ("id", "party_id", "user_id", "roles", "status", "display_name", "controller_generation", "updated_at")
+SELECT
+  m."participant_id",
+  m."party_id",
+  NULL,
+  ARRAY['PLAYER']::TEXT[],
+  'LEFT',
+  g."username",
+  0,
+  CURRENT_TIMESTAMP
+FROM "legacy_guest_participants" m
+JOIN "guests" g ON g."id" = m."guest_id";
+
+UPDATE "scores" s
+SET "participant_id" = m."participant_id"
+FROM "legacy_guest_participants" m
+WHERE m."party_id" = s."party_id" AND m."guest_id" = s."guest_id";
+
 UPDATE "party_participants" pp
 SET "roles" = ARRAY(
   SELECT DISTINCT role FROM unnest(pp."roles" || ARRAY['PLAYER']::TEXT[]) AS role
@@ -178,6 +239,18 @@ FROM "party_participants" pp
 WHERE 'PLAYER' = ANY(pp."roles") AND pp."status" = 'ACTIVE'
 ON CONFLICT ("user_id") DO NOTHING;
 
+ALTER TABLE "scores"
+  ALTER COLUMN "participant_id" SET NOT NULL,
+  DROP COLUMN "user_id",
+  DROP COLUMN "guest_id";
+DROP TABLE "guests";
+DROP TABLE "legacy_guest_participants";
+
+CREATE INDEX IF NOT EXISTS "scores_participant_id_idx" ON "scores"("participant_id");
+ALTER TABLE "scores"
+  ADD CONSTRAINT "scores_participant_id_fkey"
+  FOREIGN KEY ("participant_id") REFERENCES "party_participants"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE "auth_sessions"
   ADD CONSTRAINT "auth_sessions_user_id_fkey"
   FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -190,7 +263,7 @@ ALTER TABLE "party_participants"
   ADD CONSTRAINT "party_participants_party_id_fkey"
   FOREIGN KEY ("party_id") REFERENCES "parties"("id") ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT "party_participants_user_id_fkey"
-  FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 DROP TABLE "user_sessions";
 DROP TABLE "user_authentications";

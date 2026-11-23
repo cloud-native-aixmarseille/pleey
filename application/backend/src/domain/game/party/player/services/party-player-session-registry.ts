@@ -86,7 +86,7 @@ export class PartyPlayerSessionRegistry {
 
   private toSessionKey(partyId: PartyId, playerIdentity: PartyPlayerIdentity): string {
     const identityKey =
-      playerIdentity.kind === 'user' ? `user:${playerIdentity.userId}` : `guest:${playerIdentity.guestId}`;
+      playerIdentity.kind === 'user' ? `user:${playerIdentity.userId}` : `participant:${playerIdentity.participantId}`;
     return `${partyId}:${identityKey}`;
   }
 }

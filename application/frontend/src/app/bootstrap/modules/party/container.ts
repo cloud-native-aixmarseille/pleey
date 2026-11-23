@@ -27,10 +27,6 @@ import {
   GuestUsernameGeneratorPortToken,
 } from '../../../../domains/game/party/player/ports/guest-username-generator.port';
 import {
-  type PartyGuestSessionPort,
-  PartyGuestSessionPortToken,
-} from '../../../../domains/game/party/player/ports/party-guest-session.port';
-import {
   type PartyPlayerPort,
   PartyPlayerPortToken,
 } from '../../../../domains/game/party/player/ports/party-player.port';
@@ -45,7 +41,6 @@ import {
 import { CryptoPrivatePartyPasswordGeneratorAdapter } from '../../../../infrastructure/game/party/crypto-private-party-password-generator.adapter';
 import { GraphqlPartyManagementAdapter } from '../../../../infrastructure/game/party/host/graphql-party-management.adapter';
 import { SocketIoPartyHostControlAdapter } from '../../../../infrastructure/game/party/host/socket-io-party-host-control.adapter';
-import { PersistedPartyGuestSessionAdapter } from '../../../../infrastructure/game/party/player/persisted-party-guest-session.adapter';
 import { SocketIoPartyPlayerAdapter } from '../../../../infrastructure/game/party/player/socket-io-party-player.adapter';
 import { UniqueUsernameGuestUsernameGeneratorAdapter } from '../../../../infrastructure/game/party/player/unique-username-guest-username-generator.adapter';
 import { SocketIoPartyObservationAdapter } from '../../../../infrastructure/game/party/shared/socket-io-party-observation.adapter';
@@ -83,7 +78,6 @@ export const partyContainerModule = new ContainerModule(({ bind }) => {
   bind(GraphqlPartyManagementAdapter).toSelf().inSingletonScope();
   bind(PartyRouteService).toSelf().inSingletonScope();
   bind(PartyRoutesFactory).toSelf().inSingletonScope();
-  bind(PersistedPartyGuestSessionAdapter).toSelf().inSingletonScope();
   bind(SocketIoPartyHostControlAdapter).toSelf().inSingletonScope();
   bind(SocketIoPartyObservationAdapter).toSelf().inSingletonScope();
   bind(SocketIoPartyPayloadMapper).toSelf().inSingletonScope();
@@ -105,7 +99,6 @@ export const partyContainerModule = new ContainerModule(({ bind }) => {
 
   bind<PartyHostControlPort>(PartyHostControlPortToken).toService(SocketIoPartyHostControlAdapter);
   bind<PartyHostRuntimeControlsPort>(PartyHostRuntimeControlsPortToken).toService(HostPartyRuntimeControlsResolver);
-  bind<PartyGuestSessionPort>(PartyGuestSessionPortToken).toService(PersistedPartyGuestSessionAdapter);
   bind<GuestUsernameGeneratorPort>(GuestUsernameGeneratorPortToken).toService(
     UniqueUsernameGuestUsernameGeneratorAdapter,
   );

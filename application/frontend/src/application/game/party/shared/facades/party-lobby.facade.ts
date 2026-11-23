@@ -1,6 +1,4 @@
-import type { GuestId } from '@pleey/contracts/identity';
-import type { PartyId, PartyPin } from '@pleey/contracts/party';
-import { PartyJoinReceiptStatus, PartyPlayerKind } from '@pleey/contracts/party';
+import type { PartyId } from '@pleey/contracts/party';
 import { inject, injectable } from 'inversify';
 import {
   type HostPartyPlayerControlCommand,
@@ -13,10 +11,6 @@ import {
   PartyManagementPortToken,
 } from '../../../../../domains/game/party/host/ports/party-management.port';
 import {
-  type PartyGuestSessionPort,
-  PartyGuestSessionPortToken,
-} from '../../../../../domains/game/party/player/ports/party-guest-session.port';
-import {
   type PartyJoinCommand,
   type PartyJoinReceipt,
   type PartyPlayerPort,
@@ -26,24 +20,18 @@ import {
 import type { Party } from '../../../../../domains/game/party/shared/entities/party';
 
 export interface PartyLobbyGateway {
-  clearGuestId(pin: PartyPin): void;
   executeHostRuntimeCommand(command: HostPartyRuntimeCommand, partyId: PartyId): Promise<void>;
-  getGuestId(pin: PartyPin): GuestId | null;
   joinParty(command: PartyJoinCommand): Promise<PartyJoinReceipt>;
   kickPlayer(command: HostPartyPlayerControlCommand): Promise<void>;
   leaveParty(): Promise<boolean>;
   listParties(): Promise<readonly Party[]>;
   rejoinParty(command: PartyJoinCommand): Promise<PartyJoinReceipt>;
-  recoverGuestParty(partyId: PartyId): Promise<void>;
-  setGuestId(pin: PartyPin, guestId: GuestId): void;
   submitAction(command: PartySubmitActionCommand): Promise<void>;
 }
 
 @injectable()
 export class PartyLobbyFacade implements PartyLobbyGateway {
   constructor(
-    @inject(PartyGuestSessionPortToken)
-    private readonly partyGuestSessionPort: PartyGuestSessionPort,
     @inject(PartyHostControlPortToken)
     private readonly partyHostControlPort: PartyHostControlPort,
     @inject(PartyManagementPortToken)
@@ -51,10 +39,6 @@ export class PartyLobbyFacade implements PartyLobbyGateway {
     @inject(PartyPlayerPortToken)
     private readonly partyPlayerPort: PartyPlayerPort,
   ) {}
-
-  clearGuestId(pin: PartyPin): void {
-    this.partyGuestSessionPort.clearGuestId(pin);
-  }
 
   async executeHostRuntimeCommand(command: HostPartyRuntimeCommand, partyId: PartyId): Promise<void> {
     const hostCommand = { partyId };
@@ -90,10 +74,6 @@ export class PartyLobbyFacade implements PartyLobbyGateway {
     }
   }
 
-  getGuestId(pin: PartyPin): GuestId | null {
-    return this.partyGuestSessionPort.getGuestId(pin);
-  }
-
   joinParty(command: PartyJoinCommand): Promise<PartyJoinReceipt> {
     return this.enterParty(command, false);
   }
@@ -114,26 +94,8 @@ export class PartyLobbyFacade implements PartyLobbyGateway {
     return this.enterParty(command, true);
   }
 
-  async recoverGuestParty(partyId: PartyId): Promise<void> {
-    const pin = this.partyGuestSessionPort.getGuestPin(partyId);
-    const guestId = pin ? this.partyGuestSessionPort.getGuestId(pin) : null;
-    if (!pin || !guestId) return;
-    const receipt = await this.rejoinParty({ pin, playerIdentity: { kind: PartyPlayerKind.GUEST, guestId } });
-    if (receipt.status !== PartyJoinReceiptStatus.ACCEPTED) this.clearGuestId(pin);
-  }
-
-  setGuestId(pin: PartyPin, guestId: GuestId): void {
-    this.partyGuestSessionPort.setGuestId(pin, guestId);
-  }
-
   private async enterParty(command: PartyJoinCommand, rejoin: boolean): Promise<PartyJoinReceipt> {
-    const receipt = await (rejoin
-      ? this.partyPlayerPort.rejoinParty(command)
-      : this.partyPlayerPort.joinParty(command));
-    if (receipt.status === PartyJoinReceiptStatus.ACCEPTED && receipt.player.identity.kind === PartyPlayerKind.GUEST) {
-      this.partyGuestSessionPort.setGuestId(receipt.pin, receipt.player.identity.guestId);
-    }
-    return receipt;
+    return rejoin ? this.partyPlayerPort.rejoinParty(command) : this.partyPlayerPort.joinParty(command);
   }
 
   submitAction(command: PartySubmitActionCommand): Promise<void> {

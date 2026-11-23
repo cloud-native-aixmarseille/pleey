@@ -2,8 +2,8 @@ import 'reflect-metadata';
 import { PartyPlayerKind, PartyStatus } from '@pleey/contracts/party';
 import { describe, expect, it } from 'vitest';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
+import { PartyParticipantIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-participant-identifier';
 import { PartyStageIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-stage-identifier';
-import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameErrorCode } from '../../../../domain/game/enums/game-error-code.enum';
 import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
@@ -13,12 +13,12 @@ import { PrismaPartyReadModelMapper } from './prisma-party-read-model-mapper';
 describe('PrismaPartyReadModelMapper', () => {
   const partyActionIdentifier = new PartyActionIdentifier();
   const partyStageIdentifier = new PartyStageIdentifier();
-  const guestIdentifier = new GuestIdentifier();
+  const participantIdentifier = new PartyParticipantIdentifier();
   const userIdentifier = new UserIdentifier();
   const mapper = new PrismaPartyReadModelMapper(
     partyActionIdentifier,
     partyStageIdentifier,
-    guestIdentifier,
+    participantIdentifier,
     userIdentifier,
   );
   const playerAvatarUpdatedAt = new Date('2026-05-01T07:00:00.000Z');
@@ -56,63 +56,71 @@ describe('PrismaPartyReadModelMapper', () => {
         {
           createdAt: new Date('2026-05-01T10:00:00.000Z'),
           points: 10,
-          user: {
-            id: backendTestIdentifiers.user(7),
-            username: 'Host',
-            avatar: {
-              updatedAt: new Date('2026-05-01T09:00:00.000Z'),
+          participant: {
+            id: backendTestIdentifiers.participant('host'),
+            displayName: 'Host',
+            user: {
+              id: backendTestIdentifiers.user(7),
+              username: 'Host',
+              avatar: {
+                updatedAt: new Date('2026-05-01T09:00:00.000Z'),
+              },
             },
           },
-          guest: null,
         },
         {
           createdAt: new Date('2026-05-01T12:00:00.000Z'),
           points: 1,
-          user: null,
-          guest: {
-            id: backendTestIdentifiers.guest('guest-42'),
-            username: 'Guest',
-            createdAt: new Date('2026-05-01T08:00:00.000Z'),
+          participant: {
+            id: backendTestIdentifiers.participant('guest-42'),
+            displayName: 'Guest',
+            user: null,
           },
         },
         {
           createdAt: new Date('2026-05-01T11:00:00.000Z'),
           points: 3,
-          user: {
-            id: backendTestIdentifiers.user(42),
-            username: 'Player',
-            avatar: {
-              updatedAt: playerAvatarUpdatedAt,
+          participant: {
+            id: backendTestIdentifiers.participant('player-42'),
+            displayName: 'Player',
+            user: {
+              id: backendTestIdentifiers.user(42),
+              username: 'Player',
+              avatar: {
+                updatedAt: playerAvatarUpdatedAt,
+              },
             },
           },
-          guest: null,
         },
         {
           createdAt: new Date('2026-05-01T12:30:00.000Z'),
           points: 4,
-          user: {
-            id: backendTestIdentifiers.user(42),
-            username: 'Player',
-            avatar: {
-              updatedAt: playerAvatarUpdatedAt,
+          participant: {
+            id: backendTestIdentifiers.participant('player-42'),
+            displayName: 'Player',
+            user: {
+              id: backendTestIdentifiers.user(42),
+              username: 'Player',
+              avatar: {
+                updatedAt: playerAvatarUpdatedAt,
+              },
             },
           },
-          guest: null,
         },
       ],
       {
         excludedUserId: backendTestIdentifiers.user(7),
-        resolveGuestJoinedAt: (score) => score.guest?.createdAt ?? score.createdAt,
+        resolveJoinedAt: (score) => (score.participant.user ? score.createdAt : new Date('2026-05-01T08:00:00.000Z')),
       },
     );
 
     // Assert
     expect(players.map((player) => mapper.toPartyPlayer(player))).toEqual([
       {
-        avatarUri: `/api/avatars/guests/${backendTestIdentifiers.guest('guest-42')}`,
+        avatarUri: null,
         identity: {
-          kind: PartyPlayerKind.GUEST,
-          guestId: backendTestIdentifiers.guest('guest-42'),
+          kind: PartyPlayerKind.PARTICIPANT,
+          participantId: backendTestIdentifiers.participant('guest-42'),
         },
         joinedAt: new Date('2026-05-01T08:00:00.000Z'),
         totalScore: 1,
@@ -131,11 +139,11 @@ describe('PrismaPartyReadModelMapper', () => {
     ]);
     expect(players.map((player) => mapper.toPlayerObservationPlayer(player))).toEqual([
       {
-        avatarUri: `/api/avatars/guests/${backendTestIdentifiers.guest('guest-42')}`,
+        avatarUri: null,
         correctStages: 1,
         identity: {
-          kind: PartyPlayerKind.GUEST,
-          guestId: backendTestIdentifiers.guest('guest-42'),
+          kind: PartyPlayerKind.PARTICIPANT,
+          participantId: backendTestIdentifiers.participant('guest-42'),
         },
         totalScore: 1,
         username: 'Guest',
@@ -186,14 +194,17 @@ describe('PrismaPartyReadModelMapper', () => {
         },
         createdAt: new Date('2026-05-01T11:00:00.000Z'),
         points: 1500,
-        user: {
-          id: backendTestIdentifiers.user(42),
-          username: 'Player',
-          avatar: {
-            updatedAt: playerAvatarUpdatedAt,
+        participant: {
+          id: backendTestIdentifiers.participant('player-42'),
+          displayName: 'Player',
+          user: {
+            id: backendTestIdentifiers.user(42),
+            username: 'Player',
+            avatar: {
+              updatedAt: playerAvatarUpdatedAt,
+            },
           },
         },
-        guest: null,
       },
     ]);
 

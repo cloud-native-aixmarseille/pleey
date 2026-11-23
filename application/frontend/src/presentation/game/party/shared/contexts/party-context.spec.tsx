@@ -5,7 +5,6 @@ import type { PropsWithChildren } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import type { PartyManagementPort } from '../../../../../domains/game/party/host/ports/party-management.port';
 import type { GuestUsernameGeneratorPort } from '../../../../../domains/game/party/player/ports/guest-username-generator.port';
-import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
 import type { PartyPlayerPort } from '../../../../../domains/game/party/player/ports/party-player.port';
 import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
 import type {
@@ -55,16 +54,11 @@ const hostPartyRuntimeControlsResolver = {
   resolveControls: vi.fn(),
 } as never;
 const partyLobbyFacade = {
-  recoverGuestParty: vi.fn(async () => undefined),
-  clearGuestId: vi.fn(),
   executeHostRuntimeCommand: vi.fn(),
-  getGuestPin: vi.fn(() => null),
-  getGuestId: vi.fn(() => null),
   joinParty: vi.fn(),
   leaveParty: vi.fn(),
   listParties: vi.fn(),
   rejoinParty: vi.fn(),
-  setGuestId: vi.fn(),
   submitAction: vi.fn(),
 } as never;
 const partyHostControlPort = {
@@ -78,12 +72,6 @@ const partyHostControlPort = {
   rewindStage: vi.fn(),
   startParty: vi.fn(),
 } as never;
-const partyGuestSessionPort = {
-  clearGuestId: vi.fn(),
-  getGuestPin: vi.fn(() => null),
-  getGuestId: vi.fn(() => null),
-  setGuestId: vi.fn(),
-} as PartyGuestSessionPort;
 const partyPlayerPort = {
   joinParty: vi.fn(),
   leaveParty: vi.fn(),
@@ -113,7 +101,6 @@ describe('PartyProvider', () => {
         hostPartyRuntimeControlsResolver,
         partyLobbyFacade,
         partyLobbyRuntimeRedirectResolver,
-        partyGuestSessionPort,
         partyIdentifier,
         partyHostControlPort,
         partyManagementPort,
@@ -170,7 +157,6 @@ describe('PartyProvider', () => {
           hostPartyRuntimeControlsResolver,
           partyLobbyFacade,
           partyLobbyRuntimeRedirectResolver,
-          partyGuestSessionPort,
           partyIdentifier,
           partyHostControlPort,
           partyManagementPort,
@@ -270,7 +256,6 @@ describe('PartyProvider', () => {
           hostPartyRuntimeControlsResolver,
           partyLobbyFacade,
           partyLobbyRuntimeRedirectResolver,
-          partyGuestSessionPort,
           partyIdentifier,
           partyHostControlPort,
           partyManagementPort,
@@ -326,7 +311,6 @@ describe('PartyProvider', () => {
           hostPartyRuntimeControlsResolver,
           partyLobbyFacade,
           partyLobbyRuntimeRedirectResolver,
-          partyGuestSessionPort,
           partyIdentifier,
           partyHostControlPort,
           partyManagementPort,
@@ -369,7 +353,6 @@ describe('PartyProvider', () => {
           hostPartyRuntimeControlsResolver,
           partyLobbyFacade,
           partyLobbyRuntimeRedirectResolver,
-          partyGuestSessionPort,
           partyIdentifier,
           partyHostControlPort,
           partyManagementPort,
@@ -418,7 +401,6 @@ describe('PartyProvider', () => {
           hostPartyRuntimeControlsResolver,
           partyLobbyFacade,
           partyLobbyRuntimeRedirectResolver,
-          partyGuestSessionPort,
           partyIdentifier,
           partyHostControlPort,
           partyManagementPort,
@@ -466,7 +448,6 @@ describe('PartyProvider', () => {
           hostPartyRuntimeControlsResolver,
           partyLobbyFacade,
           partyLobbyRuntimeRedirectResolver,
-          partyGuestSessionPort,
           partyIdentifier,
           partyHostControlPort,
           partyManagementPort,

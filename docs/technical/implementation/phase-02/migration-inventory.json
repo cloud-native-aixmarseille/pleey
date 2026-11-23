@@ -1,9 +1,9 @@
 {
   "phase": "02",
   "migration": "20261122090000_unify_identity",
-  "preserved": ["registered user IDs", "organization/project ownership", "party/history references"],
-  "converted": ["registered account email/name projection", "historical registered score attribution", "host and scored-player memberships"],
+  "preserved": ["registered user IDs", "organization/project ownership", "party/history references", "accepted score rows"],
+  "converted": ["registered account email/name projection", "historical registered score attribution", "host and scored-player memberships", "historical-only guests as detached party participants"],
   "invalidated": ["JWT access tokens", "JWT refresh tokens", "guest credentials", "legacy reset tokens"],
-  "retainedForReconciliation": ["historical guests and guest score references"],
-  "destructiveFollowUp": "Remove retained guest history only in a separately specified, evidenced migration after all ownership mapping is reconciled"
+  "retainedForReconciliation": [],
+  "destructiveFollowUp": "none; the same release detaches legacy guest scores and removes the global guests table"
 }

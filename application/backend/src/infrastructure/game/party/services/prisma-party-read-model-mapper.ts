@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import type { GuestId } from '@pleey/contracts/identity';
+import type { ParticipantId } from '@pleey/contracts/identity';
 import type { PartyPlayerIdentity } from '@pleey/contracts/party';
 import { PARTY_PLAYER_ACTION_STATE_STATUS, PartyPlayerKind, PartyStatus } from '@pleey/contracts/party';
 import { PartyActionIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-action-identifier';
+import { PartyParticipantIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-participant-identifier';
 import { PartyStageIdentifier } from '../../../../application/game/party/shared/services/identifiers/party-stage-identifier';
-import { GuestIdentifier } from '../../../../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../../../../application/identity/shared/services/identifiers/user-identifier';
 import { GameValidationFailedError } from '../../../../domain/game/errors';
 import type { PartyPlayer } from '../../../../domain/game/party/player/entities/party-player';
@@ -26,36 +26,34 @@ interface PartyPlayerScoreRecord {
   readonly context?: unknown;
   readonly createdAt: Date;
   readonly points?: number;
-  readonly user: {
-    readonly id: UserId;
-    readonly username: string;
-    readonly avatar: {
-      readonly updatedAt: Date;
+  readonly participant: {
+    readonly id: ParticipantId;
+    readonly displayName: string;
+    readonly user: {
+      readonly id: UserId;
+      readonly username: string;
+      readonly avatar: {
+        readonly updatedAt: Date;
+      } | null;
     } | null;
-  } | null;
-  readonly guest: {
-    readonly id: GuestId;
-    readonly username: string;
-    readonly createdAt?: Date;
-  } | null;
+  };
 }
 
 interface PrismaPartyPlayerScoreRecord {
   readonly context?: unknown;
   readonly createdAt: Date;
   readonly points?: number;
-  readonly user: {
+  readonly participant: {
     readonly id: string;
-    readonly username: string;
-    readonly avatar: {
-      readonly updatedAt: Date;
+    readonly displayName: string;
+    readonly user: {
+      readonly id: string;
+      readonly username: string;
+      readonly avatar: {
+        readonly updatedAt: Date;
+      } | null;
     } | null;
-  } | null;
-  readonly guest: {
-    readonly id: string;
-    readonly username: string;
-    readonly createdAt?: Date;
-  } | null;
+  };
 }
 
 interface PartyPlayerSummary {
@@ -93,7 +91,7 @@ export class PrismaPartyReadModelMapper {
   constructor(
     private readonly partyActionIdentifier: PartyActionIdentifier,
     private readonly partyStageIdentifier: PartyStageIdentifier,
-    private readonly guestIdentifier: GuestIdentifier,
+    private readonly participantIdentifier: PartyParticipantIdentifier,
     private readonly userIdentifier: UserIdentifier,
   ) {}
 
@@ -101,7 +99,7 @@ export class PrismaPartyReadModelMapper {
     scores: readonly PartyPlayerScoreRecord[],
     options: {
       readonly excludedUserId?: UserId;
-      readonly resolveGuestJoinedAt?: (score: PartyPlayerScoreRecord) => Date;
+      readonly resolveJoinedAt?: (score: PartyPlayerScoreRecord) => Date;
     } = {},
   ): readonly PartyPlayerSummary[] {
     const players = new Map<string, PartyPlayerSummary>();
@@ -110,43 +108,40 @@ export class PrismaPartyReadModelMapper {
       const correctStages = this.toPartyPlayerCorrectStages(score);
       const points = score.points ?? 0;
 
-      if (score.user) {
-        if (score.user.id === options.excludedUserId) {
+      if (score.participant.user) {
+        if (score.participant.user.id === options.excludedUserId) {
           continue;
         }
 
         const identity = {
           kind: PartyPlayerKind.USER,
-          userId: this.userIdentifier.parse(score.user.id),
+          userId: this.userIdentifier.parse(score.participant.user.id),
         } as const satisfies PartyPlayerIdentity;
 
         this.upsertPlayerSummary(players, {
           correctStages,
           identity,
           points,
-          avatarUri: this.toUserAvatarUri(score.user.id, score.user.avatar?.updatedAt ?? null),
+          avatarUri: this.toUserAvatarUri(score.participant.user.id, score.participant.user.avatar?.updatedAt ?? null),
           joinedAt: score.createdAt,
-          username: score.user.username,
+          username: score.participant.displayName,
         });
 
         continue;
       }
 
-      if (score.guest) {
-        const identity = {
-          kind: PartyPlayerKind.GUEST,
-          guestId: this.guestIdentifier.parse(score.guest.id),
-        } as const satisfies PartyPlayerIdentity;
-
-        this.upsertPlayerSummary(players, {
-          correctStages,
-          identity,
-          points,
-          avatarUri: this.toGuestAvatarUri(score.guest.id),
-          joinedAt: options.resolveGuestJoinedAt?.(score) ?? score.createdAt,
-          username: score.guest.username,
-        });
-      }
+      const identity = {
+        kind: PartyPlayerKind.PARTICIPANT,
+        participantId: this.participantIdentifier.parse(score.participant.id),
+      } as const satisfies PartyPlayerIdentity;
+      this.upsertPlayerSummary(players, {
+        correctStages,
+        identity,
+        points,
+        avatarUri: null,
+        joinedAt: options.resolveJoinedAt?.(score) ?? score.createdAt,
+        username: score.participant.displayName,
+      });
     }
 
     return [...players.values()].sort((left, right) => left.joinedAt.getTime() - right.joinedAt.getTime());
@@ -185,18 +180,16 @@ export class PrismaPartyReadModelMapper {
   normalizePlayerScores(scores: readonly PrismaPartyPlayerScoreRecord[]): readonly PartyPlayerScoreRecord[] {
     return scores.map((score) => ({
       ...score,
-      user: score.user
-        ? {
-            ...score.user,
-            id: this.userIdentifier.parse(score.user.id),
-          }
-        : null,
-      guest: score.guest
-        ? {
-            ...score.guest,
-            id: this.guestIdentifier.parse(score.guest.id),
-          }
-        : null,
+      participant: {
+        ...score.participant,
+        id: this.participantIdentifier.parse(score.participant.id),
+        user: score.participant.user
+          ? {
+              ...score.participant.user,
+              id: this.userIdentifier.parse(score.participant.user.id),
+            }
+          : null,
+      },
     }));
   }
 
@@ -221,30 +214,28 @@ export class PrismaPartyReadModelMapper {
         continue;
       }
 
-      if (score.user) {
-        if (score.user.id === options.excludedUserId) {
+      if (score.participant.user) {
+        if (score.participant.user.id === options.excludedUserId) {
           continue;
         }
 
         actionStates.push({
           identity: {
             kind: PartyPlayerKind.USER,
-            userId: this.userIdentifier.parse(score.user.id),
+            userId: this.userIdentifier.parse(score.participant.user.id),
           },
           state,
         });
         continue;
       }
 
-      if (score.guest) {
-        actionStates.push({
-          identity: {
-            kind: PartyPlayerKind.GUEST,
-            guestId: this.guestIdentifier.parse(score.guest.id),
-          },
-          state,
-        });
-      }
+      actionStates.push({
+        identity: {
+          kind: PartyPlayerKind.PARTICIPANT,
+          participantId: this.participantIdentifier.parse(score.participant.id),
+        },
+        state,
+      });
     }
 
     return actionStates;
@@ -267,8 +258,8 @@ export class PrismaPartyReadModelMapper {
     return {
       avatarUri: player.avatarUri,
       identity: {
-        kind: PartyPlayerKind.GUEST,
-        guestId: player.identity.guestId,
+        kind: PartyPlayerKind.PARTICIPANT,
+        participantId: player.identity.participantId,
       },
       joinedAt: player.joinedAt,
       totalScore: player.totalScore,
@@ -528,12 +519,8 @@ export class PrismaPartyReadModelMapper {
     return `/api/avatars/users/${encodeURIComponent(String(userId))}?v=${updatedAt.getTime()}`;
   }
 
-  toGuestAvatarUri(guestId: GuestId): string {
-    return `/api/avatars/guests/${encodeURIComponent(guestId)}`;
-  }
-
   private toPlayerKey(identity: PartyPlayerIdentity): string {
-    return identity.kind === PartyPlayerKind.USER ? `user:${identity.userId}` : `guest:${identity.guestId}`;
+    return identity.kind === PartyPlayerKind.USER ? `user:${identity.userId}` : `participant:${identity.participantId}`;
   }
 
   private toPartyPlayerCorrectStages(score: PartyPlayerScoreRecord): number {

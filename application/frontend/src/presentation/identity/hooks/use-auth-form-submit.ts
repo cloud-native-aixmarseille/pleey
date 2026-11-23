@@ -1,3 +1,4 @@
+import { isDomainError } from '../../../domains/shared/errors/domain-error';
 import { usePresentationTranslation } from '../../shared/i18n/use-presentation-translation';
 import { usePresentationFeedbackChannel } from '../../shared/ui/feedback/use-presentation-feedback-channel';
 
@@ -12,6 +13,10 @@ export function useAuthFormSubmit(): AuthFormSubmitState {
   const feedback = usePresentationFeedbackChannel();
 
   function handleError(error: unknown) {
+    if (isDomainError(error)) {
+      feedback.setErrorMessage(t(error.message as Parameters<typeof t>[0]));
+      return;
+    }
     feedback.handleError(error, {
       fallbackMessage: t('auth.errors.generic'),
     });

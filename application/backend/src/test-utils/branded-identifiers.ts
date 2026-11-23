@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto';
 import { PartyActionIdentifier } from '../application/game/party/shared/services/identifiers/party-action-identifier';
 import { PartyIdentifier } from '../application/game/party/shared/services/identifiers/party-identifier';
+import { PartyParticipantIdentifier } from '../application/game/party/shared/services/identifiers/party-participant-identifier';
 import { PartyPinIdentifier } from '../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { PartyStageIdentifier } from '../application/game/party/shared/services/identifiers/party-stage-identifier';
 import { GameIdentifier } from '../application/game/shared/services/identifiers/game-identifier';
-import { GuestIdentifier } from '../application/identity/shared/services/identifiers/guest-identifier';
 import { UserIdentifier } from '../application/identity/shared/services/identifiers/user-identifier';
 import { OrganizationIdentifier } from '../application/workspace/shared/services/identifiers/organization-identifier';
 import { OrganizationMemberIdentifier } from '../application/workspace/shared/services/identifiers/organization-member-identifier';
@@ -20,7 +20,7 @@ class BackendTestIdentifiers {
 
   private readonly gameIdentifier = new GameIdentifier();
 
-  private readonly guestIdentifier = new GuestIdentifier();
+  private readonly partyParticipantIdentifier = new PartyParticipantIdentifier();
 
   private readonly organizationIdentifier = new OrganizationIdentifier();
 
@@ -42,8 +42,8 @@ class BackendTestIdentifiers {
     return this.gameIdentifier.parse(this.toUuidV7(value));
   }
 
-  guest(value: number | string) {
-    return this.guestIdentifier.parse(this.toUuidV7(value));
+  participant(value: number | string) {
+    return this.partyParticipantIdentifier.parse(this.toUuidV7(value));
   }
 
   media(value: number | string): MediaId {

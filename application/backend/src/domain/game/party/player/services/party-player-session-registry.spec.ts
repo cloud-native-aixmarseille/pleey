@@ -10,13 +10,18 @@ describe('PartyPlayerSessionRegistry', () => {
       // Arrange
       const sessions = new PartyPlayerSessionRegistry();
       const partyId = backendTestIdentifiers.party(1);
-      const identity = { kind: PartyPlayerKind.GUEST, guestId: backendTestIdentifiers.guest('guest-1') } as const;
+      const identity = {
+        kind: PartyPlayerKind.PARTICIPANT,
+        participantId: backendTestIdentifiers.participant('guest-1'),
+      } as const;
       if (scenario !== 'missing') sessions.registerSession(partyId, identity, 'socket-1');
       if (scenario === 'replaced') sessions.registerSession(partyId, identity, 'socket-2');
       if (scenario === 'revoked') sessions.invalidateSession(partyId, identity);
       const requestedParty = scenario === 'foreign-party' ? backendTestIdentifiers.party(2) : partyId;
       const requestedIdentity =
-        scenario === 'foreign-identity' ? { ...identity, guestId: backendTestIdentifiers.guest('guest-2') } : identity;
+        scenario === 'foreign-identity'
+          ? { ...identity, participantId: backendTestIdentifiers.participant('guest-2') }
+          : identity;
       // Act
       const isCurrent = sessions.isCurrentSession(requestedParty, requestedIdentity, 'socket-1');
       // Assert

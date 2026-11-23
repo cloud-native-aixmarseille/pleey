@@ -30,8 +30,8 @@ describe('KickPartyPlayerUseCase', () => {
       hostUserId: backendTestIdentifiers.user(7),
       partyId: backendTestIdentifiers.party(44),
       playerIdentity: {
-        kind: PartyPlayerKind.GUEST,
-        guestId: backendTestIdentifiers.guest('guest-7'),
+        kind: PartyPlayerKind.USER,
+        userId: backendTestIdentifiers.user('player-7'),
       },
     });
 
@@ -39,8 +39,8 @@ describe('KickPartyPlayerUseCase', () => {
     expect(hostPartyRuntimeControl.removePartyPlayer).toHaveBeenCalledWith({
       partyId: backendTestIdentifiers.party(44),
       playerIdentity: {
-        kind: PartyPlayerKind.GUEST,
-        guestId: backendTestIdentifiers.guest('guest-7'),
+        kind: PartyPlayerKind.USER,
+        userId: backendTestIdentifiers.user('player-7'),
       },
     });
     expect(broadcastPartyObservationUseCase.execute).toHaveBeenCalledWith({

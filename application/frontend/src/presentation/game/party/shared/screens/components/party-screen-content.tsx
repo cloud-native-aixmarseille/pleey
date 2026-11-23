@@ -41,7 +41,6 @@ export function PartyScreenContent({ resolvePartyAbsoluteUrl, screenSection, sta
   const {
     advanceStage,
     cancelHostRuntimeConfirmation,
-    clearJoinErrorMessage,
     confirmHostRuntimeConfirmation,
     errorMessage,
     guestAvatarPreviewUri,
@@ -87,7 +86,6 @@ export function PartyScreenContent({ resolvePartyAbsoluteUrl, screenSection, sta
       guestName={guestName}
       isAuthenticated={isAuthenticated}
       isJoinSubmitting={isJoinSubmitting}
-      onDismissError={clearJoinErrorMessage}
       onGenerateGuestName={regenerateGuestName}
       onGuestNameChange={setGuestName}
       onJoinParty={() => void joinParty()}

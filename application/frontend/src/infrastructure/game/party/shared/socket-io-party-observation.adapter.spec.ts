@@ -501,7 +501,6 @@ describe('SocketIoPartyObservationAdapter', () => {
       expect(eventName).toBe('join-party');
       expect(payload).toEqual({
         avatarSeed: undefined,
-        guestId: undefined,
         pin: 'AB12CD',
         username: undefined,
       });
@@ -516,7 +515,10 @@ describe('SocketIoPartyObservationAdapter', () => {
     await expect(
       adapter.joinParty({
         pin: partyPinIdentifier.parse('AB12CD'),
-        playerIdentity: { kind: PartyPlayerKind.GUEST },
+        playerIdentity: {
+          kind: PartyPlayerKind.USER,
+          userId: userIdentifier.parse('00000000-0000-7000-8000-000000000042'),
+        },
       }),
     ).resolves.toEqual({
       errorMessage: 'game.party.errors.playerAlreadyInActiveParty',

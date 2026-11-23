@@ -3,19 +3,25 @@
 ## Applied decision
 
 - ADR 0028: replace custom JWT/refresh/guest credentials with Better Auth 1.7.27 cookie sessions.
+- ADR 0029: bound temporary anonymous identity lifetime independently from retained party history.
 
 ## Implemented in this change
 
 - Better Auth server and browser dependencies
 - PostgreSQL session/account/verification schema and migration
-- Durable party participant, participation claim and identity transfer Prisma records
+- Durable nullable party participant, participation claim, identity transfer and retirement Prisma records
+- Explicit `ExpireAnonymousParticipant` transition that preserves scores and detaches temporary auth ownership
+- PostgreSQL-backed startup and 15-minute retirement sweeps with 100-item claims and finite work budgets
+- Server-side anonymous admission budgets and operational lifecycle metrics
 - Awaited Better Auth anonymous-link hook with collision rollback and source-session revocation
 - Durable active-player claims in join, leave and kick paths
-- Cookie-backed GraphQL guard, Socket.IO cookie session resolution and removal of bearer/guest handshake fields
+- Cookie-backed GraphQL guard, per-command Socket.IO cookie revalidation and removal of bearer/guest handshake fields
 - Native Better Auth registration, password recovery and session listing/revocation
 - CAPTCHA verification before Better Auth registration or password-reset dispatch
 - Frontend removal of token and guest-secret localStorage orchestration
 - Cookie-aware anonymous player joins and anonymous/registered route boundaries
+- XState browser session actor with deliberate anonymous-play intent and same-origin Web Lock bootstrap
+- Multi-tab convergence through cookie recheck, with a documented one-tab fallback for non-secure development origins
 - Compose, Helm and generated chart-document updates for `BETTER_AUTH_SECRET` and `SMTP_URL`
 
 ## Exact dependency versions
@@ -26,11 +32,13 @@
 - Prisma: 7.10.1
 - @prisma/adapter-pg: 7.10.1
 
-## Remaining release gates
+## Anonymous retention
 
-The current candidate does not claim a complete Phase 2 release. AUTH-02, AUTH-06, the full account-switch suite, migration upgrade/restore and all real-device cases remain recorded as blockers in `evidence.json`.
-
-The root `pnpm verify`, real isolated PostgreSQL integration suite, production image builds, Helm lint/render, and user-guide capture pass. The first full Playwright run exposed legacy browser expectations around the removed token/captcha flows; the focused native forged-captcha case passes, while the complete browser suite remains a release blocker.
+Anonymous Better Auth users exist only while a native unexpired session or finite transfer deadline
+requires them. Historical participants use stable `participantId` references and nullable `userId`
+bindings. A valid session always blocks cleanup. Expired identities are removed without deleting
+accepted scores or result history, and deleted participant identifiers never become a recovery
+credential for a fresh cookie.
 
 ## Deletion and migration inventories
 
@@ -39,4 +47,6 @@ The root `pnpm verify`, real isolated PostgreSQL integration suite, production i
 
 ## Verification
 
-Actual commands and outcomes are recorded in `evidence.json`. Raw test output should remain in CI artifacts rather than source reports.
+Actual commands and outcomes are recorded in `evidence.json`. Raw test output remains in CI artifacts
+rather than source reports. The 99% anonymous churn fixture and historical-only guest upgrade
+rehearsal run in the isolated Phase 02 integration command.

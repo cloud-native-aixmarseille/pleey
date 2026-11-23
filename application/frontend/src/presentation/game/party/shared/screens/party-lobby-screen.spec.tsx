@@ -1,5 +1,5 @@
 import { GameType } from '@pleey/contracts/game';
-import type { GuestId } from '@pleey/contracts/identity';
+import type { ParticipantId } from '@pleey/contracts/identity';
 import type { PartyActionId, PartyId } from '@pleey/contracts/party';
 import {
   DEFAULT_PARTY_SETTINGS,
@@ -16,7 +16,6 @@ import { HostPartyRuntimeCommand } from '../../../../../domains/game/party/host/
 import { type PartyManagementPort } from '../../../../../domains/game/party/host/ports/party-management.port';
 import { HostPartyDisabledReason } from '../../../../../domains/game/party/host/value-objects/host-party-permissions';
 import type { GuestUsernameGeneratorPort } from '../../../../../domains/game/party/player/ports/guest-username-generator.port';
-import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
 import type {
   PartyJoinReceipt,
   PartyPlayerPort,
@@ -30,7 +29,7 @@ import type { User, UserId } from '../../../../../domains/identity/entities/user
 import { AuthFixtureFactory } from '../../../../../test-utils/fixtures/auth-fixture-factory';
 import { PartyFixtureFactory } from '../../../../../test-utils/fixtures/party-fixture-factory';
 import { GameIdentifierMockFactory } from '../../../../../test-utils/mocks/game-identifier-mock-factory';
-import { GuestIdentifierMockFactory } from '../../../../../test-utils/mocks/guest-identifier-mock-factory';
+import { ParticipantIdentifierMockFactory } from '../../../../../test-utils/mocks/participant-identifier-mock-factory';
 import { PartyActionIdentifierMockFactory } from '../../../../../test-utils/mocks/party-action-identifier-mock-factory';
 import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
 import { PartyPinIdentifierMockFactory } from '../../../../../test-utils/mocks/party-pin-identifier-mock-factory';
@@ -49,7 +48,7 @@ vi.mock('../../../../shared/guide/guide-context', () => ({
 
 const runtimeGameType = Object.values(GameType)[0] as GameType;
 
-const guestIdentifier = new GuestIdentifierMockFactory().create();
+const guestIdentifier = new ParticipantIdentifierMockFactory().create();
 const userIdentifier = new UserIdentifierMockFactory().create();
 const partyIdentifier = new PartyIdentifierMockFactory().create();
 const partyPinIdentifier = new PartyPinIdentifierMockFactory().create();
@@ -101,8 +100,8 @@ type LegacyPartyIdentity =
       readonly userId: UserId;
     }
   | {
-      readonly kind: PartyPlayerKind.GUEST;
-      readonly guestId: GuestId;
+      readonly kind: PartyPlayerKind.PARTICIPANT;
+      readonly participantId: ParticipantId;
     };
 
 interface LegacyObservedPartyEntry {
@@ -163,7 +162,7 @@ function createUserEntry(
 }
 
 function createGuestEntry(
-  guestId: GuestId,
+  participantId: ParticipantId,
   username: string,
   options: {
     avatarUri: string | null;
@@ -173,7 +172,7 @@ function createGuestEntry(
 ): LegacyObservedPartyEntry {
   return {
     avatarUri: options.avatarUri,
-    identity: { kind: PartyPlayerKind.GUEST, guestId },
+    identity: { kind: PartyPlayerKind.PARTICIPANT, participantId },
     joinedAt: options.joinedAt,
     totalScore: options.totalScore,
     username,
@@ -275,15 +274,7 @@ const mocks = vi.hoisted(() => {
       rejoinParty: vi.fn(async () => createRejectedJoinReceipt()),
       submitAction: vi.fn(async () => undefined),
     } as PartyPlayerPort,
-    partyGuestSessionPort: {
-      clearGuestId: vi.fn(),
-      getGuestPin: vi.fn(() => null),
-      getGuestId: vi.fn(() => null),
-      setGuestId: vi.fn(),
-    } as PartyGuestSessionPort,
     partyLobbyFacade: {
-      recoverGuestParty: vi.fn(async () => undefined),
-      clearGuestId: (pin) => mocks.partyGuestSessionPort.clearGuestId(pin),
       executeHostRuntimeCommand: async (command, partyId) => {
         const hostCommand = { partyId };
 
@@ -317,13 +308,11 @@ const mocks = vi.hoisted(() => {
             return;
         }
       },
-      getGuestId: (pin) => mocks.partyGuestSessionPort.getGuestId(pin),
       joinParty: (command) => mocks.partyPlayerPort.joinParty(command),
       kickPlayer: (command) => mocks.partyHostControlPort.kickPlayer(command),
       leaveParty: () => mocks.partyPlayerPort.leaveParty(),
       listParties: () => mocks.partyManagementPort.listParties(),
       rejoinParty: (command) => mocks.partyPlayerPort.rejoinParty(command),
-      setGuestId: (pin, guestId) => mocks.partyGuestSessionPort.setGuestId(pin, guestId),
       submitAction: (command) => mocks.partyPlayerPort.submitAction(command),
     } as PartyLobbyGateway,
     partyObservationPort: {
@@ -419,7 +408,6 @@ vi.mock('../contexts/party-dependencies-context', async (importOriginal) => {
       partyIdentifier,
       partyLobbyFacade: mocks.partyLobbyFacade,
       partyLobbyRuntimeRedirectResolver,
-      partyGuestSessionPort: mocks.partyGuestSessionPort,
       partyHostControlPort: mocks.partyHostControlPort,
       partyManagementPort: mocks.partyManagementPort,
       partyPlayerPort: mocks.partyPlayerPort,
@@ -604,7 +592,7 @@ function toObservationPlayer(
 }
 
 function toPlayerKey(identity: LegacyPartyIdentity): string {
-  return identity.kind === PartyPlayerKind.USER ? `user:${identity.userId}` : `guest:${identity.guestId}`;
+  return identity.kind === PartyPlayerKind.USER ? `user:${identity.userId}` : `guest:${identity.participantId}`;
 }
 
 function createManagedParty(overrides: Partial<Party> = {}): Party {
@@ -781,7 +769,6 @@ describe('PartyLobbyScreen', () => {
       }),
     };
     mocks.partyManagementState.parties = [createManagedParty()];
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
     mocks.observationState.currentParty = createPartyObservation();
     mocks.observationState.currentErrorMessage = null;
     mocks.observationState.currentErrorPartyId = null;
@@ -1030,7 +1017,7 @@ describe('PartyLobbyScreen', () => {
 
   it('clears the persisted guest session when the current guest disappears from observation', async () => {
     // Arrange
-    const guestId = guestIdentifier.parse('guest-current');
+    const participantId = guestIdentifier.parse('guest-current');
 
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
@@ -1038,18 +1025,16 @@ describe('PartyLobbyScreen', () => {
       isAuthenticated: false,
       user: null,
     };
-    mocks.partyGuestSessionPort.clearGuestId = vi.fn();
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => guestId);
     mocks.partyPlayerPort.rejoinParty = vi.fn(async () => createRejectedJoinReceipt());
     mocks.observationState.currentParty = createPartyObservation({
-      liveObserverIdentities: [{ kind: PartyPlayerKind.GUEST, guestId }],
+      liveObserverIdentities: [{ kind: PartyPlayerKind.PARTICIPANT, participantId }],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
           avatarUri: '/avatars/host.png',
           totalScore: 0,
           joinedAt: '2026-04-21T08:00:00.000Z',
         }),
-        createGuestEntry(guestId, 'Nova', {
+        createGuestEntry(participantId, 'Nova', {
           avatarUri: '/avatars/guest.png',
           totalScore: 4,
           joinedAt: '2026-04-21T08:02:00.000Z',
@@ -1092,9 +1077,7 @@ describe('PartyLobbyScreen', () => {
     );
 
     // Assert
-    await waitFor(() => {
-      expect(mocks.partyGuestSessionPort.clearGuestId).toHaveBeenCalledWith(partyPinIdentifier.parse('AB12CD'));
-    });
+    await waitFor(() => {});
 
     expect(mocks.partyPlayerPort.rejoinParty).not.toHaveBeenCalled();
   });
@@ -1295,7 +1278,7 @@ describe('PartyLobbyScreen', () => {
       liveObserverIdentities: [
         { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
         { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(11) },
-        { kind: PartyPlayerKind.GUEST, guestId: guestIdentifier.parse('guest-1') },
+        { kind: PartyPlayerKind.PARTICIPANT, participantId: guestIdentifier.parse('guest-1') },
       ],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
@@ -2827,7 +2810,7 @@ describe('PartyLobbyScreen', () => {
 
   it('prompts guest players to sign in from the final leaderboard to save their score', async () => {
     // Arrange
-    const currentGuestId = guestIdentifier.parse('guest-current');
+    const currentParticipantId = guestIdentifier.parse('guest-current');
 
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
@@ -2836,7 +2819,6 @@ describe('PartyLobbyScreen', () => {
       user: null,
     };
     mocks.partyManagementState.parties = [createManagedParty({ role: PartyRole.PLAYER, status: PartyStatus.ENDED })];
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => currentGuestId);
     mocks.observationState.currentParty = createPartyObservation({
       status: PartyStatus.ENDED,
       context: {
@@ -2857,7 +2839,7 @@ describe('PartyLobbyScreen', () => {
           joinedAt: '2026-04-21T08:00:00.000Z',
           totalScore: 0,
         }),
-        createGuestEntry(currentGuestId, 'Nova', {
+        createGuestEntry(currentParticipantId, 'Nova', {
           avatarUri: '/avatars/guest.png',
           joinedAt: '2026-04-21T08:01:00.000Z',
           totalScore: 1200,
@@ -3147,14 +3129,13 @@ describe('PartyLobbyScreen', () => {
       isAuthenticated: false,
       user: null,
     };
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => guestIdentifier.parse('guest-1'));
     mocks.partyManagementState.parties = [];
     mocks.partyPlayerPort.leaveParty = vi.fn(async () => true);
     mocks.partyPlayerPort.rejoinParty = vi.fn(async () => createRejectedJoinReceipt());
     mocks.observationState.currentParty = createPartyObservation({
       liveObserverIdentities: [
         { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
-        { kind: PartyPlayerKind.GUEST, guestId: guestIdentifier.parse('guest-1') },
+        { kind: PartyPlayerKind.PARTICIPANT, participantId: guestIdentifier.parse('guest-1') },
       ],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
@@ -3270,7 +3251,7 @@ describe('PartyLobbyScreen', () => {
     expect(mocks.observationState.observePartyById).not.toHaveBeenCalled();
   });
 
-  it('blocks joining until a cookie identity is confirmed', async () => {
+  it('offers explicit anonymous creation instead of claiming a prior identity', async () => {
     // Arrange
     mocks.authState = {
       hasRestoredSession: true,
@@ -3278,7 +3259,6 @@ describe('PartyLobbyScreen', () => {
       user: null,
     };
     mocks.partyManagementState.parties = [];
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
     mocks.observationState.currentParty = null;
     mocks.observationState.currentErrorMessage = null;
     mocks.observationState.currentErrorPartyId = null;
@@ -3291,7 +3271,7 @@ describe('PartyLobbyScreen', () => {
     expect(await screen.findByRole('banner')).toBeInTheDocument();
     expect(await screen.findByLabelText('game.party.player.route.guestNameLabel')).toBeInTheDocument();
     expect((screen.getByLabelText('game.party.player.route.guestNameLabel') as HTMLInputElement).value).toMatch(/\S/);
-    expect(screen.getByRole('button', { name: 'game.party.player.route.joinAsGuestCta' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'game.party.player.route.joinAsGuestCta' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'game.party.player.route.shuffleGuestAvatarCta' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'game.party.player.route.generateGuestNameCta' })).toBeInTheDocument();
     expect(screen.queryByText((content) => content.includes('errors.listFailed'))).not.toBeInTheDocument();
@@ -3305,7 +3285,6 @@ describe('PartyLobbyScreen', () => {
       user: null,
     };
     mocks.partyManagementState.parties = [];
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
     mocks.observationState.currentParty = null;
     mocks.observationState.currentErrorMessage = null;
     mocks.observationState.currentErrorPartyId = null;
@@ -3324,7 +3303,7 @@ describe('PartyLobbyScreen', () => {
     expect(guestNameInput.value).not.toBe(initialGuestName);
   });
 
-  it('shows join errors in a toast notification', async () => {
+  it('shows join errors until the next retry', async () => {
     // Arrange
     mocks.authState = {
       hasRestoredSession: true,
@@ -3332,7 +3311,6 @@ describe('PartyLobbyScreen', () => {
       user: authFixtureFactory.createUser({ id: 11, username: 'Neo', email: 'neo@pleey.io' }),
     };
     mocks.partyManagementState.parties = [];
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
     mocks.observationState.currentParty = null;
     mocks.observationState.currentErrorMessage = null;
     mocks.observationState.currentErrorPartyId = null;
@@ -3362,7 +3340,7 @@ describe('PartyLobbyScreen', () => {
       }),
     );
 
-    expect(await screen.findByTestId('join-party-error-toast')).toHaveTextContent('game.party.errors.joinFailed');
+    expect(await screen.findByRole('alert')).toHaveTextContent('game.party.errors.joinFailed');
     expect(screen.queryAllByRole('alert')).toHaveLength(1);
   });
 
@@ -3374,7 +3352,6 @@ describe('PartyLobbyScreen', () => {
       user: null,
     };
     mocks.partyManagementState.parties = [];
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
     mocks.observationState.currentParty = null;
     mocks.observationState.currentErrorMessage = null;
     mocks.observationState.currentErrorPartyId = null;
@@ -3395,7 +3372,6 @@ describe('PartyLobbyScreen', () => {
       user: authFixtureFactory.createUser({ id: 11, username: 'Neo', email: 'neo@pleey.io' }),
     };
     mocks.partyManagementState.parties = [];
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
     mocks.partyPlayerPort.joinParty = vi.fn(async () =>
       createRejectedJoinReceipt(PartyManagementErrorCode.VALIDATION_FAILED),
     );
@@ -3528,7 +3504,7 @@ describe('PartyLobbyScreen', () => {
     });
   });
 
-  it('rejoins a persisted guest session after refreshing the canonical lobby route', async () => {
+  it('does not reclaim a detached participant after refreshing the canonical lobby route', async () => {
     // Arrange
     mocks.params = { partyId: '9', pin: undefined };
     mocks.authState = {
@@ -3537,23 +3513,7 @@ describe('PartyLobbyScreen', () => {
       user: null,
     };
     mocks.partyManagementState.parties = [];
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => guestIdentifier.parse('guest-1'));
-    mocks.partyPlayerPort.rejoinParty = vi.fn(
-      async (): Promise<PartyJoinReceipt> => ({
-        gameId: gameIdentifier.parse(17),
-        player: {
-          avatarUri: null,
-          identity: {
-            kind: PartyPlayerKind.GUEST,
-            guestId: guestIdentifier.parse('guest-1'),
-          },
-          username: 'Guest One',
-        },
-        partyId: partyIdentifier.parse(9),
-        pin: partyPinIdentifier.parse('AB12CD'),
-        status: PartyJoinReceiptStatus.ACCEPTED,
-      }),
-    );
+    mocks.partyPlayerPort.rejoinParty = vi.fn();
     mocks.observationState.currentParty = createPartyObservation({
       liveObserverIdentities: [{ kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) }],
       entries: [
@@ -3579,18 +3539,9 @@ describe('PartyLobbyScreen', () => {
     );
 
     // Assert
-    await waitFor(() => {
-      expect(mocks.partyPlayerPort.rejoinParty).toHaveBeenCalledWith({
-        pin: partyPinIdentifier.parse('AB12CD'),
-        playerIdentity: {
-          kind: PartyPlayerKind.GUEST,
-          guestId: guestIdentifier.parse('guest-1'),
-        },
-        username: undefined,
-      });
-    });
-
-    expect(screen.queryByTestId('party-lobby-redirect')).not.toBeInTheDocument();
+    await waitFor(() => expect(mocks.observationState.observePartyById).toHaveBeenCalled());
+    expect(mocks.partyPlayerPort.rejoinParty).not.toHaveBeenCalled();
+    expect(screen.getByTestId('party-lobby-redirect')).toHaveTextContent('/join/AB12CD');
   });
 
   it('observes host lobby routes by party id', () => {
@@ -3861,7 +3812,6 @@ describe('PartyLobbyScreen', () => {
       }),
     };
     mocks.partyManagementState.parties = [];
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => null);
     mocks.observationState.currentParty = createPartyObservation({
       players: [
         partyFixtureFactory.createObservationPlayer({
@@ -3939,7 +3889,7 @@ describe('PartyLobbyScreen', () => {
     );
   });
 
-  it('redirects persisted guests from the join route to their current party lobby', async () => {
+  it('does not redirect a detached participant from the join route', async () => {
     // Arrange
     mocks.params = { pin: 'ab12cd' };
     mocks.authState = {
@@ -3948,27 +3898,11 @@ describe('PartyLobbyScreen', () => {
       user: null,
     };
     mocks.partyManagementState.parties = [];
-    mocks.partyGuestSessionPort.getGuestId = vi.fn(() => guestIdentifier.parse('guest-1'));
-    mocks.partyPlayerPort.rejoinParty = vi.fn(
-      async (): Promise<PartyJoinReceipt> => ({
-        gameId: gameIdentifier.parse(17),
-        player: {
-          avatarUri: '/avatars/guest.png',
-          identity: {
-            kind: PartyPlayerKind.GUEST,
-            guestId: guestIdentifier.parse('guest-1'),
-          },
-          username: 'Guest One',
-        },
-        partyId: partyIdentifier.parse(9),
-        pin: partyPinIdentifier.parse('AB12CD'),
-        status: PartyJoinReceiptStatus.ACCEPTED,
-      }),
-    );
+    mocks.partyPlayerPort.rejoinParty = vi.fn();
     mocks.observationState.currentParty = createPartyObservation({
       liveObserverIdentities: [
         { kind: PartyPlayerKind.USER, userId: userIdentifier.parse(7) },
-        { kind: PartyPlayerKind.GUEST, guestId: guestIdentifier.parse('guest-1') },
+        { kind: PartyPlayerKind.PARTICIPANT, participantId: guestIdentifier.parse('guest-1') },
       ],
       entries: [
         createUserEntry(userIdentifier.parse(7), 'Host', PartyRole.HOST, {
@@ -3998,20 +3932,8 @@ describe('PartyLobbyScreen', () => {
     );
 
     // Assert
-    await waitFor(() => {
-      expect(mocks.partyPlayerPort.rejoinParty).toHaveBeenCalledWith({
-        pin: partyPinIdentifier.parse('AB12CD'),
-        playerIdentity: {
-          kind: PartyPlayerKind.GUEST,
-          guestId: guestIdentifier.parse('guest-1'),
-        },
-        username: undefined,
-      });
-    });
-
-    expect(await screen.findByTestId('party-lobby-redirect')).toHaveTextContent(
-      `/party/${partyIdentifier.parse(9)}/lobby`,
-    );
+    await waitFor(() => expect(mocks.partyPlayerPort.rejoinParty).not.toHaveBeenCalled());
+    expect(screen.queryByTestId('party-lobby-redirect')).not.toBeInTheDocument();
   });
 
   it('lets a kicked participant join again from the join route without a browser refresh', async () => {

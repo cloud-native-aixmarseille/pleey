@@ -26,6 +26,22 @@ export class IdentityTransferService {
     await this.prisma.$transaction(async (transaction) => {
       const completed = await transaction.identityTransfer.findUnique({ where: { operationId } });
       if (completed?.status === 'COMPLETED') return;
+      if (completed && !['PREPARED', 'VERIFIED', 'APPLYING', 'NEEDS_DECISION'].includes(completed.status)) {
+        return;
+      }
+      const now = new Date();
+      const deadline = completed?.verifiedAt
+        ? new Date(completed.verifiedAt.getTime() + 24 * 60 * 60 * 1000)
+        : completed?.preparedAt
+          ? new Date(completed.preparedAt.getTime() + 60 * 60 * 1000)
+          : null;
+      if (completed && deadline && deadline <= now) {
+        await transaction.identityTransfer.update({
+          where: { id: completed.id },
+          data: { failedAt: now, status: completed.verifiedAt ? 'EXPIRED_PARTIAL' : 'EXPIRED' },
+        });
+        return;
+      }
 
       const sourceClaim = await transaction.userParticipationClaim.findUnique({
         where: { userId: input.sourceUserId },
@@ -49,12 +65,10 @@ export class IdentityTransferService {
         select: { id: true, partyId: true },
       });
       for (const participant of sourceParticipants) {
-        const collision = await transaction.partyParticipant.findUnique({
+        const collision = await transaction.partyParticipant.findFirst({
           where: {
-            partyId_userId: {
-              partyId: participant.partyId,
-              userId: input.targetUserId,
-            },
+            partyId: participant.partyId,
+            userId: input.targetUserId,
           },
           select: { id: true },
         });
@@ -80,15 +94,11 @@ export class IdentityTransferService {
         update: {
           status: 'VERIFIED',
           targetUserId: input.targetUserId,
-          verifiedAt: new Date(),
+          verifiedAt: completed?.verifiedAt ?? new Date(),
         },
       });
 
       await transaction.partyParticipant.updateMany({
-        data: { userId: input.targetUserId },
-        where: { userId: input.sourceUserId },
-      });
-      await transaction.score.updateMany({
         data: { userId: input.targetUserId },
         where: { userId: input.sourceUserId },
       });
@@ -104,18 +114,27 @@ export class IdentityTransferService {
         }
       }
 
-      await transaction.session.deleteMany({ where: { id: input.sourceSessionId } });
+      await transaction.session.deleteMany({ where: { userId: input.sourceUserId } });
       await transaction.identityTransfer.update({
         data: {
           completedAt: new Date(),
           status: 'COMPLETED',
           stepMarkers: {
             participantOwnership: true,
-            scores: true,
             sourceSessionRevoked: true,
           },
         },
         where: { id: transfer.id },
+      });
+      await transaction.anonymousRetirement.upsert({
+        where: { operationId: `transfer:${operationId}` },
+        create: {
+          operationId: `transfer:${operationId}`,
+          sourceUserId: input.sourceUserId,
+          status: 'PENDING',
+          completedSteps: { transferCompleted: true },
+        },
+        update: { status: 'PENDING' },
       });
     });
   }

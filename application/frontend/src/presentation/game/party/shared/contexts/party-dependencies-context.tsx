@@ -4,7 +4,6 @@ import type { PartyLobbyGateway } from '../../../../../application/game/party/sh
 import type { PartyHostControlPort } from '../../../../../domains/game/party/host/ports/party-host-control.port';
 import type { PartyHostRuntimeControlsPort } from '../../../../../domains/game/party/host/ports/party-host-runtime-controls.port';
 import type { PartyManagementPort } from '../../../../../domains/game/party/host/ports/party-management.port';
-import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
 import type { PartyPlayerPort } from '../../../../../domains/game/party/player/ports/party-player.port';
 import type { PartyObservationPort } from '../../../../../domains/game/party/shared/ports/party-observation.port';
 import type { PrivatePartyPasswordGeneratorPort } from '../../../../../domains/game/party/shared/ports/private-party-password-generator.port';
@@ -31,7 +30,6 @@ export interface PartyDependencies {
   readonly partyIdentifier: PartyIdParser;
   readonly partyLobbyFacade: PartyLobbyGateway;
   readonly partyLobbyRuntimeRedirectResolver: PartyLobbyRuntimeRedirectResolver;
-  readonly partyGuestSessionPort: PartyGuestSessionPort;
   readonly partyHostControlPort: PartyHostControlPort;
   readonly partyManagementPort: PartyManagementPort;
   readonly partyPlayerPort: PartyPlayerPort;

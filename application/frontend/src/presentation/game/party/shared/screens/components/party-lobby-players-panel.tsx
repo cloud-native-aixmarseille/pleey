@@ -62,7 +62,7 @@ function sortPlayers(players: readonly PartyObservationPlayer[]): PartyObservati
 function toPlayerKey(player: PartyObservationPlayer): string {
   return player.identity.kind === PartyPlayerKind.USER
     ? `user:${player.identity.userId}`
-    : `guest:${player.identity.guestId}`;
+    : `guest:${player.identity.participantId}`;
 }
 
 export function PartyLobbyPlayersPanel({

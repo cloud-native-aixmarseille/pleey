@@ -1,4 +1,4 @@
-import type { GuestId, UserId } from "../identity/index.ts";
+import type { ParticipantId, UserId } from "../identity/index.ts";
 import type { Permissions } from "../shared/primitives/index.ts";
 
 export type PartyId = string & { readonly __identifierBrand: "PartyId" };
@@ -30,11 +30,11 @@ export declare namespace PartyRuntimePhase {
   type ENDED = typeof PartyRuntimePhase.ENDED;
 }
 
-export const PartyPlayerKind = { USER: "user", GUEST: "guest" } as const;
+export const PartyPlayerKind = { USER: "user", PARTICIPANT: "participant" } as const;
 export type PartyPlayerKind = (typeof PartyPlayerKind)[keyof typeof PartyPlayerKind];
 export declare namespace PartyPlayerKind {
   type USER = typeof PartyPlayerKind.USER;
-  type GUEST = typeof PartyPlayerKind.GUEST;
+  type PARTICIPANT = typeof PartyPlayerKind.PARTICIPANT;
 }
 
 export interface AuthenticatedPartyPlayerIdentity {
@@ -42,12 +42,12 @@ export interface AuthenticatedPartyPlayerIdentity {
   readonly userId: UserId;
 }
 
-export interface GuestPartyPlayerIdentity {
-  readonly kind: PartyPlayerKind.GUEST;
-  readonly guestId: GuestId;
+export interface DetachedPartyPlayerIdentity {
+  readonly kind: PartyPlayerKind.PARTICIPANT;
+  readonly participantId: ParticipantId;
 }
 
-export type PartyPlayerIdentity = AuthenticatedPartyPlayerIdentity | GuestPartyPlayerIdentity;
+export type PartyPlayerIdentity = AuthenticatedPartyPlayerIdentity | DetachedPartyPlayerIdentity;
 
 export const PartyJoinReceiptStatus = { ACCEPTED: "accepted", REJECTED: "rejected" } as const;
 export type PartyJoinReceiptStatus = (typeof PartyJoinReceiptStatus)[keyof typeof PartyJoinReceiptStatus];

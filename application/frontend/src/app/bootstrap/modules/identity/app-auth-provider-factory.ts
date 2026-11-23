@@ -84,6 +84,11 @@ function AppAuthProvider({ children, dependencies }: AppAuthProviderProps) {
   async function signIn(input: LoginUserCommand): Promise<void> {
     const loginRevision = ++revision.current;
     signingOut.current = false;
+    const existingSession = await dependencies.authSessionService.restore();
+    if (existingSession) {
+      await betterAuthClient.signOut();
+      dependencies.authSessionService.clear();
+    }
     dependencies.authSessionService.suspend();
     setHasRestoredSession(true);
     setUser(null);
@@ -101,6 +106,18 @@ function AppAuthProvider({ children, dependencies }: AppAuthProviderProps) {
     dependencies.workspaceSelectionService.clear();
     dependencies.authSessionService.commit(session);
     setUser(session.user);
+  }
+
+  async function ensureAnonymousSession(): Promise<User> {
+    const anonymous = await dependencies.authSessionService.ensureAnonymous();
+    const validatedUser = await dependencies.getCurrentUser.execute();
+    const confirmedUser = { ...validatedUser, isAnonymous: anonymous.isAnonymous };
+    revision.current++;
+    dependencies.workspaceSelectionService.clear();
+    dependencies.authSessionService.updateUser(confirmedUser);
+    setHasRestoredSession(true);
+    setUser(confirmedUser);
+    return confirmedUser;
   }
 
   async function register(input: RegisterUserCommand): Promise<void> {
@@ -160,6 +177,7 @@ function AppAuthProvider({ children, dependencies }: AppAuthProviderProps) {
   }
 
   const value: AuthContextValue = {
+    ensureAnonymousSession,
     requestPasswordReset: async (email, locale, captchaToken) => {
       void locale;
       await betterAuthClient.$fetch('/request-password-reset', {

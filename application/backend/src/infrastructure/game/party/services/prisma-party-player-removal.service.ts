@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { GuestId } from '@pleey/contracts/identity';
+import type { ParticipantId } from '@pleey/contracts/identity';
 import type { PartyId } from '@pleey/contracts/party';
 import { PartyPlayerKind } from '@pleey/contracts/party';
 import type { UserId } from '../../../../domain/identity/entities/user';
@@ -11,8 +11,8 @@ type RemovablePartyPlayerIdentity =
       readonly userId: UserId;
     }
   | {
-      readonly kind: PartyPlayerKind.GUEST;
-      readonly guestId: GuestId;
+      readonly kind: PartyPlayerKind.PARTICIPANT;
+      readonly participantId: ParticipantId;
     };
 
 interface RemovePartyPlayerRecordCommand {
@@ -26,13 +26,12 @@ export class PrismaPartyPlayerRemovalService {
   constructor(private readonly prisma: PrismaService) {}
 
   async removePlayer(command: RemovePartyPlayerRecordCommand): Promise<boolean> {
-    if (command.playerIdentity.kind === PartyPlayerKind.USER) {
-      const userId = command.playerIdentity.userId;
+    const playerIdentity = command.playerIdentity;
+    if (playerIdentity.kind === PartyPlayerKind.USER) {
+      const userId = playerIdentity.userId;
       return this.prisma.$transaction(async (transaction) => {
-        const participant = await transaction.partyParticipant.findUnique({
-          where: {
-            partyId_userId: { partyId: command.partyId, userId },
-          },
+        const participant = await transaction.partyParticipant.findFirst({
+          where: { partyId: command.partyId, userId },
           select: { id: true, status: true },
         });
         if (participant?.status !== 'ACTIVE') return false;
@@ -51,35 +50,21 @@ export class PrismaPartyPlayerRemovalService {
       });
     }
 
-    const guestIdentity = command.playerIdentity;
-
     return this.prisma.$transaction(async (transaction) => {
-      const deletedScores = await transaction.score.deleteMany({
+      const participant = await transaction.partyParticipant.findFirst({
         where: {
+          id: playerIdentity.participantId,
           partyId: command.partyId,
-          guestId: guestIdentity.guestId,
+          userId: null,
         },
+        select: { id: true, status: true },
       });
-
-      let deletedGuestsCount = 0;
-
-      const remainingGuestScores = await transaction.score.count({
-        where: {
-          guestId: guestIdentity.guestId,
-        },
+      if (participant?.status !== 'ACTIVE') return false;
+      await transaction.partyParticipant.update({
+        data: { status: command.status ?? 'KICKED' },
+        where: { id: participant.id },
       });
-
-      if (remainingGuestScores === 0) {
-        const deletedGuests = await transaction.guest.deleteMany({
-          where: {
-            id: guestIdentity.guestId,
-          },
-        });
-
-        deletedGuestsCount = deletedGuests.count;
-      }
-
-      return deletedScores.count > 0 || deletedGuestsCount > 0;
+      return true;
     });
   }
 }

@@ -71,19 +71,11 @@ export function usePartyLobbyRouteContext({
   useEffect(() => {
     const partyId = routeState.resolvedPartyId;
     if (partyId === null) return;
-    let cancelled = false;
-    let release: (() => void) | undefined;
-    const observe = () => {
-      if (!cancelled) release = observePartyById(partyId);
-    };
-    if (!isAuthenticated && !getPartyByPartyId(partyId)) {
-      void partyLobbyFacade.recoverGuestParty(partyId).then(observe, observe);
-    } else observe();
+    const release = observePartyById(partyId);
     return () => {
-      cancelled = true;
-      release?.();
+      release();
     };
-  }, [observePartyById, routeState.resolvedPartyId, isAuthenticated, partyLobbyFacade, getPartyByPartyId]);
+  }, [observePartyById, routeState.resolvedPartyId]);
 
   const party = getPartyByPartyId(routeState.resolvedPartyId) ?? undefined;
   const runtimeNotice = getRuntimeNoticeByPartyId(routeState.resolvedPartyId) ?? null;

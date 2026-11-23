@@ -40,8 +40,8 @@ describe('HostPartyObservationMessageMapper', () => {
           {
             avatarUri: '/api/avatars/guests/guest-1',
             identity: {
-              kind: PartyPlayerKind.GUEST,
-              guestId: backendTestIdentifiers.guest('guest-1'),
+              kind: PartyPlayerKind.PARTICIPANT,
+              participantId: backendTestIdentifiers.participant('guest-1'),
             },
             joinedAt: new Date('2026-06-11T10:01:00.000Z'),
             totalScore: 900,
@@ -68,8 +68,8 @@ describe('HostPartyObservationMessageMapper', () => {
           userId: backendTestIdentifiers.user(42),
         },
         {
-          kind: PartyPlayerKind.GUEST,
-          guestId: backendTestIdentifiers.guest('guest-1'),
+          kind: PartyPlayerKind.PARTICIPANT,
+          participantId: backendTestIdentifiers.participant('guest-1'),
         },
         {
           kind: PartyPlayerKind.USER,
@@ -131,8 +131,8 @@ describe('HostPartyObservationMessageMapper', () => {
         avatarUri: '/api/avatars/guests/guest-1',
         correctStages: 0,
         identity: {
-          kind: PartyPlayerKind.GUEST,
-          guestId: backendTestIdentifiers.guest('guest-1'),
+          kind: PartyPlayerKind.PARTICIPANT,
+          participantId: backendTestIdentifiers.participant('guest-1'),
         },
         isCurrentPlayer: false,
         isLive: true,

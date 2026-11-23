@@ -1,4 +1,4 @@
-import type { GuestId } from '@pleey/contracts/identity';
+import type { ParticipantId } from '@pleey/contracts/identity';
 import { PartyPlayerKind } from '@pleey/contracts/party';
 import type { UserId } from '../../../../identity/entities/user';
 
@@ -18,7 +18,7 @@ export type PartyPlayer =
     })
   | (BasePartyPlayer & {
       readonly identity: {
-        readonly kind: PartyPlayerKind.GUEST;
-        readonly guestId: GuestId;
+        readonly kind: PartyPlayerKind.PARTICIPANT;
+        readonly participantId: ParticipantId;
       };
     });

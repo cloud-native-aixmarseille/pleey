@@ -1,12 +1,12 @@
 import type { GameId } from '@pleey/contracts/game';
 import { GameType } from '@pleey/contracts/game';
-import type { GuestId } from '@pleey/contracts/identity';
+import type { ParticipantId } from '@pleey/contracts/identity';
 import type { PartyId, PartyPin } from '@pleey/contracts/party';
 import { DEFAULT_PARTY_SETTINGS, PartyPlayerKind, PartyRole, PartyStatus } from '@pleey/contracts/party';
 import { PartyIdentifier } from '../../application/game/party/shared/services/identifiers/party-identifier';
 import { PartyPinIdentifier } from '../../application/game/party/shared/services/identifiers/party-pin-identifier';
 import { GameIdentifier } from '../../application/game/shared/services/identifiers/game-identifier';
-import { GuestIdentifier } from '../../application/identity/shared/services/identifiers/guest-identifier';
+import { ParticipantIdentifier } from '../../application/identity/shared/services/identifiers/participant-identifier';
 import { UserIdentifier } from '../../application/identity/shared/services/identifiers/user-identifier';
 import type { HostPartyPermissions } from '../../domains/game/party/host/value-objects/host-party-permissions';
 import { HostPartyDisabledReason } from '../../domains/game/party/host/value-objects/host-party-permissions';
@@ -22,7 +22,7 @@ import { coerceUuidV7TestValue } from './uuid-v7-test-value';
 const gameIdentifier = new GameIdentifier();
 const partyIdentifier = new PartyIdentifier();
 const partyPinIdentifier = new PartyPinIdentifier();
-const guestIdentifier = new GuestIdentifier();
+const guestIdentifier = new ParticipantIdentifier();
 const userIdentifier = new UserIdentifier();
 
 interface PartyOverrides extends Omit<Partial<Party>, 'partyId' | 'gameId' | 'pin'> {
@@ -37,8 +37,8 @@ type IdentityOverride =
       readonly userId: number | UserId;
     }
   | {
-      readonly kind: PartyPlayerKind.GUEST;
-      readonly guestId: string | GuestId;
+      readonly kind: PartyPlayerKind.PARTICIPANT;
+      readonly participantId: string | ParticipantId;
     };
 
 type PartyHostOverrides = {
@@ -187,8 +187,8 @@ export class PartyFixtureFactory {
               : identity.userId,
         }
       : {
-          kind: PartyPlayerKind.GUEST,
-          guestId: guestIdentifier.parse(coerceUuidV7TestValue(identity.guestId)),
+          kind: PartyPlayerKind.PARTICIPANT,
+          participantId: guestIdentifier.parse(coerceUuidV7TestValue(identity.participantId)),
         };
   }
 }

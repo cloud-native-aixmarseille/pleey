@@ -84,12 +84,12 @@ export function usePartyLobbyScreenViewState({
       routeKind,
     });
   const currentPartyPin = normalizedPin ?? party?.pin ?? null;
-  const currentGuestId = currentPartyPin ? partyLobbyFacade.getGuestId(currentPartyPin) : null;
+  const currentParticipantId = null;
   const connectionState = getConnectionStateByPartyId(routeState.resolvedPartyId);
   const viewModel = resolvePartyLobbyScreenViewModel({
     bootstrapErrorMessage,
     bootstrapPartyByPin,
-    currentGuestId,
+    currentParticipantId,
     isJoinSubmitting,
     joinErrorMessage,
     joinedPartyId,
@@ -108,7 +108,7 @@ export function usePartyLobbyScreenViewState({
   return {
     connectionState,
     consumeRuntimeNotice,
-    currentGuestId,
+    currentParticipantId,
     currentPartyPin,
     currentPlayer,
     isAuthenticated,

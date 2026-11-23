@@ -5,9 +5,6 @@ const avatarHeaderValueSchema = z.string().min(1);
 export const avatarUserIdParamSchema = z.uuid({ version: 'v7' });
 export type AvatarUserIdParam = z.infer<typeof avatarUserIdParamSchema>;
 
-export const avatarGuestIdParamSchema = z.uuid({ version: 'v7' });
-export type AvatarGuestIdParam = z.infer<typeof avatarGuestIdParamSchema>;
-
 export const avatarSeedParamSchema = z.string().min(1);
 export type AvatarSeedParam = z.infer<typeof avatarSeedParamSchema>;
 

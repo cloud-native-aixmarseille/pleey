@@ -85,7 +85,7 @@ export class SocketIoPartyRealtimeTransport {
     eventName: SocketIoPartyJoinEventName.JoinParty | SocketIoPartyJoinEventName.RejoinParty,
     payload: SocketPartyEntryPayload,
   ): Promise<PartyJoinMessage> {
-    this.ensureConnected();
+    this.reconnectWithCurrentCookie();
 
     return this.emitWithAcknowledgement<PartyJoinMessage>(eventName, payload);
   }
@@ -192,6 +192,12 @@ export class SocketIoPartyRealtimeTransport {
     if (!socket.connected) {
       socket.connect();
     }
+  }
+
+  private reconnectWithCurrentCookie(): void {
+    const socket = this.getOrCreateSocket();
+    if (socket.connected) socket.disconnect();
+    socket.connect();
   }
 
   private getOrCreateSocket(): Socket {
