@@ -207,8 +207,8 @@ including Linux amd64 and arm64 manifests; selecting the index preserves platfor
 selection for local builds. The chosen Nginx input is the successfully validated
 image from the discarded fourth attempt. Keep the readable version tag alongside
 the digest. The exact references are maintained in the
-[backend](../../../../application/api/Dockerfile) and
-[frontend](../../../../application/web/Dockerfile) Dockerfiles.
+[backend](../../../../apps/api/Dockerfile) and
+[frontend](../../../../apps/web/Dockerfile) Dockerfiles.
 
 This is an additional accepted P0 decision: mutable base tags invalidated the
 measurement, so fixed application base inputs are a prerequisite to the restarted

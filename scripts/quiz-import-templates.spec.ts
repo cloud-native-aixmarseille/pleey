@@ -1,17 +1,17 @@
 import "reflect-metadata";
 import { describe, expect, it } from "vitest";
-import { QuizImportQuestionMapper } from "../application/api/src/application/game/types/quiz/services/quiz-import-question-mapper";
-import { CsvPlayableContentImportFormatParser } from "../application/api/src/application/game/types/shared/services/playable-content-import/csv-playable-content-import-format-parser";
-import { JsonPlayableContentImportFormatParser } from "../application/api/src/application/game/types/shared/services/playable-content-import/json-playable-content-import-format-parser";
-import { MarkdownPlayableContentImportFormatParser } from "../application/api/src/application/game/types/shared/services/playable-content-import/markdown-playable-content-import-format-parser";
-import { PlaintextPlayableContentImportFormatParser } from "../application/api/src/application/game/types/shared/services/playable-content-import/plaintext-playable-content-import-format-parser";
-import { PlayableContentImportParser } from "../application/api/src/application/game/types/shared/services/playable-content-import/playable-content-import-parser";
-import { PlayableContentImportParserContainer } from "../application/api/src/application/game/types/shared/services/playable-content-import/playable-content-import-parser-container";
-import { TrueFalseImportValueParser } from "../application/api/src/application/game/types/shared/services/playable-content-import/true-false-import-value-parser";
-import { SelectableOptionPolicy } from "../application/api/src/domain/game/types/shared/services/selectable-option-policy";
-import { QuizQuestionImportExampleFactory } from "../application/web/src/application/game/types/quiz/services/quiz-question-import-example-factory";
-import { DEFAULT_PLAYABLE_CONTENT_IMPORT_EXAMPLE_FORMATS } from "../application/web/src/application/game/types/shared/ports/playable-content-import-example-provider.port";
-import { TranslationResourceComposer } from "../application/web/src/i18n/translation-resource-composer";
+import { QuizImportQuestionMapper } from "../apps/api/src/application/game/types/quiz/services/quiz-import-question-mapper";
+import { CsvPlayableContentImportFormatParser } from "../apps/api/src/application/game/types/shared/services/playable-content-import/csv-playable-content-import-format-parser";
+import { JsonPlayableContentImportFormatParser } from "../apps/api/src/application/game/types/shared/services/playable-content-import/json-playable-content-import-format-parser";
+import { MarkdownPlayableContentImportFormatParser } from "../apps/api/src/application/game/types/shared/services/playable-content-import/markdown-playable-content-import-format-parser";
+import { PlaintextPlayableContentImportFormatParser } from "../apps/api/src/application/game/types/shared/services/playable-content-import/plaintext-playable-content-import-format-parser";
+import { PlayableContentImportParser } from "../apps/api/src/application/game/types/shared/services/playable-content-import/playable-content-import-parser";
+import { PlayableContentImportParserContainer } from "../apps/api/src/application/game/types/shared/services/playable-content-import/playable-content-import-parser-container";
+import { TrueFalseImportValueParser } from "../apps/api/src/application/game/types/shared/services/playable-content-import/true-false-import-value-parser";
+import { SelectableOptionPolicy } from "../apps/api/src/domain/game/types/shared/services/selectable-option-policy";
+import { QuizQuestionImportExampleFactory } from "../apps/web/src/application/game/types/quiz/services/quiz-question-import-example-factory";
+import { DEFAULT_PLAYABLE_CONTENT_IMPORT_EXAMPLE_FORMATS } from "../apps/web/src/application/game/types/shared/ports/playable-content-import-example-provider.port";
+import { TranslationResourceComposer } from "../apps/web/src/i18n/translation-resource-composer";
 
 describe.each(Object.entries(new TranslationResourceComposer().compose()))(
   "Quiz templates for %s",

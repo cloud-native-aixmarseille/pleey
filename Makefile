@@ -476,9 +476,9 @@ test-chart: ## Run Helm chart lint+install like CI, building app images locally 
 	HELM_SET_ARGS="backend.image.repository=$(CHART_TEST_BACKEND_IMAGE_REPOSITORY),backend.image.tag=$(CHART_TEST_BACKEND_IMAGE_TAG),backend.image.digest=,backend.image.pullPolicy=IfNotPresent,backend.cloudnativepgOperator.enabled=true,frontend.image.repository=$(CHART_TEST_FRONTEND_IMAGE_REPOSITORY),frontend.image.tag=$(CHART_TEST_FRONTEND_IMAGE_TAG),frontend.image.digest=,frontend.image.pullPolicy=IfNotPresent"; \
 	trap 'exit_code=$$?; if [ "$(CHART_TEST_KEEP_KIND)" != "1" ]; then echo "$(YELLOW)Deleting Kind cluster $$KIND_CLUSTER...$(NC)"; kind delete cluster --name "$$KIND_CLUSTER" >/dev/null 2>&1 || true; else echo "$(YELLOW)Keeping Kind cluster $$KIND_CLUSTER for debugging$(NC)"; fi; exit $$exit_code' EXIT; \
 	echo "$(GREEN)Building backend image $$BACKEND_IMAGE...$(NC)"; \
-	DOCKER_BUILDKIT=1 docker build --target prod --file application/api/Dockerfile --tag "$$BACKEND_IMAGE" .; \
+	DOCKER_BUILDKIT=1 docker build --target prod --file apps/api/Dockerfile --tag "$$BACKEND_IMAGE" .; \
 	echo "$(GREEN)Building frontend image $$FRONTEND_IMAGE...$(NC)"; \
-	DOCKER_BUILDKIT=1 docker build --target prod --file application/web/Dockerfile --tag "$$FRONTEND_IMAGE" .; \
+	DOCKER_BUILDKIT=1 docker build --target prod --file apps/web/Dockerfile --tag "$$FRONTEND_IMAGE" .; \
 	echo "$(GREEN)Adding Helm repositories...$(NC)"; \
 	helm repo add cloudnative-pg https://cloudnative-pg.github.io/charts --force-update >/dev/null; \
 	helm repo add valkey https://valkey.io/valkey-helm/ --force-update >/dev/null; \
@@ -498,8 +498,8 @@ test-chart: ## Run Helm chart lint+install like CI, building app images locally 
 
 test-install: ## Install test dependencies for all projects
 	@echo "$(GREEN)Installing test dependencies...$(NC)"
-	@cd application/api && npm install
-	@cd application/web && npm install
+	@cd apps/api && npm install
+	@cd apps/web && npm install
 	@cd e2e && npm install
 	@echo "$(GREEN)✓ Test dependencies installed$(NC)"
 
@@ -549,10 +549,10 @@ _test-scope:
 	fi; \
 	case "$$TARGET_SCOPE" in \
 		backend) \
-			$(MAKE) --no-print-directory _run-node-scope LABEL=Backend DIR=application/api SERVICE=backend MODE=$$TARGET_MODE SCOPE_NAME=backend; \
+			$(MAKE) --no-print-directory _run-node-scope LABEL=Backend DIR=apps/api SERVICE=backend MODE=$$TARGET_MODE SCOPE_NAME=backend; \
 			;; \
 		frontend) \
-			$(MAKE) --no-print-directory _run-node-scope LABEL=Frontend DIR=application/web SERVICE=frontend MODE=$$TARGET_MODE SCOPE_NAME=frontend; \
+			$(MAKE) --no-print-directory _run-node-scope LABEL=Frontend DIR=apps/web SERVICE=frontend MODE=$$TARGET_MODE SCOPE_NAME=frontend; \
 			;; \
 		e2e) \
 			$(MAKE) --no-print-directory _run-e2e-scope MODE=$$TARGET_MODE; \

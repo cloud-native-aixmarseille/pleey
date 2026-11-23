@@ -49,7 +49,7 @@ wait_for_http() {
 
 run_backend() {
 	local mode="${1:-}"
-	(cd "$ROOT_DIR/application/api" && case "$mode" in
+	(cd "$ROOT_DIR/apps/api" && case "$mode" in
 	--watch) pnpm test:watch ;;
 	--coverage | --cov) pnpm test:cov ;;
 	'') pnpm test ;;
@@ -62,7 +62,7 @@ run_backend() {
 
 run_frontend() {
 	local mode="${1:-}"
-	(cd "$ROOT_DIR/application/web" && case "$mode" in
+	(cd "$ROOT_DIR/apps/web" && case "$mode" in
 	--watch) ppnpm test:watch ;;
 	--coverage | --cov) ppnpm test:cov ;;
 	'') pnpm test ;;

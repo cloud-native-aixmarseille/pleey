@@ -18,17 +18,17 @@ FROM base AS build
 USER root
 WORKDIR /usr/src/repository
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY application/api/package.json ./application/api/package.json
-COPY application/web/package.json ./application/web/package.json
-COPY application/contracts/package.json ./application/contracts/package.json
+COPY apps/api/package.json ./apps/api/package.json
+COPY apps/web/package.json ./apps/web/package.json
+COPY packages/contracts/package.json ./packages/contracts/package.json
 COPY e2e/package.json ./e2e/package.json
 COPY .github/actions/determine-pr-checks/package.json ./.github/actions/determine-pr-checks/package.json
-COPY application/contracts ./application/contracts
-COPY application/api ./application/api
+COPY packages/contracts ./packages/contracts
+COPY apps/api ./apps/api
 
 RUN npm install --global pnpm@10.32.1 --ignore-scripts && pnpm install --frozen-lockfile
 RUN pnpm --filter @pleey/contracts build
-RUN cd application/api && pnpm db:generate && pnpm build
+RUN cd apps/api && pnpm db:generate && pnpm build
 
 FROM build AS build-prod
 
@@ -40,18 +40,18 @@ LABEL org.opencontainers.image.source="https://github.com/cloud-native-aixmarsei
 COPY --from=build-prod /usr/bin/dumb-init /usr/bin/dumb-init
 
 COPY --chown=node:node --from=build-prod /usr/src/repository/node_modules /usr/src/repository/node_modules
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/contracts /usr/src/repository/application/contracts
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/api/node_modules /usr/src/repository/application/api/node_modules
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/api/prisma /usr/src/repository/application/api/prisma
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/api/prisma.config.ts /usr/src/repository/application/api/prisma.config.ts
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/api/dist /usr/src/repository/application/api/dist
-COPY --chown=node:node ./application/api/scripts/wait-for-database.mjs /usr/src/repository/application/api/scripts/wait-for-database.mjs
+COPY --chown=node:node --from=build-prod /usr/src/repository/packages/contracts /usr/src/repository/packages/contracts
+COPY --chown=node:node --from=build-prod /usr/src/repository/apps/api/node_modules /usr/src/repository/apps/api/node_modules
+COPY --chown=node:node --from=build-prod /usr/src/repository/apps/api/prisma /usr/src/repository/apps/api/prisma
+COPY --chown=node:node --from=build-prod /usr/src/repository/apps/api/prisma.config.ts /usr/src/repository/apps/api/prisma.config.ts
+COPY --chown=node:node --from=build-prod /usr/src/repository/apps/api/dist /usr/src/repository/apps/api/dist
+COPY --chown=node:node ./apps/api/scripts/wait-for-database.mjs /usr/src/repository/apps/api/scripts/wait-for-database.mjs
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD ["curl", "-fsS", "http://localhost:3001/ready"]
 
-WORKDIR /usr/src/repository/application/api
-CMD ["dumb-init", "node", "--max-old-space-size=200", "/usr/src/repository/application/api/dist/app/main.js"]
+WORKDIR /usr/src/repository/apps/api
+CMD ["dumb-init", "node", "--max-old-space-size=200", "/usr/src/repository/apps/api/dist/app/main.js"]
 
 FROM base AS tools
 

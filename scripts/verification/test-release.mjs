@@ -13,8 +13,8 @@ if (process.argv.includes('--help') || process.argv.includes('-h')) {
 }
 
 mkdirSync(output.slice(0, output.lastIndexOf('/')), { recursive: true });
-execFileSync('docker', ['build', '--target', 'prod', '-f', 'application/api/Dockerfile', '-t', 'pleey-api:test', '.'], { stdio: 'inherit' });
-execFileSync('docker', ['build', '--target', 'prod', '-f', 'application/web/Dockerfile', '-t', 'pleey-web:test', '.'], { stdio: 'inherit' });
+execFileSync('docker', ['build', '--target', 'prod', '-f', 'apps/api/Dockerfile', '-t', 'pleey-api:test', '.'], { stdio: 'inherit' });
+execFileSync('docker', ['build', '--target', 'prod', '-f', 'apps/web/Dockerfile', '-t', 'pleey-web:test', '.'], { stdio: 'inherit' });
 
 function inspectDigest(image) {
   try {
