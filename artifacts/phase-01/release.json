@@ -1,11 +1,11 @@
 {
   "phase": "01",
-  "sourceCommit": "bbe1451174c44887cc4d12126cc020d473e0ba74",
-  "releaseId": "bbe1451174c4-p01",
+  "sourceCommit": "68569e871625f41bcc4996b0520f83c53ff6f5fa",
+  "releaseId": "68569e871625-p01",
   "profile": "compose",
   "images": {
-    "api": "pleey-api@sha256:7e1bf134c1c0eb087e4a8424e293916d50ecc3dc2cf2b07744716d0e48bfe047",
-    "web": "pleey-web@sha256:289fe11625a12f22c1d22007dab94e377b821c6b72c56f5ce946279ec6e3ed3e"
+    "api": "pleey-api@sha256:cfd4acdae6c0334d93616cdec94da557221a75b2e0fccba215eaa4de00945d4c",
+    "web": "pleey-web@sha256:410775fe46d5a2c27509a05a87063b7e0039087ee853d54f3416abd70a584523"
   },
   "chartSha256": "46c5f205ce1dd799389f687dbb819c6bfb5ff1db9d2ef58ea50c15feb49b5c7e",
   "protocolMajors": {
