@@ -1,2 +1,4 @@
 **/charts/*/**/*.yaml
+charts/application/**/README.md
+docs/technical/implementation/specifications/**
 pnpm-lock.yaml
