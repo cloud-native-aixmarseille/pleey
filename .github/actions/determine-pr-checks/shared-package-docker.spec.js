@@ -12,9 +12,7 @@ describe("shared package Docker wiring", () => {
 
     // Act + Assert
     expect(dockerfile).toContain("COPY application/contracts ./application/contracts");
-    expect(dockerfile).toMatch(
-      /COPY --chown=(?:node:node|1000:1000) --from=build \/usr\/src\/repository \/usr\/src\/app/u,
-    );
+    expect(dockerfile).toContain("COPY --chown=node:node --from=build /usr/src/repository /usr/src/app");
     expect(dockerfile).toContain("pnpm@10.32.1");
   });
 
