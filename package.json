@@ -15,13 +15,5 @@
     "test:upgrade": "node scripts/verification/test-upgrade.mjs",
     "test:restore": "node scripts/verification/test-restore.mjs",
     "deploy:render": "node scripts/operations/deploy-render.mjs"
-  },
-  "pnpm": {
-    "overrides": {
-      "@graphql-tools/utils": "12.0.2",
-      "glob": "14.0.2",
-      "minimatch": "11.0.1",
-      "effect": "3.22.1"
-    }
   }
 }
