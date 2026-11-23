@@ -42,7 +42,7 @@ function gameSettings(root) {
   );
   const rows = [];
   for (const kind of ["quiz", "prediction"]) {
-    const inputPath = `application/backend/src/presentation/game/types/${kind}/graphql/types/${kind}-inputs.ts`;
+    const inputPath = `application/api/src/presentation/game/types/${kind}/graphql/types/${kind}-inputs.ts`;
     const source = sourceFile(path.join(root, inputPath));
     const input = source.statements.find(
       (node) =>
@@ -89,7 +89,7 @@ function permissionsFor(declaration, source) {
 export function generateUsageReference(root = repositoryRoot, check = false) {
   const { guides, resources } = readUsageModel(root);
   const output = new Map();
-  const domainPath = "application/backend/src/domain";
+  const domainPath = "application/api/src/domain";
   const domain = path.join(root, domainPath);
   const partyPath = "application/contracts/party/index.ts";
   const party = loadDataModule(path.join(root, partyPath));
@@ -207,7 +207,7 @@ export function updateGeneratedUsage(usageRoot, output, check) {
     const destination = path.join(usageRoot, file);
     if (check) {
       if (!fs.existsSync(destination) || fs.readFileSync(destination, "utf8") !== contents)
-        throw new Error(`Stale generated documentation: ${file}. Run pnpm docs:generate in application/frontend.`);
+        throw new Error(`Stale generated documentation: ${file}. Run pnpm docs:generate in application/web.`);
     } else {
       fs.mkdirSync(path.dirname(destination), { recursive: true });
       fs.writeFileSync(destination, contents);

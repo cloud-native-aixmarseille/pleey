@@ -5,7 +5,7 @@ const http = require('node:http');
 const { createRequire } = require('node:module');
 const path = require('node:path');
 
-const backendRoot = path.resolve(__dirname, '../../application/backend');
+const backendRoot = path.resolve(__dirname, '../../application/api');
 const backendRequire = createRequire(path.join(backendRoot, 'package.json'));
 backendRequire('ts-node').register({ project: path.join(backendRoot, 'tsconfig.json'), transpileOnly: true });
 const { S3MediaObjectStorage } = backendRequire('./src/infrastructure/media/s3-media-object-storage');

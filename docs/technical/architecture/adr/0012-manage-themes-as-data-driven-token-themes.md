@@ -209,5 +209,5 @@ Reviewed 2026-10-11:
 - [ADR 0004](./0004-use-graphql-for-primary-api-and-socketio-for-realtime.md): GraphQL as the transport for theme selection and documents.
 - [ADR 0007](./0007-move-play-session-settings-to-party-owned-defaults.md): party-owned defaults precedence reused for theme resolution.
 - [ADR 0011](./0011-standardize-list-query-pagination.md): shared defensive-normalizer pattern reused for validating theme documents.
-- `application/frontend/src/presentation/shared/ui/foundation/ui-theme-definition.ts`, `ui-theme-contract.ts`, `ui-theme-tokens.ts`: curated seeds, the `UiThemeSeed` shape, tokens, and runtime CSS variables.
-- `application/frontend/src/infrastructure/ui/mantine-ui.adapter.tsx`, `application/frontend/src/application/contracts/ports/ui.port.tsx`: `initialThemeId`, theme state, and the `UiPort` boundary.
+- `application/web/src/presentation/shared/ui/foundation/ui-theme-definition.ts`, `ui-theme-contract.ts`, `ui-theme-tokens.ts`: curated seeds, the `UiThemeSeed` shape, tokens, and runtime CSS variables.
+- `application/web/src/infrastructure/ui/mantine-ui.adapter.tsx`, `application/web/src/application/contracts/ports/ui.port.tsx`: `initialThemeId`, theme state, and the `UiPort` boundary.

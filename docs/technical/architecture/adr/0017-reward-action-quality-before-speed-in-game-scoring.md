@@ -6,11 +6,11 @@
 
 ## Context
 
-At proposal time, the [choice-submission scoring policy](../../../../application/backend/src/application/game/types/shared/services/choice-submission-party-action-policy.ts) awarded zero points for a wrong answer. For a correct answer on a timed stage with positive points, it awarded `max(1, ceil(stagePoints * remainingTime / totalTime))`, with remaining time capped at the stage duration. For example, a correct answer on a 1000-point stage earns 1000 points with 100% of the time remaining, 500 with 50%, and 10 with 1%. Correctness already determines whether points are earned; speed determines almost the entire amount earned for a correct answer.
+At proposal time, the [choice-submission scoring policy](../../../../application/api/src/application/game/types/shared/services/choice-submission-party-action-policy.ts) awarded zero points for a wrong answer. For a correct answer on a timed stage with positive points, it awarded `max(1, ceil(stagePoints * remainingTime / totalTime))`, with remaining time capped at the stage duration. For example, a correct answer on a 1000-point stage earns 1000 points with 100% of the time remaining, 500 with 50%, and 10 with 1%. Correctness already determines whether points are earned; speed determines almost the entire amount earned for a correct answer.
 
 Our hypothesis is that this large difference encourages players to rush instead of taking time to find a correct answer. The calculation above is observable in the code; this ADR provides no measurements of its effect on player behavior. That hypothesis needs playtesting.
 
-Reviewers reported seeing `-2 places` after answering correctly. At proposal time, the [standings component](../../../../application/frontend/src/presentation/game/party/shared/screens/components/party-standings-list.tsx) compared positions derived from current and previous scores. Losing places after a correct answer can be valid when other players earn more points and overtake that player. The report alone does not establish a calculation error: we need to verify the compared snapshots and distinguish points earned from places gained or lost.
+Reviewers reported seeing `-2 places` after answering correctly. At proposal time, the [standings component](../../../../application/web/src/presentation/game/party/shared/screens/components/party-standings-list.tsx) compared positions derived from current and previous scores. Losing places after a correct answer can be valid when other players earn more points and overtake that player. The report alone does not establish a calculation error: we need to verify the compared snapshots and distinguish points earned from places gained or lost.
 
 ## Decision Drivers
 
@@ -50,7 +50,7 @@ A correct answer receives the base points plus a bounded speed bonus. A wrong an
 
 The current submission contract accepts one `actionId`. Its selected option's `isCorrect` flag determines whether the answer is correct for both quiz and prediction stages.
 
-The [selectable-option rules](../../../../application/backend/src/domain/game/types/shared/services/selectable-option-policy.ts) allow multiple-choice content to have several options marked correct. Players still submit one option: selecting any marked-correct option is a correct answer and receives the same base points. Selecting an unmarked option is a wrong answer. For example, if A and C are marked correct, choosing A or C is correct, while choosing B is wrong. True/false content has exactly one correct option.
+The [selectable-option rules](../../../../application/api/src/domain/game/types/shared/services/selectable-option-policy.ts) allow multiple-choice content to have several options marked correct. Players still submit one option: selecting any marked-correct option is a correct answer and receives the same base points. Selecting an unmarked option is a wrong answer. For example, if A and C are marked correct, choosing A or C is correct, while choosing B is wrong. True/false content has exactly one correct option.
 
 Selecting a set of options in one submission is outside the current contract. This ADR does not introduce that behavior or partial credit for selecting some of a set of correct options.
 
@@ -134,7 +134,7 @@ A earns 900 points for a correct answer, but B and C earn enough to overtake A. 
 ### Implementation
 
 - The shared scoring policy implements the calculation for quiz and prediction, with expiry checked before correctness or stage points. Boundary, rounding, untimed, and multiple-correct-option cases are covered by its unit tests.
-- [PartyProvider](../../../../application/frontend/src/presentation/game/party/shared/contexts/party-context.tsx) owns the stage scoreboard snapshots. It captures the complete roster and scores from the first observed stage snapshot with no submissions, then freezes the first result snapshot. Result components read that state instead of constructing their own history.
+- [PartyProvider](../../../../application/web/src/presentation/game/party/shared/contexts/party-context.tsx) owns the stage scoreboard snapshots. It captures the complete roster and scores from the first observed stage snapshot with no submissions, then freezes the first result snapshot. Result components read that state instead of constructing their own history.
 - Snapshots are scoped to party ID, stage ID, and stage position. Advancing, restarting, rewinding, or leaving observation replaces or clears the relevant snapshots. Repeated results, rerenders, and reconnects within the observed stage retain the baseline.
 - History is observation-local. Joining or reloading during results, or after submissions have started, leaves the baseline unavailable and omits deltas. No persisted history or zero baseline is fabricated.
 - Standings and the final podium share score, username, and stable-identity ordering. English and French labels separate stage points from places; the player lobby explains timed and untimed scoring.

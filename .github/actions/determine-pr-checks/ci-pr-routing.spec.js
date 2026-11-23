@@ -39,13 +39,13 @@ describe("pull request CI routing", () => {
   });
 
   it.each([
-    "application/backend/src/schema.gql",
-    "application/frontend/pnpm-lock.yaml",
+    "application/api/src/schema.gql",
+    "application/web/pnpm-lock.yaml",
     "scripts/check-pagination.mjs",
     "scripts/check-shared-domain-package.mjs",
     "application/contracts/game/index.ts",
     ".github/workflows/__shared-ci.yml",
-    "application/backend/Dockerfile",
+    "application/api/Dockerfile",
     "charts/application/Chart.yaml",
     "AGENTS.md",
     "unknown.md",
@@ -66,8 +66,8 @@ describe("pull request CI routing", () => {
   });
 
   it.each([
-    { filename: "docs/new.md", status: "renamed", previous_filename: "application/frontend/code.ts" },
-    { filename: "application/frontend/code.ts", status: "renamed", previous_filename: "docs/old.md" },
+    { filename: "docs/new.md", status: "renamed", previous_filename: "application/web/code.ts" },
+    { filename: "application/web/code.ts", status: "renamed", previous_filename: "docs/old.md" },
     { filename: "docs/new.md", status: "renamed" },
     { filename: "docs/new.md", status: "unknown" },
   ])("keeps unsafe or incomplete file metadata on full CI: $status $filename", (file) => {

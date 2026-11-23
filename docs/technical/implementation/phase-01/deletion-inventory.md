@@ -19,6 +19,6 @@ Package scripts and Docker/CI references no longer use package-local npm locks o
 
 ## Data migration inventory
 
-No data model change is introduced in Phase 01. The existing schema migration chain is retained in `application/backend/prisma/migrations/` and must be applied with `prisma migrate deploy`.
+No data model change is introduced in Phase 01. The existing schema migration chain is retained in `application/api/prisma/migrations/` and must be applied with `prisma migrate deploy`.
 
 No legacy table conversion or destructive cleanup is authorized. PostgreSQL and media rollback/recovery preserve existing business ownership and historical results.
