@@ -82,7 +82,6 @@ FROM base AS ci
 USER root
 RUN npm install --global pnpm@10.32.1 --ignore-scripts
 COPY --chown=node:node --from=build /usr/src/repository /usr/src/app
-COPY --chown=node:node --from=build /usr/src/repository /usr/src/repository
 COPY --chown=node:node ./scripts /usr/src/app/scripts
 COPY --chown=node:node ./docs /usr/src/app/docs
 COPY --chown=node:node ./README.md ./AGENTS.md ./CONTRIBUTING.md /usr/src/app/
