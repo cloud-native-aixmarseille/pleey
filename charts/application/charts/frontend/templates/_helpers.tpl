@@ -66,7 +66,3 @@ imagePullSecrets:
 {{- toYaml $secrets | nindent 2 }}
 {{- end }}
 {{- end }}
-
-{{- define "pleey.frontend.apiUpstreamHost" -}}
-{{- default (printf "%s-backend" (include "pleey.frontend.applicationFullname" .)) .Values.nginx.apiUpstreamHost -}}
-{{- end }}
