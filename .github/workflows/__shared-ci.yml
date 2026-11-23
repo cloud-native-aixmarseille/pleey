@@ -132,30 +132,35 @@ jobs:
 
   check-backend:
     name: Lint and test backend
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@98d91b1cc347efc64cd5fb20bc0ebc076acad114 # 3.1.0
     needs: build-backend-ci-image
     permissions:
       contents: read
+      id-token: write
+      pull-requests: write
+      security-events: write
       packages: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Log in to GHCR
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Lint and test backend
-        run: |
-          mkdir -p artifacts/backend
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE/artifacts/backend:/artifacts" \
-            -e CI=true \
-            ${{ fromJSON(needs.build-backend-ci-image.outputs.built-images)['backend-ci'].images[0] }} \
-            sh -lc 'cd /usr/src/app && pnpm --filter @pleey/api lint:ci && pnpm --filter @pleey/api test:ci; status=$?; cp -f application/backend/biome-report.sarif /artifacts/ 2>/dev/null || true; cp -f application/backend/junit.xml /artifacts/ 2>/dev/null || true; cp -rf application/backend/coverage /artifacts/coverage 2>/dev/null || true; exit $status'
+    with:
+      working-directory: /usr/src/app
+      build: ""
+      lint: '{"command":"pnpm --filter @pleey/api lint:ci","report-file":"application/backend/biome-report.sarif"}'
+      test: '{"command":"pnpm --filter @pleey/api test:ci","report-file":"application/backend/junit.xml,application/backend/coverage/lcov.info"}'
+      container: |
+        {
+          "image": ${{ toJSON(fromJSON(needs.build-backend-ci-image.outputs.built-images)['backend-ci'].images[0]) }},
+          "credentials": {
+            "username": ${{ toJson(github.repository_owner) }}
+          },
+          "pathMapping": {
+            "/usr/src/app": "./application/backend",
+            "src/": "./application/backend/src/",
+            "scripts/": "./application/backend/scripts/"
+          }
+        }
+      code-ql: typescript
+      dependency-review: true
+    secrets:
+      container-password: ${{ secrets.GITHUB_TOKEN }}
 
   build-frontend-ci-image:
     name: Build frontend CI image
@@ -187,30 +192,35 @@ jobs:
 
   check-frontend:
     name: Lint and test frontend
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    uses: hoverkraft-tech/ci-github-nodejs/.github/workflows/continuous-integration.yml@98d91b1cc347efc64cd5fb20bc0ebc076acad114 # 3.1.0
     needs: build-frontend-ci-image
     permissions:
       contents: read
+      id-token: write
+      pull-requests: write
+      security-events: write
       packages: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - name: Log in to GHCR
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Lint and test frontend
-        run: |
-          mkdir -p artifacts/frontend
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE/artifacts/frontend:/artifacts" \
-            -e CI=true \
-            ${{ fromJSON(needs.build-frontend-ci-image.outputs.built-images)['frontend-ci'].images[0] }} \
-            sh -lc 'cd /usr/src/app && pnpm --filter @pleey/web lint:ci && pnpm --filter @pleey/web test:ci; status=$?; cp -f application/frontend/biome-report.sarif /artifacts/ 2>/dev/null || true; cp -f application/frontend/junit.xml /artifacts/ 2>/dev/null || true; cp -rf application/frontend/coverage /artifacts/coverage 2>/dev/null || true; exit $status'
+    with:
+      working-directory: /usr/src/app
+      build: ""
+      lint: '{"command":"pnpm --filter @pleey/web lint:ci","report-file":"application/frontend/biome-report.sarif"}'
+      test: '{"command":"pnpm --filter @pleey/web test:ci","report-file":"application/frontend/junit.xml,application/frontend/coverage/lcov.info"}'
+      container: |
+        {
+          "image": ${{ toJSON(fromJSON(needs.build-frontend-ci-image.outputs.built-images)['frontend-ci'].images[0]) }},
+          "credentials": {
+            "username": ${{ toJson(github.repository_owner) }}
+          },
+          "pathMapping": {
+            "/usr/src/app": "./application/frontend",
+            "src/": "./application/frontend/src/",
+            "scripts/": "./application/frontend/scripts/"
+          }
+        }
+      code-ql: typescript
+      dependency-review: true
+    secrets:
+      container-password: ${{ secrets.GITHUB_TOKEN }}
 
   build-backend-candidate:
     name: Build backend production candidate
