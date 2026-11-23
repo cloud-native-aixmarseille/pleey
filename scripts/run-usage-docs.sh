@@ -35,7 +35,5 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
-docker build --target ci -f application/backend/Dockerfile -t pleey-backend-ci .
-docker build --target ci -f application/frontend/Dockerfile -t pleey-frontend-ci .
 "${compose[@]}" up -d --no-build --wait --wait-timeout 180 backend frontend
-"${compose[@]}" run --rm --no-deps -T -e USAGE_CAPTURE="$capture" e2e-tests bash -lc 'cd /repository && CI=true npx --yes pnpm@10.32.1 install --frozen-lockfile && CI=true npx --yes pnpm@10.32.1 --filter @pleey/e2e docs:screenshots'
+"${compose[@]}" run --rm --no-deps -T -e USAGE_CAPTURE="$capture" e2e-tests pnpm docs:screenshots
