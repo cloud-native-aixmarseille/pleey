@@ -7,7 +7,7 @@ services:
     ports: !reset []
   backend:
     image: "${USAGE_BACKEND_IMAGE:-pleey-backend-ci}"
-    user: "1000:1000"
+    user: "${USAGE_UID:-1000}:${USAGE_GID:-1000}"
     restart: "no"
     environment:
       GRAPHQL_SCHEMA_OUTPUT_PATH: /usr/src/repository/.cache/usage-docs/schema.gql
@@ -30,7 +30,7 @@ services:
       traefik.enable: "false"
   frontend:
     image: "${USAGE_FRONTEND_IMAGE:-pleey-frontend-ci}"
-    user: "1000:1000"
+    user: "${USAGE_UID:-1000}:${USAGE_GID:-1000}"
     restart: "no"
     environment:
       VITE_CACHE_DIR: /usr/src/repository/.cache/usage-docs/vite
