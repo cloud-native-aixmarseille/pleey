@@ -56,7 +56,7 @@ describe('SharpFfmpegMediaProcessor', () => {
       // Assert
       expect(result).toMatchObject({ width: 1280, height: 720 });
       expect(metadata.streams[0]).toMatchObject({ codec_name: 'h264', avg_frame_rate: '30/1' });
-    }, 15000);
+    });
 
     it('preserves the display ratio of non-square video pixels', async () => {
       // Arrange
