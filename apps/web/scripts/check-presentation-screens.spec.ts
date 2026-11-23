@@ -28,7 +28,7 @@ describe('Presentation screen guard', () => {
     // Arrange
     const root = mkdtempSync(join(tmpdir(), 'pleey-presentation-guard-'));
     const script = join(root, 'scripts/check-presentation-screens.mjs');
-    const source = join(root, 'application/web/src/presentation', file);
+    const source = join(root, 'apps/web/src/presentation', file);
     try {
       mkdirSync(dirname(script), { recursive: true });
       copyFileSync(checkerPath, script);

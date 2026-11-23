@@ -13,13 +13,13 @@ build/
 *.tsbuildinfo
 
 # Workspace build outputs (monorepo)
-application/api/dist/
-application/web/dist/
+apps/api/dist/
+apps/web/dist/
 
 # Database
 *.db
 *.db-journal
-application/api/data/*.db
+apps/api/data/*.db
 
 # Logs
 logs/

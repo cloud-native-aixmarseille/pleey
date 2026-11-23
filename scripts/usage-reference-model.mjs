@@ -3,11 +3,11 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import vm from "node:vm";
 
-export const repositoryRoot = fs.existsSync(path.resolve(import.meta.dirname, "../application/web/package.json"))
+export const repositoryRoot = fs.existsSync(path.resolve(import.meta.dirname, "../apps/web/package.json"))
   ? path.resolve(import.meta.dirname, "..")
   : "/usr/src/repository";
-export const frontendRoot = fs.existsSync(path.join(repositoryRoot, "application/web/package.json"))
-  ? path.join(repositoryRoot, "application/web")
+export const frontendRoot = fs.existsSync(path.join(repositoryRoot, "apps/web/package.json"))
+  ? path.join(repositoryRoot, "apps/web")
   : "/usr/src/app";
 export const frontendRequire = createRequire(path.join(frontendRoot, "package.json"));
 export const ts = frontendRequire("typescript");
@@ -32,7 +32,7 @@ export function loadDataModule(filename) {
   const require = (specifier) => {
     if (specifier.startsWith("@pleey/contracts/")) {
       const packageRoot = [
-        path.resolve(repositoryRoot, "application/contracts"),
+        path.resolve(repositoryRoot, "packages/contracts"),
         "/usr/src/shared",
       ].find((candidate) => fs.existsSync(candidate));
       if (!packageRoot) throw new Error(`Unable to locate shared data for: ${filename}`);
@@ -52,7 +52,7 @@ export function loadDataModule(filename) {
 }
 
 export function readUsageModel(root = repositoryRoot) {
-  const presentation = path.join(root, "application/web/src/presentation");
+  const presentation = path.join(root, "apps/web/src/presentation");
   const guides = filesUnder(presentation)
     .filter((file) => file.endsWith(".guide.ts"))
     .map((file) => ({
@@ -61,7 +61,7 @@ export function readUsageModel(root = repositoryRoot) {
     }));
   if (!guides.length) throw new Error("No user guides found.");
   const { TranslationResourceComposer } = loadDataModule(
-    path.join(root, "application/web/src/i18n/translation-resource-composer.ts"),
+    path.join(root, "apps/web/src/i18n/translation-resource-composer.ts"),
   );
   return { guides, resources: new TranslationResourceComposer().compose() };
 }
