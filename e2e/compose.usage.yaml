@@ -12,8 +12,8 @@ services:
     environment:
       GRAPHQL_SCHEMA_OUTPUT_PATH: /usr/src/repository/.cache/usage-docs/schema.gql
       I18N_WATCH_ENABLED: "false"
-      TMPDIR: /tmp
-      NPM_CONFIG_CACHE: /tmp/pnpm-cache
+      TMPDIR: /usr/src/repository/.cache/usage-docs/tmp
+      NPM_CONFIG_CACHE: /usr/src/repository/.cache/usage-docs/npm
     volumes: !reset
       - ${USAGE_WORK_DIRECTORY:?Use scripts/run-usage-docs.sh}:/usr/src/repository/.cache/usage-docs
     command:
@@ -34,21 +34,10 @@ services:
     restart: "no"
     environment:
       VITE_CACHE_DIR: /usr/src/repository/.cache/usage-docs/vite
-      TMPDIR: /tmp
+      TMPDIR: /usr/src/repository/.cache/usage-docs/tmp
     volumes: !reset
       - ${USAGE_WORK_DIRECTORY:?Use scripts/run-usage-docs.sh}:/usr/src/repository/.cache/usage-docs
-    command:
-      [
-        "pnpm",
-        "--dir",
-        "/usr/src/app/application/frontend",
-        "dev",
-        "--",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "5173",
-      ]
+    command: ["pnpm", "--dir", "/usr/src/app/application/frontend", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
     labels:
       traefik.enable: "false"
   media-delivery:
@@ -67,8 +56,8 @@ services:
         CI=true npx --yes pnpm@10.32.1 install --frozen-lockfile &&
         CI=true npx --yes pnpm@10.32.1 --filter @pleey/e2e docs:screenshots
     environment:
-      NPM_CONFIG_CACHE: /tmp/pnpm-cache
-      TMPDIR: /tmp
+      NPM_CONFIG_CACHE: /repository/.cache/usage-docs/npm
+      TMPDIR: /repository/.cache/usage-docs/tmp
     volumes:
       - ./:/repository
       - ${USAGE_WORK_DIRECTORY:?Use scripts/run-usage-docs.sh}:/repository/.cache/usage-docs
