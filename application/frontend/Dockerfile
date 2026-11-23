@@ -79,14 +79,11 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
 CMD ["nginx", "-g", "daemon off;"]
 
 FROM base AS ci
-USER root
-RUN npm install --global pnpm@10.32.1 --ignore-scripts
-COPY --chown=node:node --from=build /usr/src/repository /usr/src/app
-COPY --chown=node:node ./scripts /usr/src/app/scripts
-COPY --chown=node:node ./docs /usr/src/app/docs
-COPY --chown=node:node ./README.md ./AGENTS.md ./CONTRIBUTING.md /usr/src/app/
-USER 1000:1000
-WORKDIR /usr/src/app
+COPY --chown=node:node --from=build /usr/src/repository /usr/src/repository
+COPY --chown=node:node ./scripts /usr/src/repository/scripts
+COPY --chown=node:node ./docs /usr/src/repository/docs
+COPY --chown=node:node ./README.md ./AGENTS.md ./CONTRIBUTING.md /usr/src/repository/
+WORKDIR /usr/src/repository
 
 CMD [ "tail", "-f", "/dev/null" ]
 
