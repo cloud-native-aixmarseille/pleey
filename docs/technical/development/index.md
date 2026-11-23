@@ -301,7 +301,7 @@ Test frameworks: **Vitest** (backend + frontend), **Playwright** (end-to-end).
 
 Keep the Playwright image tag in [`compose.yaml`](../../../compose.yaml) aligned
 with the resolved `@playwright/test` version in
-[`pnpm-lock.yaml`](../../../pnpm-lock.yaml). The container supplies
+[`e2e/pnpm-lock.yaml`](../../../e2e/pnpm-lock.yaml). The container supplies
 the browser binaries required by that exact Playwright version.
 
 The end-to-end container uses the same host UID/GID as the application containers and a
