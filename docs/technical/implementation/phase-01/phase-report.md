@@ -2,7 +2,7 @@
 
 ## Implemented requirements
 
-- One pnpm workspace keeps API, web and shared contracts under `application/api`, `application/web` and `application/contracts`.
+- One pnpm workspace moves API, web and shared contracts to `application/api`, `application/web` and `application/contracts`.
 - The API and web build real production Node/Vite artifacts.
 - `/api/release` publishes public release identity and protocol majors with `Cache-Control: no-store`.
 - The browser waits for a supported release contract before mounting application actions.
@@ -13,7 +13,7 @@
 ## Source baseline
 
 - Package: specification-inspected baseline `89eba30755f53aced04b596bc1531854a15bc1d5`
-- Implementation commit: `b03de2bd753fc7d800896c05ff35f616988e1720`
+- Implementation commit: `81c644412df075810b5d11a34c276cd1ad9c609f`
 - Candidate manifest: `artifacts/phase-01/release.json`
 
 ## Applied ADR
