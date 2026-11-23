@@ -95,7 +95,7 @@ jobs:
       working-directory: .
       build: ""
       lint: ""
-      test: '{"command":"pnpm --filter @pleey/determine-pr-checks test:ci","report-file":".github/actions/determine-pr-checks/junit.xml,.github/actions/determine-pr-checks/coverage/lcov.info","comment":false}'
+      test: '{"command":"npx --yes pnpm@10.32.1 --filter @pleey/determine-pr-checks test:ci","report-file":".github/actions/determine-pr-checks/junit.xml,.github/actions/determine-pr-checks/coverage/lcov.info","comment":false}'
       code-ql: javascript
       dependency-review: true
 
@@ -140,8 +140,8 @@ jobs:
     with:
       working-directory: /usr/src/app
       build: ""
-      lint: '{"command":"pnpm --filter @pleey/api lint:ci","report-file":"application/backend/biome-report.sarif"}'
-      test: '{"command":"pnpm --filter @pleey/api test:ci","report-file":"application/backend/junit.xml,application/backend/coverage/lcov.info"}'
+      lint: '{"command":"npx --yes pnpm@10.32.1 --filter @pleey/api lint:ci","report-file":"application/backend/biome-report.sarif"}'
+      test: '{"command":"npx --yes pnpm@10.32.1 --filter @pleey/api test:ci","report-file":"application/backend/junit.xml,application/backend/coverage/lcov.info"}'
       container: |
         {
           "image": ${{ toJSON(fromJSON(needs.build-backend-ci-image.outputs.built-images)['backend-ci'].images[0]) }},
@@ -200,8 +200,8 @@ jobs:
     with:
       working-directory: /usr/src/app
       build: ""
-      lint: '{"command":"pnpm --filter @pleey/web lint:ci","report-file":"application/frontend/biome-report.sarif"}'
-      test: '{"command":"pnpm --filter @pleey/web test:ci","report-file":"application/frontend/junit.xml,application/frontend/coverage/lcov.info"}'
+      lint: '{"command":"npx --yes pnpm@10.32.1 --filter @pleey/web lint:ci","report-file":"application/frontend/biome-report.sarif"}'
+      test: '{"command":"npx --yes pnpm@10.32.1 --filter @pleey/web test:ci","report-file":"application/frontend/junit.xml,application/frontend/coverage/lcov.info"}'
       container: |
         {
           "image": ${{ toJSON(fromJSON(needs.build-frontend-ci-image.outputs.built-images)['frontend-ci'].images[0]) }},
