@@ -2,11 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 const frontendRootCandidates = [
-  path.join(path.resolve(import.meta.dirname, ".."), "apps/web"),
+  path.join(path.resolve(import.meta.dirname, ".."), "application/frontend"),
   process.cwd(),
   path.resolve(process.cwd(), "../frontend"),
   "/usr/src/app",
-  "/usr/src/app/apps/web",
+  "/usr/src/app/application/frontend",
 ];
 
 const frontendRoot = frontendRootCandidates.find((candidate) =>

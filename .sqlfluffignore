@@ -1,2 +1,2 @@
 # Prisma migration SQL is generated; don't enforce SQLFluff style rules here.
-apps/api/prisma/migrations/**
+application/backend/prisma/migrations/**

@@ -22,4 +22,4 @@
 
 Follow [ADR 0011](../../architecture/adr/0011-standardize-list-query-pagination.md) for list inputs, envelopes, empty pages, and navigation. Reuse domain `PaginationQuery` and `PaginatedResult<T>`, send page and pageSize explicitly, and select the shared metadata. Reset pagination when the collection, filters, or sort change. Do not infer completion from item count alone or silently discard later pages.
 
-`pnpm _lint:pagination` validates GraphQL list operations against the backend schema during every lint mode. After API changes, run `pnpm graphql:codegen`, then typecheck and test the consumer's empty, final, and multi-page behavior.
+`npm run _lint:pagination` validates GraphQL list operations against the backend schema during every lint mode. After API changes, run `npm run graphql:codegen`, then typecheck and test the consumer's empty, final, and multi-page behavior.

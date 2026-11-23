@@ -113,13 +113,13 @@ services:
   # Backend NestJS (dev watch mode)
   backend:
     build:
-      dockerfile: apps/api/Dockerfile
+      dockerfile: application/backend/Dockerfile
       target: dev
     restart: unless-stopped
     user: "${UID:-1000}:${GID:-1000}" # Keep host-mounted files writable by the local user
     volumes:
-      - ./apps/api:/usr/src/app
-      - ./packages/contracts:/usr/src/shared:ro
+      - ./application/backend:/usr/src/app
+      - ./application/shared:/usr/src/shared:ro
       - ./scripts:/usr/src/shared-scripts:ro
       - ./:/usr/src/repository:ro
     expose:
@@ -207,14 +207,14 @@ services:
   # Frontend React (Vite dev server with watch)
   frontend:
     build:
-      dockerfile: ./apps/web/Dockerfile
+      dockerfile: ./application/frontend/Dockerfile
       target: dev
     restart: unless-stopped
     user: "${UID:-1000}:${GID:-1000}" # Keep host-mounted files writable by the local user
     volumes:
-      - ./apps/web:/usr/src/app
-      - ./packages/contracts:/usr/src/shared:ro
-      - ./apps/api:/usr/src/backend:ro
+      - ./application/frontend:/usr/src/app
+      - ./application/shared:/usr/src/shared:ro
+      - ./application/backend:/usr/src/backend:ro
       - ./scripts:/usr/src/shared-scripts:ro
       - ./:/usr/src/repository:ro
     expose:
@@ -227,7 +227,7 @@ services:
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=1
-      - VITE_CACHE_DIR=/tmp/@pleey/web-vite
+      - VITE_CACHE_DIR=/tmp/pleey-frontend-vite
       - VITE_DEV_PROXY_TARGET=http://backend:3001
     labels:
       - "traefik.enable=true"

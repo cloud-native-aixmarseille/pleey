@@ -64,4 +64,3 @@ If a change can alter how the system is structured, operated, or extended, it ne
 - 0024: [Single-source end user documentation as code](./0024-single-source-end-user-documentation-as-code.md) - Accepted - 2026-11-17
 - 0025: [Share business error translations](./0025-share-business-error-translations.md) - Accepted - 2026-11-19
 - 0026: [Factorize create and update forms](./0026-factorize-create-and-update-forms.md) - Accepted - 2026-11-20
-- 0027: [Reproducible production workspace and delivery](./0027-reproducible-production-workspace-and-delivery.md) - Accepted - 2026-11-20

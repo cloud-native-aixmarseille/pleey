@@ -1,0 +1,97 @@
+import { Inject, Injectable } from '@nestjs/common';
+import type { GameId } from '@pleey/domain/game';
+import { GameValidationFailedError } from '../../../../domain/game/errors';
+import { type GamePermissions } from '../../../../domain/game/management/value-objects/game-permissions';
+import type { UserId } from '../../../../domain/identity/entities/user';
+import { ProjectNotFoundError } from '../../../../domain/project/errors';
+import type { ProjectRepository } from '../../../../domain/project/ports/project.repository';
+import { ProjectRepositoryProvider } from '../../../../domain/project/ports/project.repository';
+import { OrganizationMembershipAccessService } from '../../../workspace/organizations/services/organization-membership-access.service';
+import { GameTypeParser } from '../../types/shared/services/game-type-parser';
+import { GameCatalogPort, type ListProjectGamesQuery, type ProjectGameListPage } from '../ports/game-catalog.port';
+import { GamePermissionResolver } from '../services/game-permission-resolver';
+
+@Injectable()
+export class ListProjectGamesUseCase {
+  constructor(
+    @Inject(GameCatalogPort)
+    private readonly gameManagementCatalog: GameCatalogPort,
+    @Inject(ProjectRepositoryProvider)
+    private readonly projectRepository: ProjectRepository,
+    private readonly membershipAccess: OrganizationMembershipAccessService,
+    private readonly gamePermissionResolver: GamePermissionResolver,
+    private readonly gameTypeParser: GameTypeParser,
+  ) {}
+
+  async execute(input: ListProjectGamesQuery, userId: UserId): Promise<ProjectGameListPage> {
+    const project = await this.projectRepository.findById(input.projectId);
+    if (!project) {
+      throw new ProjectNotFoundError({ projectId: input.projectId });
+    }
+
+    const membership = await this.membershipAccess.findMembership(project.organizationId, userId);
+    if (!membership) {
+      throw new ProjectNotFoundError({
+        organizationId: project.organizationId,
+        projectId: input.projectId,
+        userId,
+      });
+    }
+
+    const page = await this.gameManagementCatalog.listProjectGames({
+      projectId: input.projectId,
+      search: input.search,
+      types: this.normalizeTypes(input.types),
+      sortField: input.sortField ?? 'createdAt',
+      sortDirection: input.sortDirection ?? 'desc',
+      page: input.page,
+      pageSize: input.pageSize,
+    });
+    const permissionsByGameId = await this.gamePermissionResolver.resolveGamePermissions({
+      items: page.items,
+      hostUserId: userId,
+    });
+
+    return {
+      ...page,
+      items: page.items.map((item) => ({
+        ...item,
+        permissions: this.requireResolvedPermissions(item.gameId, permissionsByGameId.get(item.gameId)),
+      })),
+    };
+  }
+
+  private requireResolvedPermissions(gameId: GameId, permissions: GamePermissions | undefined): GamePermissions {
+    if (!permissions?.createParty || !permissions.launchReadiness) {
+      const missingRequirements: string[] = [];
+
+      if (!permissions?.createParty) {
+        missingRequirements.push('createParty');
+      }
+
+      if (!permissions?.launchReadiness) {
+        missingRequirements.push('launchReadiness');
+      }
+
+      throw new GameValidationFailedError({
+        gameId,
+        missingRequirements,
+      });
+    }
+
+    return permissions;
+  }
+
+  private normalizeTypes(types: readonly string[] | undefined): readonly string[] | undefined {
+    if (!types || types.length === 0) {
+      return undefined;
+    }
+
+    const normalized = types
+      .map((type) => this.gameTypeParser.parseOrNull(type))
+      .filter((type) => type !== null)
+      .filter((type) => type.length > 0);
+
+    return normalized.length > 0 ? normalized : undefined;
+  }
+}

@@ -2,7 +2,7 @@
 
 ## Runtime Configuration
 
-Runtime configuration has no fallback values and does not select behavior from `NODE_ENV`; see the [configuration decision in ADR 0009](../../architecture/adr/0009-harden-identity-recovery-and-sessions.md#explicit-runtime-configuration). Missing required settings fail startup. Supply values through [Compose](../../../../compose.yaml), the [backend chart](../../../../charts/application/charts/backend/README.md), or an explicitly loaded environment based on [`.env.example`](../../../../apps/api/.env.example). Updating an existing deployment requires supplying the settings that previously relied on application defaults.
+Runtime configuration has no fallback values and does not select behavior from `NODE_ENV`; see the [configuration decision in ADR 0009](../../architecture/adr/0009-harden-identity-recovery-and-sessions.md#explicit-runtime-configuration). Missing required settings fail startup. Supply values through [Compose](../../../../compose.yaml), the [backend chart](../../../../charts/application/charts/backend/README.md), or an explicitly loaded environment based on [`.env.example`](../../../../application/backend/.env.example). Updating an existing deployment requires supplying the settings that previously relied on application defaults.
 
 Required settings cover the application version and environment name, server port and CORS origins, both JWT signing secrets and lifetimes, database and Valkey URLs, CAPTCHA signing secret, recovery settings below, `PARTY_SESSION_RECOVERY_WINDOW_MS`, and `PLAYABLE_CONTENT_IMPORT_MAX_FILE_SIZE_BYTES`. Set `TRUSTED_PROXY_CIDRS` explicitly, using an empty value when there are no trusted proxies.
 
@@ -133,7 +133,7 @@ Session IP addresses and CAPTCHA request limits use Express's resolved client ad
 
 Docker Compose sends mail to `mailpit:1025` over `pleey-network`. `make setup` starts Mailpit and Traefik; read captured mail at `http://mailpit.pleey.localhost`. Mailpit captures messages without delivering them externally. Its web UI uses the existing Traefik HTTP entrypoint, and neither Mailpit port is published on the host. The UI inherits Traefik's network exposure and is not restricted to loopback by its hostname.
 
-For a backend running directly on the host, use a separately reachable SMTP service or explicitly publish Mailpit SMTP with `127.0.0.1:1025:1025` in a local Compose override. The host-only settings are illustrated in `apps/api/.env.example`.
+For a backend running directly on the host, use a separately reachable SMTP service or explicitly publish Mailpit SMTP with `127.0.0.1:1025:1025` in a local Compose override. The host-only settings are illustrated in `application/backend/.env.example`.
 
 The chart's [development values](../../../../charts/application/values-dev.yaml) disable the bundled relay and use HTTP and an unauthenticated Mailpit service on port `1025`. Deploy Mailpit separately in the release namespace or override its host with a server reachable from the backend pod; the chart does not install Mailpit. The [CI values](../../../../charts/application/ci/recovery-values.yaml) keep the bundled relay enabled with a test-only sender domain. Chart smoke tests check application health and do not send recovery email.
 
@@ -179,7 +179,7 @@ Processing runs synchronously with a per-process concurrency limit (1–8), a de
 
 ### Development Media Services
 
-Compose starts SeaweedFS with a persistent `media-data` volume, authenticated S3 reads and writes, and development-only credentials in `docker/media/s3.json`. Its S3 API is available on the private Compose network at `http://media-storage:8333` and on host loopback at `http://localhost:8333`. The `pleey-media` bucket is created at startup. Use the [example environment](../../../../apps/api/.env.example) for a backend started on the host.
+Compose starts SeaweedFS with a persistent `media-data` volume, authenticated S3 reads and writes, and development-only credentials in `docker/media/s3.json`. Its S3 API is available on the private Compose network at `http://media-storage:8333` and on host loopback at `http://localhost:8333`. The `pleey-media` bucket is created at startup. Use the [example environment](../../../../application/backend/.env.example) for a backend started on the host.
 
 The separate `media-delivery` proxy exposes `http://media.pleey.localhost/pleey-media/quiz/…` through Traefik. It preserves the signed browser-visible Host, escaped path, and complete query string so SeaweedFS validates every read. Response caching is disabled and every response uses `Cache-Control: private, no-store`. Unsigned, expired, and tampered URLs fail at the private origin. The proxy permits GET, HEAD, and OPTIONS, exposes browser CORS headers, and forwards byte ranges. Grants sign GET: use GET with a Range header to inspect or seek media; replaying a GET grant as HEAD fails signature verification. OPTIONS carries no media bytes and remains available for CORS. Bucket listing and public writes are unavailable.
 
