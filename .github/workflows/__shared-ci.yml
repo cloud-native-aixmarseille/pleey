@@ -56,7 +56,7 @@ jobs:
         with:
           node-version: "26.13.1"
       - name: Enable pinned pnpm
-        run: npm install --global pnpm@10.32.1 --ignore-scripts # zizmor: ignore[adhoc-packages]
+        run: npm install --global pnpm@10.32.1 --ignore-scripts
       - name: Install documentation and application dependencies
         run: pnpm install --frozen-lockfile
       - name: Install browser runtime dependencies
@@ -96,7 +96,7 @@ jobs:
         with:
           node-version: "26.13.1"
       - name: Install pinned pnpm
-        run: npm install --global pnpm@10.32.1 --ignore-scripts # zizmor: ignore[adhoc-packages]
+        run: npm install --global pnpm@10.32.1 --ignore-scripts
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
       - name: Test CI routing
