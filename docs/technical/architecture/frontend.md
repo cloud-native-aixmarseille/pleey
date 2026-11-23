@@ -1,6 +1,6 @@
 # Frontend Reference
 
-`application/frontend/` — React 19, Vite 7, Inversify DI, Mantine 8, Apollo Client.
+`application/web/` — React 19, Vite 7, Inversify DI, Mantine 8, Apollo Client.
 
 ## Directory Structure
 
@@ -151,7 +151,7 @@ Schema source: `../backend/src/schema.gql`. Operations defined as `.graphql` fil
 
 ## Key Biome Boundaries
 
-Biome enforcement is split between built-in `noRestrictedImports` rules and app-local GritQL plugins under `application/frontend/biome/plugins/` for relative-path architecture checks.
+Biome enforcement is split between built-in `noRestrictedImports` rules and app-local GritQL plugins under `application/web/biome/plugins/` for relative-path architecture checks.
 
 | Scope                          | Restriction                                                                                            |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------ |

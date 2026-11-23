@@ -101,10 +101,10 @@ For package, lockfile, policy or API-surface changes, run:
 ```bash
 node scripts/check-shared-domain-package.mjs
 node scripts/check-shared-translations.mjs
-npm --prefix application/backend run lint:ci
-npm --prefix application/frontend run lint:ci
-npm --prefix application/backend run test
-npm --prefix application/frontend run test
+npm --prefix application/api run lint:ci
+npm --prefix application/web run lint:ci
+npm --prefix application/api run test
+npm --prefix application/web run test
 ```
 
 After changing `application/contracts/i18n/index.ts`, regenerate generated
@@ -127,8 +127,8 @@ docker compose --env-file /dev/null build backend frontend
 
 ## Application base images
 
-The [backend](../../../application/backend/Dockerfile) and
-[frontend](../../../application/frontend/Dockerfile) use base-image tags pinned to
+The [backend](../../../application/api/Dockerfile) and
+[frontend](../../../application/web/Dockerfile) use base-image tags pinned to
 multi-platform index digests. Keep the two Node references aligned when updating
 them. Weekly Docker [Dependabot checks](../../../.github/dependabot.yml) cover both
 files; review digest updates to receive base-image fixes. Validate updates with
@@ -386,8 +386,8 @@ Process-startup, config, and tooling code outside the runtime application layers
 
 ### i18n
 
-- Backend: `application/backend/src/i18n/`
-- Frontend: `application/frontend/src/presentation/**/i18n/`, assembled by `application/frontend/src/i18n/translation-resource-composer.ts`
+- Backend: `application/api/src/i18n/`
+- Frontend: `application/web/src/presentation/**/i18n/`, assembled by `application/web/src/i18n/translation-resource-composer.ts`
 - Feature-specific keys stay in feature scope - no cross-feature key reads
 - Use the straight ASCII apostrophe (`'`, U+0027) in translation values for every locale. Curly apostrophes (U+2018 and U+2019) are forbidden. Use suitable string delimiters or escaping to preserve the straight apostrophe; keep language accents intact.
 

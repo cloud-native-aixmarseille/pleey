@@ -1,5 +1,5 @@
 # End-user guidance is reviewed with the behavior it describes.
 /docs/usage/ @neilime
-/application/frontend/src/presentation/**/guide/ @neilime
+/application/web/src/presentation/**/guide/ @neilime
 /scripts/*usage* @neilime
 /scripts/check-user-docs.mjs @neilime
