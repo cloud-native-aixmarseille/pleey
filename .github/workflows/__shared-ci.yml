@@ -116,8 +116,8 @@ jobs:
           {
             "name": "backend-ci",
             "context": ".",
-            "dockerfile": "./application/api/Dockerfile",
-            "build-args": { "APP_PATH": "./application/api/" },
+            "dockerfile": "./apps/api/Dockerfile",
+            "build-args": { "APP_PATH": "./apps/api/" },
             "target": "ci",
             "platforms": ["linux/amd64"]
           }
@@ -147,9 +147,9 @@ jobs:
             "username": ${{ toJson(github.repository_owner) }}
           },
           "pathMapping": {
-            "/usr/src/app": "./application/api",
-            "src/": "./application/api/src/",
-            "scripts/": "./application/api/scripts/"
+            "/usr/src/app": "./apps/api",
+            "src/": "./apps/api/src/",
+            "scripts/": "./apps/api/scripts/"
           }
         }
       code-ql: typescript
@@ -176,8 +176,8 @@ jobs:
           {
             "name": "frontend-ci",
             "context": ".",
-            "dockerfile": "./application/web/Dockerfile",
-            "build-args": { "APP_PATH": "./application/web/" },
+            "dockerfile": "./apps/web/Dockerfile",
+            "build-args": { "APP_PATH": "./apps/web/" },
             "target": "ci",
             "platforms": ["linux/amd64"]
           }
@@ -207,9 +207,9 @@ jobs:
             "username": ${{ toJson(github.repository_owner) }}
           },
           "pathMapping": {
-            "/usr/src/app": "./application/web",
-            "src/": "./application/web/src/",
-            "scripts/": "./application/web/scripts/"
+            "/usr/src/app": "./apps/web",
+            "src/": "./apps/web/src/",
+            "scripts/": "./apps/web/scripts/"
           }
         }
       code-ql: typescript
@@ -238,8 +238,8 @@ jobs:
             "name": "backend",
             "tag": "${{ inputs.production-image-tag }}",
             "context": ".",
-            "dockerfile": "./application/api/Dockerfile",
-            "build-args": { "APP_PATH": "./application/api/" },
+            "dockerfile": "./apps/api/Dockerfile",
+            "build-args": { "APP_PATH": "./apps/api/" },
             "target": "prod",
             "platforms": ["linux/amd64"]
           }
@@ -268,8 +268,8 @@ jobs:
             "name": "frontend",
             "tag": "${{ inputs.production-image-tag }}",
             "context": ".",
-            "dockerfile": "./application/web/Dockerfile",
-            "build-args": { "APP_PATH": "./application/web/" },
+            "dockerfile": "./apps/web/Dockerfile",
+            "build-args": { "APP_PATH": "./apps/web/" },
             "target": "prod",
             "platforms": ["linux/amd64"]
           }

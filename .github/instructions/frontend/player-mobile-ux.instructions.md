@@ -1,7 +1,7 @@
 ---
 name: "Pleey Player Mobile UX Rules"
-description: "Use when working on Pleey player-facing presentation surfaces (party player screens, game-type player surfaces) under application/web."
-applyTo: "application/web/src/presentation/{**/player/**,**/*player*}.{ts,tsx}"
+description: "Use when working on Pleey player-facing presentation surfaces (party player screens, game-type player surfaces) under apps/web."
+applyTo: "apps/web/src/presentation/{**/player/**,**/*player*}.{ts,tsx}"
 ---
 
 # Pleey player mobile UX rules

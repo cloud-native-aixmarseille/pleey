@@ -1,4 +1,5 @@
 packages:
-  - "application/*"
+  - "apps/*"
+  - "packages/*"
   - "e2e"
   - ".github/actions/*"

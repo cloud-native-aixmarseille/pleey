@@ -82,7 +82,7 @@ export function validateGuide(guide, resources, readPage, anchorSource) {
 export function checkUserDocs(root = repositoryRoot) {
   const { guides, resources } = readUsageModel(root);
   if (new Set(guides.map((guide) => guide.id)).size !== guides.length) throw new Error("Duplicate guide id.");
-  const source = filesUnder(path.join(root, "application/web/src/presentation"))
+  const source = filesUnder(path.join(root, "apps/web/src/presentation"))
     .filter((file) => file.endsWith(".tsx") && !file.endsWith(".spec.tsx"))
     .map((file) => fs.readFileSync(file, "utf8"))
     .join("\n");

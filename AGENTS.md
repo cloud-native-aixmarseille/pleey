@@ -18,10 +18,10 @@ Read the docs **before** generating code. All architecture, coding standards, an
 
 Scoped instruction files are grouped by concern under `.github/instructions/` and add rules **not covered** by the docs above:
 
-- `.github/instructions/frontend/react.instructions.md` — frontend React and presentation-layer rules for `application/web/**`
-- `.github/instructions/frontend/accessibility.instructions.md` — frontend accessibility and WCAG-focused rules for `application/web/**`
-- `.github/instructions/frontend/player-mobile-ux.instructions.md` — player-facing mobile UX density and decluttering rules for player surfaces under `application/web/src/presentation/**`
-- `.github/instructions/backend/nestjs.instructions.md` — backend NestJS and transport-boundary rules for `application/api/**`
+- `.github/instructions/frontend/react.instructions.md` — frontend React and presentation-layer rules for `apps/web/**`
+- `.github/instructions/frontend/accessibility.instructions.md` — frontend accessibility and WCAG-focused rules for `apps/web/**`
+- `.github/instructions/frontend/player-mobile-ux.instructions.md` — player-facing mobile UX density and decluttering rules for player surfaces under `apps/web/src/presentation/**`
+- `.github/instructions/backend/nestjs.instructions.md` — backend NestJS and transport-boundary rules for `apps/api/**`
 - `.github/instructions/testing/unit-tests.instructions.md` — Vitest unit and integration test conventions for `application/**/*.spec|test.*`
 
 Review and generation instruction files are configured from `.vscode/settings.json` and are used for Copilot features that still support settings-based custom instructions:
