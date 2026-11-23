@@ -13,7 +13,7 @@
 ## Source baseline
 
 - Package: specification-inspected baseline `89eba30755f53aced04b596bc1531854a15bc1d5`
-- Implementation commit: `68569e871625f41bcc4996b0520f83c53ff6f5fa`
+- Implementation commit: `b03de2bd753fc7d800896c05ff35f616988e1720`
 - Candidate manifest: `artifacts/phase-01/release.json`
 
 ## Applied ADR
