@@ -36,7 +36,6 @@ RUN pnpm --filter @pleey/web build
 FROM nginx:1.31-alpine@sha256:713fc2ebfd92e8217db451477182ee91944b123d2b1ee9fd5a8c6e91ca6c3a11 AS prod
 
 LABEL org.opencontainers.image.source="https://github.com/cloud-native-aixmarseille/pleey"
-ENV API_UPSTREAM_HOST=api
 
 # Install security updates
 # hadolint ignore=DL3018
@@ -53,8 +52,8 @@ RUN rm -rf /usr/share/nginx/html/* && \
 # Copy built application from builder
 COPY --from=build /usr/src/repository/application/frontend/dist /usr/share/nginx/html
 
-# Copy custom Nginx configuration template
-COPY ./application/frontend/nginx.prod.conf /etc/nginx/templates/default.conf.template
+# Copy custom Nginx configuration
+COPY ./application/frontend/nginx.prod.conf /etc/nginx/conf.d/default.conf
 
 # Create non-root user for Nginx (high UID to satisfy security scanners)
 RUN set -eu; \
