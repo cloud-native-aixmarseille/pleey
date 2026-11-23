@@ -1,0 +1,40 @@
+import {
+  CURATED_THEME_IDS,
+  CURATED_THEME_PALETTES,
+  THEME_BORDER_KEYS,
+  THEME_FONT_FAMILIES,
+  THEME_MOTION_KEYS,
+  THEME_RADIUS_KEYS,
+  THEME_SPACING_KEYS,
+  THEME_SURFACE_KEYS,
+  THEME_TEXT_KEYS,
+  THEME_TYPOGRAPHY_KEYS,
+  type ThemeDocument,
+  ThemeDocumentNormalizerCore,
+  type ThemeOverrides,
+} from '@pleey/domain/theme';
+import { ThemeError, ThemeErrorCode } from '../errors/theme-error';
+
+export class ThemeDocumentNormalizer {
+  private readonly core = new ThemeDocumentNormalizerCore({
+    curatedThemeIds: CURATED_THEME_IDS,
+    curatedThemePalettes: CURATED_THEME_PALETTES,
+    keys: {
+      border: THEME_BORDER_KEYS,
+      fontFamilies: THEME_FONT_FAMILIES,
+      motion: THEME_MOTION_KEYS,
+      radius: THEME_RADIUS_KEYS,
+      spacing: THEME_SPACING_KEYS,
+      surface: THEME_SURFACE_KEYS,
+      text: THEME_TEXT_KEYS,
+      typography: THEME_TYPOGRAPHY_KEYS,
+    },
+    invalid: (field) => {
+      throw new ThemeError(ThemeErrorCode.INVALID_DOCUMENT, { field });
+    },
+  });
+
+  normalize(value: unknown): ThemeDocument {
+    return this.core.normalize(value) as ThemeDocument & { readonly overrides: ThemeOverrides };
+  }
+}

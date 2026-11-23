@@ -1,7 +1,0 @@
-import type { PartyActionId, PartyId, PartyPlayerIdentity } from '@pleey/contracts/party';
-
-export interface SubmitPartyActionDto {
-  readonly actionId: PartyActionId;
-  readonly partyId: PartyId;
-  readonly playerIdentity: PartyPlayerIdentity;
-}

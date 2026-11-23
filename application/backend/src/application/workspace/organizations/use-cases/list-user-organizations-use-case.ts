@@ -1,0 +1,61 @@
+import { Inject, Injectable } from '@nestjs/common';
+import type { PaginatedResult, PaginationQuery } from '@pleey/domain/shared/primitives';
+import type { UserId } from '../../../../domain/identity/entities/user';
+import type { OrganizationRepository } from '../../../../domain/organization/ports/organization.repository';
+import { OrganizationRepositoryProvider } from '../../../../domain/organization/ports/organization.repository';
+import type { OrganizationMemberRepository } from '../../../../domain/organization/ports/organization-member.repository';
+import { OrganizationMemberRepositoryProvider } from '../../../../domain/organization/ports/organization-member.repository';
+import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
+import type { OrganizationWithAccess } from '../dto/organization-access.dto';
+import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
+
+interface ListUserOrganizationsQuery extends PaginationQuery {}
+
+/**
+ * Use case for getting all organizations a user belongs to
+ */
+@Injectable()
+export class ListUserOrganizationsUseCase {
+  constructor(
+    @Inject(OrganizationRepositoryProvider)
+    private readonly organizationRepository: OrganizationRepository,
+    @Inject(OrganizationMemberRepositoryProvider)
+    private readonly memberRepository: OrganizationMemberRepository,
+    private readonly paginationQueryNormalizer: PaginationQueryNormalizer,
+    private readonly membershipAccess: OrganizationMembershipAccessService,
+  ) {}
+
+  async execute(input: ListUserOrganizationsQuery, userId: UserId): Promise<PaginatedResult<OrganizationWithAccess>> {
+    const pagination = this.paginationQueryNormalizer.normalizeQuery(input);
+    const memberships = await this.memberRepository.findPageByUser(
+      userId,
+      pagination.page,
+      pagination.pageSize,
+      pagination.search,
+    );
+
+    if (memberships.items.length === 0) {
+      return {
+        ...memberships,
+        items: [],
+      };
+    }
+
+    const organizationIds = memberships.items.map((membership) => membership.organizationId);
+    const organizations = await this.organizationRepository.findByIds(organizationIds);
+    const organizationsById = new Map(organizations.map((organization) => [organization.id, organization]));
+
+    return {
+      ...memberships,
+      items: memberships.items.flatMap((membership) => {
+        const organization = organizationsById.get(membership.organizationId);
+
+        if (!organization) {
+          return [];
+        }
+
+        return [this.membershipAccess.organizationAccess(organization, membership)];
+      }),
+    };
+  }
+}

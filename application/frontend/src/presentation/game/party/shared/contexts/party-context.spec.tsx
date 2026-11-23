@@ -1,0 +1,513 @@
+import type { PartyId } from '@pleey/domain/party';
+import { PartyStatus } from '@pleey/domain/party';
+import { act, renderHook } from '@testing-library/react';
+import type { PropsWithChildren } from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import type { PartyManagementPort } from '../../../../../domains/game/party/host/ports/party-management.port';
+import type { GuestUsernameGeneratorPort } from '../../../../../domains/game/party/player/ports/guest-username-generator.port';
+import type { PartyGuestSessionPort } from '../../../../../domains/game/party/player/ports/party-guest-session.port';
+import type { PartyPlayerPort } from '../../../../../domains/game/party/player/ports/party-player.port';
+import { PartyRuntimePhase } from '../../../../../domains/game/party/shared/entities/party-runtime-context';
+import type {
+  PartyObservationConnectionState,
+  PartyObservationHandlers,
+  PartyObservationPort,
+} from '../../../../../domains/game/party/shared/ports/party-observation.port';
+import { PartyRuntimeNoticeKind } from '../../../../../domains/game/party/shared/ports/party-observation.port';
+import { PartyFixtureFactory } from '../../../../../test-utils/fixtures/party-fixture-factory';
+import { PartyScoreboardFixtureFactory } from '../../../../../test-utils/fixtures/party-scoreboard-fixture-factory';
+import { PartyIdentifierMockFactory } from '../../../../../test-utils/mocks/party-identifier-mock-factory';
+import { PartyPinIdentifierMockFactory } from '../../../../../test-utils/mocks/party-pin-identifier-mock-factory';
+import { StageIdentifierMockFactory } from '../../../../../test-utils/mocks/stage-identifier-mock-factory';
+import { PlayerRuntimeNoticeMessageResolver } from '../../player/screens/components/player-runtime-notice-message-resolver';
+import { GuestPartyEntryDraftFactory } from '../../player/screens/guest-party-entry-draft-factory';
+import { PartyLobbyRuntimeRedirectResolver } from '../screens/party-lobby-runtime-redirect-resolver';
+import { usePartyStageScoreboardSnapshot } from '../screens/use-party-stage-scoreboard-snapshot';
+import { PartyProvider, useParty } from './party-context';
+import { type PartyDependencies, providePartyDependencies } from './party-dependencies-context';
+
+const partyIdentifier: PartyDependencies['partyIdentifier'] = new PartyIdentifierMockFactory().create();
+const partyPinIdentifier: PartyDependencies['partyPinIdentifier'] = new PartyPinIdentifierMockFactory().create();
+const stageIdentifier: PartyDependencies['stageIdentifier'] = new StageIdentifierMockFactory().create();
+const partyFixtureFactory = new PartyFixtureFactory();
+const guestUsernameGenerator: GuestUsernameGeneratorPort = {
+  generateGuestUsername: () => 'Bright Otter 0001',
+};
+const guestPartyEntryDraftFactory = new GuestPartyEntryDraftFactory(guestUsernameGenerator);
+const partyLobbyRuntimeRedirectResolver = new PartyLobbyRuntimeRedirectResolver();
+const playerRuntimeNoticeMessageResolver = new PlayerRuntimeNoticeMessageResolver();
+
+function parsePartyId(value: number): PartyId {
+  const partyId = partyIdentifier.parseOrNull(value);
+
+  if (partyId === null) {
+    throw new Error(`Expected a party id for ${value}`);
+  }
+
+  return partyId;
+}
+
+const partyManagementPort = {
+  createParty: vi.fn(),
+  listParties: vi.fn(),
+} as unknown as PartyManagementPort;
+const hostPartyRuntimeControlsResolver = {
+  resolveControls: vi.fn(),
+} as never;
+const partyLobbyFacade = {
+  recoverGuestParty: vi.fn(async () => undefined),
+  clearGuestId: vi.fn(),
+  executeHostRuntimeCommand: vi.fn(),
+  getGuestPin: vi.fn(() => null),
+  getGuestCredential: vi.fn(() => null),
+  getGuestId: vi.fn(() => null),
+  joinParty: vi.fn(),
+  leaveParty: vi.fn(),
+  listParties: vi.fn(),
+  rejoinParty: vi.fn(),
+  setGuestId: vi.fn(),
+  submitAction: vi.fn(),
+} as never;
+const partyHostControlPort = {
+  advanceStage: vi.fn(),
+  endParty: vi.fn(),
+  pauseParty: vi.fn(),
+  restartStage: vi.fn(),
+  resumeParty: vi.fn(),
+  revealStageResult: vi.fn(),
+  rewindParty: vi.fn(),
+  rewindStage: vi.fn(),
+  startParty: vi.fn(),
+} as never;
+const partyGuestSessionPort = {
+  clearGuestId: vi.fn(),
+  getGuestPin: vi.fn(() => null),
+  getGuestCredential: vi.fn(() => null),
+  getGuestId: vi.fn(() => null),
+  setGuestId: vi.fn(),
+} as PartyGuestSessionPort;
+const partyPlayerPort = {
+  joinParty: vi.fn(),
+  leaveParty: vi.fn(),
+  rejoinParty: vi.fn(),
+} as unknown as PartyPlayerPort;
+const partyObservationPort = {
+  observeParty: vi.fn(),
+} as unknown as PartyObservationPort;
+
+describe('PartyProvider', () => {
+  it('retains complete stage standings through reconnects and result consumer rerenders', () => {
+    // Arrange
+    const fixtures = new PartyScoreboardFixtureFactory();
+    const stage = fixtures.createObservation();
+    const result = fixtures.createObservation({
+      phase: PartyRuntimePhase.RESULT,
+      players: stage.players.map((player) => ({ ...player, totalScore: 900 })),
+    });
+    const callbacks: { handlers?: PartyObservationHandlers } = {};
+    const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
+      callbacks.handlers = handlers;
+      return vi.fn();
+    });
+    const wrapper = ({ children }: PropsWithChildren) =>
+      providePartyDependencies(<PartyProvider port={{ observeParty }}>{children}</PartyProvider>, {
+        guestPartyEntryDraftFactory,
+        hostPartyRuntimeControlsResolver,
+        partyLobbyFacade,
+        partyLobbyRuntimeRedirectResolver,
+        partyGuestSessionPort,
+        partyIdentifier,
+        partyHostControlPort,
+        partyManagementPort,
+        partyObservationPort,
+        partyPinIdentifier,
+        partyPlayerPort,
+        playerRuntimeNoticeMessageResolver,
+        privatePartyPasswordGeneratorPort: { generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234') },
+        stageIdentifier,
+      });
+    const rendered = renderHook(() => ({ party: useParty(), scoreboard: usePartyStageScoreboardSnapshot(result) }), {
+      wrapper,
+    });
+    // Act
+    act(() => {
+      rendered.result.current.party.observePartyById(stage.partyId);
+    });
+    act(() => {
+      callbacks.handlers?.onSnapshot(stage);
+    });
+    act(() => {
+      callbacks.handlers?.onSnapshot(result);
+    });
+    act(() => {
+      callbacks.handlers?.onDisconnected?.();
+    });
+    act(() => {
+      callbacks.handlers?.onConnected?.({ epoch: 2, recovered: true, reconnected: true });
+    });
+    act(() => {
+      callbacks.handlers?.onSnapshot(result);
+    });
+    rendered.rerender();
+    // Assert
+    expect(rendered.result.current.scoreboard.previousPlayers).toEqual(stage.players);
+    expect(rendered.result.current.scoreboard.players).toEqual(result.players);
+  });
+
+  it('shares one underlying observation per party id and updates state from snapshots', () => {
+    // Arrange
+    const observeParty = vi.fn((partyId: PartyId, handlers: PartyObservationHandlers) => {
+      observeParty.handlers = handlers;
+      observeParty.partyId = partyId;
+      return vi.fn();
+    }) as ((partyId: PartyId, handlers: PartyObservationHandlers) => () => void) & {
+      handlers?: PartyObservationHandlers;
+      partyId?: PartyId;
+    };
+    const wrapper = ({ children }: PropsWithChildren) =>
+      providePartyDependencies(
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
+        {
+          guestPartyEntryDraftFactory,
+          hostPartyRuntimeControlsResolver,
+          partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
+          partyGuestSessionPort,
+          partyIdentifier,
+          partyHostControlPort,
+          partyManagementPort,
+          partyObservationPort,
+          partyPinIdentifier,
+          partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
+          stageIdentifier,
+        },
+      );
+    const rendered = renderHook(
+      () => ({
+        first: useParty(),
+        second: useParty(),
+      }),
+      { wrapper },
+    );
+
+    let releaseFirst: () => void;
+    let releaseSecond: () => void;
+    const observedPartyId = parsePartyId(44);
+
+    // Act
+    act(() => {
+      releaseFirst = rendered.result.current.first.observePartyById(observedPartyId);
+      releaseSecond = rendered.result.current.second.observePartyById(observedPartyId);
+    });
+
+    // Assert
+    expect(observeParty).toHaveBeenCalledTimes(1);
+    expect(observeParty.partyId).toBe(observedPartyId);
+
+    act(() => {
+      observeParty.handlers?.onSnapshot(
+        partyFixtureFactory.createPartyObservation({
+          partyId: 44,
+          pin: '123456',
+          status: PartyStatus.ACTIVE,
+          players: [],
+        }),
+      );
+    });
+
+    expect(rendered.result.current.first.currentParty?.partyId).toBe(observedPartyId);
+    expect(rendered.result.current.second.currentParty?.partyId).toBe(observedPartyId);
+    expect(rendered.result.current.first.getPartyByPartyId(observedPartyId)?.status).toBe('ACTIVE');
+    expect(rendered.result.current.second.getPartyByPartyId(observedPartyId)?.status).toBe('ACTIVE');
+
+    act(() =>
+      observeParty.handlers?.onSnapshot(
+        partyFixtureFactory.createPartyObservation({
+          partyId: 44,
+          permissions: partyFixtureFactory.createAllowedHostPermissions(),
+        }),
+      ),
+    );
+    expect(rendered.result.current.first.currentParty?.permissions.startParty.allowed).toBe(true);
+    act(() => observeParty.handlers?.onDisconnected?.());
+    expect(rendered.result.current.first.currentParty?.permissions.startParty.allowed).toBe(false);
+
+    act(() => {
+      releaseFirst();
+      releaseSecond();
+    });
+
+    expect(rendered.result.current.first.currentParty).toBeNull();
+    // A callback already queued before unsubscribe must not restore a grant.
+    act(() =>
+      observeParty.handlers?.onSnapshot(
+        partyFixtureFactory.createPartyObservation({
+          partyId: 44,
+          permissions: partyFixtureFactory.createAllowedHostPermissions(),
+        }),
+      ),
+    );
+    expect(rendered.result.current.first.currentParty).toBeNull();
+  });
+
+  it('observes parties by party id for host lobby routes', () => {
+    // Arrange
+    const observeParty = vi.fn((partyId: PartyId, handlers: PartyObservationHandlers) => {
+      observeParty.handlers = handlers;
+      observeParty.partyId = partyId;
+      return vi.fn();
+    }) as ((partyId: PartyId, handlers: PartyObservationHandlers) => () => void) & {
+      handlers?: PartyObservationHandlers;
+      partyId?: PartyId;
+    };
+    const wrapper = ({ children }: PropsWithChildren) =>
+      providePartyDependencies(
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
+        {
+          guestPartyEntryDraftFactory,
+          hostPartyRuntimeControlsResolver,
+          partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
+          partyGuestSessionPort,
+          partyIdentifier,
+          partyHostControlPort,
+          partyManagementPort,
+          partyObservationPort,
+          partyPinIdentifier,
+          partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
+          stageIdentifier,
+        },
+      );
+    const rendered = renderHook(() => useParty(), { wrapper });
+    const observedPartyId = parsePartyId(44);
+
+    // Act
+    act(() => {
+      rendered.result.current.observePartyById(observedPartyId);
+    });
+
+    // Assert
+    expect(observeParty.partyId).toBe(observedPartyId);
+
+    act(() => {
+      observeParty.handlers?.onSnapshot(
+        partyFixtureFactory.createPartyObservation({
+          partyId: 44,
+          pin: '123456',
+          status: PartyStatus.WAITING,
+          players: [],
+        }),
+      );
+    });
+
+    expect(rendered.result.current.currentParty?.pin).toBe('123456');
+    expect(rendered.result.current.getPartyByPartyId(observedPartyId)?.pin).toBe('123456');
+  });
+
+  it('exposes observation errors by party id', () => {
+    // Arrange
+    const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
+      observeParty.handlers = handlers;
+      return vi.fn();
+    }) as ((partyId: PartyId, handlers: PartyObservationHandlers) => () => void) & {
+      handlers?: PartyObservationHandlers;
+    };
+    const wrapper = ({ children }: PropsWithChildren) =>
+      providePartyDependencies(
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
+        {
+          guestPartyEntryDraftFactory,
+          hostPartyRuntimeControlsResolver,
+          partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
+          partyGuestSessionPort,
+          partyIdentifier,
+          partyHostControlPort,
+          partyManagementPort,
+          partyObservationPort,
+          partyPinIdentifier,
+          partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
+          stageIdentifier,
+        },
+      );
+    const rendered = renderHook(() => useParty(), { wrapper });
+    const observedPartyId = parsePartyId(44);
+
+    // Act
+    act(() => {
+      rendered.result.current.observePartyById(observedPartyId);
+      observeParty.handlers?.onError?.('game.party.errors.observeFailed');
+    });
+
+    // Assert
+    expect(rendered.result.current.getErrorByPartyId(observedPartyId)).toBe('game.party.errors.observeFailed');
+  });
+
+  it('exposes runtime notices by party id', () => {
+    // Arrange
+    const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
+      observeParty.handlers = handlers;
+      return vi.fn();
+    }) as ((partyId: PartyId, handlers: PartyObservationHandlers) => () => void) & {
+      handlers?: PartyObservationHandlers;
+    };
+    const wrapper = ({ children }: PropsWithChildren) =>
+      providePartyDependencies(
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
+        {
+          guestPartyEntryDraftFactory,
+          hostPartyRuntimeControlsResolver,
+          partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
+          partyGuestSessionPort,
+          partyIdentifier,
+          partyHostControlPort,
+          partyManagementPort,
+          partyObservationPort,
+          partyPinIdentifier,
+          partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
+          stageIdentifier,
+        },
+      );
+    const rendered = renderHook(() => useParty(), { wrapper });
+    const observedPartyId = parsePartyId(44);
+
+    // Act
+    act(() => {
+      rendered.result.current.observePartyById(observedPartyId);
+      observeParty.handlers?.onRuntimeNotice?.({
+        kind: PartyRuntimeNoticeKind.RewindStage,
+        partyId: observedPartyId,
+      });
+    });
+
+    // Assert
+    expect(rendered.result.current.getRuntimeNoticeByPartyId(observedPartyId)).toEqual({
+      kind: PartyRuntimeNoticeKind.RewindStage,
+      partyId: observedPartyId,
+    });
+  });
+
+  it('exposes transport connection state by party id', () => {
+    // Arrange
+    const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
+      observeParty.handlers = handlers;
+      return vi.fn();
+    }) as ((partyId: PartyId, handlers: PartyObservationHandlers) => () => void) & {
+      handlers?: PartyObservationHandlers;
+    };
+    const wrapper = ({ children }: PropsWithChildren) =>
+      providePartyDependencies(
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
+        {
+          guestPartyEntryDraftFactory,
+          hostPartyRuntimeControlsResolver,
+          partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
+          partyGuestSessionPort,
+          partyIdentifier,
+          partyHostControlPort,
+          partyManagementPort,
+          partyObservationPort,
+          partyPinIdentifier,
+          partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
+          stageIdentifier,
+        },
+      );
+    const rendered = renderHook(() => useParty(), { wrapper });
+    const observedPartyId = parsePartyId(44);
+    const connectionState: PartyObservationConnectionState = {
+      epoch: 7,
+      recovered: false,
+      reconnected: true,
+    };
+
+    // Act
+    act(() => {
+      rendered.result.current.observePartyById(observedPartyId);
+      observeParty.handlers?.onConnected?.(connectionState);
+    });
+
+    // Assert
+    expect(rendered.result.current.getConnectionStateByPartyId(observedPartyId)).toEqual(connectionState);
+  });
+
+  it('consumes a runtime notice after it has been handled', () => {
+    // Arrange
+    const observeParty = vi.fn((_: PartyId, handlers: PartyObservationHandlers) => {
+      observeParty.handlers = handlers;
+      return vi.fn();
+    }) as ((partyId: PartyId, handlers: PartyObservationHandlers) => () => void) & {
+      handlers?: PartyObservationHandlers;
+    };
+    const wrapper = ({ children }: PropsWithChildren) =>
+      providePartyDependencies(
+        <PartyProvider port={{ observeParty } satisfies PartyObservationPort}>{children}</PartyProvider>,
+        {
+          guestPartyEntryDraftFactory,
+          hostPartyRuntimeControlsResolver,
+          partyLobbyFacade,
+          partyLobbyRuntimeRedirectResolver,
+          partyGuestSessionPort,
+          partyIdentifier,
+          partyHostControlPort,
+          partyManagementPort,
+          partyObservationPort,
+          partyPinIdentifier,
+          partyPlayerPort,
+          playerRuntimeNoticeMessageResolver,
+          privatePartyPasswordGeneratorPort: {
+            generatePrivatePartyPassword: vi.fn(() => 'TestPassword1234'),
+          },
+          stageIdentifier,
+        },
+      );
+    const rendered = renderHook(() => useParty(), { wrapper });
+    const observedPartyId = parsePartyId(44);
+
+    act(() => {
+      rendered.result.current.observePartyById(observedPartyId);
+      observeParty.handlers?.onRuntimeNotice?.({
+        kind: PartyRuntimeNoticeKind.RewindStage,
+        partyId: observedPartyId,
+      });
+    });
+
+    // Act
+    const runtimeNotice = rendered.result.current.getRuntimeNoticeByPartyId(observedPartyId);
+
+    // Assert
+    expect(runtimeNotice).toEqual({
+      kind: PartyRuntimeNoticeKind.RewindStage,
+      partyId: observedPartyId,
+    });
+
+    act(() => {
+      if (runtimeNotice !== null) {
+        rendered.result.current.consumeRuntimeNotice(runtimeNotice);
+      }
+    });
+
+    expect(rendered.result.current.getRuntimeNoticeByPartyId(observedPartyId)).toBeNull();
+  });
+});

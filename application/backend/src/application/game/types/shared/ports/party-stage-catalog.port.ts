@@ -1,0 +1,61 @@
+import type { GameId } from '@pleey/domain/game';
+import type { PartyActionId, PartyId, PartySettings, PartyStageId } from '@pleey/domain/party';
+
+interface PartyStageActionCatalogEntry {
+  readonly booleanValue?: boolean;
+  readonly id: PartyActionId;
+  readonly isCorrect: boolean;
+  readonly text: string;
+}
+
+interface PartyStageMediaCatalogEntry {
+  readonly id?: string;
+  readonly mimeType: string;
+  readonly uri: string;
+}
+
+export interface PartyStageCatalogEntry {
+  readonly actions: readonly PartyStageActionCatalogEntry[];
+  readonly preserveActionOrder?: boolean;
+  readonly id: PartyStageId;
+  readonly media?: PartyStageMediaCatalogEntry | null;
+  readonly points: number;
+  readonly stagePosition: number;
+  readonly timeLimitSeconds: number;
+  readonly text: string;
+}
+
+export interface PartyStageCatalogQueryOptions {
+  readonly partyId?: PartyId;
+  readonly settings?: PartySettings;
+}
+
+export abstract class PartyStageCatalogPort {
+  abstract findStageById(
+    gameId: GameId,
+    stageId: PartyStageId,
+    options?: PartyStageCatalogQueryOptions,
+  ): Promise<PartyStageCatalogEntry | null>;
+
+  abstract findFirstStage(
+    gameId: GameId,
+    options?: PartyStageCatalogQueryOptions,
+  ): Promise<PartyStageCatalogEntry | null>;
+
+  abstract findNextStage(
+    gameId: GameId,
+    currentStageId: PartyStageId,
+    options?: PartyStageCatalogQueryOptions,
+  ): Promise<PartyStageCatalogEntry | null>;
+
+  abstract findPreviousStage(
+    gameId: GameId,
+    currentStageId: PartyStageId,
+    options?: PartyStageCatalogQueryOptions,
+  ): Promise<PartyStageCatalogEntry | null>;
+
+  abstract listStages(
+    gameId: GameId,
+    options?: PartyStageCatalogQueryOptions,
+  ): Promise<readonly PartyStageCatalogEntry[]>;
+}

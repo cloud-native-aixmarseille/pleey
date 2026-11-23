@@ -9,7 +9,7 @@
 ## Context
 
 Pleey has two runtime applications with separate npm manifests, lockfiles, and
-container images: `apps/api` and `apps/web`. There is no
+container images: `application/backend` and `application/frontend`. There is no
 root npm workspace. [ADR 0002][architecture] requires dependency direction and
 feature ownership; it does not require duplicate domain definitions in each app.
 
@@ -40,7 +40,7 @@ version pairs.
 ### Source audit
 
 The audit on 2026-11-05 covered all 279 non-test TypeScript files under
-`apps/api/src/domain` and `apps/web/src/domains` at
+`application/backend/src/domain` and `application/frontend/src/domains` at
 `aa7d922386c5b707d19bf5bc8da9715c4f4066f1`. Selected consumers in application,
 infrastructure, and presentation layers were inspected to establish reuse.
 The findings informed the accepted scope; they do not establish compatibility or
@@ -164,8 +164,8 @@ before implementation.
 
 ### Package shape
 
-The package is the private repository package `@pleey/contracts` under
-`packages/contracts`. It must:
+The package is the private repository package `@pleey/domain` under
+`application/shared`. It must:
 
 - expose feature subpaths or narrow entry points instead of requiring one catch-all
   barrel import;
@@ -433,7 +433,7 @@ The acceptance test must demonstrate:
 
 The implementation started with
 `d3d777fb3cf77696fd35658844e28595428b029b` on 2026-11-18. It established the
-private `@pleey/contracts` package, integrated both applications and their container
+private `@pleey/domain` package, integrated both applications and their container
 builds, then extracted and verified the accepted scope through [PR #537][implementation-pr].
 Implementation review completed on 2026-11-19; the PR remains open only for
 merge.
@@ -466,22 +466,22 @@ workflow updates remain tracked as P8 and do not change the accepted decision.
 [themes]: ./0012-manage-themes-as-data-driven-token-themes.md
 [transports]: ./0004-use-graphql-for-primary-api-and-socketio-for-realtime.md
 [imports]: ./0016-accept-localized-true-false-import-values.md
-[codegen]: ../../../../apps/web/codegen.ts
-[backend-normalizer]: ../../../../apps/api/src/domain/theme/services/theme-document-normalizer.ts
-[frontend-normalizer]: ../../../../apps/web/src/domains/theme/services/theme-document-normalizer.ts
-[backend-events]: ../../../../apps/api/src/presentation/game/party/realtime/party-socket-events.ts
-[frontend-events]: ../../../../apps/web/src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts
+[codegen]: ../../../../application/frontend/codegen.ts
+[backend-normalizer]: ../../../../application/backend/src/domain/theme/services/theme-document-normalizer.ts
+[frontend-normalizer]: ../../../../application/frontend/src/domains/theme/services/theme-document-normalizer.ts
+[backend-events]: ../../../../application/backend/src/presentation/game/party/realtime/party-socket-events.ts
+[frontend-events]: ../../../../application/frontend/src/infrastructure/game/party/shared/socket-io-party-realtime.types.ts
 [template-test]: ../../../../scripts/quiz-import-templates.spec.ts
-[option-policy]: ../../../../apps/api/src/domain/game/types/shared/services/selectable-option-policy.ts
-[media-policy]: ../../../../apps/api/src/domain/game/types/quiz/services/quiz-question-media-policy.ts
-[frontend-media-policy]: ../../../../apps/web/src/presentation/game/types/shared/management/playable-media-upload-policy.ts
-[settings]: ../../../../apps/api/src/domain/game/party/shared/services/party-settings-resolver.ts
-[password-policy]: ../../../../apps/api/src/domain/identity/services/password-service.ts
-[backend-error]: ../../../../apps/api/src/domain/shared/errors/domain-error.ts
+[option-policy]: ../../../../application/backend/src/domain/game/types/shared/services/selectable-option-policy.ts
+[media-policy]: ../../../../application/backend/src/domain/game/types/quiz/services/quiz-question-media-policy.ts
+[frontend-media-policy]: ../../../../application/frontend/src/presentation/game/types/shared/management/playable-media-upload-policy.ts
+[settings]: ../../../../application/backend/src/domain/game/party/shared/services/party-settings-resolver.ts
+[password-policy]: ../../../../application/backend/src/domain/identity/services/password-service.ts
+[backend-error]: ../../../../application/backend/src/domain/shared/errors/domain-error.ts
 [implementation-plan]: ../../plans/0022-evaluate-a-shared-frontend-backend-library.md
 [implementation-pr]: https://github.com/cloud-native-aixmarseille/pleey/pull/537
-[frontend-error]: ../../../../apps/web/src/domains/shared/errors/domain-error.ts
+[frontend-error]: ../../../../application/frontend/src/domains/shared/errors/domain-error.ts
 [translation-sharing]: ./0025-share-business-error-translations.md
-[backend-context]: ../../../../apps/api/src/domain/game/party/shared/entities/party-runtime-context.ts
-[frontend-context]: ../../../../apps/web/src/domains/game/party/shared/entities/party-runtime-context.ts
-[projector]: ../../../../apps/api/src/domain/game/party/shared/services/party-runtime-context-projection.service.ts
+[backend-context]: ../../../../application/backend/src/domain/game/party/shared/entities/party-runtime-context.ts
+[frontend-context]: ../../../../application/frontend/src/domains/game/party/shared/entities/party-runtime-context.ts
+[projector]: ../../../../application/backend/src/domain/game/party/shared/services/party-runtime-context-projection.service.ts

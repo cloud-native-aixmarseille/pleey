@@ -20,15 +20,15 @@ services:
       - sh
       - -c
       - |
-        pnpm db:generate && pnpm db:migrate && pnpm seed &&
-        pnpm exec tsc -p tsconfig.build.json --outDir /usr/src/repository/.cache/usage-docs/backend --incremental false &&
+        npm run db:generate && npx prisma db push && npm run seed &&
+        npx tsc -p tsconfig.build.json --outDir /usr/src/repository/.cache/usage-docs/backend --incremental false &&
         cp -r src/i18n /usr/src/repository/.cache/usage-docs/backend/i18n &&
-        ln -sfn ../../../apps/api/node_modules /usr/src/repository/.cache/usage-docs/backend/node_modules &&
+        ln -sfn ../../../application/backend/node_modules /usr/src/repository/.cache/usage-docs/backend/node_modules &&
         node /usr/src/repository/.cache/usage-docs/backend/app/main.js
     labels:
       traefik.enable: "false"
   frontend:
-    image: "${USAGE_FRONTEND_IMAGE:-@pleey/web}"
+    image: "${USAGE_FRONTEND_IMAGE:-pleey-frontend}"
     user: "${USAGE_UID:-1000}:${USAGE_GID:-1000}"
     restart: "no"
     environment:

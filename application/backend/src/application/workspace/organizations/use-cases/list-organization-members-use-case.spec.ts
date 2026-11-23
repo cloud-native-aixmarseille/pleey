@@ -1,0 +1,155 @@
+import { OrganizationRole } from '@pleey/domain/organization';
+import { OrganizationErrorCode } from '../../../../domain/organization/enums/organization-error-code.enum';
+import { OrganizationMembershipPolicy } from '../../../../domain/organization/services/organization-membership-policy';
+import { backendTestIdentifiers } from '../../../../test-utils/branded-identifiers';
+import { createOrganizationMemberFixture } from '../../../../test-utils/fixtures/unit/organization-member.fixture';
+import {
+  createOrganizationMemberRepositoryMock,
+  createOrganizationRepositoryMock,
+} from '../../../../test-utils/mock-factories/organization.mock-factory';
+import { PaginationQueryNormalizer } from '../../../shared/services/pagination-query-normalizer';
+import { OrganizationMembershipAccessService } from '../services/organization-membership-access.service';
+import { ListOrganizationMembersUseCase } from './list-organization-members-use-case';
+
+const membershipPolicy = new OrganizationMembershipPolicy();
+const paginationQueryNormalizer = new PaginationQueryNormalizer();
+const organizationId = backendTestIdentifiers.organization(1);
+const requesterUserId = backendTestIdentifiers.user(10);
+
+describe('ListOrganizationMembersUseCase', () => {
+  it('throws when organization does not exist', async () => {
+    // Arrange
+    const organizationRepository = createOrganizationRepositoryMock({ findById: null });
+    const memberRepository = createOrganizationMemberRepositoryMock();
+    const organizationMembershipAccess = new OrganizationMembershipAccessService(
+      organizationRepository as never,
+      memberRepository as never,
+      membershipPolicy,
+    );
+    const useCase = new ListOrganizationMembersUseCase(
+      organizationMembershipAccess,
+      memberRepository as never,
+      paginationQueryNormalizer,
+    );
+
+    // Act + Assert
+    await expect(useCase.execute({ organizationId }, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.ORGANIZATION_NOT_FOUND,
+    );
+  });
+
+  it('throws when requesting user is not a member', async () => {
+    // Arrange
+    const organizationRepository = createOrganizationRepositoryMock({
+      findById: { id: organizationId } as never,
+    });
+    const memberRepository = createOrganizationMemberRepositoryMock({
+      findByOrganizationAndUser: null,
+    });
+    const organizationMembershipAccess = new OrganizationMembershipAccessService(
+      organizationRepository as never,
+      memberRepository as never,
+      membershipPolicy,
+    );
+    const useCase = new ListOrganizationMembersUseCase(
+      organizationMembershipAccess,
+      memberRepository as never,
+      paginationQueryNormalizer,
+    );
+
+    // Act + Assert
+    await expect(useCase.execute({ organizationId }, requesterUserId)).rejects.toThrow(
+      OrganizationErrorCode.ORGANIZATION_NOT_FOUND,
+    );
+  });
+
+  it('returns organization members when requester belongs to the organization', async () => {
+    // Arrange
+    const organizationRepository = createOrganizationRepositoryMock({
+      findById: { id: organizationId } as never,
+    });
+    const members = [
+      createOrganizationMemberFixture({
+        id: backendTestIdentifiers.organizationMember(4),
+        organizationId,
+        role: OrganizationRole.OWNER,
+        userId: requesterUserId,
+      }),
+      createOrganizationMemberFixture({
+        id: backendTestIdentifiers.organizationMember(5),
+        organizationId,
+        role: OrganizationRole.MEMBER,
+        userId: backendTestIdentifiers.user(11),
+      }),
+    ] as never;
+    const page = {
+      items: members,
+      totalCount: 2,
+      overallCount: 2,
+      page: 1,
+      pageSize: 9,
+      totalPages: 1,
+    } as const;
+    const memberRepository = createOrganizationMemberRepositoryMock({
+      findByOrganizationAndUser: createOrganizationMemberFixture({ id: backendTestIdentifiers.organizationMember(4) }),
+      findPageByOrganization: page as never,
+    });
+    const organizationMembershipAccess = new OrganizationMembershipAccessService(
+      organizationRepository as never,
+      memberRepository as never,
+      membershipPolicy,
+    );
+    const useCase = new ListOrganizationMembersUseCase(
+      organizationMembershipAccess,
+      memberRepository as never,
+      paginationQueryNormalizer,
+    );
+
+    // Act
+    const result = await useCase.execute({ organizationId }, requesterUserId);
+
+    // Assert
+    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 9, undefined);
+    expect(result).toEqual(page);
+  });
+
+  it('trims and forwards member search to the repository', async () => {
+    // Arrange
+    const organizationRepository = createOrganizationRepositoryMock({
+      findById: { id: organizationId } as never,
+    });
+    const memberRepository = createOrganizationMemberRepositoryMock({
+      findByOrganizationAndUser: createOrganizationMemberFixture({ id: backendTestIdentifiers.organizationMember(4) }),
+      findPageByOrganization: {
+        items: [],
+        totalCount: 0,
+        overallCount: 0,
+        page: 1,
+        pageSize: 9,
+        totalPages: 1,
+      } as never,
+    });
+    const organizationMembershipAccess = new OrganizationMembershipAccessService(
+      organizationRepository as never,
+      memberRepository as never,
+      membershipPolicy,
+    );
+    const useCase = new ListOrganizationMembersUseCase(
+      organizationMembershipAccess,
+      memberRepository as never,
+      paginationQueryNormalizer,
+    );
+
+    // Act
+    await useCase.execute(
+      {
+        organizationId,
+        search: '  captain  ',
+      },
+      requesterUserId,
+    );
+
+    // Assert
+    expect(memberRepository.findPageByOrganization).toHaveBeenCalledWith(organizationId, 1, 9, 'captain');
+  });
+});

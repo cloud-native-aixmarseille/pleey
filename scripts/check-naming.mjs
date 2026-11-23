@@ -125,12 +125,12 @@ const SHARED_PROJECT_CONFIG = {
 
 const PROJECT_DEFINITIONS = {
   frontend: {
-    directory: "apps/web",
+    directory: "application/frontend",
     roots: ["src", "test"],
     label: "Frontend",
   },
   backend: {
-    directory: "apps/api",
+    directory: "application/backend",
     roots: ["src", "test"],
     label: "Backend",
   },
