@@ -24,7 +24,8 @@ export function ReleaseCompatibilityBoundary({ children }: PropsWithChildren) {
       })
       .then((release) => {
         if (!active) return;
-        const supported = release.identityMajor === 1 && release.httpMajor === 1 && release.gameMajor === 1;
+        const supported =
+          release.identityMajor === 1 && release.httpMajor === 1 && release.gameMajor === 1;
         setState(supported ? 'supported' : 'update-required');
       })
       .catch(() => {
