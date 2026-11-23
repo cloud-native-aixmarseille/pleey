@@ -130,8 +130,11 @@ docker compose --env-file /dev/null build backend frontend
 The [backend](../../../application/backend/Dockerfile) and
 [frontend](../../../application/frontend/Dockerfile) use base-image tags pinned to
 multi-platform index digests. Keep the two Node references aligned when updating
-them. Weekly Docker [Dependabot checks](../../../.github/dependabot.yml) cover both
-files; review digest updates to receive base-image fixes. Validate updates with
+them, using the full Node version and distribution variant alongside the digest
+(`node:<major>.<minor>.<patch>-bookworm-slim@sha256:<digest>`). Verify that the
+version tag matches the pinned image. Weekly Docker
+[Dependabot checks](../../../.github/dependabot.yml) cover both files; review
+version and digest updates to receive base-image fixes. Validate updates with
 the application image builds, application checks and chart installation in CI.
 See [ADR 0023](../architecture/adr/0023-optimize-ci-execution-and-caching.md#p0-input-pinning-and-restarted-baseline-2026-11-05)
 for the decision and measurement constraints.
@@ -340,6 +343,13 @@ Repository enforcement:
 ```
 
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`
+
+The root [commitlint configuration](../../../.commitlintrc.json) extends
+`@commitlint/config-conventional` and is shared by commit-message and PR-title
+validation. Header, body and footer length limits are disabled to accommodate
+Dependabot's generated titles, dependency tables and metadata. The remaining
+Conventional Commits rules still apply to both contributors and bots. Keep
+handwritten subjects concise and specific.
 
 ```text
 feat(quiz): add timer pause functionality
