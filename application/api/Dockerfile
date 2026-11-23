@@ -18,17 +18,17 @@ FROM base AS build
 USER root
 WORKDIR /usr/src/repository
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY application/backend/package.json ./application/backend/package.json
-COPY application/frontend/package.json ./application/frontend/package.json
+COPY application/api/package.json ./application/api/package.json
+COPY application/web/package.json ./application/web/package.json
 COPY application/contracts/package.json ./application/contracts/package.json
 COPY e2e/package.json ./e2e/package.json
 COPY .github/actions/determine-pr-checks/package.json ./.github/actions/determine-pr-checks/package.json
 COPY application/contracts ./application/contracts
-COPY application/backend ./application/backend
+COPY application/api ./application/api
 
 RUN npm install --global pnpm@10.32.1 --ignore-scripts && pnpm install --frozen-lockfile
 RUN pnpm --filter @pleey/contracts build
-RUN cd application/backend && pnpm db:generate && pnpm build
+RUN cd application/api && pnpm db:generate && pnpm build
 
 FROM build AS build-prod
 
@@ -41,17 +41,17 @@ COPY --from=build-prod /usr/bin/dumb-init /usr/bin/dumb-init
 
 COPY --chown=node:node --from=build-prod /usr/src/repository/node_modules /usr/src/repository/node_modules
 COPY --chown=node:node --from=build-prod /usr/src/repository/application/contracts /usr/src/repository/application/contracts
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/backend/node_modules /usr/src/repository/application/backend/node_modules
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/backend/prisma /usr/src/repository/application/backend/prisma
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/backend/prisma.config.ts /usr/src/repository/application/backend/prisma.config.ts
-COPY --chown=node:node --from=build-prod /usr/src/repository/application/backend/dist /usr/src/repository/application/backend/dist
-COPY --chown=node:node ./application/backend/scripts/wait-for-database.mjs /usr/src/repository/application/backend/scripts/wait-for-database.mjs
+COPY --chown=node:node --from=build-prod /usr/src/repository/application/api/node_modules /usr/src/repository/application/api/node_modules
+COPY --chown=node:node --from=build-prod /usr/src/repository/application/api/prisma /usr/src/repository/application/api/prisma
+COPY --chown=node:node --from=build-prod /usr/src/repository/application/api/prisma.config.ts /usr/src/repository/application/api/prisma.config.ts
+COPY --chown=node:node --from=build-prod /usr/src/repository/application/api/dist /usr/src/repository/application/api/dist
+COPY --chown=node:node ./application/api/scripts/wait-for-database.mjs /usr/src/repository/application/api/scripts/wait-for-database.mjs
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD ["curl", "-fsS", "http://localhost:3001/ready"]
 
-WORKDIR /usr/src/repository/application/backend
-CMD ["dumb-init", "node", "--max-old-space-size=200", "/usr/src/repository/application/backend/dist/app/main.js"]
+WORKDIR /usr/src/repository/application/api
+CMD ["dumb-init", "node", "--max-old-space-size=200", "/usr/src/repository/application/api/dist/app/main.js"]
 
 FROM base AS tools
 
