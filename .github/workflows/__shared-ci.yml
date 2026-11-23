@@ -56,7 +56,7 @@ jobs:
         with:
           node-version: "26.13.1"
       - name: Enable pinned pnpm
-        run: npm install --global pnpm@10.32.1 --ignore-scripts  # zizmor: ignore[adhoc-packages]
+        run: npm install --global pnpm@10.32.1 --ignore-scripts # zizmor: ignore[adhoc-packages]
       - name: Install documentation and application dependencies
         run: pnpm install --frozen-lockfile
       - name: Install browser runtime dependencies
@@ -96,7 +96,7 @@ jobs:
         with:
           node-version: "26.13.1"
       - name: Install pinned pnpm
-        run: npm install --global pnpm@10.32.1 --ignore-scripts  # zizmor: ignore[adhoc-packages]
+        run: npm install --global pnpm@10.32.1 --ignore-scripts # zizmor: ignore[adhoc-packages]
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
       - name: Test CI routing
@@ -149,28 +149,13 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Lint and test backend
-        env:
-          BACKEND_CI_IMAGE: ${{ fromJSON(needs.build-backend-ci-image.outputs.built-images)['backend-ci'].images[0] }}
         run: |
           mkdir -p artifacts/backend
           docker run --rm \
             -v "$GITHUB_WORKSPACE/artifacts/backend:/artifacts" \
             -e CI=true \
-            "$BACKEND_CI_IMAGE" \
-            sh -lc '
-              set +e
-              cd /usr/src/app
-              pnpm --filter @pleey/api lint:ci
-              lint_status=$?
-              pnpm --filter @pleey/api test:ci
-              test_status=$?
-              cp -f application/backend/biome-report.sarif /artifacts/ 2>/dev/null || true
-              cp -f application/backend/junit.xml /artifacts/ 2>/dev/null || true
-              cp -rf application/backend/coverage /artifacts/coverage 2>/dev/null || true
-              if [ "$lint_status" -ne 0 ] || [ "$test_status" -ne 0 ]; then
-                exit 1
-              fi
-            '
+            ${{ fromJSON(needs.build-backend-ci-image.outputs.built-images)['backend-ci'].images[0] }} \
+            sh -lc 'cd /usr/src/app && pnpm --filter @pleey/api lint:ci && pnpm --filter @pleey/api test:ci; status=$?; cp -f application/backend/biome-report.sarif /artifacts/ 2>/dev/null || true; cp -f application/backend/junit.xml /artifacts/ 2>/dev/null || true; cp -rf application/backend/coverage /artifacts/coverage 2>/dev/null || true; exit $status'
 
   build-frontend-ci-image:
     name: Build frontend CI image
@@ -219,28 +204,13 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Lint and test frontend
-        env:
-          FRONTEND_CI_IMAGE: ${{ fromJSON(needs.build-frontend-ci-image.outputs.built-images)['frontend-ci'].images[0] }}
         run: |
           mkdir -p artifacts/frontend
           docker run --rm \
             -v "$GITHUB_WORKSPACE/artifacts/frontend:/artifacts" \
             -e CI=true \
-            "$FRONTEND_CI_IMAGE" \
-            sh -lc '
-              set +e
-              cd /usr/src/app
-              pnpm --filter @pleey/web lint:ci
-              lint_status=$?
-              pnpm --filter @pleey/web test:ci
-              test_status=$?
-              cp -f application/frontend/biome-report.sarif /artifacts/ 2>/dev/null || true
-              cp -f application/frontend/junit.xml /artifacts/ 2>/dev/null || true
-              cp -rf application/frontend/coverage /artifacts/coverage 2>/dev/null || true
-              if [ "$lint_status" -ne 0 ] || [ "$test_status" -ne 0 ]; then
-                exit 1
-              fi
-            '
+            ${{ fromJSON(needs.build-frontend-ci-image.outputs.built-images)['frontend-ci'].images[0] }} \
+            sh -lc 'cd /usr/src/app && pnpm --filter @pleey/web lint:ci && pnpm --filter @pleey/web test:ci; status=$?; cp -f application/frontend/biome-report.sarif /artifacts/ 2>/dev/null || true; cp -f application/frontend/junit.xml /artifacts/ 2>/dev/null || true; cp -rf application/frontend/coverage /artifacts/coverage 2>/dev/null || true; exit $status'
 
   build-backend-candidate:
     name: Build backend production candidate

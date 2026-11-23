@@ -51,7 +51,7 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           command:
             - node
-            - /usr/src/repository/application/backend/scripts/wait-for-database.mjs
+            - /usr/src/app/scripts/wait-for-database.mjs
           args:
             - --secret-file
             - {{ include "pleey.backend.databaseSecretFile" . | quote }}
@@ -78,7 +78,7 @@ spec:
               export JWT_SECRET="$(cat {{ include "pleey.backend.jwtSecretFile" . }})"
               export DATABASE_URL="$(cat {{ include "pleey.backend.databaseSecretFile" . }})"
               export VALKEY_URL="$(cat {{ include "pleey.backend.valkeySecretFile" . }})"
-              exec /usr/bin/dumb-init -- node --max-old-space-size=384 /usr/src/repository/application/backend/dist/app/main.js
+              exec /usr/bin/dumb-init -- node --max-old-space-size=384 /usr/src/app/dist/app/main.js
           envFrom:
             - configMapRef:
                 name: {{ include "pleey.backend.fullname" . }}
