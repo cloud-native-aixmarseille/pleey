@@ -56,5 +56,5 @@ jobs:
             docs/
             e2e/
             README.md
-          github-app-client-id: ${{ vars.CI_BOT_APP_ID }}
+          github-app-client-id: ${{ vars.CI_BOT_APP_CLIENT_ID }}
           github-app-key: ${{ secrets.CI_BOT_APP_PRIVATE_KEY }} # zizmor: ignore[secrets-outside-env] repository automation uses a dedicated app secret without untrusted code execution

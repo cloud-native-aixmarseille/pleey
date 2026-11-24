@@ -3311,3 +3311,14 @@ cause is unestablished and it does not justify changing layer-cache policy.
   under #475, with measurements and reviewable upstream proposals.
 - Document adopted inputs, scopes, DAG, routing and recovery in the
   [development guide](../../development/index.md) alongside implementation.
+
+### Helm documentation App configuration: 2026-11-24
+
+The November 17 P8 observation about both bot variables is historical. During
+investigation of [run 45345277033](https://github.com/cloud-native-aixmarseille/pleey/actions/runs/45345277033),
+repository variables no longer included `CI_BOT_APP_ID`; the organization exposed
+`CI_BOT_APP_CLIENT_ID` to all repositories. The empty client ID skipped App-token
+creation and documentation writes failed with the read-only workflow token.
+The Helm documentation caller now uses the organization client ID, matching the
+release caller. The private key and least-privilege workflow permissions stay in
+place. This supersedes P8's instruction to retain the two different caller names.
