@@ -48,7 +48,6 @@ Pleey frontend service subchart.
 | livenessProbe.initialDelaySeconds          | int    | `10`                                                                        |             |
 | livenessProbe.periodSeconds                | int    | `30`                                                                        |             |
 | livenessProbe.timeoutSeconds               | int    | `5`                                                                         |             |
-| nginx.apiUpstreamHost                      | string | `""`                                                                        |             |
 | nodeSelector                               | object | `{}`                                                                        |             |
 | podAnnotations                             | object | `{}`                                                                        |             |
 | podLabels                                  | object | `{}`                                                                        |             |
