@@ -158,8 +158,7 @@ jobs:
           changelog-summary: |
             {
               "llmAuth": ${{ toJSON(env.GEMINI_API_KEY) }},
-              "llmProvider": "google-genai",
-              "llmModel": "gemini-3.8-flash"
+              "llmProvider": "google-genai"
             }
           github-token: ${{ github.token }}
 
