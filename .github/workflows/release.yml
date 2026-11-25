@@ -149,17 +149,11 @@ jobs:
     steps:
       - id: create-release
         uses: hoverkraft-tech/ci-github-publish/actions/release/create@bf24f894f60a3def62a8750f3964d05acb052c11 # 3.1.2
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # zizmor: ignore[secrets-outside-env] Gemini credential is scoped to release summarization
         with:
           tag: ${{ needs.plan-release.outputs.tag }}
           target-ref: ${{ needs.prepare-release-files.outputs.release-sha }}
           publish: "false"
-          changelog-summary: |
-            {
-              "llmAuth": ${{ toJSON(env.GEMINI_API_KEY) }},
-              "llmProvider": "google-genai"
-            }
+          changelog-summary: ${{ secrets.CHANGELOG_SUMMARY }}
           github-token: ${{ github.token }}
 
   validate-release-chart:

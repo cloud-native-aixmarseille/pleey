@@ -244,9 +244,10 @@ The root and application Biome configurations use the installed CLI schema.
 
 ## Release Notes
 
-The [release workflow](../../../.github/workflows/release.yml) generates a Gemini
-summary followed by the complete changelog when it creates the draft release.
-The provider is configured in its `changelog-summary` input; the model is omitted so the action uses the maintained provider-aware default strategy.
+The [release workflow](../../../.github/workflows/release.yml) generates a summary
+followed by the complete changelog when it creates the draft release.
+The `CHANGELOG_SUMMARY` secret supplies the provider configuration and credentials.
+Omit the model from that configuration to use the maintained provider-aware default strategy.
 
 After preparing and committing release metadata and image defaults,
 `Validate final release chart` calls the shared Helm CI workflow to check out that
